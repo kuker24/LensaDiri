@@ -2,65 +2,49 @@
 
 ## Objective
 
-Implement Phase 1 trusted application foundation: internal authentication, DB boundary, CSRF, rate limiting, consent persistence, and tests.
+Phase 1 trusted application foundation: internal auth, PostgreSQL server boundary, database schema/RLS, CSRF, rate limit, consent persistence, and tests.
 
-## Scope
+## Environment evidence
 
-- Server-only PostgreSQL driver and lazy environment validation.
-- Typed repositories and auth, consent, and fixed-window rate-limit services.
-- `/api/auth/register`, `/api/auth/login`, `/api/auth/logout`, and `/api/auth/session`.
-- Unit tests plus real-PostgreSQL integration suite configuration.
+- Node.js: `v24.18.0`
+- npm: `11.16.0`
+- Supabase CLI: `2.109.1` through `npx supabase`
+- Docker Engine and Docker Compose: unavailable in current environment
+- Docker-backed command failure: daemon unavailable at `/var/run/docker.sock`
 
-## Skills Used
+This is environment evidence only. It does not establish permanent project capability or successful database runtime verification.
 
-- `fable-auto`
-- `senior-engineer-auto`
-- `astral-database-design`
-- `astral-full-security`
-- `astral-full-test`
-- `astral-lint-and-validate`
+## Implemented scope
 
-## Files Changed
+- `supabase/migrations/202607120001_phase_1_foundation.sql`: Phase 1 schema, forced RLS, no browser-role table grants, and constraints.
+- `supabase/tests/phase_1_rls.test.sql`: pgTAP RLS, privilege, schema, index, constraint, trigger, and foreign-key assertions.
+- `src/lib/db/**`, `src/server/**`, `src/app/api/auth/**`: server-only database access, internal auth, CSRF, rate limiting, audit, and consent services.
+- `tests/unit/**`, `tests/integration/**`: unit coverage and real-PostgreSQL integration configuration.
 
-- `package.json`, `package-lock.json`
-- `src/app/api/auth/**`
-- `src/lib/auth/**`, `src/lib/db/**`, `src/lib/security/{csrf,http,rate-limit}.ts`, `src/lib/validation/auth.ts`
-- `src/server/**`
-- `tests/unit/{auth,csrf,environment,rate-limit,request-validation}.test.ts`
-- `tests/integration/**`, `vitest.integration.config.ts`
+## Source checkpoint commands and results
 
-## Commands Run
+| Command                        | Result                                                                               |
+| ------------------------------ | ------------------------------------------------------------------------------------ |
+| `npm run lint`                 | PASS                                                                                 |
+| `npm run typecheck`            | PASS                                                                                 |
+| `npm test`                     | PASS: 7 files, 21 tests                                                              |
+| `npm run build`                | PASS without runtime secrets                                                         |
+| `npm audit --audit-level=high` | PASS: 0 vulnerabilities                                                              |
+| `npm run test:e2e`             | PASS: 4 Chromium/mobile public smoke tests                                           |
+| Changed-file Prettier check    | PASS                                                                                 |
+| `git diff --check`             | PASS                                                                                 |
+| `npm run format:check`         | FAIL: pre-existing formatting outside Phase 1 scope in public pages, styles, and PRD |
 
-- `npm install postgres argon2 server-only`
-- `npm run lint`
-- `npm run typecheck`
-- `npm test`
-- `npm run build`
-- `npm audit --audit-level=high`
-- `npm run test:e2e`
-- `npm run test:integration`
-- `npm run db:reset`
-- `git diff --check`
+## Database verification status
 
-## Results
+| Command                    | Status  | Reason                                                                |
+| -------------------------- | ------- | --------------------------------------------------------------------- |
+| `npm run db:reset`         | BLOCKED | Docker daemon unavailable; local Supabase cannot start.               |
+| `npm run test:db`          | BLOCKED | No local Docker-backed PostgreSQL/Supabase instance.                  |
+| `npm run test:integration` | BLOCKED | `TEST_DATABASE_URL` intentionally required; no local test DB started. |
 
-- Lint: PASS.
-- Typecheck: PASS.
-- Unit test: PASS, 7 files and 21 tests.
-- Build without runtime secrets: PASS.
-- Audit: PASS, 0 vulnerabilities.
-- E2E: PASS after installing required local Chromium; 4 Chromium/mobile smoke tests passed.
-- Changed-file Prettier check: PASS.
-- Full `npm run format:check`: FAIL on pre-existing formatting in public pages, styles, and PRD. Changed files are formatted.
-- `git diff --check`: PASS.
+After Docker and local Supabase are available, run `npm run db:start`, `npm run db:reset`, set local disposable `TEST_DATABASE_URL`, then run `npm run test:integration` and `npm run test:db`.
 
-## Verification Status
+## Documentation status
 
-- Database integration tests: BLOCKED. `TEST_DATABASE_URL` intentionally required; no local database started.
-- Supabase reset: BLOCKED. Docker daemon unavailable: `Cannot connect to the Docker daemon at unix:///var/run/docker.sock`.
-- pgTAP RLS test: BLOCKED. `npx supabase test db` cannot connect to local PostgreSQL because no Docker-backed Supabase database is running.
-
-## Remaining Risks
-
-- Apply migration and run `npm run test:db` plus `TEST_DATABASE_URL=<local trusted URL> npm run test:integration` after Docker/Supabase local environment is available.
-- Full repository Prettier baseline remains nonconformant outside Phase 1 scope.
+Phase 1 security, QA, MCP, environment template, setup, and DOX maps document current implementation and blocked DB gates. No credential, token, raw answer, or private result value is recorded here.

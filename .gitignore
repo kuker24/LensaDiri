@@ -18,6 +18,11 @@
 .env.*
 !.env.example
 
+# local MCP configuration may reference development credentials or paths
+.mcp.json
+.mcp.*.json
+!.mcp.example.json
+
 # Vercel
 .vercel
 
