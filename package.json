@@ -17,13 +17,20 @@
     "format:check": "prettier --check .",
     "test": "vitest run",
     "test:watch": "vitest",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:db": "npx supabase test db",
+    "db:start": "npx supabase start",
+    "db:reset": "npx supabase db reset",
     "test:e2e": "playwright test",
     "check": "npm run lint && npm run typecheck && npm run test && npm run build"
   },
   "dependencies": {
+    "argon2": "^0.44.0",
     "next": "16.2.10",
+    "postgres": "^3.4.9",
     "react": "19.2.7",
     "react-dom": "19.2.7",
+    "server-only": "^0.0.1",
     "zod": "^4.0.0"
   },
   "devDependencies": {
