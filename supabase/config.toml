@@ -18,7 +18,7 @@ schema_paths = []
 
 [db.seed]
 enabled = true
-sql_paths = []
+sql_paths = ["./seed/20260713_mvp_item_bank.sql"]
 
 # LensaDiri uses internal, server-side authentication. Supabase Auth is not an
 # application trust boundary and remains disabled for local development.

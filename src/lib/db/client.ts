@@ -20,9 +20,11 @@ export function getDatabase(): Sql {
 
   const environment = getServerEnvironment();
   const client = postgres(environment.databaseUrl, {
+    connect_timeout: 10,
     idle_timeout: 20,
-    max: 10,
-    prepare: true,
+    max: environment.isProduction ? 1 : 10,
+    // Supabase transaction pooler does not support named prepared statements.
+    prepare: false,
     ssl:
       environment.isProduction && !isLocalDatabaseUrl(environment.databaseUrl) ? "require" : false,
   });
