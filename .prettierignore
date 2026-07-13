@@ -4,3 +4,6 @@ coverage
 playwright-report
 test-results
 package-lock.json
+
+# Canonical long-form product contract is maintained manually to keep stable diffs.
+docs/product/PRD_FULL_LensaDiri.md
