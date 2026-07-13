@@ -38,6 +38,20 @@ export async function createAccount(input: {
   });
 }
 
+function toAuthenticationRecord(account: {
+  id: string;
+  password_hash: string;
+  role: AccountRole;
+  status: AccountStatus;
+}): AccountAuthenticationRecord {
+  return {
+    id: account.id,
+    passwordHash: account.password_hash,
+    role: account.role,
+    status: account.status,
+  };
+}
+
 export async function findAccountForAuthentication(
   emailNormalized: string,
 ): Promise<AccountAuthenticationRecord | null> {
@@ -58,13 +72,41 @@ export async function findAccountForAuthentication(
       limit 1
     `;
 
-    return account
-      ? {
-          id: account.id,
-          passwordHash: account.password_hash,
-          role: account.role,
-          status: account.status,
-        }
-      : null;
+    return account ? toAuthenticationRecord(account) : null;
+  });
+}
+
+export async function findAccountByIdForAuthentication(
+  accountId: string,
+): Promise<AccountAuthenticationRecord | null> {
+  return runDatabaseOperation(async () => {
+    const sql = getDatabase();
+    const [account] = await sql<
+      {
+        id: string;
+        password_hash: string;
+        role: AccountRole;
+        status: AccountStatus;
+      }[]
+    >`
+      select id, password_hash, role, status
+      from public.accounts
+      where id = ${accountId}
+        and deleted_at is null
+      limit 1
+    `;
+
+    return account ? toAuthenticationRecord(account) : null;
+  });
+}
+
+export async function hardDeleteAccountBySessionHash(sessionTokenHash: string): Promise<boolean> {
+  return runDatabaseOperation(async () => {
+    const sql = getDatabase();
+    const [result] = await sql<{ deleted: boolean }[]>`
+      select public.hard_delete_account_by_session(${sessionTokenHash}) as deleted
+    `;
+
+    return result?.deleted === true;
   });
 }

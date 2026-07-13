@@ -1,6 +1,6 @@
 begin;
 
-select plan(89);
+select plan(92);
 
 -- Tables created by Phase 1 migration.
 select ok(to_regclass('public.accounts') is not null, 'accounts table exists');
@@ -101,6 +101,11 @@ select ok(exists (select 1 from pg_constraint where conname = 'audit_logs_action
 select ok(exists (select 1 from pg_constraint where conname = 'audit_logs_entity_type_not_blank'), 'audit logs constrain entity type');
 select ok(exists (select 1 from pg_constraint where conname = 'audit_logs_metadata_object'), 'audit logs require object metadata');
 select ok(exists (select 1 from pg_trigger where tgrelid = 'public.audit_logs'::regclass and tgname = 'audit_logs_append_only' and not tgisinternal), 'audit logs reject updates and deletes');
+
+-- Account erasure function exists only for trusted server use.
+select ok(to_regprocedure('public.hard_delete_account_by_session(text)') is not null, 'account hard-delete function exists');
+select ok(not has_function_privilege('anon', 'public.hard_delete_account_by_session(text)', 'EXECUTE'), 'anon cannot execute account hard-delete');
+select ok(not has_function_privilege('authenticated', 'public.hard_delete_account_by_session(text)', 'EXECUTE'), 'authenticated cannot execute account hard-delete');
 
 -- FK delete behavior remains explicit for account-owned records and audit retention.
 select ok(exists (select 1 from pg_constraint where conrelid = 'public.account_sessions'::regclass and conname = 'account_sessions_account_id_fkey' and confdeltype = 'c'), 'sessions cascade on account hard delete');

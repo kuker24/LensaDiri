@@ -7,7 +7,9 @@ import { hashOpaqueToken, generateOpaqueToken } from "@/lib/security/tokens";
 import { createAuditLog } from "@/server/repositories/audit-logs";
 import {
   createAccount,
+  findAccountByIdForAuthentication,
   findAccountForAuthentication,
+  hardDeleteAccountBySessionHash,
   type AccountAuthenticationRecord,
 } from "@/server/repositories/accounts";
 import {
@@ -27,6 +29,8 @@ export type CreatedSession = {
   expiresAt: Date;
   token: string;
 };
+
+export type DeleteAccountResult = "deleted" | "invalid_credentials" | "invalid_session";
 
 function hashFingerprint(value: string, authSessionSecret: string): string | null {
   return value ? hashOpaqueToken(value, authSessionSecret) : null;
@@ -163,6 +167,30 @@ export async function logoutAccount(
       metadata: { outcome: "revoked" },
     });
   }
+}
+
+export async function deleteAccount(input: {
+  password: string;
+  sessionToken: string;
+  tokenHashPepper: string;
+}): Promise<DeleteAccountResult> {
+  const sessionHash = toSessionHash(input.sessionToken, input.tokenHashPepper);
+  const session = await findSessionByTokenHash(sessionHash);
+  if (!session || session.revokedAt !== null || session.expiresAt <= new Date()) {
+    await verifyDummyPassword(input.password);
+    return "invalid_session";
+  }
+
+  const account = await findAccountByIdForAuthentication(session.accountId);
+  if (
+    !account ||
+    account.status !== "active" ||
+    !(await verifyPassword(account.passwordHash, input.password))
+  ) {
+    return "invalid_credentials";
+  }
+
+  return (await hardDeleteAccountBySessionHash(sessionHash)) ? "deleted" : "invalid_session";
 }
 
 export function isActiveAccount(account: AccountAuthenticationRecord | null): boolean {

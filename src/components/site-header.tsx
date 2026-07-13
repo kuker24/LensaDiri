@@ -21,17 +21,29 @@ export function SiteHeader() {
         </Link>
         <nav aria-label="Navigasi utama" className="hidden items-center gap-6 text-sm md:flex">
           {navigation.map((item) => (
-            <Link className="focus-ring rounded-md text-[var(--muted)] hover:text-[var(--foreground)]" href={item.href} key={item.href}>
+            <Link
+              className="focus-ring rounded-md text-[var(--muted)] hover:text-[var(--foreground)]"
+              href={item.href}
+              key={item.href}
+            >
               {item.label}
             </Link>
           ))}
         </nav>
-        <Link
-          className="focus-ring rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700"
-          href="/start"
-        >
-          Mulai
-        </Link>
+        <div className="flex items-center gap-2">
+          <Link
+            className="focus-ring rounded-xl px-3 py-2.5 text-sm font-semibold text-[var(--muted)] transition hover:text-violet-700"
+            href="/login"
+          >
+            Masuk
+          </Link>
+          <Link
+            className="focus-ring rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700"
+            href="/start"
+          >
+            Mulai
+          </Link>
+        </div>
       </div>
     </header>
   );

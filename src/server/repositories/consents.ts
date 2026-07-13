@@ -24,7 +24,6 @@ export async function createConsentRecord(input: {
 }): Promise<{ id: string }> {
   return runDatabaseOperation(async () => {
     const sql = getDatabase();
-    const decisionAt = new Date();
     const [consent] = await sql<{ id: string }[]>`
       insert into public.consents (
         account_id,
@@ -39,8 +38,8 @@ export async function createConsentRecord(input: {
         ${input.subject.sessionId ?? null},
         ${input.consentType},
         ${input.version},
-        ${input.accepted ? decisionAt : null},
-        ${input.accepted ? null : decisionAt}
+        case when ${input.accepted} then now() else null end,
+        case when ${input.accepted} then null else now() end
       )
       returning id
     `;

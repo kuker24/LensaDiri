@@ -11,10 +11,21 @@ export type RateLimitPolicy = {
 };
 
 export const authRateLimitPolicies = {
+  accountDelete: { limit: 5, routeKey: "account_delete", windowMs: 15 * 60 * 1_000 },
   login: { limit: 5, routeKey: "auth_login", windowMs: 15 * 60 * 1_000 },
   logout: { limit: 30, routeKey: "auth_logout", windowMs: 15 * 60 * 1_000 },
   register: { limit: 3, routeKey: "auth_register", windowMs: 60 * 60 * 1_000 },
-  session: { limit: 60, routeKey: "auth_session", windowMs: 15 * 60 * 1_000 },
+  session: { limit: 300, routeKey: "auth_session", windowMs: 15 * 60 * 1_000 },
+} as const satisfies Record<string, RateLimitPolicy>;
+
+export const assessmentRateLimitPolicies = {
+  answer: { limit: 240, routeKey: "assessment_answer", windowMs: 15 * 60 * 1_000 },
+  complete: { limit: 10, routeKey: "assessment_complete", windowMs: 15 * 60 * 1_000 },
+  resultDelete: { limit: 10, routeKey: "result_delete", windowMs: 15 * 60 * 1_000 },
+  resultExport: { limit: 30, routeKey: "result_export", windowMs: 15 * 60 * 1_000 },
+  resultFeedback: { limit: 10, routeKey: "result_feedback", windowMs: 60 * 60 * 1_000 },
+  share: { limit: 20, routeKey: "result_share", windowMs: 15 * 60 * 1_000 },
+  start: { limit: 10, routeKey: "assessment_start", windowMs: 60 * 60 * 1_000 },
 } as const satisfies Record<string, RateLimitPolicy>;
 
 export async function consumeRateLimit(

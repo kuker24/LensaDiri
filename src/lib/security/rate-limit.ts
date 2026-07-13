@@ -1,4 +1,16 @@
-export type RateLimitRoute = "auth_register" | "auth_login" | "auth_session" | "auth_logout";
+export type RateLimitRoute =
+  | "auth_register"
+  | "auth_login"
+  | "auth_session"
+  | "auth_logout"
+  | "account_delete"
+  | "assessment_start"
+  | "assessment_answer"
+  | "assessment_complete"
+  | "result_share"
+  | "result_export"
+  | "result_delete"
+  | "result_feedback";
 
 export type FixedWindow = {
   retryAfterSeconds: number;

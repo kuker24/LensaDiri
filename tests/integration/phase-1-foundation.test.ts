@@ -8,6 +8,7 @@ import { hashOpaqueToken } from "@/lib/security/tokens";
 import { createConsentRecord, revokeConsentRecord } from "@/server/repositories/consents";
 import { createAccount, findAccountForAuthentication } from "@/server/repositories/accounts";
 import {
+  deleteAccount,
   getActiveSession,
   loginAccount,
   logoutAccount,
@@ -100,8 +101,73 @@ describe("Phase 1 trusted database boundary", () => {
     expect(revoked).toBe(true);
     expect(afterRevocation?.revokedAt).toBeInstanceOf(Date);
     expect(consentRevoked).toBe(true);
-    expect(rateLimits.map((limit) => limit.allowed)).toEqual([true, true, true, false]);
+    expect(rateLimits.filter((limit) => limit.allowed)).toHaveLength(3);
+    expect(rateLimits.filter((limit) => !limit.allowed)).toHaveLength(1);
   }, 30_000);
+
+  it("hard deletes an authenticated account and all linked private records", async () => {
+    const suffix = randomUUID();
+    const email = `delete-${suffix}@example.test`;
+    const password = "integration password 123";
+    const secrets = {
+      authSessionSecret: process.env.AUTH_SESSION_SECRET!,
+      tokenHashPepper: process.env.TOKEN_HASH_PEPPER!,
+    };
+
+    await registerAccount({ email, password });
+    const account = await findAccountForAuthentication(email);
+    const session = await loginAccount({
+      email,
+      fingerprint: { ip: "127.0.0.1", userAgent: "vitest" },
+      password,
+      secrets,
+    });
+    expect(account).not.toBeNull();
+    expect(session).not.toBeNull();
+
+    await createConsentRecord({
+      accepted: true,
+      consentType: "assessment_processing",
+      subject: { accountId: account!.id },
+      version: "2026-07-13",
+    });
+
+    const invalidDeletion = await deleteAccount({
+      password: "wrong integration password",
+      sessionToken: session!.token,
+      tokenHashPepper: secrets.tokenHashPepper,
+    });
+    const deleted = await deleteAccount({
+      password,
+      sessionToken: session!.token,
+      tokenHashPepper: secrets.tokenHashPepper,
+    });
+    const sql = getDatabase();
+    const [counts] = await sql<
+      {
+        accounts: number;
+        audit_logs: number;
+        consents: number;
+        sessions: number;
+      }[]
+    >`
+      select
+        (select count(*)::integer from public.accounts where id = ${account!.id}) as accounts,
+        (select count(*)::integer from public.account_sessions where account_id = ${account!.id}) as sessions,
+        (select count(*)::integer from public.consents where account_id = ${account!.id}) as consents,
+        (
+          select count(*)::integer
+          from public.audit_logs
+          where actor_account_id = ${account!.id}
+            or (entity_type = 'account' and entity_id = ${account!.id})
+        ) as audit_logs
+    `;
+
+    expect(invalidDeletion).toBe("invalid_credentials");
+    expect(deleted).toBe("deleted");
+    expect(counts).toEqual({ accounts: 0, audit_logs: 0, consents: 0, sessions: 0 });
+    await expect(getActiveSession(session!.token, secrets.tokenHashPepper)).resolves.toBeNull();
+  }, 60_000);
 
   it("keeps duplicate registration opaque and supports login, expiry, and idempotent logout", async () => {
     const suffix = randomUUID();
