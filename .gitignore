@@ -18,13 +18,26 @@
 .env.*
 !.env.example
 
+# credentials, private keys, and database exports
+.supabase/
+supabase/.temp/
+supabase/.branches/
+credentials/
+credentials.*
+*.credentials
+*.pem
+*.key
+*.dump
+*.backup
+production-dump*
+
 # local MCP configuration may reference development credentials or paths
 .mcp.json
 .mcp.*.json
 !.mcp.example.json
 
 # Vercel
-.vercel
+.vercel/
 
 # TypeScript
 *.tsbuildinfo

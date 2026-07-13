@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <article className="container-shell max-w-4xl py-16 lg:py-24">
-      <p className="text-sm font-semibold uppercase tracking-[0.16em] text-violet-700">Privasi</p>
+      <p className="text-sm font-semibold tracking-[0.16em] text-violet-700 uppercase">Privasi</p>
       <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
         Private by default, kontrol tetap di tangan pengguna.
       </h1>

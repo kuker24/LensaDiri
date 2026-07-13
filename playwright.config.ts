@@ -5,7 +5,8 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
-  workers: process.env.CI ? 1 : "50%",
+  // Lifecycle specs share one disposable DB and intentionally exercise global fallback rate limits.
+  workers: 1,
   reporter: process.env.CI ? "github" : "html",
   use: {
     baseURL: "http://127.0.0.1:3000",
@@ -18,7 +19,7 @@ export default defineConfig({
     },
     {
       name: "mobile-chromium",
-      use: { ...devices["Pixel 7"] },
+      use: { ...devices["Pixel 5"] },
     },
   ],
   webServer: {

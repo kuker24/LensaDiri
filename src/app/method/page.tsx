@@ -28,7 +28,7 @@ export default function MethodPage() {
   return (
     <section className="container-shell py-16 lg:py-24">
       <div className="max-w-3xl">
-        <p className="text-sm font-semibold uppercase tracking-[0.16em] text-violet-700">Metode</p>
+        <p className="text-sm font-semibold tracking-[0.16em] text-violet-700 uppercase">Metode</p>
         <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
           Jujur tentang apa yang diukur dan apa yang tidak.
         </h1>

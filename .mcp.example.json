@@ -22,11 +22,7 @@
     },
     "postgres-development-readonly-optional": {
       "command": "npx",
-      "args": [
-        "-y",
-        "@modelcontextprotocol/server-postgres",
-        "${MCP_DEV_READONLY_DATABASE_URL}"
-      ],
+      "args": ["-y", "@modelcontextprotocol/server-postgres", "${MCP_DEV_READONLY_DATABASE_URL}"],
       "disabled": true
     }
   }
