@@ -7,12 +7,30 @@ const uuidSchema = z.uuid();
 const moduleKeySchema = z.string().regex(/^[a-z0-9_]{2,40}$/u);
 const presetKeySchema = z.string().regex(/^[a-z][a-z0-9_]{1,49}$/u);
 
-export const startAssessmentSchema = z
+const legacyStartAssessmentSchema = z
   .object({
     consent: z.literal(true),
     mode: z.enum(["quick", "standard"]),
   })
   .strict();
+
+const modularStartAssessmentSchema = z
+  .object({
+    age: z.number().int().min(13).max(99).nullable().default(null),
+    consent: z.literal(true),
+    experimentalAcknowledged: z.boolean().default(false),
+    locale: z.enum(["id", "en"]).default("id"),
+    mode: z.enum(assessmentModes),
+    moduleKeys: z.array(moduleKeySchema).min(1).max(10),
+    presetKey: presetKeySchema.nullable().default(null),
+    selectionType: z.enum(assessmentSelectionTypes).exclude(["legacy"]),
+  })
+  .strict();
+
+export const startAssessmentSchema = z.union([
+  legacyStartAssessmentSchema,
+  modularStartAssessmentSchema,
+]);
 
 export const estimateAssessmentSchema = z
   .object({

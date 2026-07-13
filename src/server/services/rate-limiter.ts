@@ -21,6 +21,8 @@ export const authRateLimitPolicies = {
 export const assessmentRateLimitPolicies = {
   answer: { limit: 240, routeKey: "assessment_answer", windowMs: 15 * 60 * 1_000 },
   estimate: { limit: 60, routeKey: "assessment_estimate", windowMs: 15 * 60 * 1_000 },
+  pause: { limit: 30, routeKey: "assessment_pause", windowMs: 15 * 60 * 1_000 },
+  resume: { limit: 30, routeKey: "assessment_resume", windowMs: 15 * 60 * 1_000 },
   complete: { limit: 10, routeKey: "assessment_complete", windowMs: 15 * 60 * 1_000 },
   resultDelete: { limit: 10, routeKey: "result_delete", windowMs: 15 * 60 * 1_000 },
   resultExport: { limit: 30, routeKey: "result_export", windowMs: 15 * 60 * 1_000 },

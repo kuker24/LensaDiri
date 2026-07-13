@@ -7,8 +7,8 @@ import { getRequestRateLimitIdentity } from "@/lib/security/rate-limit";
 import { generateOpaqueToken, hashOpaqueToken } from "@/lib/security/tokens";
 import { startAssessmentSchema } from "@/lib/validation/assessment";
 import { apiFailure, apiSuccess, getDatabaseFailureStatus, noStoreHeaders } from "@/server/http";
-import { createAssessmentSession } from "@/server/repositories/assessment";
 import { getCurrentSession } from "@/server/current-session";
+import { startAssessment } from "@/server/services/assessment";
 import { assessmentRateLimitPolicies, consumeRateLimit } from "@/server/services/rate-limiter";
 
 export const runtime = "nodejs";
@@ -43,14 +43,37 @@ export async function POST(request: Request): Promise<NextResponse> {
 
     const token = generateOpaqueToken();
     const account = await getCurrentSession();
-    await createAssessmentSession({
+    const startRequest =
+      "moduleKeys" in parsed.data
+        ? {
+            kind: "modular" as const,
+            locale: parsed.data.locale,
+            selection: {
+              age: parsed.data.age,
+              experimentalAcknowledged: parsed.data.experimentalAcknowledged,
+              mode: parsed.data.mode,
+              moduleKeys: parsed.data.moduleKeys,
+              presetKey: parsed.data.presetKey,
+              selectionType: parsed.data.selectionType,
+            },
+          }
+        : { kind: "legacy" as const, mode: parsed.data.mode };
+    const started = await startAssessment({
       accountId: account?.accountId ?? null,
       consentVersion: "2026-07-13",
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1_000),
-      mode: parsed.data.mode,
+      request: startRequest,
       sessionTokenHash: hashOpaqueToken(token, environment.tokenHashPepper),
     });
-    return NextResponse.json(apiSuccess({ token }), { headers: noStoreHeaders, status: 201 });
+    return started.success
+      ? NextResponse.json(apiSuccess({ flow: started.kind, token }), {
+          headers: noStoreHeaders,
+          status: 201,
+        })
+      : NextResponse.json(apiFailure(started.code), {
+          headers: noStoreHeaders,
+          status: 422,
+        });
   } catch (error) {
     return NextResponse.json(apiFailure("service_unavailable"), {
       headers: noStoreHeaders,
