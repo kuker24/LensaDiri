@@ -1,5 +1,7 @@
 # Phase 1 Auth Security Contract
 
+> Historical Phase 1 contract. Current implementation also includes auth UI, password-confirmed hard-delete, and MVP assessment/result boundaries documented in [`MVP_LOCAL_VERIFICATION.md`](../qa/MVP_LOCAL_VERIFICATION.md).
+
 ## Scope and trust boundary
 
 Phase 1 adds internal authentication and persistence foundation. Next.js node-runtime route handlers plus server-only repositories and services form trusted application boundary. Browser clients do not receive a PostgreSQL client, database credential, service-role credential, or direct access to sensitive tables.

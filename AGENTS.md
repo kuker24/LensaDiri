@@ -9,11 +9,12 @@ LensaDiri adalah platform eksplorasi kepribadian modular, privacy-first, dan mob
 ## Project State
 
 - Status repository: **IN_PROGRESS**.
-- Status peta DOX: **CURRENT**. Root map dan child DOX `src/`, `tests/`, `docs/`, serta `supabase/` mencerminkan struktur Phase 1 saat ini.
-- Phase 0 tetap menyediakan public landing, halaman metode, privasi, disclaimer, preview mulai, security headers, primitive Likert deterministik, primitive token opaque, unit test, dan smoke E2E.
-- Implementasi aplikasi Phase 1 mencakup schema PostgreSQL, RLS default-deny, server-only database boundary, internal auth API, session cookie, CSRF, rate limit, audit service, consent service, serta unit dan integration test yang relevan.
-- Migration runtime, pgTAP RLS test, dan PostgreSQL integration test belum terverifikasi pada environment kerja saat ini karena Docker/local Supabase tidak tersedia. Jangan mengganti status ini dengan klaim lulus tanpa command runtime nyata.
-- Module registry, assessment persistence, scoring production, private result, share, dan admin masih fase berikutnya.
+- Status peta DOX: **CURRENT**. Root map dan child DOX `src/`, `tests/`, `docs/`, serta `supabase/` mencerminkan baseline MVP lokal saat ini.
+- Public landing, metode, privasi, disclaimer, auth UI, dashboard privacy, dan health endpoint tersedia.
+- Internal auth mencakup register/login/logout, session HttpOnly, CSRF, rate limit, password Argon2id, dan hard-delete akun dengan re-authentication.
+- MVP assessment lokal mencakup Quick 40 item dan Standard 60 item original, consent, autosave/resume, scoring trait deterministik, tiga overlay reflektif, private/account result, feedback, safe share, revoke, export JSON, dan delete result.
+- Docker-backed Supabase reset, PostgreSQL integration test, pgTAP, dan Playwright desktop/mobile sudah terverifikasi lokal pada 2026-07-13.
+- Hobby production baseline aktif di `https://lensadiri.vercel.app` dengan Supabase hosted Singapore; monitoring, backup/restore drill, custom domain, staging terpisah, admin UI, email verification, dan password reset belum selesai.
 
 ## Technology
 
@@ -28,22 +29,21 @@ LensaDiri adalah platform eksplorasi kepribadian modular, privacy-first, dan mob
 
 - `src/app/layout.tsx`: root layout, metadata, viewport, skip link, dan shared site chrome.
 - `src/app/page.tsx`: landing page `/`.
-- `src/app/method/page.tsx`, `src/app/privacy/page.tsx`, `src/app/disclaimer/page.tsx`, dan `src/app/start/page.tsx`: public information dan preview routes.
-- `src/app/api/auth/{register,login,logout,session}/route.ts`: internal auth API dan CSRF session bootstrap.
-- `src/lib/db/env-schema.ts` dan `src/lib/db/client.ts`: validated environment dan PostgreSQL client server-only.
-- `src/server/repositories/` dan `src/server/services/`: trusted data access, auth, consent, audit, dan rate-limit flows.
-- `src/lib/scoring/likert.ts`: primitive scoring Likert deterministik; belum scoring engine production.
-- `src/lib/security/tokens.ts`: generate, HMAC hash, dan constant-time verification token opaque.
-- `supabase/migrations/202607120001_phase_1_foundation.sql`: schema Phase 1, RLS, revocation grant, dan constraints.
+- `src/app/method/`, `src/app/privacy/`, `src/app/disclaimer/`, `src/app/login/`, `src/app/register/`, dan `src/app/dashboard/`: public information, auth UI, serta account privacy routes.
+- `src/app/start/`, `src/app/test/[token]/`, `src/app/result/[token]/`, dan `src/app/shared/[token]/`: assessment dan result flow.
+- `src/app/api/auth/`, `src/app/api/account/`, `src/app/api/assessment/`, `src/app/api/result/`, dan `src/app/api/shared/`: trusted auth, assessment, result, export, feedback, share, dan deletion boundaries.
+- `src/lib/db/`, `src/server/repositories/`, dan `src/server/services/`: validated PostgreSQL access serta trusted orchestration.
+- `src/lib/scoring/likert.ts` dan `src/lib/scoring/profile.ts`: pure deterministic scoring primitives dan MVP profile engine.
+- `supabase/migrations/`: foundation, account erasure, assessment/result, dan feedback schema; `supabase/seed/` memuat item bank lokal.
 
 ## Repository Structure
 
 ```text
 src/                 Next.js application, server boundary, shared UI, dan domain primitives
-  app/               App Router, public routes, dan auth route handlers
-  components/        Shared presentational components
-  lib/               Auth, DB, scoring, security, validation, dan site configuration
-  server/            Trusted repositories, services, and HTTP DTO helpers
+  app/               App Router, public/auth/dashboard/assessment/result routes, dan API handlers
+  components/        Shared presentational dan interactive flow components
+  lib/               Auth, assessment client, DB, scoring, security, validation, dan site config
+  server/            Trusted repositories, services, session guard, dan HTTP DTO helpers
 supabase/            Local Supabase config, migrations, seeds, and pgTAP database tests
 tests/               Vitest unit, PostgreSQL integration, and Playwright browser tests
 docs/                Product, architecture, security, QA, privacy, and AI tooling documentation
@@ -68,7 +68,7 @@ docs/                Product, architecture, security, QA, privacy, and AI toolin
 - Endpoint sensitif harus fail closed.
 - Jangan menaruh raw answer atau private result pada metadata, log, analytics, URL query, atau error message.
 - Mutation wajib memakai validasi input, authorization, rate limit, dan proteksi CSRF yang sesuai.
-- Tabel Phase 1 wajib tetap RLS forced, tanpa policy browser, serta tanpa privilege direct untuk `anon` atau `authenticated`.
+- Tabel auth dan MVP assessment wajib tetap RLS forced, tanpa policy browser, serta tanpa privilege direct untuk `anon` atau `authenticated`.
 - Jangan menyimpan password plaintext, raw session token, raw IP, atau raw user-agent.
 
 ### Scientific and content invariants
@@ -143,10 +143,11 @@ Definition of done: requirement terpenuhi, input tervalidasi, error state aman, 
 ## Known Constraints
 
 - PRD adalah sumber kebutuhan produk dan blueprint target. Jangan menyamakan roadmap atau struktur target dengan kode yang sudah ada.
-- Assessment belum aktif. Jangan menghubungkan UI awal ke data sensitif sebelum session storage, consent persistence, answer synchronization, dan authorization tersedia.
-- Primitive Phase 0 belum menggantikan scoring engine production atau item bank original, versioned, dan auditable.
-- Route auth Phase 1 adalah backend API. Auth UI dan assessment flow belum menjadi implementasi aktif.
-- Database runtime evidence memerlukan Docker-backed Supabase. Ketiadaannya pada environment saat ini bukan alasan untuk melemahkan migration, RLS, atau test.
+- Scoring MVP adalah trait-profile internal untuk refleksi, bukan instrumen psikometri tervalidasi formal.
+- Item bank original saat ini hanya Bahasa Indonesia dan belum melewati validasi domain expert atau norming populasi.
+- Database runtime lokal memakai Docker-backed Supabase. Production memakai Vercel + satu Supabase hosted project Singapore dengan migration-only workflow.
+- Admin UI, email verification, password reset, monitoring, dan formal production verification tetap di luar baseline lokal saat ini.
+- Production single-project memakai migration-only workflow; reset dan test destructive tetap local-only. Ikuti `docs/deployment/PRODUCTION_VERCEL_SUPABASE.md`.
 - `docs/architecture/ADR-0001-phase-0-foundation.md` adalah catatan keputusan historis. Catatan lamanya tentang belum ada package lock tidak menggambarkan kondisi saat ini; `package-lock.json` kini ada.
 - Jangan membaca atau mencetak `.env`, credential, token, key, atau secret.
 

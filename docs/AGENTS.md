@@ -9,7 +9,10 @@
 - `product/PRD_FULL_LensaDiri.md`: source product requirements, phase scope, acceptance criteria, security, privacy, scientific, and UX constraints.
 - `architecture/ADR-0001-phase-0-foundation.md`: accepted historical Phase 0 foundation decision.
 - `security/PHASE_1_AUTH.md`: Phase 1 trust boundary, schema/RLS/grant, internal auth, session, CSRF, rate-limit, audit, and consent contract.
-- `qa/PHASE_1_VERIFICATION.md`: exact Phase 1 validation commands, evidence, blocked database gates, and Docker recovery steps.
+- `qa/PHASE_1_VERIFICATION.md`: historical Phase 1 checkpoint and Docker recovery steps.
+- `qa/MVP_LOCAL_VERIFICATION.md`: current local MVP scope, passing gates, security boundaries, and remaining production risks.
+- `deployment/PRODUCTION_VERCEL_SUPABASE.md`: single-project hobby production workflow, environment contract, smoke checks, and rollback limits.
+- `deployment/PRODUCTION_MIGRATION_MAP.md`: repository-to-production migration/seed mapping without project identifiers or credentials.
 - `ai/MCP_SETUP.md`: optional least-privilege MCP setup. MCP is not application runtime dependency.
 
 ## Local Contracts
@@ -19,7 +22,7 @@
 - Keep scientific language honest: no diagnosis, certainty, proprietary item reuse, unsupported validation claim, or fake social proof.
 - Never document credentials, private tokens, raw answers, private result data, raw IPs, or raw user-agent strings.
 - Update relevant documentation when behavior, architecture, privacy practice, security contract, commands, setup, or verification state changes.
-- State blocked database verification precisely: Docker/local Supabase unavailable in one environment is evidence for that environment, not permanent project behavior or a passing gate.
+- Keep historical blocked DB evidence labeled historical. Current local MVP DB gates passed on 2026-07-13; future claims still require rerun after relevant source changes.
 - MCP examples may contain placeholders only, must default to local development and least privilege, and must not grant production access or default write access.
 
 ## Work Guidance

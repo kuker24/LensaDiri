@@ -1,5 +1,7 @@
 # Phase 1 Verification
 
+> Historical Phase 1 checkpoint. Current local MVP evidence lives in [`MVP_LOCAL_VERIFICATION.md`](MVP_LOCAL_VERIFICATION.md). Docker-backed gates previously marked blocked have since passed locally.
+
 ## Scope
 
 Phase 1 verification covers database migration and RLS default deny, server-only environment/database boundary, internal auth, session lifecycle, CSRF, rate limits, audit, and consent persistence.

@@ -837,19 +837,19 @@ Setiap modul harus didefinisikan melalui registry:
 
 ```ts
 type ModuleRegistryEntry = {
-  key: string
-  name: string
-  publicName: string
-  description: string
-  evidenceTier: 'A' | 'B' | 'C' | 'EXPERIMENTAL'
-  status: 'draft' | 'active' | 'deprecated' | 'retired'
-  version: string
-  minItems: number
-  standardItems: number
-  maxItems: number
-  scoringStrategy: string
-  reportTemplateKey: string
-}
+  key: string;
+  name: string;
+  publicName: string;
+  description: string;
+  evidenceTier: "A" | "B" | "C" | "EXPERIMENTAL";
+  status: "draft" | "active" | "deprecated" | "retired";
+  version: string;
+  minItems: number;
+  standardItems: number;
+  maxItems: number;
+  scoringStrategy: string;
+  reportTemplateKey: string;
+};
 ```
 
 ### 15.2 MVP modules
@@ -978,7 +978,7 @@ Default Likert 5 poin:
 Untuk item reverse-coded:
 
 ```ts
-scoredValue = 6 - rawValue
+scoredValue = 6 - rawValue;
 ```
 
 ### 16.6 Weighted score

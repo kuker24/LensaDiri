@@ -2,20 +2,22 @@
 
 ## Purpose
 
-`src/` contains Next.js application surface and trusted Phase 1 server boundary: public pages, internal auth route handlers, shared UI, validated database access, repositories, services, deterministic Likert primitive, and token security primitive.
+`src/` contains Next.js application surface and trusted MVP server boundary: public pages, auth/dashboard UI, assessment/result flows, route handlers, validated database access, repositories, services, deterministic trait scoring, and token security primitives.
 
 ## Ownership
 
-- `app/`: routes, root layout, metadata, robots, sitemap, global styles, and API route handlers.
-- `app/api/auth/`: node-runtime register, login, logout, and session/CSRF bootstrap endpoints.
+- `app/`: public, auth, dashboard, assessment, private result, shared result, metadata, and global styles.
+- `app/api/auth/`, `app/api/account/`, `app/api/assessment/`, `app/api/result/`, `app/api/shared/`: node-runtime HTTP boundaries.
 - `components/`: shared presentational site components.
 - `lib/auth/`: email normalization, Argon2id password helpers, safe redirect validation, and cookie contracts.
 - `lib/db/`: Zod environment schema, server-only environment access, PostgreSQL client, transaction helper, and safe DB error mapping.
-- `lib/scoring/`: pure scoring primitives. `likert.ts` remains Phase 0 primitive, not production assessment scoring.
+- `lib/scoring/`: pure Likert dan versioned MVP profile scoring, termasuk reflective overlay derivation.
 - `lib/security/`: HMAC token, CSRF, HTTP parsing, and rate-limit primitives.
 - `lib/validation/`: Zod request-boundary schemas.
 - `server/repositories/`: typed persistence functions only; no request parsing or client exposure.
 - `server/services/`: auth, consent, and rate-limit orchestration within trusted server boundary.
+- `server/repositories/assessment.ts`: token-gated persistence and atomic completion.
+- `lib/scoring/profile.ts`: pure, deterministic, versioned MVP trait scoring.
 - `lib/site.ts`: public site configuration.
 
 ## Local Contracts
@@ -24,9 +26,9 @@
 - Use `@/*` imports, strict TypeScript, and no `any`.
 - Import database, repository, and service modules only from server code. Preserve `server-only` guards and never import secret-dependent modules into client bundles.
 - Parse environment through `getServerEnvironment`; exact required names are `DATABASE_URL`, `NEXT_PUBLIC_APP_URL`, `AUTH_SESSION_SECRET`, `CSRF_SECRET`, `TOKEN_HASH_PEPPER`, and `RATE_LIMIT_SECRET`.
-- Keep `src/lib/scoring/likert.ts` pure and deterministic. It is not Phase 1 production assessment scoring.
-- Store only Argon2id password hashes, HMAC hashes of opaque session tokens, and hashed request fingerprints. Do not log or return password, raw token, raw IP, or raw user-agent.
-- Auth mutations require strict Zod JSON, exact same-origin CSRF validation, and rate-limit consumption before mutation work. Preserve generic duplicate-registration and invalid-credential responses.
+- Keep `src/lib/scoring/likert.ts` and `src/lib/scoring/profile.ts` pure, deterministic, versioned, and unit-tested. Browser must never calculate primary score.
+- Store only Argon2id password hashes, HMAC hashes of session/assessment/result/share tokens, and hashed request fingerprints. Do not log or return password, raw token, raw IP, or raw user-agent.
+- Auth, account, assessment, result, share, feedback, export, and deletion mutations require strict Zod boundary, authorization token/session, relevant rate limit, and exact same-origin CSRF where cookie-authenticated mutation applies. Preserve generic auth failures.
 - `GET /api/auth/session` is CSRF bootstrap. Its signed token may be returned with `no-store`; session nonce cookie stays HttpOnly.
 - Cookies remain `HttpOnly`, `SameSite=Lax`, path `/`, `Secure` in production, and use `__Host-` names in production.
 - Public metadata, routes, logs, errors, and URL query must not expose raw answers, private results, tokens, or credentials.
@@ -36,9 +38,9 @@
 ## Work Guidance
 
 1. Read root `AGENTS.md`, local `supabase/AGENTS.md` when persistence changes, and relevant PRD acceptance criteria before source changes.
-2. Keep database use in the trusted server boundary. Browser roles have no direct Phase 1 table privileges or RLS policies.
-3. Add Zod validation at every route or server-action boundary and map database failures to safe public errors.
-4. Preserve transactional and idempotent behavior for session revocation, rate-limit updates, and consent changes.
+2. Keep database use in the trusted server boundary. Browser roles have no direct auth or MVP assessment table privileges or RLS policies.
+3. Add Zod validation at every route boundary and map database failures to safe public errors.
+4. Preserve transactional and idempotent behavior for session revocation, answer upsert, assessment completion, account erasure, rate-limit updates, and consent changes.
 5. Add focused regression tests for scoring, token, API, repository, auth, or interactive behavior changes.
 6. Keep private application behavior fail-closed when protected routes expand.
 
