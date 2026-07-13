@@ -1,41 +1,77 @@
 -- Original Indonesian MVP item bank. These statements are authored for LensaDiri
 -- and do not copy a proprietary instrument.
 
-insert into public.modules (key, public_name, description, evidence_tier, status)
+insert into public.modules (
+  key,
+  public_name,
+  internal_name,
+  description,
+  evidence_tier,
+  status,
+  category,
+  is_selectable,
+  minimum_age,
+  default_order,
+  description_key
+)
 values (
   'trait_profile',
   'Profil Trait',
+  'Trait Profile',
   'Lima spektrum kecenderungan untuk refleksi diri, bukan diagnosis.',
   'A',
-  'active'
+  'active',
+  'trait',
+  true,
+  13,
+  10,
+  'module.trait_profile.description'
 )
 on conflict (key) do update set
   public_name = excluded.public_name,
+  internal_name = excluded.internal_name,
   description = excluded.description,
   evidence_tier = excluded.evidence_tier,
-  status = excluded.status;
+  status = excluded.status,
+  category = excluded.category,
+  is_selectable = excluded.is_selectable,
+  minimum_age = excluded.minimum_age,
+  default_order = excluded.default_order,
+  description_key = excluded.description_key;
 
 insert into public.module_versions (
   module_id,
   version,
   scoring_strategy,
+  scoring_version,
+  item_bank_version,
   status,
   config_json,
+  composer_config_json,
+  report_template_version,
   published_at
 )
 select
   modules.id,
   'mvp-1',
   'weighted_likert_v1',
+  'trait-profile-mvp-1',
+  'trait-profile-mvp-1',
   'active',
   '{"quickItems":40,"standardItems":60,"scaleMin":1,"scaleMax":5}'::jsonb,
+  '{"quickQuota":40,"standardQuota":60,"deepQuota":60}'::jsonb,
+  'legacy-mvp-1',
   now()
 from public.modules
 where modules.key = 'trait_profile'
 on conflict (module_id, version) do update set
   scoring_strategy = excluded.scoring_strategy,
+  scoring_version = excluded.scoring_version,
+  item_bank_version = excluded.item_bank_version,
   status = excluded.status,
   config_json = excluded.config_json,
+  composer_config_json = excluded.composer_config_json,
+  report_template_version = excluded.report_template_version,
   published_at = excluded.published_at;
 
 with version as (
@@ -55,7 +91,7 @@ cross join (
     ('agreeableness', 'Kooperasi', 'Kecenderungan memahami, mempercayai, dan bekerja bersama orang lain.'),
     ('emotional_sensitivity', 'Kepekaan emosi', 'Intensitas respons terhadap tekanan dan perubahan suasana.')
 ) as dimensions(construct_key, label, description)
-on conflict (module_version_id, construct_key) do update set
+on conflict (module_version_id, construct_key, facet_key) do update set
   label = excluded.label,
   description = excluded.description;
 
@@ -132,9 +168,13 @@ insert into public.questions (
   dimension_id,
   item_code,
   public_text,
+  internal_construct_note,
   polarity,
   weight,
   quick_enabled,
+  mode_eligibility,
+  information_priority,
+  review_status,
   display_order,
   status
 )
@@ -143,9 +183,16 @@ select
   dimensions.id,
   item_bank.item_code,
   item_bank.public_text,
+  'Original Indonesian MVP trait item ' || item_bank.item_code,
   item_bank.polarity,
   1,
   item_bank.quick_enabled,
+  case
+    when item_bank.quick_enabled then array['quick', 'standard', 'deep']::text[]
+    else array['standard', 'deep']::text[]
+  end,
+  case when item_bank.quick_enabled then 0.8 else 0.6 end,
+  'approved',
   item_bank.display_order,
   'active'
 from version
@@ -154,8 +201,29 @@ inner join item_bank on item_bank.construct_key = dimensions.construct_key
 on conflict (module_version_id, item_code) do update set
   dimension_id = excluded.dimension_id,
   public_text = excluded.public_text,
+  internal_construct_note = excluded.internal_construct_note,
   polarity = excluded.polarity,
   weight = excluded.weight,
   quick_enabled = excluded.quick_enabled,
+  mode_eligibility = excluded.mode_eligibility,
+  information_priority = excluded.information_priority,
+  review_status = excluded.review_status,
   display_order = excluded.display_order,
   status = excluded.status;
+
+insert into public.question_translations (question_id, locale, public_text, review_status)
+select id, 'id', public_text, 'approved'
+from public.questions
+on conflict (question_id, locale) do update set
+  public_text = excluded.public_text,
+  review_status = excluded.review_status;
+
+insert into public.question_dimension_mappings (
+  question_id, dimension_id, scoring_role, polarity, weight
+)
+select id, dimension_id, 'primary', polarity, weight
+from public.questions
+on conflict (question_id, dimension_id) do update set
+  scoring_role = excluded.scoring_role,
+  polarity = excluded.polarity,
+  weight = excluded.weight;
