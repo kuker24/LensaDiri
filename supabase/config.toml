@@ -21,6 +21,7 @@ enabled = true
 sql_paths = [
   "./seed/20260713_mvp_item_bank.sql",
   "./seed/20260714_modular_catalog.sql",
+  "./seed/20260715_independent_core_modules.sql",
 ]
 
 # LensaDiri uses internal, server-side authentication. Supabase Auth is not an

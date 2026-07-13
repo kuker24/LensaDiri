@@ -144,15 +144,53 @@ select ok('published' = any(enum_range(null::public.module_status)::text[]), 'pu
 select ok('full_spectrum' = any(enum_range(null::public.selection_type)::text[]), 'full-spectrum selection exists');
 select ok('clarifier_required' = any(enum_range(null::public.assessment_status)::text[]), 'clarifier status exists');
 
-select is((select count(*)::integer from public.questions), 60, 'legacy seed keeps 60 questions');
-select is((select count(*)::integer from public.questions where quick_enabled), 40, 'legacy seed keeps 40 Quick questions');
 select is(
-  (select count(*)::integer from public.question_translations where locale = 'id'),
+  (
+    select count(*)::integer
+    from public.questions
+    inner join public.module_versions on module_versions.id = questions.module_version_id
+    inner join public.modules on modules.id = module_versions.module_id
+    where modules.key = 'trait_profile' and module_versions.version = 'mvp-1'
+  ),
+  60,
+  'legacy seed keeps 60 Trait Profile questions'
+);
+select is(
+  (
+    select count(*)::integer
+    from public.questions
+    inner join public.module_versions on module_versions.id = questions.module_version_id
+    inner join public.modules on modules.id = module_versions.module_id
+    where modules.key = 'trait_profile'
+      and module_versions.version = 'mvp-1'
+      and questions.quick_enabled
+  ),
+  40,
+  'legacy seed keeps 40 Quick Trait Profile questions'
+);
+select is(
+  (
+    select count(*)::integer
+    from public.question_translations
+    inner join public.questions on questions.id = question_translations.question_id
+    inner join public.module_versions on module_versions.id = questions.module_version_id
+    inner join public.modules on modules.id = module_versions.module_id
+    where modules.key = 'trait_profile'
+      and module_versions.version = 'mvp-1'
+      and question_translations.locale = 'id'
+  ),
   60,
   'legacy questions have Indonesian translations'
 );
 select is(
-  (select count(*)::integer from public.question_dimension_mappings),
+  (
+    select count(*)::integer
+    from public.question_dimension_mappings
+    inner join public.questions on questions.id = question_dimension_mappings.question_id
+    inner join public.module_versions on module_versions.id = questions.module_version_id
+    inner join public.modules on modules.id = module_versions.module_id
+    where modules.key = 'trait_profile' and module_versions.version = 'mvp-1'
+  ),
   60,
   'legacy questions have explicit primary mappings'
 );

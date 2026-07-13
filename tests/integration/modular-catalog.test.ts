@@ -23,19 +23,33 @@ describe("modular catalog PostgreSQL boundary", () => {
         (select count(*)::integer from public.combo_presets) as presets,
         (select count(*)::integer from public.modules where is_selectable) as selectable
     `;
-    expect(counts).toEqual({ modules: 10, modes: 3, presets: 6, selectable: 1 });
+    expect(counts).toEqual({ modules: 10, modes: 3, presets: 6, selectable: 4 });
 
     const modules = await listCatalogModules();
-    expect(modules).toEqual([
-      expect.objectContaining({
-        evidenceTier: "A",
-        isSelectable: true,
-        key: "trait_profile",
-        modeQuota: { deep: 60, quick: 40, standard: 60 },
-        version: "mvp-1",
-      }),
-    ]);
-    await expect(getCatalogModuleByKey("type_16")).resolves.toBeNull();
+    expect(modules).toHaveLength(4);
+    expect(modules).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          evidenceTier: "A",
+          isSelectable: true,
+          key: "trait_profile",
+          modeQuota: { deep: 60, quick: 40, standard: 60 },
+          version: "mvp-1",
+        }),
+        expect.objectContaining({
+          key: "type_16",
+          modeQuota: { deep: 48, quick: 32, standard: 40 },
+          version: "1.0.0",
+        }),
+        expect.objectContaining({ key: "enneagram", version: "1.0.0" }),
+        expect.objectContaining({ key: "temperament", version: "1.0.0" }),
+      ]),
+    );
+    await expect(getCatalogModuleByKey("type_16")).resolves.toMatchObject({
+      key: "type_16",
+      version: "1.0.0",
+    });
+    await expect(getCatalogModuleByKey("riasec")).resolves.toBeNull();
   });
 
   it("maps Quick/Normal/Complex and keeps incomplete presets hidden", async () => {

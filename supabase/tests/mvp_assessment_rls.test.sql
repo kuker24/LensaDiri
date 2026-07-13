@@ -52,8 +52,30 @@ select ok(exists (select 1 from pg_constraint where conrelid = 'public.test_sess
 select ok(exists (select 1 from pg_constraint where conrelid = 'public.user_answers'::regclass and conname = 'user_answers_session_id_fkey' and confdeltype = 'c'), 'session deletion cascades answers');
 select ok(exists (select 1 from pg_constraint where conrelid = 'public.personality_results'::regclass and conname = 'personality_results_session_id_fkey' and confdeltype = 'c'), 'session deletion cascades results');
 select ok(exists (select 1 from pg_constraint where conrelid = 'public.result_share_tokens'::regclass and conname = 'result_share_tokens_result_id_fkey' and confdeltype = 'c'), 'result deletion cascades shares');
-select is((select count(*)::integer from public.questions), 60, 'seed has 60 original questions');
-select is((select count(*)::integer from public.questions where quick_enabled), 40, 'quick mode has 40 questions');
+select is(
+  (
+    select count(*)::integer
+    from public.questions
+    inner join public.module_versions on module_versions.id = questions.module_version_id
+    inner join public.modules on modules.id = module_versions.module_id
+    where modules.key = 'trait_profile' and module_versions.version = 'mvp-1'
+  ),
+  60,
+  'legacy seed has 60 original Trait Profile questions'
+);
+select is(
+  (
+    select count(*)::integer
+    from public.questions
+    inner join public.module_versions on module_versions.id = questions.module_version_id
+    inner join public.modules on modules.id = module_versions.module_id
+    where modules.key = 'trait_profile'
+      and module_versions.version = 'mvp-1'
+      and questions.quick_enabled
+  ),
+  40,
+  'legacy Quick mode has 40 Trait Profile questions'
+);
 
 select * from finish();
 rollback;
