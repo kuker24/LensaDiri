@@ -2,7 +2,7 @@
 
 ## Scope
 
-`migrations/` owns auth, account erasure, assessment/result, share, and feedback schema changes. `seed/` holds original non-production item-bank data. `tests/` holds pgTAP verification scripts.
+`migrations/` owns auth, account erasure, assessment/result, share, feedback, and future modular catalog/blueprint/result schema changes. `seed/` holds original item-bank data. `tests/` holds pgTAP verification scripts. Current Quick 40/Standard 60 schema is production baseline; PRD 2.0 module catalog, Test Composer, independent module result, and correlation schema remain targets until implemented.
 
 ## Security boundary
 
@@ -18,6 +18,10 @@ All auth and MVP assessment tables are sensitive. RLS is enabled and forced with
 - Store assessment session, private result, and share tokens as HMAC hashes only.
 - Feedback remains server-only, rating-constrained, message-bounded, and cascades with result deletion.
 - Keep item bank original, versioned, and free from proprietary instrument text.
+- Preserve existing Quick 40/Standard 60 sessions and results through modular migration. Map them to legacy version metadata without retroactively rewriting answers or scores.
+- Published module versions and used assessment blueprints become immutable. New item/scoring/report revisions require new versions.
+- Add modular schema through additive, backward-compatible migrations; deploy compatible read paths before write cutover, backfill separately/resumably, gate new writes behind feature flags, and use fix-forward instead of rewriting applied migrations.
+- Keep production migration-only. Never run reset, destructive integration, pgTAP, or E2E against hosted production.
 - Do not place raw answers, private results, passwords, tokens, IP addresses, or user-agent strings in `audit_logs.metadata_json`.
 
 ## Verification

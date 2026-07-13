@@ -8,13 +8,14 @@ LensaDiri adalah platform eksplorasi kepribadian modular, privacy-first, dan mob
 
 ## Project State
 
-- Status repository: **IN_PROGRESS**.
-- Status peta DOX: **CURRENT**. Root map dan child DOX `src/`, `tests/`, `docs/`, serta `supabase/` mencerminkan baseline MVP lokal saat ini.
+- Status repository: **ESTABLISHED**. MVP hobby production aktif, struktur dan quality gates stabil, serta migrasi menuju target modular PRD 2.0 menjadi pekerjaan berikutnya.
+- Status peta DOX: **CURRENT**. Root map dan child DOX `src/`, `tests/`, `docs/`, serta `supabase/` membedakan baseline production dari target modular.
+- `docs/product/PRD_FULL_LensaDiri.md` versi 2.0 adalah canonical product and engineering contract. Baseline Quick 40/Standard 60 adalah MVP transisi, bukan implementasi final PRD 2.0.
 - Public landing, metode, privasi, disclaimer, auth UI, dashboard privacy, dan health endpoint tersedia.
 - Internal auth mencakup register/login/logout, session HttpOnly, CSRF, rate limit, password Argon2id, dan hard-delete akun dengan re-authentication.
-- MVP assessment lokal mencakup Quick 40 item dan Standard 60 item original, consent, autosave/resume, scoring trait deterministik, tiga overlay reflektif, private/account result, feedback, safe share, revoke, export JSON, dan delete result.
-- Docker-backed Supabase reset, PostgreSQL integration test, pgTAP, dan Playwright desktop/mobile sudah terverifikasi lokal pada 2026-07-13.
-- Hobby production baseline aktif di `https://lensadiri.vercel.app` dengan Supabase hosted Singapore; monitoring, backup/restore drill, custom domain, staging terpisah, admin UI, email verification, dan password reset belum selesai.
+- MVP assessment production mencakup Quick 40 item dan Standard 60 item original, consent, autosave/resume, scoring trait deterministik, tiga legacy overlay reflektif, private/account result, feedback, safe share, revoke, export JSON, dan delete result.
+- Docker-backed Supabase reset, PostgreSQL integration test, pgTAP, Playwright desktop/mobile, dan GitHub Actions full gates sudah terverifikasi pada 2026-07-13.
+- Hobby production baseline aktif di `https://lensadiri.vercel.app` dengan Supabase hosted Singapore; modular backend, independent per-module scoring, Test Composer, Normal/Complex/Clarifier, monitoring, backup/restore drill, custom domain, staging terpisah, admin UI, email verification, dan password reset belum selesai.
 
 ## Technology
 
@@ -54,14 +55,17 @@ docs/                Product, architecture, security, QA, privacy, and AI toolin
 
 ### Sebelum mengubah kode
 
-1. Baca `docs/product/PRD_FULL_LensaDiri.md`.
-2. Identifikasi fase implementasi dan acceptance criteria yang sedang dikerjakan.
-3. Jangan memperluas scope ke fitur V1/V2/V3 tanpa alasan yang terdokumentasi.
-4. Pertahankan server sebagai sumber kebenaran untuk session, answer, scoring, dan result.
+1. Baca `docs/product/PRD_FULL_LensaDiri.md` versi 2.0 sebagai canonical contract.
+2. Bedakan fakta baseline production dari target PRD; jangan mengklaim target modular sudah ada.
+3. Kerjakan fase PRD 2.0 berurutan: Contract Freeze, Modular Backend Foundation, Minimal-Complete Frontend, Independent Scoring, lalu Combo/Complex/Clarifier.
+4. Pertahankan backward compatibility untuk Quick 40/Standard 60, route lama, dan legacy result selama migrasi.
+5. Pertahankan server sebagai sumber kebenaran untuk composer blueprint, session, answer, scoring, dan result.
+6. Gunakan additive migration, feature flag, read compatibility sebelum write cutover, serta fix-forward; jangan reset data production.
 
 ### Security invariants
 
 - Jangan pernah menghitung skor primer di client.
+- Setiap lensa baru wajib memiliki item dan scoring independen. Jangan memperluas trait-derived legacy overlay untuk session modular baru.
 - Jangan pernah mengirim service role key, pepper, session secret, atau raw database credential ke client.
 - Simpan session token, result token, dan share token sebagai hash atau keyed hash.
 - Result selalu private kecuali pengguna melakukan aksi berbagi yang eksplisit.
@@ -106,7 +110,8 @@ npm run test:integration   # run real PostgreSQL integration suite; TEST_DATABAS
 npm run db:start           # start local Supabase; Docker required
 npm run db:reset           # reset local Supabase and apply migrations; Docker required
 npm run test:db            # run pgTAP database tests; Docker required
-npm run test:e2e           # run Playwright tests
+npm run test:e2e           # run serial Playwright desktop + Pixel 5 tests against disposable shared DB
+npm audit                  # audit production and development dependency tree
 npm run check              # lint, typecheck, unit test, and build
 ```
 
@@ -138,11 +143,15 @@ Untuk perubahan flow UI, wajib jalankan:
 npm run test:e2e
 ```
 
+GitHub Actions menjalankan clean install, format, lint, typecheck, unit, build, dependency audit, disposable Supabase reset, integration, pgTAP, reset ulang, serta serial Playwright desktop/Pixel 5. CI memakai dummy test-only environment values; production credential tidak boleh masuk workflow.
+
 Definition of done: requirement terpenuhi, input tervalidasi, error state aman, test relevan tersedia, aksesibilitas diperiksa, dokumentasi diperbarui, dan CI hijau.
 
 ## Known Constraints
 
-- PRD adalah sumber kebutuhan produk dan blueprint target. Jangan menyamakan roadmap atau struktur target dengan kode yang sudah ada.
+- PRD 2.0 adalah canonical contract dan blueprint target. Jangan menyamakan modular catalog, Test Composer, independent scoring, atau route target dengan kode yang sudah ada.
+- Existing `quick` tetap valid; existing `standard` menjadi public label Normal saat migration; target `deep`/Complex dan Clarifier belum tersedia.
+- Existing trait-derived overlays adalah legacy MVP interpretation. Reader lama wajib tetap bekerja, tetapi session modular baru harus memakai per-module items dan independent scoring.
 - Scoring MVP adalah trait-profile internal untuk refleksi, bukan instrumen psikometri tervalidasi formal.
 - Item bank original saat ini hanya Bahasa Indonesia dan belum melewati validasi domain expert atau norming populasi.
 - Database runtime lokal memakai Docker-backed Supabase. Production memakai Vercel + satu Supabase hosted project Singapore dengan migration-only workflow.

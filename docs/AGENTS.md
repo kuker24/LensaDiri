@@ -6,7 +6,7 @@
 
 ## Ownership
 
-- `product/PRD_FULL_LensaDiri.md`: source product requirements, phase scope, acceptance criteria, security, privacy, scientific, and UX constraints.
+- `product/PRD_FULL_LensaDiri.md`: canonical PRD 2.0 product and engineering contract; separates current MVP production baseline from modular target, migration phases, API/data contracts, acceptance criteria, security, scientific, and UX constraints.
 - `architecture/ADR-0001-phase-0-foundation.md`: accepted historical Phase 0 foundation decision.
 - `security/PHASE_1_AUTH.md`: Phase 1 trust boundary, schema/RLS/grant, internal auth, session, CSRF, rate-limit, audit, and consent contract.
 - `qa/PHASE_1_VERIFICATION.md`: historical Phase 1 checkpoint and Docker recovery steps.
@@ -17,7 +17,8 @@
 
 ## Local Contracts
 
-- Separate implemented facts from PRD proposals, future phases, and target architecture.
+- Separate implemented MVP baseline from PRD 2.0 modular target. Module catalog, Test Composer, independent module scoring, Normal/Complex/Clarifier, target API, and target schema are not implemented facts until source and verification prove them.
+- Preserve PRD 2.0 decisions: modular lens selection, immutable blueprint, independent scoring per module, correlation after primary scoring, backward-compatible migration, and minimal-complete frontend before final visual replacement.
 - Preserve accepted ADR history. Correct historical records only through a new ADR or an explicit amendment; do not silently rewrite history.
 - Keep scientific language honest: no diagnosis, certainty, proprietary item reuse, unsupported validation claim, or fake social proof.
 - Never document credentials, private tokens, raw answers, private result data, raw IPs, or raw user-agent strings.
@@ -36,7 +37,8 @@
 
 ## Verification
 
-- Run Prettier on changed Markdown or JSON documentation.
+- Run Prettier on changed Markdown or JSON documentation, except canonical `product/PRD_FULL_LensaDiri.md`, which is intentionally listed in `.prettierignore` and maintained manually to preserve stable long-form contract diffs.
+- For PRD edits, inspect Markdown structure and `git diff --check`; do not run automatic whole-file formatting.
 - Confirm commands, paths, environment names, and routes against current repository files before documenting them.
 - Run `git diff --check` after documentation changes.
 - Root mandatory gates apply when documentation accompanies code changes.

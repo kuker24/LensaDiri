@@ -27,6 +27,8 @@
 - Import database, repository, and service modules only from server code. Preserve `server-only` guards and never import secret-dependent modules into client bundles.
 - Parse environment through `getServerEnvironment`; exact required names are `DATABASE_URL`, `NEXT_PUBLIC_APP_URL`, `AUTH_SESSION_SECRET`, `CSRF_SECRET`, `TOKEN_HASH_PEPPER`, and `RATE_LIMIT_SECRET`.
 - Keep `src/lib/scoring/likert.ts` and `src/lib/scoring/profile.ts` pure, deterministic, versioned, and unit-tested. Browser must never calculate primary score.
+- Treat current trait-derived 16-Type, motivation, and temperament output as legacy MVP interpretation only. Preserve old result reading, but do not use or expand it for new modular sessions.
+- New lenses require own versioned item bank, module-level scoring service, confidence, and result DTO. Correlation may combine completed module outputs only after independent primary scoring.
 - Store only Argon2id password hashes, HMAC hashes of session/assessment/result/share tokens, and hashed request fingerprints. Do not log or return password, raw token, raw IP, or raw user-agent.
 - Auth, account, assessment, result, share, feedback, export, and deletion mutations require strict Zod boundary, authorization token/session, relevant rate limit, and exact same-origin CSRF where cookie-authenticated mutation applies. Preserve generic auth failures.
 - `GET /api/auth/session` is CSRF bootstrap. Its signed token may be returned with `no-store`; session nonce cookie stays HttpOnly.
@@ -37,12 +39,14 @@
 
 ## Work Guidance
 
-1. Read root `AGENTS.md`, local `supabase/AGENTS.md` when persistence changes, and relevant PRD acceptance criteria before source changes.
-2. Keep database use in the trusted server boundary. Browser roles have no direct auth or MVP assessment table privileges or RLS policies.
-3. Add Zod validation at every route boundary and map database failures to safe public errors.
-4. Preserve transactional and idempotent behavior for session revocation, answer upsert, assessment completion, account erasure, rate-limit updates, and consent changes.
-5. Add focused regression tests for scoring, token, API, repository, auth, or interactive behavior changes.
-6. Keep private application behavior fail-closed when protected routes expand.
+1. Read root `AGENTS.md`, local `supabase/AGENTS.md` when persistence changes, and PRD 2.0 implementation phase plus acceptance criteria before source changes.
+2. During modular migration, preserve Quick 40/Standard 60 route and result compatibility; introduce catalog/composer/module services behind shared domain boundaries and feature flags.
+3. Keep immutable composer blueprint, selected module versions, scoring versions, and report template versions server-authoritative.
+4. Keep database use in the trusted server boundary. Browser roles have no direct auth or MVP assessment table privileges or RLS policies.
+5. Add Zod validation at every route boundary and map database failures to safe public errors.
+6. Preserve transactional and idempotent behavior for session revocation, answer upsert, assessment completion, account erasure, rate-limit updates, and consent changes.
+7. Add focused regression tests for scoring, token, API, repository, auth, or interactive behavior changes.
+8. Keep private application behavior fail-closed when protected routes expand.
 
 ## Verification
 

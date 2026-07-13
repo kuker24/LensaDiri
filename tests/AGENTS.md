@@ -13,13 +13,14 @@
 
 ## Local Contracts
 
-- Keep tests deterministic and independent of production credentials, `.env` contents, network-only state, and test order.
+- Keep tests deterministic and independent of production credentials, `.env` contents, and network-only state. Browser lifecycle specs intentionally share one disposable DB, so Playwright runs with `workers: 1`; never rely on cross-test residue.
 - Integration tests must use a disposable local database identified by `TEST_DATABASE_URL`. Never point them at shared, staging, or production databases.
 - Test security behavior without logging secrets, raw token values, raw answers, private result data, passwords, raw IPs, or raw user-agent strings.
 - Unit coverage verifies Likert/profile scoring, overlay determinism, input boundaries, token generation/HMAC, email/password/session, CSRF, rate limit, request schemas, and environment validation.
 - Integration coverage requires migrations and seed applied from clean local database. It verifies auth, hard delete, Quick/Standard assessment, result, feedback, and share persistence rather than mocks.
 - pgTAP database tests must retain default-deny expectations: RLS enabled and forced; no policies; no `SELECT`, `INSERT`, `UPDATE`, or `DELETE` privilege for `anon` and `authenticated` on sensitive tables.
 - Add explicit regression coverage for Likert range boundaries and security-sensitive behavior when related code changes. Source use of `timingSafeEqual` is not evidence of timing-characteristic test coverage.
+- Modular work must add coverage for immutable blueprint/version selection, independent per-module scoring, legacy Quick/Standard result reading, and feature-flag rollback paths.
 - Do not weaken assertions or skip tests to make checks pass.
 
 ## Work Guidance
@@ -42,6 +43,8 @@ npm run test:e2e
 ```
 
 `db:reset`, `test:integration`, and `test:db` require Docker-backed local Supabase. They passed at MVP checkpoint on 2026-07-13; rerun after DB, auth, repository, scoring, or assessment changes. Never substitute static SQL review for runtime evidence.
+
+GitHub Actions runs two gates: `Quality and build` performs clean install, format, lint, typecheck, unit, build, and dependency audit; `Database and browser tests` starts/reset disposable Supabase, runs integration and pgTAP, resets again, then runs serial desktop/Pixel 5 Playwright. Workflow values are dummy test-only values, never production credentials.
 
 Run root formatting, lint, typecheck, test, audit, and build gates before PR.
 
