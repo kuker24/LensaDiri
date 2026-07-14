@@ -6,6 +6,48 @@ const labels: Record<string, string> = {
   extraversion: "Energi sosial",
   agreeableness: "Kooperasi",
   emotional_sensitivity: "Kepekaan emosi",
+  type_16: "16-Type",
+  trait_profile: "Profil Trait",
+  enneagram: "Enneagram",
+  temperament: "Temperament",
+  intuition: "Pola dan kemungkinan",
+  feeling: "Pertimbangan manusia",
+  judging: "Struktur keputusan",
+  sanguine: "Ekspresif",
+  choleric: "Penggerak",
+  melancholic: "Mendalam",
+  phlegmatic: "Stabil",
+  reinforcing: "Pola saling menguatkan",
+  complementary: "Pola saling melengkapi",
+  reflective_tension: "Tegangan reflektif",
+  context_dependent: "Bergantung konteks",
+  low_confidence_conflict: "Perlu dibaca hati-hati",
+  too_fast: "respons sangat cepat",
+  straightlining: "pola jawaban seragam",
+  low_variance: "variasi respons rendah",
+  reverse_inconsistency: "pasangan respons kurang konsisten",
+  threshold_ambiguity: "skor dekat batas",
+  clarifier_recommended: "clarifier direkomendasikan",
+  clarifier_skipped: "clarifier dilewati",
+  weakest_module_low_confidence: "satu lensa memiliki confidence rendah",
+  mixed_evidence_tiers: "tier bukti beragam",
+};
+
+const narrativeLabels: Record<string, string> = {
+  "correlation.social_energy.aligned":
+    "Cara kamu menggambarkan energi sosial terlihat selaras di dua lensa.",
+  "correlation.social_energy.context_tension":
+    "Energi sosial tampak berbeda antar-lensa. Perbedaan ini dapat menunjukkan pengaruh konteks, bukan kontradiksi mutlak.",
+  "correlation.expression.aligned":
+    "Preferensi interaksi dan gaya ekspresi terlihat saling menguatkan.",
+  "correlation.expression.safe_context":
+    "Gaya ekspresi dapat berubah sesuai rasa aman dan konteks sosial.",
+  "correlation.readiness.sensitivity_aligned":
+    "Kepekaan dan kesiapsiagaan terlihat bergerak bersama dalam responsmu.",
+  "correlation.readiness.context_balance":
+    "Dorongan bersiap dan kepekaan emosional memberi konteks yang saling melengkapi.",
+  "correlation.mixed_confidence.caution":
+    "Confidence antar-lensa belum merata. Utamakan lensa dengan confidence lebih kuat.",
 };
 
 function formatKey(value: string): string {
@@ -21,9 +63,12 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
           {result.modules.length} lensa reflektif
         </h1>
         <p className="mt-5 max-w-2xl leading-7 text-indigo-100">{result.summary.disclaimer}</p>
-        <p className="mt-3 text-sm text-indigo-200">
-          Confidence keseluruhan {Math.round(result.quality.confidence * 100)}%
-        </p>
+        <div className="mt-5 flex flex-wrap items-center gap-3">
+          <span className="rounded-full bg-white/10 px-3 py-1.5 text-sm font-semibold text-white">
+            Confidence keseluruhan {Math.round(result.quality.confidence * 100)}%
+          </span>
+          <span className="text-sm text-indigo-200">Skor primer server-side · private</span>
+        </div>
       </div>
       <div className="mt-8 space-y-8">
         {result.modules.map((module) => (
@@ -56,11 +101,22 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
                 </div>
               ))}
             </div>
+            <div className="mt-5 flex flex-wrap items-center gap-2 border-t border-[var(--line)] pt-5 text-sm">
+              <span className="rounded-full bg-violet-100 px-3 py-1 font-semibold text-violet-900">
+                Evidence {module.evidenceTier.replace("_", " ")}
+              </span>
+              <span className="rounded-full bg-slate-100 px-3 py-1 text-slate-800">
+                Completion {Math.round(module.quality.completion * 100)}%
+              </span>
+            </div>
             {module.quality.flags.length > 0 ? (
-              <p className="mt-5 text-sm text-[var(--muted)]">
-                Catatan kualitas: {module.quality.flags.map(formatKey).join(", ")}.
-              </p>
-            ) : null}
+              <div className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
+                <p className="font-semibold">Catatan kualitas</p>
+                <p className="mt-1">{module.quality.flags.map(formatKey).join(", ")}.</p>
+              </div>
+            ) : (
+              <p className="mt-4 text-sm text-[var(--muted)]">Tidak ada quality warning utama.</p>
+            )}
           </section>
         ))}
       </div>
@@ -77,8 +133,12 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
               >
                 <h3 className="font-semibold capitalize">{formatKey(correlation.kind)}</h3>
                 <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-                  {correlation.sourceModuleKeys.map(formatKey).join(" · ")}. Confidence{" "}
-                  {Math.round(correlation.confidence * 100)}%.
+                  {narrativeLabels[correlation.narrativeKey] ??
+                    "Dua lensa memberi konteks tambahan yang perlu dibaca sebagai refleksi."}
+                </p>
+                <p className="mt-3 text-xs font-semibold text-violet-800">
+                  {correlation.sourceModuleKeys.map(formatKey).join(" · ")} · Confidence{" "}
+                  {Math.round(correlation.confidence * 100)}%
                 </p>
               </article>
             ))}

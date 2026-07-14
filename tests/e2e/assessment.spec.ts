@@ -1,5 +1,39 @@
 import { expect, test } from "@playwright/test";
 
+test("modular selection estimates, starts, pauses, resumes, and completes", async ({ page }) => {
+  await page.goto("/start/modules");
+  await expect(
+    page.getByRole("heading", { name: "Pilih lensa yang ingin kamu pahami." }),
+  ).toBeVisible();
+  await expect(page.getByText("Estimasi dari server")).toBeVisible();
+  await expect(page.getByText(/item · sekitar/u)).toBeVisible();
+
+  await page.getByText("16-Type").click();
+  await page.getByText("Profil Trait").click();
+  await page.getByRole("button", { name: /Quick/u }).click();
+  await expect(page.getByText(/32 item · sekitar/u)).toBeVisible();
+  await page.getByRole("button", { name: "Tinjau pilihan" }).click();
+  await expect(page).toHaveURL(/\/start\/review$/u);
+  await page.getByRole("checkbox").check();
+  await page.getByRole("button", { name: "Mulai assessment" }).click();
+  await expect(page).toHaveURL(/\/test\//u);
+  await expect(page.getByText(/Bagian 1 dari 1/u)).toBeVisible();
+
+  await page.getByRole("button", { name: "Jeda sesi" }).click();
+  await expect(page.getByRole("heading", { name: "Sesi dijeda" })).toBeVisible();
+  await page.getByRole("button", { name: "Lanjutkan sesi" }).click();
+  await expect(page.getByRole("button", { name: "Jeda sesi" })).toBeVisible();
+
+  for (let index = 0; index < 32; index += 1) {
+    await page.getByRole("button", { name: /4 Sesuai/u }).click();
+  }
+  await expect(page.getByRole("button", { name: "Lihat hasil" })).toBeVisible();
+  await page.getByRole("button", { name: "Lihat hasil" }).click();
+  await expect(page).toHaveURL(/\/result\//u);
+  await expect(page.getByRole("heading", { name: "16-Type" })).toBeVisible();
+  await expect(page.getByText(/Confidence keseluruhan/u)).toBeVisible();
+});
+
 test("Quick assessment autosaves, resumes, completes, shares, exports, revokes, and deletes", async ({
   page,
 }) => {

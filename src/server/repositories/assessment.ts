@@ -34,6 +34,7 @@ export type AssessmentQuestion = {
 export type AssessmentSessionView = {
   answeredCount: number;
   currentSegmentIndex?: number;
+  isModular: boolean;
   mode: AssessmentMode;
   questions: AssessmentQuestion[];
   segmentCount?: number;
@@ -240,6 +241,7 @@ export async function getAssessmentSessionByHash(
     return {
       answeredCount: questions.filter((question) => question.answer !== null).length,
       currentSegmentIndex: session.current_segment_index,
+      isModular: session.blueprint_id !== null,
       mode: session.mode,
       questions: questions.map((question) => ({
         answer: question.answer,
