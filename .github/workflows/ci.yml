@@ -92,7 +92,10 @@ jobs:
         run: npm run test:db
 
       - name: Reset disposable database for E2E
-        run: npm run db:reset
+        run: |
+          npm run db:reset
+          docker exec supabase_db_lensa-diri psql -U postgres -d postgres -v ON_ERROR_STOP=1 \
+            -c "update public.feature_flags set enabled = true where key = 'FEATURE_MODULAR_COMPOSER'"
 
       - name: Run Playwright
         run: npm run test:e2e
