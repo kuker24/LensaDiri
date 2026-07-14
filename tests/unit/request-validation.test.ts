@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { parseJsonRequest } from "@/lib/security/http";
 import {
   answerAssessmentSchema,
+  clarifierAssessmentSchema,
   startAssessmentSchema,
   tokenRequestSchema,
 } from "@/lib/validation/assessment";
@@ -60,6 +61,32 @@ describe("authentication request validation", () => {
       answerAssessmentSchema.safeParse({
         idempotencyKey: "not-uuid",
         questionId: "550e8400-e29b-41d4-a716-446655440001",
+        token,
+        value: 6,
+      }).success,
+    ).toBe(false);
+  });
+
+  it("strictly validates clarifier state actions and supplemental answers", () => {
+    const token = "a".repeat(43);
+    expect(clarifierAssessmentSchema.safeParse({ action: "start", token }).success).toBe(true);
+    expect(
+      clarifierAssessmentSchema.safeParse({
+        action: "answer",
+        questionId: "550e8400-e29b-41d4-a716-446655440001",
+        responseTimeMs: 1200,
+        token,
+        value: 4,
+      }).success,
+    ).toBe(true);
+    expect(clarifierAssessmentSchema.safeParse({ action: "skip", token }).success).toBe(true);
+    expect(clarifierAssessmentSchema.safeParse({ action: "skip", token, value: 4 }).success).toBe(
+      false,
+    );
+    expect(
+      clarifierAssessmentSchema.safeParse({
+        action: "answer",
+        questionId: "not-uuid",
         token,
         value: 6,
       }).success,

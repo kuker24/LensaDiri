@@ -52,8 +52,10 @@ describe("MVP assessment database lifecycle", () => {
       completeAssessment({ resultTokenHash: resultHash, sessionTokenHash: sessionHash }),
     ).resolves.toEqual({ resultId: expect.any(String) });
     const result = await getResultByHash(resultHash);
-    expect(result?.scores).toHaveLength(5);
-    expect(result?.quality.answeredItems).toBe(40);
+    expect(result?.kind).toBe("legacy");
+    if (result?.kind !== "legacy") throw new Error("Expected legacy result.");
+    expect(result.scores).toHaveLength(5);
+    expect(result.quality.answeredItems).toBe(40);
 
     await expect(
       createResultShare({
@@ -104,7 +106,9 @@ describe("MVP assessment database lifecycle", () => {
       completeAssessment({ resultTokenHash: resultHash, sessionTokenHash: sessionHash }),
     ).resolves.toEqual({ resultId: expect.any(String) });
     const result = await getResultByHash(resultHash);
-    expect(result?.scores).toHaveLength(5);
-    expect(result?.quality).toMatchObject({ answeredItems: 60, confidence: 1 });
+    expect(result?.kind).toBe("legacy");
+    if (result?.kind !== "legacy") throw new Error("Expected legacy result.");
+    expect(result.scores).toHaveLength(5);
+    expect(result.quality).toMatchObject({ answeredItems: 60, confidence: 1 });
   }, 120_000);
 });

@@ -1,6 +1,13 @@
 import "server-only";
 
+import type { JSONValue } from "postgres";
+
 import { getDatabase, withTransaction } from "@/lib/db/client";
+import { decideClarifier, type ClarifierDecision } from "@/lib/scoring/clarifier";
+import { correlateModuleResults } from "@/lib/scoring/correlation";
+import { scoreIndependentModule } from "@/lib/scoring/modules/registry";
+import type { IndependentModuleResult } from "@/lib/scoring/modules/types";
+import type { ModuleScoringAnswer } from "@/lib/scoring/quality";
 import {
   scoreProfile,
   traitKeys,
@@ -40,12 +47,51 @@ export type AccountResultSummary = {
   scoringVersion: string;
 };
 
-export type ResultView = {
+export type LegacyResultView = {
+  kind: "legacy";
   createdAt: string;
   quality: { answeredItems: number; confidence: number; straightLineWarning: boolean };
   scores: TraitScore[];
   summary: ProfileSummary;
 };
+
+export type ModularResultView = {
+  kind: "modular";
+  correlations: Array<{
+    confidence: number;
+    kind: string;
+    narrativeKey: string;
+    ruleKey: string;
+    sourceModuleKeys: string[];
+  }>;
+  createdAt: string;
+  modules: IndependentModuleResult[];
+  quality: { confidence: number; flags: string[] };
+  summary: { disclaimer: string; moduleKeys: string[] };
+};
+
+export type ResultView = LegacyResultView | ModularResultView;
+
+export type AssessmentCompletion =
+  { resultId: string } | { clarifiers: ClarifierDecision[]; status: "clarifier_required" };
+
+export type ClarifierQuestion = {
+  answer: number | null;
+  id: string;
+  moduleKey: string;
+  order: number;
+  text: string;
+};
+
+export type ClarifierSessionView = {
+  questions: ClarifierQuestion[];
+  status: "in_progress";
+  totalCount: number;
+};
+
+function toDatabaseJson(value: unknown): JSONValue {
+  return JSON.parse(JSON.stringify(value)) as JSONValue;
+}
 
 function isTraitKey(value: string): value is TraitKey {
   return (traitKeys as readonly string[]).includes(value);
@@ -308,23 +354,685 @@ export async function setAssessmentPaused(
   );
 }
 
-export async function completeAssessment(input: {
-  resultTokenHash: string;
-  sessionTokenHash: string;
-}): Promise<{ resultId: string } | null> {
+async function completeModularAssessmentInTransaction(
+  sql: Parameters<Parameters<typeof withTransaction>[0]>[0],
+  session: {
+    account_id: string | null;
+    blueprint_id: string;
+    id: string;
+    mode: AssessmentMode;
+  },
+  resultTokenHash: string,
+): Promise<AssessmentCompletion | null> {
+  const baseRows = await sql<
+    {
+      construct_key: string;
+      evidence_tier: IndependentModuleResult["evidenceTier"];
+      item_code: string;
+      module_key: string;
+      module_version_id: string;
+      polarity: ItemPolarity;
+      raw_value: LikertValue;
+      report_template_version: string;
+      response_time_ms: number | null;
+      scoring_version: string;
+      weight: string;
+    }[]
+  >`
+    select
+      modules.key as module_key,
+      modules.evidence_tier,
+      module_versions.id as module_version_id,
+      module_versions.scoring_version,
+      module_versions.report_template_version,
+      question_dimensions.construct_key,
+      questions.item_code,
+      question_dimension_mappings.polarity,
+      question_dimension_mappings.weight::text,
+      user_answers.raw_value,
+      user_answers.response_time_ms
+    from public.assessment_blueprint_items
+    inner join public.module_versions
+      on module_versions.id = assessment_blueprint_items.module_version_id
+    inner join public.modules on modules.id = module_versions.module_id
+    inner join public.questions on questions.id = assessment_blueprint_items.question_id
+    inner join public.question_dimensions
+      on question_dimensions.id = assessment_blueprint_items.dimension_id
+    inner join public.question_dimension_mappings
+      on question_dimension_mappings.question_id = questions.id
+      and question_dimension_mappings.dimension_id = question_dimensions.id
+      and question_dimension_mappings.scoring_role = 'primary'
+    inner join public.user_answers
+      on user_answers.question_id = questions.id
+      and user_answers.session_id = ${session.id}
+    where assessment_blueprint_items.blueprint_id = ${session.blueprint_id}
+    order by assessment_blueprint_items.display_order
+  `;
+  const supplementalRows = await sql<
+    {
+      construct_key: string;
+      evidence_tier: IndependentModuleResult["evidenceTier"];
+      item_code: string;
+      module_key: string;
+      module_version_id: string;
+      polarity: ItemPolarity;
+      raw_value: LikertValue;
+      report_template_version: string;
+      response_time_ms: number | null;
+      scoring_version: string;
+      weight: string;
+    }[]
+  >`
+    select
+      modules.key as module_key,
+      modules.evidence_tier,
+      module_versions.id as module_version_id,
+      module_versions.scoring_version,
+      module_versions.report_template_version,
+      question_dimensions.construct_key,
+      questions.item_code,
+      question_dimension_mappings.polarity,
+      question_dimension_mappings.weight::text,
+      result_clarifier_answers.raw_value,
+      result_clarifier_answers.response_time_ms
+    from public.result_clarifiers
+    inner join public.result_clarifier_items
+      on result_clarifier_items.clarifier_id = result_clarifiers.id
+    inner join public.result_clarifier_answers
+      on result_clarifier_answers.clarifier_item_id = result_clarifier_items.id
+    inner join public.module_versions
+      on module_versions.id = result_clarifiers.module_version_id
+    inner join public.modules on modules.id = module_versions.module_id
+    inner join public.questions on questions.id = result_clarifier_items.question_id
+    inner join public.question_dimensions
+      on question_dimensions.id = result_clarifier_items.dimension_id
+    inner join public.question_dimension_mappings
+      on question_dimension_mappings.question_id = questions.id
+      and question_dimension_mappings.dimension_id = question_dimensions.id
+      and question_dimension_mappings.scoring_role = 'primary'
+    where result_clarifiers.session_id = ${session.id}
+      and result_clarifiers.status = 'completed'
+    order by result_clarifiers.created_at, result_clarifier_items.display_order
+  `;
+  const rows = [...baseRows, ...supplementalRows];
+  const expectedRows = await sql<
+    {
+      evidence_tier: IndependentModuleResult["evidenceTier"];
+      item_count: number;
+      module_key: string;
+      module_version_id: string;
+      report_template_version: string;
+      scoring_version: string;
+    }[]
+  >`
+    select
+      modules.key as module_key,
+      modules.evidence_tier,
+      module_versions.id as module_version_id,
+      module_versions.scoring_version,
+      module_versions.report_template_version,
+      test_session_modules.required_answers as item_count
+    from public.test_session_modules
+    inner join public.module_versions on module_versions.id = test_session_modules.module_version_id
+    inner join public.modules on modules.id = module_versions.module_id
+    where test_session_modules.session_id = ${session.id}
+    order by modules.default_order
+  `;
+  const baseExpectedCount = expectedRows.reduce((sum, row) => sum + row.item_count, 0);
+  if (baseRows.length !== baseExpectedCount) return null;
+
+  const moduleResults = expectedRows.map((expected) => {
+    const moduleAnswers: ModuleScoringAnswer[] = rows
+      .filter((row) => row.module_key === expected.module_key)
+      .map((row) => ({
+        constructKey: row.construct_key,
+        itemCode: row.item_code,
+        polarity: row.polarity,
+        responseTimeMs: row.response_time_ms,
+        value: row.raw_value,
+        weight: Number(row.weight),
+      }));
+    const result = scoreIndependentModule({
+      answers: moduleAnswers,
+      expectedAnswers: moduleAnswers.length,
+      moduleKey: expected.module_key,
+    });
+    if (
+      result.evidenceTier !== expected.evidence_tier ||
+      result.scoringVersion !== expected.scoring_version
+    ) {
+      throw new Error(`Scoring provenance mismatch for ${expected.module_key}.`);
+    }
+    return { expected, result };
+  });
+  const resolvedRows = await sql<{ module_version_id: string; status: "completed" | "skipped" }[]>`
+    select module_version_id, status
+    from public.result_clarifiers
+    where session_id = ${session.id} and status in ('completed', 'skipped')
+  `;
+  const resolvedVersions = new Set(resolvedRows.map((row) => row.module_version_id));
+  const clarifierCandidates = moduleResults
+    .map(({ expected, result }) => ({ decision: decideClarifier(result), expected }))
+    .filter(
+      (entry): entry is { decision: ClarifierDecision; expected: (typeof expectedRows)[number] } =>
+        entry.decision !== null,
+    );
+  const clarifiers: ClarifierDecision[] = [];
+  for (const { decision, expected } of clarifierCandidates) {
+    const [capacity] = await sql<{ count: number }[]>`
+      select count(*)::integer as count
+      from public.questions
+      where module_version_id = ${expected.module_version_id}
+        and clarifier_enabled
+        and status in ('active', 'pilot', 'published', 'experimental')
+        and review_status = 'approved'
+        and not exists (
+          select 1 from public.assessment_blueprint_items
+          where assessment_blueprint_items.blueprint_id = ${session.blueprint_id}
+            and assessment_blueprint_items.question_id = questions.id
+        )
+    `;
+    const availableCount = capacity?.count ?? 0;
+    clarifiers.push({
+      ...decision,
+      itemCount: Math.min(decision.itemCount, Math.max(12, availableCount)),
+      required: decision.required && availableCount >= 12,
+    });
+  }
+  const requiredModuleKey = clarifiers
+    .filter((clarifier) => clarifier.required)
+    .toSorted((left, right) => {
+      const leftConfidence =
+        moduleResults.find(({ result }) => result.moduleKey === left.moduleKey)?.result
+          .confidence ?? 1;
+      const rightConfidence =
+        moduleResults.find(({ result }) => result.moduleKey === right.moduleKey)?.result
+          .confidence ?? 1;
+      return leftConfidence - rightConfidence || left.moduleKey.localeCompare(right.moduleKey);
+    })[0]?.moduleKey;
+  const normalizedClarifiers = clarifiers.map((clarifier) => ({
+    ...clarifier,
+    required: clarifier.required && clarifier.moduleKey === requiredModuleKey,
+  }));
+  const unresolvedRequired = normalizedClarifiers.filter((clarifier) => {
+    const expected = expectedRows.find((row) => row.module_key === clarifier.moduleKey);
+    return clarifier.required && expected && !resolvedVersions.has(expected.module_version_id);
+  });
+  if (unresolvedRequired.length > 0) {
+    for (const clarifier of normalizedClarifiers) {
+      const expected = expectedRows.find((row) => row.module_key === clarifier.moduleKey);
+      if (!expected || resolvedVersions.has(expected.module_version_id)) continue;
+      await sql`
+        insert into public.result_clarifiers (
+          session_id, module_version_id, reason_code, status,
+          target_dimensions_json, item_count, required
+        ) values (
+          ${session.id}, ${expected.module_version_id}, ${clarifier.reasonCode},
+          ${clarifier.required ? "required" : "recommended"},
+          ${sql.json(toDatabaseJson(clarifier.targetConstructKeys))}, ${clarifier.itemCount},
+          ${clarifier.required}
+        )
+        on conflict (session_id, module_version_id) do update set
+          reason_code = excluded.reason_code,
+          status = excluded.status,
+          target_dimensions_json = excluded.target_dimensions_json,
+          item_count = excluded.item_count,
+          required = excluded.required
+      `;
+    }
+    await sql`
+      update public.test_sessions set status = 'clarifier_required'
+      where id = ${session.id}
+    `;
+    return { clarifiers: unresolvedRequired, status: "clarifier_required" };
+  }
+
+  const correlations = correlateModuleResults(moduleResults.map(({ result }) => result));
+  const finalizedClarifiers = normalizedClarifiers;
+  const evidenceWeights: Record<IndependentModuleResult["evidenceTier"], number> = {
+    A: 1,
+    B: 0.85,
+    B_EXPERIMENTAL: 0.65,
+    C: 0,
+    EXPERIMENTAL: 0.5,
+  };
+  const weightedModules = moduleResults
+    .map(({ result }) => ({ result, weight: evidenceWeights[result.evidenceTier] }))
+    .filter(({ weight }) => weight > 0);
+  const weightTotal = weightedModules.reduce((sum, { weight }) => sum + weight, 0);
+  const overallConfidence = Number(
+    (weightTotal === 0
+      ? 0
+      : weightedModules.reduce((sum, { result, weight }) => sum + result.confidence * weight, 0) /
+        weightTotal
+    ).toFixed(4),
+  );
+  const overallFlags = new Set(
+    moduleResults.flatMap(({ result }) => result.quality.flags as readonly string[]),
+  );
+  if (moduleResults.some(({ result }) => result.confidence < 0.5)) {
+    overallFlags.add("weakest_module_low_confidence");
+  }
+  if (new Set(moduleResults.map(({ result }) => result.evidenceTier)).size > 1) {
+    overallFlags.add("mixed_evidence_tiers");
+  }
+  if (resolvedRows.some((row) => row.status === "skipped")) {
+    overallFlags.add("clarifier_skipped");
+  }
+  const [resultRow] = await sql<{ id: string }[]>`
+    insert into public.personality_results (
+      account_id, session_id, result_token_hash, scoring_version, summary_json, quality_json
+    ) values (
+      ${session.account_id}, ${session.id}, ${resultTokenHash}, 'modular-result-1',
+      ${sql.json({
+        disclaimer: "Hasil modular adalah refleksi dari lensa yang dipilih, bukan diagnosis.",
+        moduleKeys: moduleResults.map(({ result }) => result.moduleKey),
+      })},
+      ${sql.json({
+        confidence: overallConfidence,
+        flags: [...overallFlags].toSorted(),
+      })}
+    )
+    returning id
+  `;
+  if (!resultRow) throw new Error("Modular result insert returned no row.");
+
+  const resultModuleIds = new Map<string, string>();
+  for (const { expected, result } of moduleResults) {
+    const [moduleRow] = await sql<{ id: string }[]>`
+      insert into public.result_modules (
+        result_id, module_version_id, module_key, scoring_version, evidence_tier,
+        confidence, completion, ambiguity_json, summary_json, quality_json
+      ) values (
+        ${resultRow.id}, ${expected.module_version_id}, ${result.moduleKey},
+        ${result.scoringVersion}, ${result.evidenceTier}, ${result.confidence},
+        ${result.quality.completion}, ${sql.json(toDatabaseJson(result.ambiguity))},
+        ${sql.json(toDatabaseJson(result.summary))}, ${sql.json(toDatabaseJson(result.quality))}
+      ) returning id
+    `;
+    if (!moduleRow) throw new Error("Result module insert returned no row.");
+    resultModuleIds.set(result.moduleKey, moduleRow.id);
+    for (const score of result.scores) {
+      await sql`
+        insert into public.result_module_scores (
+          result_module_id, construct_key, facet_key, raw_score,
+          normalized_score, confidence, rank_or_candidate_json
+        ) values (
+          ${moduleRow.id}, ${score.constructKey}, ${score.facetKey}, ${score.rawScore},
+          ${score.normalizedScore}, ${score.confidence}, '{}'::jsonb
+        )
+      `;
+    }
+  }
+
+  await sql`
+    update public.result_clarifiers
+    set result_id = ${resultRow.id}
+    where session_id = ${session.id}
+  `;
+  for (const clarifier of finalizedClarifiers) {
+    const expected = expectedRows.find((row) => row.module_key === clarifier.moduleKey);
+    if (!expected || resolvedVersions.has(expected.module_version_id)) continue;
+    await sql`
+      insert into public.result_clarifiers (
+        session_id, result_id, module_version_id, reason_code, status,
+        target_dimensions_json, item_count, required
+      ) values (
+        ${session.id}, ${resultRow.id}, ${expected.module_version_id}, ${clarifier.reasonCode},
+        'recommended', ${sql.json(toDatabaseJson(clarifier.targetConstructKeys))},
+        ${clarifier.itemCount}, false
+      )
+      on conflict (session_id, module_version_id) do update set
+        result_id = excluded.result_id,
+        reason_code = excluded.reason_code,
+        target_dimensions_json = excluded.target_dimensions_json,
+        item_count = excluded.item_count
+    `;
+  }
+
+  for (const correlation of correlations) {
+    const [correlationRow] = await sql<{ id: string }[]>`
+      insert into public.result_correlations (
+        result_id, correlation_version, rule_key, kind, confidence,
+        narrative_key, context_json
+      ) values (
+        ${resultRow.id}, 'correlation-rules-1', ${correlation.ruleKey},
+        ${correlation.kind}, ${correlation.confidence}, ${correlation.narrativeKey},
+        ${sql.json(toDatabaseJson(correlation.context))}
+      ) returning id
+    `;
+    if (!correlationRow) throw new Error("Correlation insert returned no row.");
+    for (const moduleKey of correlation.sourceModuleKeys) {
+      const resultModuleId = resultModuleIds.get(moduleKey);
+      if (!resultModuleId) continue;
+      await sql`
+        insert into public.result_correlation_sources (correlation_id, result_module_id)
+        values (${correlationRow.id}, ${resultModuleId})
+      `;
+    }
+  }
+
+  const [blueprintVersion] = await sql<{ composer_version: string; content_version: string }[]>`
+    select composer_version, content_version
+    from public.assessment_blueprints where id = ${session.blueprint_id}
+  `;
+  if (!blueprintVersion) throw new Error("Blueprint version is unavailable.");
+  await sql`
+    insert into public.result_versions (
+      result_id, blueprint_id, composer_version, content_version,
+      report_template_version, is_legacy
+    ) values (
+      ${resultRow.id}, ${session.blueprint_id}, ${blueprintVersion.composer_version},
+      ${blueprintVersion.content_version},
+      ${expectedRows
+        .map((row) => row.report_template_version)
+        .toSorted()
+        .join("+")}, false
+    )
+  `;
+  await sql`
+    update public.test_session_modules
+    set status = 'completed', completed_at = now()
+    where session_id = ${session.id}
+  `;
+  await sql`
+    update public.test_session_segments
+    set status = 'completed', completed_at = now(), paused_at = null
+    where session_id = ${session.id}
+  `;
+  await sql`
+    update public.test_sessions
+    set status = 'completed', completed_at = now()
+    where id = ${session.id}
+  `;
+  return { resultId: resultRow.id };
+}
+
+async function loadClarifierSession(
+  sql: Parameters<Parameters<typeof withTransaction>[0]>[0],
+  sessionId: string,
+): Promise<ClarifierSessionView | null> {
+  const questions = await sql<
+    {
+      answer: number | null;
+      display_order: number;
+      id: string;
+      module_key: string;
+      public_text: string;
+    }[]
+  >`
+    select result_clarifier_items.question_id as id,
+      result_clarifier_items.display_order,
+      coalesce(question_translations.public_text, questions.public_text) as public_text,
+      modules.key as module_key,
+      result_clarifier_answers.raw_value as answer
+    from public.result_clarifiers
+    inner join public.result_clarifier_items
+      on result_clarifier_items.clarifier_id = result_clarifiers.id
+    inner join public.questions on questions.id = result_clarifier_items.question_id
+    inner join public.module_versions on module_versions.id = result_clarifiers.module_version_id
+    inner join public.modules on modules.id = module_versions.module_id
+    left join public.question_translations
+      on question_translations.question_id = questions.id
+      and question_translations.locale = 'id'
+    left join public.result_clarifier_answers
+      on result_clarifier_answers.clarifier_item_id = result_clarifier_items.id
+    where result_clarifiers.session_id = ${sessionId}
+      and result_clarifiers.status = 'in_progress'
+    order by result_clarifier_items.display_order
+  `;
+  if (questions.length === 0) return null;
+  return {
+    questions: questions.map((question) => ({
+      answer: question.answer,
+      id: question.id,
+      moduleKey: question.module_key,
+      order: question.display_order,
+      text: question.public_text,
+    })),
+    status: "in_progress",
+    totalCount: questions.length,
+  };
+}
+
+export async function startClarifier(
+  sessionTokenHash: string,
+): Promise<ClarifierSessionView | null> {
   return runDatabaseOperation(() =>
     withTransaction(async (sql) => {
-      const [session] = await sql<
-        { account_id: string | null; id: string; mode: AssessmentMode }[]
-      >`
-        select id, account_id, mode
+      const [session] = await sql<{ blueprint_id: string; id: string }[]>`
+        select id, blueprint_id
         from public.test_sessions
-        where session_token_hash = ${input.sessionTokenHash}
-          and status = 'active'
+        where session_token_hash = ${sessionTokenHash}
+          and status = 'clarifier_required'
+          and blueprint_id is not null
           and expires_at > now()
         for update
       `;
       if (!session) return null;
+      const existing = await loadClarifierSession(sql, session.id);
+      if (existing) return existing;
+
+      const [clarifier] = await sql<
+        { id: string; item_count: number; module_version_id: string; target_dimensions: string[] }[]
+      >`
+        select id, module_version_id, item_count,
+          array(select jsonb_array_elements_text(target_dimensions_json)) as target_dimensions
+        from public.result_clarifiers
+        where session_id = ${session.id} and status = 'required'
+        order by created_at, id
+        limit 1
+        for update
+      `;
+      if (!clarifier) return null;
+      const candidates = await sql<{ dimension_id: string; question_id: string }[]>`
+        select questions.dimension_id, questions.id as question_id
+        from public.questions
+        inner join public.question_dimensions
+          on question_dimensions.id = questions.dimension_id
+        where questions.module_version_id = ${clarifier.module_version_id}
+          and questions.clarifier_enabled
+          and questions.status in ('active', 'pilot', 'published', 'experimental')
+          and questions.review_status = 'approved'
+          and not exists (
+            select 1 from public.assessment_blueprint_items
+            where assessment_blueprint_items.blueprint_id = ${session.blueprint_id}
+              and assessment_blueprint_items.question_id = questions.id
+          )
+        order by
+          (question_dimensions.construct_key = any(${clarifier.target_dimensions}::text[])) desc,
+          questions.information_priority desc,
+          md5(${session.id} || ':' || questions.id::text),
+          questions.item_code
+        limit ${clarifier.item_count}
+      `;
+      if (candidates.length !== clarifier.item_count) return null;
+      for (const [index, candidate] of candidates.entries()) {
+        await sql`
+          insert into public.result_clarifier_items (
+            clarifier_id, question_id, dimension_id, display_order
+          ) values (
+            ${clarifier.id}, ${candidate.question_id}, ${candidate.dimension_id}, ${index + 1}
+          )
+        `;
+      }
+      await sql`
+        update public.result_clarifiers
+        set status = 'in_progress', started_at = now()
+        where id = ${clarifier.id}
+      `;
+      return loadClarifierSession(sql, session.id);
+    }),
+  );
+}
+
+export async function saveClarifierAnswer(input: {
+  questionId: string;
+  rawValue: LikertValue;
+  responseTimeMs: number | null;
+  sessionTokenHash: string;
+}): Promise<boolean> {
+  return runDatabaseOperation(async () => {
+    const sql = getDatabase();
+    const rows = await sql`
+      insert into public.result_clarifier_answers (
+        clarifier_item_id, raw_value, response_time_ms, answered_at
+      )
+      select result_clarifier_items.id, ${input.rawValue}, ${input.responseTimeMs}, now()
+      from public.result_clarifier_items
+      inner join public.result_clarifiers
+        on result_clarifiers.id = result_clarifier_items.clarifier_id
+      inner join public.test_sessions on test_sessions.id = result_clarifiers.session_id
+      where test_sessions.session_token_hash = ${input.sessionTokenHash}
+        and test_sessions.status = 'clarifier_required'
+        and test_sessions.expires_at > now()
+        and result_clarifiers.status = 'in_progress'
+        and result_clarifier_items.question_id = ${input.questionId}::uuid
+      on conflict (clarifier_item_id) do update set
+        raw_value = excluded.raw_value,
+        response_time_ms = excluded.response_time_ms,
+        answered_at = excluded.answered_at,
+        answer_revision = public.result_clarifier_answers.answer_revision + 1
+    `;
+    return rows.count > 0;
+  });
+}
+
+export async function resolveClarifier(input: {
+  action: "complete" | "skip";
+  resultTokenHash: string;
+  sessionTokenHash: string;
+}): Promise<AssessmentCompletion | null> {
+  return runDatabaseOperation(() =>
+    withTransaction(async (sql) => {
+      const [session] = await sql<
+        { account_id: string | null; blueprint_id: string; id: string; mode: AssessmentMode }[]
+      >`
+        select id, account_id, mode, blueprint_id
+        from public.test_sessions
+        where session_token_hash = ${input.sessionTokenHash}
+          and status in ('clarifier_required', 'completed')
+          and blueprint_id is not null
+          and expires_at > now()
+        for update
+      `;
+      if (!session) return null;
+      const [existing] = await sql<{ id: string }[]>`
+        select id from public.personality_results
+        where session_id = ${session.id} and deleted_at is null
+        limit 1
+      `;
+      if (existing) return { resultId: existing.id };
+      const [clarifier] = await sql<{ answered_count: number; id: string; item_count: number }[]>`
+        select result_clarifiers.id, result_clarifiers.item_count,
+          count(result_clarifier_answers.id)::integer as answered_count
+        from public.result_clarifiers
+        left join public.result_clarifier_items
+          on result_clarifier_items.clarifier_id = result_clarifiers.id
+        left join public.result_clarifier_answers
+          on result_clarifier_answers.clarifier_item_id = result_clarifier_items.id
+        where result_clarifiers.id = (
+          select candidate.id
+          from public.result_clarifiers as candidate
+          where candidate.session_id = ${session.id}
+            and candidate.status in ('required', 'in_progress')
+            and candidate.required
+          order by candidate.created_at, candidate.id
+          limit 1
+          for update
+        )
+        group by result_clarifiers.id
+      `;
+      if (!clarifier) return null;
+      if (input.action === "complete" && clarifier.answered_count !== clarifier.item_count) {
+        return null;
+      }
+      await sql`
+        update public.result_clarifiers
+        set status = ${input.action === "complete" ? "completed" : "skipped"},
+          completed_at = ${input.action === "complete" ? new Date() : null},
+          skipped_at = ${input.action === "skip" ? new Date() : null}
+        where id = ${clarifier.id}
+      `;
+      await sql`
+        update public.test_sessions set status = 'active'
+        where id = ${session.id}
+      `;
+      return completeModularAssessmentInTransaction(sql, session, input.resultTokenHash);
+    }),
+  );
+}
+
+export async function completeAssessment(input: {
+  resultTokenHash: string;
+  sessionTokenHash: string;
+}): Promise<AssessmentCompletion | null> {
+  return runDatabaseOperation(() =>
+    withTransaction(async (sql) => {
+      const [session] = await sql<
+        {
+          account_id: string | null;
+          blueprint_id: string | null;
+          id: string;
+          mode: AssessmentMode;
+          status: AssessmentSessionView["status"];
+        }[]
+      >`
+        select id, account_id, mode, status, blueprint_id
+        from public.test_sessions
+        where session_token_hash = ${input.sessionTokenHash}
+          and status in ('active', 'completed', 'clarifier_required')
+          and expires_at > now()
+        for update
+      `;
+      if (!session) return null;
+      const [existing] = await sql<{ id: string }[]>`
+        select id from public.personality_results
+        where session_id = ${session.id} and deleted_at is null
+        limit 1
+      `;
+      if (existing) return { resultId: existing.id };
+      if (session.status === "clarifier_required") {
+        const clarifierRows = await sql<
+          {
+            item_count: number;
+            module_key: string;
+            reason_code: ClarifierDecision["reasonCode"];
+            required: boolean;
+            target_dimensions_json: string[];
+          }[]
+        >`
+          select result_clarifiers.item_count, modules.key as module_key,
+            result_clarifiers.reason_code, result_clarifiers.required,
+            result_clarifiers.target_dimensions_json
+          from public.result_clarifiers
+          inner join public.module_versions
+            on module_versions.id = result_clarifiers.module_version_id
+          inner join public.modules on modules.id = module_versions.module_id
+          where result_clarifiers.session_id = ${session.id}
+            and result_clarifiers.status in ('required', 'in_progress')
+          order by result_clarifiers.created_at
+        `;
+        return clarifierRows.length === 0
+          ? null
+          : {
+              clarifiers: clarifierRows.map((clarifier) => ({
+                itemCount: clarifier.item_count,
+                moduleKey: clarifier.module_key,
+                reasonCode: clarifier.reason_code,
+                required: clarifier.required,
+                targetConstructKeys: clarifier.target_dimensions_json,
+              })),
+              status: "clarifier_required",
+            };
+      }
+      if (session.blueprint_id) {
+        return completeModularAssessmentInTransaction(
+          sql,
+          { ...session, blueprint_id: session.blueprint_id },
+          input.resultTokenHash,
+        );
+      }
 
       const rows = await sql<
         {
@@ -348,7 +1056,7 @@ export async function completeAssessment(input: {
           select module_version_id from public.test_sessions where id = ${session.id}
         )
           and questions.status = 'active'
-          and (${session.mode}::public.assessment_mode = 'standard' or questions.quick_enabled)
+          and (${session.mode}::public.assessment_mode in ('standard', 'deep') or questions.quick_enabled)
         order by questions.display_order
       `;
       const expectedCount = session.mode === "quick" ? 40 : 60;
@@ -408,30 +1116,24 @@ export async function getSharedResultByHash(shareTokenHash: string): Promise<Res
 async function getResult(kind: "result" | "share", tokenHash: string): Promise<ResultView | null> {
   return runDatabaseOperation(async () => {
     const sql = getDatabase();
+    type StoredResult = {
+      created_at: Date;
+      id: string;
+      quality_json: LegacyResultView["quality"] | ModularResultView["quality"];
+      scoring_version: string;
+      summary_json: ProfileSummary | ModularResultView["summary"];
+    };
     const resultRows =
       kind === "result"
-        ? await sql<
-            {
-              created_at: Date;
-              id: string;
-              quality_json: ResultView["quality"];
-              summary_json: ProfileSummary;
-            }[]
-          >`
-            select id, summary_json, quality_json, created_at
+        ? await sql<StoredResult[]>`
+            select id, scoring_version, summary_json, quality_json, created_at
             from public.personality_results
             where result_token_hash = ${tokenHash} and deleted_at is null
             limit 1
           `
-        : await sql<
-            {
-              created_at: Date;
-              id: string;
-              quality_json: ResultView["quality"];
-              summary_json: ProfileSummary;
-            }[]
-          >`
-            select personality_results.id, summary_json, quality_json, personality_results.created_at
+        : await sql<StoredResult[]>`
+            select personality_results.id, personality_results.scoring_version,
+              summary_json, quality_json, personality_results.created_at
             from public.result_share_tokens
             inner join public.personality_results
               on personality_results.id = result_share_tokens.result_id
@@ -443,6 +1145,101 @@ async function getResult(kind: "result" | "share", tokenHash: string): Promise<R
           `;
     const result = resultRows[0];
     if (!result) return null;
+
+    if (result.scoring_version === "modular-result-1") {
+      const moduleRows = await sql<
+        {
+          ambiguity_json: IndependentModuleResult["ambiguity"];
+          confidence: string;
+          evidence_tier: IndependentModuleResult["evidenceTier"];
+          id: string;
+          module_key: string;
+          quality_json: IndependentModuleResult["quality"];
+          scoring_version: string;
+          summary_json: IndependentModuleResult["summary"];
+        }[]
+      >`
+        select id, module_key, scoring_version, evidence_tier, confidence::text,
+          ambiguity_json, summary_json, quality_json
+        from public.result_modules
+        where result_id = ${result.id}
+        order by created_at, module_key
+      `;
+      const modules: IndependentModuleResult[] = [];
+      for (const moduleRow of moduleRows) {
+        const scores = await sql<
+          {
+            confidence: string;
+            construct_key: string;
+            facet_key: string;
+            normalized_score: string;
+            raw_score: string;
+          }[]
+        >`
+          select construct_key, facet_key, raw_score::text,
+            normalized_score::text, confidence::text
+          from public.result_module_scores
+          where result_module_id = ${moduleRow.id}
+          order by construct_key, facet_key
+        `;
+        modules.push({
+          ambiguity: moduleRow.ambiguity_json,
+          confidence: Number(moduleRow.confidence),
+          evidenceTier: moduleRow.evidence_tier,
+          moduleKey: moduleRow.module_key,
+          quality: moduleRow.quality_json,
+          scores: scores.map((score) => ({
+            confidence: Number(score.confidence),
+            constructKey: score.construct_key,
+            facetKey: score.facet_key,
+            normalizedScore: Number(score.normalized_score),
+            rawScore: Number(score.raw_score),
+          })),
+          scoringVersion: moduleRow.scoring_version,
+          summary: moduleRow.summary_json,
+        });
+      }
+      const correlationRows = await sql<
+        {
+          confidence: string;
+          kind: string;
+          narrative_key: string;
+          rule_key: string;
+          source_module_keys: string[];
+        }[]
+      >`
+        select result_correlations.rule_key, result_correlations.kind,
+          result_correlations.confidence::text, result_correlations.narrative_key,
+          coalesce(
+            array_agg(result_modules.module_key order by result_modules.module_key)
+              filter (where result_modules.module_key is not null),
+            array[]::text[]
+          ) as source_module_keys
+        from public.result_correlations
+        left join public.result_correlation_sources
+          on result_correlation_sources.correlation_id = result_correlations.id
+        left join public.result_modules
+          on result_modules.id = result_correlation_sources.result_module_id
+        where result_correlations.result_id = ${result.id}
+        group by result_correlations.id
+        order by result_correlations.rule_key
+      `;
+      return {
+        correlations: correlationRows.map((correlation) => ({
+          confidence: Number(correlation.confidence),
+          kind: correlation.kind,
+          narrativeKey: correlation.narrative_key,
+          ruleKey: correlation.rule_key,
+          sourceModuleKeys: correlation.source_module_keys,
+        })),
+        createdAt: result.created_at.toISOString(),
+        kind: "modular",
+        modules,
+        quality: result.quality_json as ModularResultView["quality"],
+        summary: result.summary_json as ModularResultView["summary"],
+      };
+    }
+
     const scores = await sql<
       { confidence: string; construct_key: TraitKey; normalized_score: string; raw_score: string }[]
     >`
@@ -453,14 +1250,15 @@ async function getResult(kind: "result" | "share", tokenHash: string): Promise<R
     `;
     return {
       createdAt: result.created_at.toISOString(),
-      quality: result.quality_json,
+      kind: "legacy",
+      quality: result.quality_json as LegacyResultView["quality"],
       scores: scores.map((score) => ({
         confidence: Number(score.confidence),
         constructKey: score.construct_key,
         normalizedScore: Number(score.normalized_score),
         rawScore: Number(score.raw_score),
       })),
-      summary: result.summary_json,
+      summary: result.summary_json as ProfileSummary,
     };
   });
 }
@@ -503,7 +1301,11 @@ export async function listAccountResultSummaries(
   return runDatabaseOperation(async () => {
     const sql = getDatabase();
     const rows = await sql<
-      { created_at: Date; scoring_version: string; summary_json: ProfileSummary }[]
+      {
+        created_at: Date;
+        scoring_version: string;
+        summary_json: ProfileSummary | ModularResultView["summary"];
+      }[]
     >`
       select summary_json, scoring_version, created_at
       from public.personality_results
@@ -512,7 +1314,10 @@ export async function listAccountResultSummaries(
       limit 20
     `;
     return rows.map((row) => ({
-      archetype: row.summary_json.archetype,
+      archetype:
+        row.scoring_version === "modular-result-1"
+          ? `Hasil modular (${(row.summary_json as ModularResultView["summary"]).moduleKeys.join(", ")})`
+          : (row.summary_json as ProfileSummary).archetype,
       createdAt: row.created_at.toISOString(),
       scoringVersion: row.scoring_version,
     }));

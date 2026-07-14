@@ -1,6 +1,6 @@
 begin;
 
-select plan(53);
+select plan(61);
 
 select ok(to_regclass('public.question_translations') is not null, 'question_translations exists');
 select ok(to_regclass('public.question_options') is not null, 'question_options exists');
@@ -17,6 +17,8 @@ select ok(to_regclass('public.result_module_scores') is not null, 'module scores
 select ok(to_regclass('public.result_correlations') is not null, 'correlations exists');
 select ok(to_regclass('public.result_correlation_sources') is not null, 'correlation sources exists');
 select ok(to_regclass('public.result_clarifiers') is not null, 'clarifiers exists');
+select ok(to_regclass('public.result_clarifier_items') is not null, 'clarifier items exists');
+select ok(to_regclass('public.result_clarifier_answers') is not null, 'clarifier answers exists');
 select ok(to_regclass('public.result_versions') is not null, 'result versions exists');
 select ok(to_regclass('public.feature_flags') is not null, 'feature flags exists');
 
@@ -40,6 +42,8 @@ select ok(
       'public.result_correlations'::regclass,
       'public.result_correlation_sources'::regclass,
       'public.result_clarifiers'::regclass,
+      'public.result_clarifier_items'::regclass,
+      'public.result_clarifier_answers'::regclass,
       'public.result_versions'::regclass,
       'public.feature_flags'::regclass
     ]) and not (relrowsecurity and relforcerowsecurity)
@@ -57,7 +61,7 @@ select ok(
         'assessment_blueprints', 'assessment_blueprint_items', 'test_session_modules',
         'test_session_segments', 'result_modules', 'result_module_scores',
         'result_correlations', 'result_correlation_sources', 'result_clarifiers',
-        'result_versions', 'feature_flags'
+        'result_clarifier_items', 'result_clarifier_answers', 'result_versions', 'feature_flags'
       )
   ),
   'modular tables have zero browser policies'
@@ -75,6 +79,10 @@ select ok(not has_table_privilege('authenticated', 'public.assessment_blueprint_
 select ok(not has_table_privilege('authenticated', 'public.test_session_segments', 'SELECT'), 'browser user cannot select segments');
 select ok(not has_table_privilege('authenticated', 'public.result_modules', 'SELECT'), 'browser user cannot select module results');
 select ok(not has_table_privilege('authenticated', 'public.result_correlations', 'SELECT'), 'browser user cannot select correlations');
+select ok(not has_table_privilege('anon', 'public.result_clarifier_items', 'SELECT'), 'anon cannot select clarifier items');
+select ok(not has_table_privilege('anon', 'public.result_clarifier_answers', 'SELECT'), 'anon cannot select clarifier answers');
+select ok(not has_table_privilege('authenticated', 'public.result_clarifier_items', 'SELECT'), 'browser user cannot select clarifier items');
+select ok(not has_table_privilege('authenticated', 'public.result_clarifier_answers', 'SELECT'), 'browser user cannot select clarifier answers');
 
 select ok(
   exists (
@@ -128,6 +136,24 @@ select ok(
       and confdeltype = 'c'
   ),
   'result deletion cascades module results'
+);
+select ok(
+  exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.result_clarifier_items'::regclass
+      and conname = 'result_clarifier_items_clarifier_id_fkey'
+      and confdeltype = 'c'
+  ),
+  'clarifier deletion cascades supplemental items'
+);
+select ok(
+  exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.result_clarifier_answers'::regclass
+      and conname = 'result_clarifier_answers_clarifier_item_id_fkey'
+      and confdeltype = 'c'
+  ),
+  'clarifier item deletion cascades supplemental answers'
 );
 select ok(
   exists (

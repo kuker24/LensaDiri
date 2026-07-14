@@ -8,7 +8,90 @@ const labels: Record<string, string> = {
   emotional_sensitivity: "Kepekaan emosi",
 };
 
+function formatKey(value: string): string {
+  return labels[value] ?? value.replaceAll("_", " ");
+}
+
+function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "modular" }> }) {
+  return (
+    <div>
+      <div className="rounded-3xl bg-[var(--foreground)] p-7 text-white sm:p-10">
+        <p className="text-sm font-semibold text-[var(--aqua)]">Hasil modularmu</p>
+        <h1 className="mt-3 text-3xl font-semibold tracking-tight sm:text-5xl">
+          {result.modules.length} lensa reflektif
+        </h1>
+        <p className="mt-5 max-w-2xl leading-7 text-indigo-100">{result.summary.disclaimer}</p>
+        <p className="mt-3 text-sm text-indigo-200">
+          Confidence keseluruhan {Math.round(result.quality.confidence * 100)}%
+        </p>
+      </div>
+      <div className="mt-8 space-y-8">
+        {result.modules.map((module) => (
+          <section
+            aria-labelledby={`module-${module.moduleKey}`}
+            className="rounded-2xl border border-[var(--line)] bg-white p-6"
+            key={module.moduleKey}
+          >
+            <div className="flex flex-wrap items-baseline justify-between gap-3">
+              <h2 className="text-2xl font-semibold capitalize" id={`module-${module.moduleKey}`}>
+                {formatKey(module.moduleKey)}
+              </h2>
+              <span className="text-sm text-[var(--muted)]">
+                Confidence {Math.round(module.confidence * 100)}%
+              </span>
+            </div>
+            <div className="mt-5 space-y-5">
+              {module.scores.map((score) => (
+                <div key={`${score.constructKey}-${score.facetKey}`}>
+                  <div className="flex justify-between gap-4">
+                    <h3 className="font-semibold capitalize">{formatKey(score.constructKey)}</h3>
+                    <span className="font-semibold">{score.normalizedScore}</span>
+                  </div>
+                  <div className="mt-3 h-2 overflow-hidden rounded-full bg-violet-100">
+                    <div
+                      className="h-full bg-violet-700"
+                      style={{ width: `${score.normalizedScore}%` }}
+                    />
+                  </div>
+                </div>
+              ))}
+            </div>
+            {module.quality.flags.length > 0 ? (
+              <p className="mt-5 text-sm text-[var(--muted)]">
+                Catatan kualitas: {module.quality.flags.map(formatKey).join(", ")}.
+              </p>
+            ) : null}
+          </section>
+        ))}
+      </div>
+      {result.correlations.length > 0 ? (
+        <section className="mt-8" aria-labelledby="correlation-heading">
+          <h2 className="text-2xl font-semibold" id="correlation-heading">
+            Hubungan antar-lensa
+          </h2>
+          <div className="mt-5 grid gap-4 md:grid-cols-2">
+            {result.correlations.map((correlation) => (
+              <article
+                className="rounded-2xl border border-[var(--line)] bg-violet-50 p-5"
+                key={correlation.ruleKey}
+              >
+                <h3 className="font-semibold capitalize">{formatKey(correlation.kind)}</h3>
+                <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+                  {correlation.sourceModuleKeys.map(formatKey).join(" · ")}. Confidence{" "}
+                  {Math.round(correlation.confidence * 100)}%.
+                </p>
+              </article>
+            ))}
+          </div>
+        </section>
+      ) : null}
+    </div>
+  );
+}
+
 export function ResultReport({ result }: { result: ResultView }) {
+  if (result.kind === "modular") return <ModularResultReport result={result} />;
+
   return (
     <div>
       <div className="rounded-3xl bg-[var(--foreground)] p-7 text-white sm:p-10">

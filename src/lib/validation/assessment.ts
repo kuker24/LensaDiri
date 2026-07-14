@@ -60,6 +60,29 @@ export const tokenRequestSchema = z
   .strict();
 
 export const completeAssessmentSchema = tokenRequestSchema;
+export const clarifierAssessmentSchema = z.discriminatedUnion("action", [
+  z
+    .object({
+      action: z.literal("start"),
+      token: opaqueTokenSchema,
+    })
+    .strict(),
+  z
+    .object({
+      action: z.literal("answer"),
+      questionId: uuidSchema,
+      responseTimeMs: z.number().int().min(0).max(3_600_000).nullable().optional(),
+      token: opaqueTokenSchema,
+      value: z.union([z.literal(1), z.literal(2), z.literal(3), z.literal(4), z.literal(5)]),
+    })
+    .strict(),
+  z
+    .object({
+      action: z.enum(["complete", "skip"]),
+      token: opaqueTokenSchema,
+    })
+    .strict(),
+]);
 export const resultMutationSchema = tokenRequestSchema;
 export const resultFeedbackSchema = z
   .object({
