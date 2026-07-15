@@ -20,7 +20,7 @@
 - Integration coverage requires migrations and seed applied from clean local database. It verifies auth, hard delete, Quick/Standard assessment, result, feedback, and share persistence rather than mocks.
 - pgTAP database tests must retain default-deny expectations: RLS enabled and forced; no policies; no `SELECT`, `INSERT`, `UPDATE`, or `DELETE` privilege for `anon` and `authenticated` on sensitive tables.
 - Add explicit regression coverage for Likert range boundaries and security-sensitive behavior when related code changes. Source use of `timingSafeEqual` is not evidence of timing-characteristic test coverage.
-- Modular work must cover immutable blueprint/version selection, expected scoring-version dispatch, independent per-module completion, legacy Quick/Standard result reading, feature-flag rollback, safe shared DTO projection, and full seed replay.
+- Modular work must cover immutable blueprint/version selection, expected scoring-version dispatch, independent per-module completion, legacy Quick/Standard result reading, feature-flag rollback, safe shared DTO projection, full seed replay, and canonical-drift rejection/restoration.
 - Trait provenance remediation requires Quick/Normal single completion, Trait+16-Type and Trait+Enneagram combos, retry identity, persisted blueprint/result provenance, legacy compatibility, and unknown-version rejection. Registry tests must dispatch by module key plus scoring version and fail closed.
 - Public share tests must prove private diagnostics exist only in `PrivateResultView`; `SafeSharedResultView` must omit IDs, raw scores, quality/confidence diagnostics, timing, clarifier data, feedback, audit data, scoring configuration, and token hashes. Cover revoked, expired, deleted, and unsupported-scope rejection.
 - Do not weaken assertions or skip tests to make checks pass.
@@ -39,6 +39,7 @@
 npm test
 npm run db:reset
 npm run test:seed-replay
+npm run test:seed-replay-drift
 export TEST_DATABASE_URL="$DATABASE_URL"
 npm run test:integration
 npm run test:db
@@ -49,7 +50,7 @@ After remediation, run full gates and three clean-reset loops before release evi
 
 `db:reset`, `test:integration`, and `test:db` require Docker-backed local Supabase. They passed at MVP checkpoint on 2026-07-13; rerun after DB, auth, repository, scoring, or assessment changes. Never substitute static SQL review for runtime evidence.
 
-GitHub Actions runs two gates: `Quality and build` performs clean install, format, lint, typecheck, unit, build, and dependency audit; `Database and browser tests` starts/resets disposable Supabase, runs integration, pgTAP, and seed replay, resets again, then runs serial desktop/Pixel 5 Playwright. Workflow values are dummy test-only values, never production credentials.
+GitHub Actions runs two gates: `Quality and build` performs clean install, format, lint, typecheck, unit, build, and dependency audit; `Database and browser tests` starts/resets disposable Supabase, runs integration, pgTAP, seed replay, canonical-drift rejection/restoration, resets again, then runs serial desktop/Pixel 5 Playwright. Workflow values are dummy test-only values, never production credentials.
 
 Run root formatting, lint, typecheck, test, audit, and build gates before PR.
 

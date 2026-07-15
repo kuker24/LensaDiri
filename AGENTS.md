@@ -110,8 +110,9 @@ npm run test:integration   # run real PostgreSQL integration suite; TEST_DATABAS
 npm run db:start           # start local Supabase; Docker required
 npm run db:reset           # reset local Supabase and apply migrations; Docker required
 npm run test:db            # run pgTAP database tests; Docker required
-npm run test:seed-replay   # replay configured seeds twice and verify stable canonical counts/hash
-npm run test:e2e           # run serial Playwright desktop + Pixel 5 tests against disposable shared DB
+npm run test:seed-replay         # replay configured seeds twice and verify pinned canonical counts/hash
+npm run test:seed-replay-drift   # prove local canonical drift is rejected, restored, then replayed
+npm run test:e2e                 # run serial Playwright desktop + Pixel 5 tests against disposable shared DB
 npm audit                  # audit production and development dependency tree
 npm run check              # lint, typecheck, unit test, and build
 ```
@@ -154,7 +155,7 @@ Definition of done: requirement terpenuhi, input tervalidasi, error state aman, 
 - Existing `quick` dan `standard` legacy tetap valid; modular memakai public label Quick/Normal/Complex. Complex dan Full Spectrum belum release-ready.
 - Existing trait-derived overlays adalah legacy MVP interpretation. Reader lama wajib tetap bekerja; session modular memakai per-module items dan independent scoring.
 - Trait modular remediation mempertahankan `trait_profile/mvp-1` untuk legacy dan menambah additive `modular-1` dengan `trait-profile-modular-1`. Composer/blueprint/result provenance dan scoring registry wajib match by module key plus scoring version; unknown or mismatched version fails closed. Do not mutate published version or old result.
-- Full seed replay uses `npm run test:seed-replay`: configured seeds replay twice, all flags stay false, duplicates are rejected, and canonical count/hash must remain stable. Published-content immutability trigger remains required; every seed touches only owning module/version content.
+- Full seed replay uses `npm run test:seed-replay`: configured seeds replay twice, all flags stay false, duplicates are rejected, and reviewed canonical count/hash must match. `npm run test:seed-replay-drift` must reject intentional local identity drift, restore it, and pass replay again. Published-content immutability trigger remains required; every seed touches only owning module/version content.
 - Private result, public shared result, and export use separate contracts. `toSafeSharedResultView()` is explicit allowlist mapping; public share never exposes quality diagnostics, raw scores, timing, IDs, scoring configuration, clarifier data, feedback, audit data, token hashes, or owner data.
 - Scoring dan item bank bersifat reflektif, original Bahasa Indonesia, dan belum melewati formal domain-expert validation, norming, reliability, factor, test-retest, atau DIF study.
 - Database runtime lokal memakai Docker-backed Supabase. Production memakai Vercel + satu Supabase hosted project Singapore dengan migration-only workflow.

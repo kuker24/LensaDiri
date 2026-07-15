@@ -27,6 +27,6 @@ All auth and MVP assessment tables are sensitive. RLS is enabled and forced with
 
 ## Verification
 
-Run `npm run db:reset` against clean local Supabase, then `npm run test:seed-replay` to replay every configured seed twice. Gate rejects duplicates and enabled flags, then requires stable module/version/dimension/item/translation/mapping/combo counts plus canonical SHA-256. Parent targeted evidence recorded modules `10`, versions `5`, dimensions `27`, questions/translations/mappings `258`, combo presets `6`, combo mappings `27`, and SHA-256 `b0168c9e675fb453f11e6227613b90ff2f710d69d3a44f42a4e8e857ea1fe75b`.
+Run `npm run db:reset` against clean local Supabase, then `npm run test:seed-replay` to replay every configured seed twice. Gate rejects duplicates and enabled flags, then requires reviewed module/version/dimension/item/translation/mapping/combo counts plus canonical SHA-256. Run `npm run test:seed-replay-drift` afterward: it must reject intentional local canonical drift, restore it, and pass replay again. Target evidence recorded modules `10`, versions `5`, dimensions `27`, questions/translations/mappings `258`, combo presets `6`, combo mappings `27`, and SHA-256 `b0168c9e675fb453f11e6227613b90ff2f710d69d3a44f42a4e8e857ea1fe75b`.
 
 Then run `npm run test:integration` with disposable `TEST_DATABASE_URL` and `npm run test:db`. pgTAP includes modular RLS/provenance assertions. Full remediation gates and three clean-reset loops remain required before release evidence. Static SQL review never replaces runtime verification.

@@ -21,7 +21,7 @@ Production project identifiers, database URLs, access tokens, passwords, API key
 - Modular remediation source: additive `trait_profile/modular-1`, version-aware scoring dispatch, immutable result provenance, replay-safe seed contract, and separated private/shared/export result DTOs.
 - Privacy boundary: token HMAC hashes, forced RLS, no browser policies/direct table privileges, trusted server PostgreSQL client, generic API failures, and explicit allowlist mapping for public shared results.
 - Operations: liveness-only health endpoint, Vercel/Supabase production guide, migration map, security headers, and ignored local runtime metadata.
-- Modular release remains feature-flagged. P0/P1 remediation passes full disposable-local gates and three clean-reset loops; implementation commits `f8c1c3c` and `65f934b` exist locally, while audit/docs commit, branch push, and GitHub Actions remain pending. No production migration, deploy, or flag activation has occurred.
+- Modular release remains feature-flagged. P0/P1 remediation passes full disposable-local gates, three clean-reset loops, and canonical-drift rejection/restoration. Implementation commits `f8c1c3c`, `65f934b`, `e400834`, and `b3f86f6` exist locally; this evidence update, branch push, and GitHub Actions remain pending. No production migration, deploy, or flag activation has occurred.
 
 ## Database provenance
 
@@ -50,13 +50,14 @@ Baseline verification used disposable local-only secrets and local Supabase Post
 | `npm audit`                            | PASS: `0 vulnerabilities`.                                                                                                                                                                             |
 | `npm run db:reset`                     | PASS against disposable local Supabase only.                                                                                                                                                           |
 | `npm run test:seed-replay`             | PASS: modules `10`, versions `5`, dimensions `27`, questions/translations/mappings `258`, combos `6`, combo mappings `27`; SHA-256 `b0168c9e675fb453f11e6227613b90ff2f710d69d3a44f42a4e8e857ea1fe75b`. |
+| `npm run test:seed-replay-drift`       | PASS: intentional local canonical mismatch exits `1`; restoration and post-restore replay PASS.                                                                                                        |
 | `npm run test:integration`             | PASS: `5 files / 21 tests`.                                                                                                                                                                            |
 | `npm run test:db`                      | PASS: plans `66 + 48 + 92 = 206` assertions; command exit `0`.                                                                                                                                         |
 | `CI=1 npm run test:e2e`                | PASS: `12/12`, 6 desktop Chrome and 6 Pixel 5 tests.                                                                                                                                                   |
 | Three clean-reset loops                | PASS: each loop reset, replay, integration `21`, pgTAP `206`, E2E `12`; canonical seed hash unchanged.                                                                                                 |
 | Scoped concrete-secret scan            | PASS: `0`; dummy CI values only.                                                                                                                                                                       |
 | `git diff --check`                     | PASS.                                                                                                                                                                                                  |
-| GitHub Actions for remediation commits | PENDING until commits are pushed; do not treat local evidence as merge approval.                                                                                                                       |
+| GitHub Actions for remediation commits | PENDING until follow-up commits are pushed; must cover replay and canonical-drift CI gates.                                                                                                            |
 
 ## Production evidence
 
@@ -79,7 +80,7 @@ Baseline verification used disposable local-only secrets and local Supabase Post
 
 ## Residual risks
 
-- P0/P1 remediation full local gates and three clean-reset loops PASS, but audit/docs commit, branch push, GitHub Actions, release migration map, backup/forward-fix decision, and audit delta remain required before hosted dry-run.
+- P0/P1 remediation full local gates, three clean-reset loops, and canonical-drift proof PASS, but this evidence update, branch push, GitHub Actions, release migration map, backup/forward-fix decision, and audit delta remain required before hosted dry-run.
 - PRD v2 remains PARTIAL: Complex/full-spectrum proof, public catalog/supporting routes, active-session dashboard, additional module engines, retention/consent expansion, operations readiness, formal WCAG, and psychometric validation remain open.
 - Single hobby Supabase production project; no staging environment.
 - Monitoring integration, backup/restore drill, custom domain, email verification, password reset, formal WCAG audit, and psychometric/domain-expert validation remain open.

@@ -6,7 +6,7 @@
 - Working branch: `agent/phase-1-foundation`.
 - Last committed candidate: `679d54ef2cadfd122a31efea5ec8c6548bee9b3a`.
 - PR: `https://github.com/kuker24/LensaDiri/pull/3`.
-- Remediation implementation is committed locally after baseline candidate `679d54e`: `f8c1c3c fix(assessment): harden modular result provenance and shared views` and `65f934b fix(seed): make modular seed workflow replay-safe`. Documentation audit commit and branch push remain pending.
+- Remediation implementation is committed locally after baseline candidate `679d54e`: `f8c1c3c fix(assessment): harden modular result provenance and shared views`, `65f934b fix(seed): make modular seed workflow replay-safe`, `e400834 docs(audit): record P0 remediation evidence`, and `b3f86f6 test(db): verify canonical seed identity`. This audit delta commit and branch push remain pending.
 - Production is not part of this audit. No hosted reset, migration, deployment, feature-flag change, credential read, or credential output occurred.
 
 ### Status legend
@@ -24,7 +24,7 @@
 
 **PRD implementation status: `PARTIAL`. Release status: `BLOCKED` for merge, hosted dry-run, production migration, deployment, and modular flag activation.**
 
-P0 Trait provenance, P0 seed replay safety, and P1 safe shared-result projection pass complete disposable-local verification and three clean-reset loops. Source commits exist locally; branch push, remediation GitHub Actions, and release migration evidence remain pending. PRD v2 remains `PARTIAL`: Complex/full-spectrum release proof, public catalog and supporting routes, active-session dashboard, six remaining module engines, consent/retention work, operations readiness, formal accessibility audit, and psychometric validation are unfinished.
+P0 Trait provenance, P0 seed replay safety, and P1 safe shared-result projection pass complete disposable-local verification and three clean-reset loops. Canonical seed identity is pinned by count and SHA-256; negative local drift exits `1`, restoration succeeds, and post-restore replay passes. Source commits exist locally; this audit delta, branch push, remediation GitHub Actions, and release migration evidence remain pending. PRD v2 remains `PARTIAL`: Complex/full-spectrum release proof, public catalog and supporting routes, active-session dashboard, six remaining module engines, consent/retention work, operations readiness, formal accessibility audit, and psychometric validation are unfinished.
 
 Do not merge PR #3. Do not run hosted dry-run. Do not migrate or deploy production. Keep all production feature flags unchanged and default-off.
 
@@ -49,15 +49,15 @@ Full local evidence: unit `13 files / 53 tests`, integration `5 files / 21 tests
 
 **Status: `IMPLEMENTED` locally; full disposable-local verification PASS; GitHub Actions pending after push.**
 
-| Requirement                   | Evidence                                                                                                                                                                                                                                                                                                                         |
-| ----------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Preserve immutability         | Published-content triggers remain enabled. No trigger was weakened, removed, or bypassed.                                                                                                                                                                                                                                        |
-| Bound legacy ownership        | `supabase/seed/20260713_mvp_item_bank.sql` is bounded to legacy `trait_profile/mvp-1`; it no longer globally updates translations or mappings belonging to published modular content.                                                                                                                                            |
-| Insert-once published content | `supabase/seed/20260714_modular_catalog.sql`, `supabase/seed/20260715_independent_core_modules.sql`, and additive Trait modular seed use owned module/version scope and insert-once semantics. Content revisions require a new version.                                                                                          |
-| Replay gate                   | `scripts/test-seed-replay.mjs` snapshots canonical rows, replays every configured seed twice, rejects duplicates or enabled feature flags, and compares stable counts plus SHA-256 canonical hash. `package.json` exposes `npm run test:seed-replay`. `.github/workflows/ci.yml` runs it after pgTAP.                            |
-| Targeted result               | Parent reran `npm run test:seed-replay`: PASS. Stable counts: modules `10`, module_versions `5`, dimensions `27`, questions/translations/mappings `258` each, combo_presets `6`, combo_mappings `27`. Canonical SHA-256: `b0168c9e675fb453f11e6227613b90ff2f710d69d3a44f42a4e8e857ea1fe75b`. All feature flags remained `false`. |
+| Requirement                   | Evidence                                                                                                                                                                                                                                                                                                                                                                                                                    |
+| ----------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Preserve immutability         | Published-content triggers remain enabled. No trigger was weakened, removed, or bypassed.                                                                                                                                                                                                                                                                                                                                   |
+| Bound legacy ownership        | `supabase/seed/20260713_mvp_item_bank.sql` is bounded to legacy `trait_profile/mvp-1`; it no longer globally updates translations or mappings belonging to published modular content.                                                                                                                                                                                                                                       |
+| Insert-once published content | `supabase/seed/20260714_modular_catalog.sql`, `supabase/seed/20260715_independent_core_modules.sql`, and additive Trait modular seed use owned module/version scope and insert-once semantics. Content revisions require a new version.                                                                                                                                                                                     |
+| Replay gate                   | `scripts/test-seed-replay.mjs` snapshots canonical rows, replays every configured seed twice, rejects duplicates or enabled feature flags, and compares stable counts plus pinned SHA-256 canonical hash. `scripts/test-seed-replay-drift.mjs` proves intentional local identity drift fails, restores the row, then reruns replay. `package.json` exposes both commands; `.github/workflows/ci.yml` runs both after pgTAP. |
+| Targeted result               | Parent reran `npm run test:seed-replay`: PASS. Stable counts: modules `10`, module_versions `5`, dimensions `27`, questions/translations/mappings `258` each, combo_presets `6`, combo_mappings `27`. Canonical SHA-256: `b0168c9e675fb453f11e6227613b90ff2f710d69d3a44f42a4e8e857ea1fe75b`. All feature flags remained `false`.                                                                                            |
 
-Full local evidence: initial replay and every one of three clean-reset loops PASS. Stable counts are modules `10`, module versions `5`, dimensions `27`, questions/translations/mappings `258` each, combo presets `6`, combo mappings `27`; canonical SHA-256 remains `b0168c9e675fb453f11e6227613b90ff2f710d69d3a44f42a4e8e857ea1fe75b`. GitHub Actions remains pending after remediation commits are pushed.
+Full local evidence: initial replay and every one of three clean-reset loops PASS. Stable counts are modules `10`, module versions `5`, dimensions `27`, questions/translations/mappings `258` each, combo presets `6`, combo mappings `27`; canonical SHA-256 remains `b0168c9e675fb453f11e6227613b90ff2f710d69d3a44f42a4e8e857ea1fe75b`. `npm run test:seed-replay-drift` PASS: intentional mismatch exits `1`, restoration succeeds, and post-restore replay passes. GitHub Actions remains pending after follow-up commits are pushed.
 
 ### P1 — Safe public shared-result DTO
 
@@ -134,7 +134,7 @@ Full local evidence: private/shared/export projection unit coverage, legacy/modu
 
 Before hosted dry-run, merge, migration, or deploy:
 
-1. Commit and push remediation source with explicit path staging, then require a new GitHub Actions PASS, including seed replay and desktop/Pixel 5 Playwright.
+1. Commit and push remediation source with explicit path staging, then require a new GitHub Actions PASS, including seed replay, canonical-drift rejection, and desktop/Pixel 5 Playwright.
 2. Update `docs/deployment/PRODUCTION_MIGRATION_MAP.md` with modular migration checksums, dependencies, expected effects/backfill, lock risk, forward-fix reservation, rollback threshold, backup checkpoint requirement, and post-migration read-only verification.
 3. Record backup/restore capability or accepted platform limitation.
 4. Resolve or explicitly defer broader `PARTIAL` PRD requirements with product approval. Only then run non-destructive linked Supabase dry-run.
@@ -152,12 +152,13 @@ No production reset, destructive test, migration, deployment, or flag change is 
 | `npm audit`                        | PASS — `0 vulnerabilities`.                                                                           |
 | `npm run db:reset`                 | PASS — disposable local Supabase only.                                                                |
 | Seed replay                        | PASS — initial replay plus three loop replays; stable counts/hash recorded above.                     |
+| Seed replay canonical drift        | PASS — intentional local mismatch fails; restoration plus replay succeeds.                            |
 | Integration                        | PASS — `5 files / 21 tests`.                                                                          |
 | pgTAP                              | PASS — plans `66 + 48 + 92 = 206` assertions; command exit `0`.                                       |
 | Playwright                         | PASS — `12/12`: `6` desktop Chrome and `6` Pixel 5.                                                   |
 | Three clean-reset loops            | PASS — each reset, replay, integration `21`, pgTAP `206`, and E2E `12` succeeded with same seed hash. |
 | Secret scan and `git diff --check` | PASS — scoped scan found `0` concrete credentials; only dummy CI strings.                             |
-| New GitHub Actions                 | `BLOCKED` — remediation commits are not pushed yet.                                                   |
+| New GitHub Actions                 | `PENDING` — follow-up commits must run replay, canonical-drift, and browser gates.                    |
 | Production actions                 | `SKIPPED` by explicit prohibition.                                                                    |
 
 ## Next order
