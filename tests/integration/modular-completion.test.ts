@@ -32,8 +32,9 @@ afterAll(async () => {
 });
 
 async function startAndAnswer(
-  moduleKeys: string[],
+  moduleKeys: readonly string[],
   valueFor: (index: number) => 1 | 2 | 3 | 4 | 5,
+  mode: "quick" | "standard" = "quick",
 ) {
   const sessionHash = hashOpaqueToken(`modular-completion-${randomUUID()}`, pepper);
   await expect(
@@ -47,7 +48,7 @@ async function startAndAnswer(
         selection: {
           age: 18,
           experimentalAcknowledged: false,
-          mode: "quick",
+          mode,
           moduleKeys,
           presetKey: null,
           selectionType: moduleKeys.length === 1 ? "single" : "custom_combo",
@@ -73,6 +74,156 @@ async function startAndAnswer(
 }
 
 describe("modular completion PostgreSQL lifecycle", () => {
+  it("completes Trait Profile Quick with immutable provenance and retry-safe identity", async () => {
+    const sql = getDatabase();
+    const sessionHash = await startAndAnswer(
+      ["trait_profile"],
+      (index) => ((index % 5) + 1) as 1 | 2 | 3 | 4 | 5,
+    );
+    const resultHash = hashOpaqueToken(`trait-quick-result-${randomUUID()}`, pepper);
+    const completion = await completeAssessment({
+      resultTokenHash: resultHash,
+      sessionTokenHash: sessionHash,
+    });
+    expect(completion).toEqual({ resultId: expect.any(String) });
+    await expect(
+      completeAssessment({
+        resultTokenHash: hashOpaqueToken(`trait-quick-retry-${randomUUID()}`, pepper),
+        sessionTokenHash: sessionHash,
+      }),
+    ).resolves.toEqual(completion);
+
+    await expect(getResultByHash(resultHash)).resolves.toMatchObject({
+      kind: "modular",
+      modules: [
+        expect.objectContaining({
+          moduleKey: "trait_profile",
+          scoringVersion: "trait-profile-modular-1",
+        }),
+      ],
+    });
+    const [stored] = await sql<
+      {
+        blueprint_composer_version: string;
+        blueprint_item_bank_version: string;
+        blueprint_scoring_version: string;
+        composer_version: string;
+        item_bank_version: string;
+        module_version: string;
+        scoring_version: string;
+      }[]
+    >`
+      select
+        assessment_blueprints.composer_version as blueprint_composer_version,
+        selected_module.value->>'itemBankVersion' as blueprint_item_bank_version,
+        selected_module.value->>'scoringVersion' as blueprint_scoring_version,
+        result_modules.composer_version,
+        result_modules.item_bank_version,
+        module_versions.version as module_version,
+        result_modules.scoring_version
+      from public.personality_results
+      inner join public.result_modules on result_modules.result_id = personality_results.id
+      inner join public.module_versions on module_versions.id = result_modules.module_version_id
+      inner join public.result_versions on result_versions.result_id = personality_results.id
+      inner join public.assessment_blueprints on assessment_blueprints.id = result_versions.blueprint_id
+      cross join lateral jsonb_array_elements(assessment_blueprints.selected_modules_json) as selected_module(value)
+      where personality_results.result_token_hash = ${resultHash}
+        and selected_module.value->>'moduleKey' = 'trait_profile'
+    `;
+    expect(stored).toEqual({
+      blueprint_composer_version: "modular-composer-1",
+      blueprint_item_bank_version: "trait-profile-modular-1",
+      blueprint_scoring_version: "trait-profile-modular-1",
+      composer_version: "modular-composer-1",
+      item_bank_version: "trait-profile-modular-1",
+      module_version: "modular-1",
+      scoring_version: "trait-profile-modular-1",
+    });
+  }, 120_000);
+
+  it("completes Trait Profile Normal from its modular-1 item bank", async () => {
+    const sessionHash = await startAndAnswer(
+      ["trait_profile"],
+      (index) => ((index % 5) + 1) as 1 | 2 | 3 | 4 | 5,
+      "standard",
+    );
+    const session = await getAssessmentSessionByHash(sessionHash);
+    expect(session?.totalCount).toBe(60);
+    const resultHash = hashOpaqueToken(`trait-normal-result-${randomUUID()}`, pepper);
+    await expect(
+      completeAssessment({ resultTokenHash: resultHash, sessionTokenHash: sessionHash }),
+    ).resolves.toEqual({ resultId: expect.any(String) });
+    await expect(getResultByHash(resultHash)).resolves.toMatchObject({
+      kind: "modular",
+      modules: [expect.objectContaining({ moduleKey: "trait_profile", scores: expect.any(Array) })],
+    });
+  }, 120_000);
+
+  it("completes Trait Profile plus 16-Type and Enneagram without legacy provenance", async () => {
+    for (const [moduleKeys, mode] of [
+      [["trait_profile", "type_16"], "quick"],
+      [["trait_profile", "enneagram"], "standard"],
+    ] as const) {
+      const sessionHash = await startAndAnswer(
+        moduleKeys,
+        (index) => ((index % 5) + 1) as 1 | 2 | 3 | 4 | 5,
+        mode,
+      );
+      const resultHash = hashOpaqueToken(`trait-combo-result-${randomUUID()}`, pepper);
+      await expect(
+        completeAssessment({ resultTokenHash: resultHash, sessionTokenHash: sessionHash }),
+      ).resolves.toEqual({ resultId: expect.any(String) });
+      const result = await getResultByHash(resultHash);
+      expect(result?.kind).toBe("modular");
+      if (result?.kind !== "modular") throw new Error("Expected modular result.");
+      expect(new Set(result.modules.map((module) => module.moduleKey))).toEqual(
+        new Set(moduleKeys),
+      );
+      expect(
+        result.modules.find((module) => module.moduleKey === "trait_profile")?.scoringVersion,
+      ).toBe("trait-profile-modular-1");
+    }
+  }, 120_000);
+
+  it("rejects tampered immutable blueprint scoring provenance without partial result", async () => {
+    const sql = getDatabase();
+    const sessionHash = await startAndAnswer(
+      ["trait_profile"],
+      (index) => ((index % 5) + 1) as 1 | 2 | 3 | 4 | 5,
+    );
+    const [session] = await sql<{ blueprint_id: string; id: string }[]>`
+      select id, blueprint_id from public.test_sessions where session_token_hash = ${sessionHash}
+    `;
+    expect(session).toBeDefined();
+    await sql`
+      alter table public.assessment_blueprints disable trigger assessment_blueprints_immutable
+    `;
+    try {
+      await sql`
+        update public.assessment_blueprints
+        set selected_modules_json = jsonb_set(
+          selected_modules_json,
+          '{0,scoringVersion}',
+          '"trait-profile-mvp-1"'::jsonb
+        )
+        where id = ${session!.blueprint_id}
+      `;
+    } finally {
+      await sql`
+        alter table public.assessment_blueprints enable trigger assessment_blueprints_immutable
+      `;
+    }
+    const resultHash = hashOpaqueToken(`trait-tampered-result-${randomUUID()}`, pepper);
+    await expect(
+      completeAssessment({ resultTokenHash: resultHash, sessionTokenHash: sessionHash }),
+    ).rejects.toThrow("Database operation failed.");
+    await expect(getResultByHash(resultHash)).resolves.toBeNull();
+    const [resultCount] = await sql<{ count: number }[]>`
+      select count(*)::integer as count from public.personality_results where session_id = ${session!.id}
+    `;
+    expect(resultCount?.count).toBe(0);
+  }, 120_000);
+
   it("completes one lens atomically, reads retry-safe DTO, shares, and deletes", async () => {
     const sessionHash = await startAndAnswer(
       ["type_16"],
@@ -106,8 +257,40 @@ describe("modular completion PostgreSQL lifecycle", () => {
         shareTokenHash: shareHash,
       }),
     ).resolves.toBe(true);
-    await expect(getSharedResultByHash(shareHash)).resolves.toMatchObject({ kind: "modular" });
+    const shared = await getSharedResultByHash(shareHash);
+    expect(shared).toMatchObject({
+      kind: "modular",
+      modules: expect.arrayContaining([
+        expect.objectContaining({
+          evidenceTier: "B",
+          key: "type_16",
+          name: "16-Type",
+          scores: expect.arrayContaining([
+            expect.objectContaining({
+              constructKey: "extraversion",
+              normalizedScore: expect.any(Number),
+            }),
+          ]),
+        }),
+      ]),
+    });
+    const serializedShared = JSON.stringify(shared);
+    for (const prohibited of [
+      "ambiguity",
+      "confidence",
+      "flags",
+      "quality",
+      "rawScore",
+      "ruleKey",
+      "scoringVersion",
+    ]) {
+      expect(serializedShared).not.toContain(prohibited);
+    }
+    const privateReread = await getResultByHash(resultHash);
+    expect(privateReread).toMatchObject({ kind: "modular", quality: expect.any(Object) });
+    await expect(getSharedResultByHash(shareHash)).resolves.toEqual(shared);
     await expect(deleteResultByHash(resultHash)).resolves.toBe(true);
+    await expect(getSharedResultByHash(shareHash)).resolves.toBeNull();
     await expect(getResultByHash(resultHash)).resolves.toBeNull();
   }, 120_000);
 

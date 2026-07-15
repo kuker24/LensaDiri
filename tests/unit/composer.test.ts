@@ -20,6 +20,7 @@ function candidates(
     facetKey: "general",
     id: `${moduleKey}-question-${index}`,
     informationPriority: Number((1 - index / (count * 2)).toFixed(4)),
+    itemBankVersion: `${moduleKey}-bank-1`,
     itemCode: `${moduleKey.toUpperCase()}_${String(index).padStart(3, "0")}`,
     minimumDimensionCoverage: 2,
     modeEligibility: ["quick", "standard", "deep"],

@@ -18,6 +18,11 @@ import {
 } from "@/lib/scoring/profile";
 import type { ItemPolarity, LikertValue } from "@/lib/scoring/likert";
 import { runDatabaseOperation } from "@/server/database";
+import {
+  isPublicShareScope,
+  toSafeSharedResultView,
+  type SafeSharedResultView,
+} from "@/server/repositories/result-views";
 
 export type AssessmentMode = "quick" | "standard" | "deep";
 
@@ -71,7 +76,10 @@ export type ModularResultView = {
   summary: { disclaimer: string; moduleKeys: string[] };
 };
 
-export type ResultView = LegacyResultView | ModularResultView;
+export type PrivateResultView = LegacyResultView | ModularResultView;
+
+/** @deprecated Use PrivateResultView for protected result reads. */
+export type ResultView = PrivateResultView;
 
 export type AssessmentCompletion =
   { resultId: string } | { clarifiers: ClarifierDecision[]; status: "clarifier_required" };
@@ -89,6 +97,60 @@ export type ClarifierSessionView = {
   status: "in_progress";
   totalCount: number;
 };
+
+type LockedBlueprintModule = {
+  evidenceTier: IndependentModuleResult["evidenceTier"];
+  itemBankVersion: string;
+  itemCount: number;
+  moduleKey: string;
+  moduleVersionId: string;
+  reportTemplateVersion: string;
+  scoringVersion: string;
+};
+
+function isEvidenceTier(value: unknown): value is IndependentModuleResult["evidenceTier"] {
+  return (
+    typeof value === "string" && ["A", "B", "B_EXPERIMENTAL", "EXPERIMENTAL", "C"].includes(value)
+  );
+}
+
+function parseLockedBlueprintModules(value: unknown): readonly LockedBlueprintModule[] {
+  if (!Array.isArray(value) || value.length === 0) {
+    throw new Error("Blueprint module provenance is unavailable.");
+  }
+  const modules = value.map((entry): LockedBlueprintModule => {
+    if (!entry || typeof entry !== "object") {
+      throw new Error("Blueprint module provenance is invalid.");
+    }
+    const candidate = entry as Record<string, unknown>;
+    if (
+      typeof candidate.moduleKey !== "string" ||
+      typeof candidate.moduleVersionId !== "string" ||
+      typeof candidate.scoringVersion !== "string" ||
+      typeof candidate.itemBankVersion !== "string" ||
+      typeof candidate.reportTemplateVersion !== "string" ||
+      typeof candidate.itemCount !== "number" ||
+      !Number.isInteger(candidate.itemCount) ||
+      candidate.itemCount <= 0 ||
+      !isEvidenceTier(candidate.evidenceTier)
+    ) {
+      throw new Error("Blueprint module provenance is invalid.");
+    }
+    return {
+      evidenceTier: candidate.evidenceTier,
+      itemBankVersion: candidate.itemBankVersion,
+      itemCount: candidate.itemCount,
+      moduleKey: candidate.moduleKey,
+      moduleVersionId: candidate.moduleVersionId,
+      reportTemplateVersion: candidate.reportTemplateVersion,
+      scoringVersion: candidate.scoringVersion,
+    };
+  });
+  if (new Set(modules.map((module) => module.moduleKey)).size !== modules.length) {
+    throw new Error("Blueprint contains duplicate module provenance.");
+  }
+  return modules;
+}
 
 function toDatabaseJson(value: unknown): JSONValue {
   return JSON.parse(JSON.stringify(value)) as JSONValue;
@@ -366,6 +428,69 @@ async function completeModularAssessmentInTransaction(
   },
   resultTokenHash: string,
 ): Promise<AssessmentCompletion | null> {
+  const [blueprint] = await sql<
+    {
+      composer_version: string;
+      content_version: string;
+      selected_modules_json: unknown;
+    }[]
+  >`
+    select composer_version, content_version, selected_modules_json
+    from public.assessment_blueprints
+    where id = ${session.blueprint_id}
+    for update
+  `;
+  if (!blueprint) throw new Error("Blueprint provenance is unavailable.");
+  const lockedModules = parseLockedBlueprintModules(blueprint.selected_modules_json);
+
+  const sessionModuleRows = await sql<
+    {
+      evidence_tier: IndependentModuleResult["evidenceTier"];
+      item_bank_version: string;
+      item_count: number;
+      module_key: string;
+      module_version_id: string;
+      report_template_version: string;
+      required_answers: number;
+      scoring_version: string;
+    }[]
+  >`
+    select
+      modules.key as module_key,
+      modules.evidence_tier,
+      module_versions.id as module_version_id,
+      module_versions.scoring_version,
+      module_versions.item_bank_version,
+      module_versions.report_template_version,
+      test_session_modules.item_count,
+      test_session_modules.required_answers
+    from public.test_session_modules
+    inner join public.module_versions on module_versions.id = test_session_modules.module_version_id
+    inner join public.modules on modules.id = module_versions.module_id
+    where test_session_modules.session_id = ${session.id}
+    order by modules.default_order
+  `;
+  if (sessionModuleRows.length !== lockedModules.length) {
+    throw new Error("Session module provenance does not match blueprint.");
+  }
+  const lockedByVersion = new Map(lockedModules.map((module) => [module.moduleVersionId, module]));
+  const expectedRows = sessionModuleRows.map((row) => {
+    const locked = lockedByVersion.get(row.module_version_id);
+    if (
+      !locked ||
+      row.module_key !== locked.moduleKey ||
+      row.scoring_version !== locked.scoringVersion ||
+      row.item_bank_version !== locked.itemBankVersion ||
+      row.report_template_version !== locked.reportTemplateVersion ||
+      row.evidence_tier !== locked.evidenceTier ||
+      row.item_count !== locked.itemCount ||
+      row.required_answers !== locked.itemCount
+    ) {
+      throw new Error(`Session module provenance mismatch for ${row.module_key}.`);
+    }
+    return locked;
+  });
+
   const baseRows = await sql<
     {
       construct_key: string;
@@ -457,35 +582,16 @@ async function completeModularAssessmentInTransaction(
     order by result_clarifiers.created_at, result_clarifier_items.display_order
   `;
   const rows = [...baseRows, ...supplementalRows];
-  const expectedRows = await sql<
-    {
-      evidence_tier: IndependentModuleResult["evidenceTier"];
-      item_count: number;
-      module_key: string;
-      module_version_id: string;
-      report_template_version: string;
-      scoring_version: string;
-    }[]
-  >`
-    select
-      modules.key as module_key,
-      modules.evidence_tier,
-      module_versions.id as module_version_id,
-      module_versions.scoring_version,
-      module_versions.report_template_version,
-      test_session_modules.required_answers as item_count
-    from public.test_session_modules
-    inner join public.module_versions on module_versions.id = test_session_modules.module_version_id
-    inner join public.modules on modules.id = module_versions.module_id
-    where test_session_modules.session_id = ${session.id}
-    order by modules.default_order
-  `;
-  const baseExpectedCount = expectedRows.reduce((sum, row) => sum + row.item_count, 0);
+  const baseExpectedCount = expectedRows.reduce((sum, row) => sum + row.itemCount, 0);
   if (baseRows.length !== baseExpectedCount) return null;
 
   const moduleResults = expectedRows.map((expected) => {
     const moduleAnswers: ModuleScoringAnswer[] = rows
-      .filter((row) => row.module_key === expected.module_key)
+      .filter(
+        (row) =>
+          row.module_key === expected.moduleKey &&
+          row.module_version_id === expected.moduleVersionId,
+      )
       .map((row) => ({
         constructKey: row.construct_key,
         itemCode: row.item_code,
@@ -496,14 +602,16 @@ async function completeModularAssessmentInTransaction(
       }));
     const result = scoreIndependentModule({
       answers: moduleAnswers,
-      expectedAnswers: moduleAnswers.length,
-      moduleKey: expected.module_key,
+      expectedAnswers: expected.itemCount,
+      moduleKey: expected.moduleKey,
+      scoringVersion: expected.scoringVersion,
     });
     if (
-      result.evidenceTier !== expected.evidence_tier ||
-      result.scoringVersion !== expected.scoring_version
+      result.moduleKey !== expected.moduleKey ||
+      result.evidenceTier !== expected.evidenceTier ||
+      result.scoringVersion !== expected.scoringVersion
     ) {
-      throw new Error(`Scoring provenance mismatch for ${expected.module_key}.`);
+      throw new Error(`Scoring provenance mismatch for ${expected.moduleKey}.`);
     }
     return { expected, result };
   });
@@ -516,7 +624,7 @@ async function completeModularAssessmentInTransaction(
   const clarifierCandidates = moduleResults
     .map(({ expected, result }) => ({ decision: decideClarifier(result), expected }))
     .filter(
-      (entry): entry is { decision: ClarifierDecision; expected: (typeof expectedRows)[number] } =>
+      (entry): entry is { decision: ClarifierDecision; expected: LockedBlueprintModule } =>
         entry.decision !== null,
     );
   const clarifiers: ClarifierDecision[] = [];
@@ -524,7 +632,7 @@ async function completeModularAssessmentInTransaction(
     const [capacity] = await sql<{ count: number }[]>`
       select count(*)::integer as count
       from public.questions
-      where module_version_id = ${expected.module_version_id}
+      where module_version_id = ${expected.moduleVersionId}
         and clarifier_enabled
         and status in ('active', 'pilot', 'published', 'experimental')
         and review_status = 'approved'
@@ -557,19 +665,19 @@ async function completeModularAssessmentInTransaction(
     required: clarifier.required && clarifier.moduleKey === requiredModuleKey,
   }));
   const unresolvedRequired = normalizedClarifiers.filter((clarifier) => {
-    const expected = expectedRows.find((row) => row.module_key === clarifier.moduleKey);
-    return clarifier.required && expected && !resolvedVersions.has(expected.module_version_id);
+    const expected = expectedRows.find((row) => row.moduleKey === clarifier.moduleKey);
+    return clarifier.required && expected && !resolvedVersions.has(expected.moduleVersionId);
   });
   if (unresolvedRequired.length > 0) {
     for (const clarifier of normalizedClarifiers) {
-      const expected = expectedRows.find((row) => row.module_key === clarifier.moduleKey);
-      if (!expected || resolvedVersions.has(expected.module_version_id)) continue;
+      const expected = expectedRows.find((row) => row.moduleKey === clarifier.moduleKey);
+      if (!expected || resolvedVersions.has(expected.moduleVersionId)) continue;
       await sql`
         insert into public.result_clarifiers (
           session_id, module_version_id, reason_code, status,
           target_dimensions_json, item_count, required
         ) values (
-          ${session.id}, ${expected.module_version_id}, ${clarifier.reasonCode},
+          ${session.id}, ${expected.moduleVersionId}, ${clarifier.reasonCode},
           ${clarifier.required ? "required" : "recommended"},
           ${sql.json(toDatabaseJson(clarifier.targetConstructKeys))}, ${clarifier.itemCount},
           ${clarifier.required}
@@ -643,12 +751,13 @@ async function completeModularAssessmentInTransaction(
   for (const { expected, result } of moduleResults) {
     const [moduleRow] = await sql<{ id: string }[]>`
       insert into public.result_modules (
-        result_id, module_version_id, module_key, scoring_version, evidence_tier,
-        confidence, completion, ambiguity_json, summary_json, quality_json
+        result_id, module_version_id, module_key, scoring_version, item_bank_version,
+        composer_version, evidence_tier, confidence, completion, ambiguity_json, summary_json, quality_json
       ) values (
-        ${resultRow.id}, ${expected.module_version_id}, ${result.moduleKey},
-        ${result.scoringVersion}, ${result.evidenceTier}, ${result.confidence},
-        ${result.quality.completion}, ${sql.json(toDatabaseJson(result.ambiguity))},
+        ${resultRow.id}, ${expected.moduleVersionId}, ${result.moduleKey},
+        ${result.scoringVersion}, ${expected.itemBankVersion}, ${blueprint.composer_version},
+        ${result.evidenceTier}, ${result.confidence}, ${result.quality.completion},
+        ${sql.json(toDatabaseJson(result.ambiguity))},
         ${sql.json(toDatabaseJson(result.summary))}, ${sql.json(toDatabaseJson(result.quality))}
       ) returning id
     `;
@@ -673,14 +782,14 @@ async function completeModularAssessmentInTransaction(
     where session_id = ${session.id}
   `;
   for (const clarifier of finalizedClarifiers) {
-    const expected = expectedRows.find((row) => row.module_key === clarifier.moduleKey);
-    if (!expected || resolvedVersions.has(expected.module_version_id)) continue;
+    const expected = expectedRows.find((row) => row.moduleKey === clarifier.moduleKey);
+    if (!expected || resolvedVersions.has(expected.moduleVersionId)) continue;
     await sql`
       insert into public.result_clarifiers (
         session_id, result_id, module_version_id, reason_code, status,
         target_dimensions_json, item_count, required
       ) values (
-        ${session.id}, ${resultRow.id}, ${expected.module_version_id}, ${clarifier.reasonCode},
+        ${session.id}, ${resultRow.id}, ${expected.moduleVersionId}, ${clarifier.reasonCode},
         'recommended', ${sql.json(toDatabaseJson(clarifier.targetConstructKeys))},
         ${clarifier.itemCount}, false
       )
@@ -714,20 +823,15 @@ async function completeModularAssessmentInTransaction(
     }
   }
 
-  const [blueprintVersion] = await sql<{ composer_version: string; content_version: string }[]>`
-    select composer_version, content_version
-    from public.assessment_blueprints where id = ${session.blueprint_id}
-  `;
-  if (!blueprintVersion) throw new Error("Blueprint version is unavailable.");
   await sql`
     insert into public.result_versions (
       result_id, blueprint_id, composer_version, content_version,
       report_template_version, is_legacy
     ) values (
-      ${resultRow.id}, ${session.blueprint_id}, ${blueprintVersion.composer_version},
-      ${blueprintVersion.content_version},
+      ${resultRow.id}, ${session.blueprint_id}, ${blueprint.composer_version},
+      ${blueprint.content_version},
       ${expectedRows
-        .map((row) => row.report_template_version)
+        .map((row) => row.reportTemplateVersion)
         .toSorted()
         .join("+")}, false
     )
@@ -1107,15 +1211,43 @@ export async function completeAssessment(input: {
   );
 }
 
-export async function getResultByHash(resultTokenHash: string): Promise<ResultView | null> {
-  return getResult("result", resultTokenHash);
+export async function getResultByHash(resultTokenHash: string): Promise<PrivateResultView | null> {
+  return getPrivateResult(resultTokenHash);
 }
 
-export async function getSharedResultByHash(shareTokenHash: string): Promise<ResultView | null> {
-  return getResult("share", shareTokenHash);
+export async function getSharedResultByHash(
+  shareTokenHash: string,
+): Promise<SafeSharedResultView | null> {
+  return runDatabaseOperation(async () => {
+    const sql = getDatabase();
+    const [share] = await sql<
+      { expires_at: Date; public_scope: string; result_token_hash: string }[]
+    >`
+      select
+        result_share_tokens.expires_at,
+        result_share_tokens.public_scope,
+        personality_results.result_token_hash
+      from public.result_share_tokens
+      inner join public.personality_results
+        on personality_results.id = result_share_tokens.result_id
+      where result_share_tokens.token_hash = ${shareTokenHash}
+        and result_share_tokens.revoked_at is null
+        and result_share_tokens.expires_at > now()
+        and personality_results.deleted_at is null
+      limit 1
+    `;
+    if (!share || !isPublicShareScope(share.public_scope)) return null;
+
+    const privateResult = await getPrivateResult(share.result_token_hash);
+    if (!privateResult) return null;
+    return toSafeSharedResultView(privateResult, share.public_scope, {
+      expiresAt: share.expires_at.toISOString(),
+      scope: share.public_scope,
+    });
+  });
 }
 
-async function getResult(kind: "result" | "share", tokenHash: string): Promise<ResultView | null> {
+async function getPrivateResult(tokenHash: string): Promise<PrivateResultView | null> {
   return runDatabaseOperation(async () => {
     const sql = getDatabase();
     type StoredResult = {
@@ -1125,26 +1257,12 @@ async function getResult(kind: "result" | "share", tokenHash: string): Promise<R
       scoring_version: string;
       summary_json: ProfileSummary | ModularResultView["summary"];
     };
-    const resultRows =
-      kind === "result"
-        ? await sql<StoredResult[]>`
-            select id, scoring_version, summary_json, quality_json, created_at
-            from public.personality_results
-            where result_token_hash = ${tokenHash} and deleted_at is null
-            limit 1
-          `
-        : await sql<StoredResult[]>`
-            select personality_results.id, personality_results.scoring_version,
-              summary_json, quality_json, personality_results.created_at
-            from public.result_share_tokens
-            inner join public.personality_results
-              on personality_results.id = result_share_tokens.result_id
-            where result_share_tokens.token_hash = ${tokenHash}
-              and result_share_tokens.revoked_at is null
-              and result_share_tokens.expires_at > now()
-              and personality_results.deleted_at is null
-            limit 1
-          `;
+    const resultRows = await sql<StoredResult[]>`
+      select id, scoring_version, summary_json, quality_json, created_at
+      from public.personality_results
+      where result_token_hash = ${tokenHash} and deleted_at is null
+      limit 1
+    `;
     const result = resultRows[0];
     if (!result) return null;
 

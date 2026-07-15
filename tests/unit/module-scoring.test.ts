@@ -86,23 +86,56 @@ describe("independent module scoring", () => {
     expect(result.scores).toHaveLength(4);
   });
 
-  it("is deterministic and registry rejects missing engines", () => {
-    const input = answers(type16ConstructKeys, { extraversion: 5 });
-    expect(scoreType16Module(input, input.length)).toEqual(scoreType16Module(input, input.length));
+  it("dispatches independent engines by locked module key and scoring version", () => {
+    const type16Input = answers(type16ConstructKeys, { extraversion: 5 });
+    expect(scoreType16Module(type16Input, type16Input.length)).toEqual(
+      scoreType16Module(type16Input, type16Input.length),
+    );
     expect(
       scoreIndependentModule({
-        answers: input,
-        expectedAnswers: input.length,
+        answers: type16Input,
+        expectedAnswers: type16Input.length,
         moduleKey: "type_16",
+        scoringVersion: "type16-score-1",
       }),
-    ).toEqual(scoreType16Module(input, input.length));
+    ).toEqual(scoreType16Module(type16Input, type16Input.length));
+
+    const traitInput = answers(traitKeys, { openness: 5 });
+    expect(
+      scoreIndependentModule({
+        answers: traitInput,
+        expectedAnswers: traitInput.length,
+        moduleKey: "trait_profile",
+        scoringVersion: "trait-profile-modular-1",
+      }),
+    ).toMatchObject({
+      moduleKey: "trait_profile",
+      scoringVersion: "trait-profile-modular-1",
+    });
     expect(() =>
       scoreIndependentModule({
-        answers: input,
-        expectedAnswers: input.length,
-        moduleKey: "riasec",
+        answers: traitInput,
+        expectedAnswers: traitInput.length,
+        moduleKey: "trait_profile",
+        scoringVersion: "trait-profile-mvp-1",
       }),
-    ).toThrow("No independent scoring engine for riasec");
+    ).toThrow("No independent scoring engine for trait_profile@trait-profile-mvp-1");
+    expect(() =>
+      scoreIndependentModule({
+        answers: traitInput,
+        expectedAnswers: traitInput.length,
+        moduleKey: "trait_profile",
+        scoringVersion: "trait-profile-unknown-1",
+      }),
+    ).toThrow("No independent scoring engine for trait_profile@trait-profile-unknown-1");
+    expect(() =>
+      scoreIndependentModule({
+        answers: type16Input,
+        expectedAnswers: type16Input.length,
+        moduleKey: "riasec",
+        scoringVersion: "riasec-score-1",
+      }),
+    ).toThrow("No independent scoring engine for riasec@riasec-score-1");
   });
 
   it("keeps confidence separate and flags low-quality responses", () => {

@@ -4,6 +4,7 @@ import { hashOpaqueToken } from "@/lib/security/tokens";
 import { opaqueTokenSchema } from "@/lib/validation/assessment";
 import { apiFailure, getDatabaseFailureStatus, noStoreHeaders } from "@/server/http";
 import { getResultByHash } from "@/server/repositories/assessment";
+import { toExportResultView } from "@/server/repositories/result-views";
 import { assessmentRateLimitPolicies, consumeRateLimit } from "@/server/services/rate-limiter";
 export const runtime = "nodejs";
 export async function GET(
@@ -29,7 +30,7 @@ export async function GET(
     const result = await getResultByHash(resultHash);
     return result
       ? NextResponse.json(
-          { exportedAt: new Date().toISOString(), result },
+          { exportedAt: new Date().toISOString(), result: toExportResultView(result) },
           {
             headers: {
               ...noStoreHeaders,

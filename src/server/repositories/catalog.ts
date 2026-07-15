@@ -112,7 +112,7 @@ export async function listCatalogModules(
         select version, composer_config_json
         from public.module_versions
         where module_versions.module_id = modules.id
-          and module_versions.status in ('active', 'pilot', 'published', 'experimental')
+          and module_versions.status in ('pilot', 'published', 'experimental')
         order by module_versions.published_at desc nulls last, module_versions.created_at desc
         limit 1
       ) as module_versions on true

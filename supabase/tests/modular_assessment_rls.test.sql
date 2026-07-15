@@ -1,6 +1,6 @@
 begin;
 
-select plan(61);
+select plan(66);
 
 select ok(to_regclass('public.question_translations') is not null, 'question_translations exists');
 select ok(to_regclass('public.question_options') is not null, 'question_options exists');
@@ -114,6 +114,26 @@ select ok(
 );
 select ok(
   exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'result_modules'
+      and column_name = 'item_bank_version'
+      and is_nullable = 'YES'
+  ),
+  'result module keeps nullable item-bank provenance for legacy rows'
+);
+select ok(
+  exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public'
+      and table_name = 'result_modules'
+      and column_name = 'composer_version'
+      and is_nullable = 'YES'
+  ),
+  'result module keeps nullable composer provenance for legacy rows'
+);
+select ok(
+  exists (
     select 1 from pg_constraint
     where conname = 'result_clarifiers_item_range'
   ),
@@ -193,6 +213,42 @@ select is(
   ),
   40,
   'legacy seed keeps 40 Quick Trait Profile questions'
+);
+select is(
+  (
+    select module_versions.scoring_version
+    from public.module_versions
+    inner join public.modules on modules.id = module_versions.module_id
+    where modules.key = 'trait_profile'
+      and module_versions.version = 'modular-1'
+  ),
+  'trait-profile-modular-1',
+  'modular Trait Profile has independent scoring provenance'
+);
+select is(
+  (
+    select count(*)::integer
+    from public.questions
+    inner join public.module_versions on module_versions.id = questions.module_version_id
+    inner join public.modules on modules.id = module_versions.module_id
+    where modules.key = 'trait_profile'
+      and module_versions.version = 'modular-1'
+  ),
+  60,
+  'modular Trait Profile copies 60 immutable original items'
+);
+select is(
+  (
+    select count(*)::integer
+    from public.questions
+    inner join public.module_versions on module_versions.id = questions.module_version_id
+    inner join public.modules on modules.id = module_versions.module_id
+    where modules.key = 'trait_profile'
+      and module_versions.version = 'modular-1'
+      and questions.quick_enabled
+  ),
+  40,
+  'modular Trait Profile keeps 40 Quick items'
 );
 select is(
   (

@@ -49,6 +49,7 @@ export async function loadComposerCandidates(
         facet_key: string;
         id: string;
         information_priority: string;
+        item_bank_version: string;
         item_code: string;
         minimum_item_coverage: number;
         mode_eligibility: ComposerItemCandidate["modeEligibility"];
@@ -75,10 +76,24 @@ export async function loadComposerCandidates(
         modules.key as module_key,
         modules.evidence_tier,
         module_versions.id as module_version_id,
+        module_versions.item_bank_version,
         module_versions.scoring_version,
         module_versions.report_template_version
       from public.modules
-      inner join public.module_versions on module_versions.module_id = modules.id
+      inner join lateral (
+        select candidate_versions.*
+        from public.module_versions as candidate_versions
+        where candidate_versions.module_id = modules.id
+          and candidate_versions.status in ('pilot', 'published', 'experimental')
+          and candidate_versions.scoring_version = case
+            when modules.key = 'trait_profile' then 'trait-profile-modular-1'
+            else candidate_versions.scoring_version
+          end
+        order by candidate_versions.published_at desc nulls last,
+          candidate_versions.created_at desc,
+          candidate_versions.version desc
+        limit 1
+      ) as module_versions on true
       inner join public.questions on questions.module_version_id = module_versions.id
       inner join public.question_dimensions on question_dimensions.id = questions.dimension_id
       inner join public.question_dimension_mappings
@@ -88,7 +103,6 @@ export async function loadComposerCandidates(
       where modules.key = any(${moduleKeys as string[]}::text[])
         and modules.is_selectable
         and modules.status in ('active', 'pilot', 'published', 'experimental')
-        and module_versions.status in ('active', 'pilot', 'published', 'experimental')
         and questions.status in ('active', 'pilot', 'published', 'experimental')
         and questions.review_status = 'approved'
       order by modules.default_order, questions.item_code
@@ -103,6 +117,7 @@ export async function loadComposerCandidates(
       facetKey: row.facet_key,
       id: row.id,
       informationPriority: Number(row.information_priority),
+      itemBankVersion: row.item_bank_version,
       itemCode: row.item_code,
       minimumDimensionCoverage: row.minimum_item_coverage,
       modeEligibility: row.mode_eligibility,
@@ -149,6 +164,7 @@ export async function persistModularSession(input: {
           ${sql.json(
             input.blueprint.modules.map((moduleAllocation) => ({
               evidenceTier: moduleAllocation.evidenceTier,
+              itemBankVersion: moduleAllocation.itemBankVersion,
               itemCount: moduleAllocation.itemCount,
               moduleKey: moduleAllocation.moduleKey,
               moduleVersionId: moduleAllocation.moduleVersionId,

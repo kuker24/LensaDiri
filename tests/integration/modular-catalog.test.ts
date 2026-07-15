@@ -34,7 +34,7 @@ describe("modular catalog PostgreSQL boundary", () => {
           isSelectable: true,
           key: "trait_profile",
           modeQuota: { deep: 60, quick: 40, standard: 60 },
-          version: "mvp-1",
+          version: "modular-1",
         }),
         expect.objectContaining({
           key: "type_16",

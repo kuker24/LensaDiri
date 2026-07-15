@@ -14,6 +14,7 @@ export interface ComposerItemCandidate {
   readonly facetKey: string;
   readonly id: string;
   readonly informationPriority: number;
+  readonly itemBankVersion: string;
   readonly itemCode: string;
   readonly minimumDimensionCoverage: number;
   readonly modeEligibility: readonly AssessmentMode[];
@@ -43,6 +44,7 @@ export interface ComposedBlueprintItem {
 
 export interface ComposedModuleAllocation {
   readonly evidenceTier: EvidenceTier;
+  readonly itemBankVersion: string;
   readonly itemCount: number;
   readonly moduleKey: string;
   readonly moduleVersionId: string;
@@ -154,6 +156,22 @@ function selectModuleItems(
   const selectedReverse = () =>
     [...selected.values()].filter((candidate) => candidate.polarity === -1).length;
 
+  for (const reverseCandidate of eligible.filter((candidate) => candidate.polarity === -1)) {
+    if (selectedReverse() >= reverseTarget) break;
+    if (selected.has(reverseCandidate.id)) continue;
+    const matchingPositive = [...selected.values()]
+      .toReversed()
+      .find(
+        (candidate) =>
+          candidate.polarity === 1 &&
+          candidate.constructKey === reverseCandidate.constructKey &&
+          candidate.facetKey === reverseCandidate.facetKey,
+      );
+    if (!matchingPositive) continue;
+    selected.delete(matchingPositive.id);
+    selected.set(reverseCandidate.id, reverseCandidate);
+  }
+
   for (const candidate of eligible) {
     if (selected.size >= quota || selected.has(candidate.id)) continue;
     if (selectedReverse() < reverseTarget && candidate.polarity !== -1) continue;
@@ -171,6 +189,21 @@ function selectModuleItems(
     throw new RangeError(`Unable to satisfy reverse-item balance for ${moduleKey}.`);
   }
   return [...selected.values()];
+}
+
+function assertSingleModuleProvenance(
+  moduleKey: string,
+  candidates: readonly ComposerItemCandidate[],
+): void {
+  const provenance = new Set(
+    candidates.map(
+      (candidate) =>
+        `${candidate.moduleVersionId}\u0000${candidate.scoringVersion}\u0000${candidate.itemBankVersion}\u0000${candidate.reportTemplateVersion}\u0000${candidate.evidenceTier}`,
+    ),
+  );
+  if (provenance.size !== 1) {
+    throw new RangeError(`Mixed immutable provenance for ${moduleKey}.`);
+  }
 }
 
 function interleaveModules(
@@ -213,16 +246,22 @@ export function composeAssessment(input: ComposeAssessmentInput): ComposedBluepr
     throw new RangeError(`Candidate belongs to unselected module ${unexpectedModule.moduleKey}.`);
   }
 
-  const allocations = input.estimate.moduleAllocation.map((allocation) => ({
-    moduleKey: allocation.moduleKey,
-    selected: selectModuleItems(
-      allocation.moduleKey,
-      allocation.itemCount,
-      input.estimate.mode,
-      input.candidates,
-      input.seed,
-    ),
-  }));
+  const allocations = input.estimate.moduleAllocation.map((allocation) => {
+    const moduleCandidates = input.candidates.filter(
+      (candidate) => candidate.moduleKey === allocation.moduleKey,
+    );
+    assertSingleModuleProvenance(allocation.moduleKey, moduleCandidates);
+    return {
+      moduleKey: allocation.moduleKey,
+      selected: selectModuleItems(
+        allocation.moduleKey,
+        allocation.itemCount,
+        input.estimate.mode,
+        moduleCandidates,
+        input.seed,
+      ),
+    };
+  });
   const ordered = interleaveModules(allocations);
   if (ordered.length !== input.estimate.itemCount) {
     throw new RangeError("Composed item count does not match estimate.");
@@ -256,6 +295,7 @@ export function composeAssessment(input: ComposeAssessmentInput): ComposedBluepr
     if (!first) throw new RangeError(`Module ${allocation.moduleKey} has no selected items.`);
     return {
       evidenceTier: first.evidenceTier,
+      itemBankVersion: first.itemBankVersion,
       itemCount: allocation.selected.length,
       moduleKey: allocation.moduleKey,
       moduleVersionId: first.moduleVersionId,

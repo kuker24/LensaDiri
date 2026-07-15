@@ -5,8 +5,9 @@ import type {
   AssessmentMode,
   AssessmentSessionView,
   ClarifierSessionView,
-  ResultView,
+  PrivateResultView,
 } from "@/server/repositories/assessment";
+import type { SafeSharedResultView } from "@/server/repositories/result-views";
 import type {
   AssessmentModeProfile,
   AssessmentModuleDefinition,
@@ -122,10 +123,10 @@ export async function resolveAssessmentClarifier(
   return data.resultToken;
 }
 
-export function getPrivateResult(token: string): Promise<ResultView> {
+export function getPrivateResult(token: string): Promise<PrivateResultView> {
   return getEnvelope(`/api/result/${encodeURIComponent(token)}`);
 }
 
-export function getSharedResult(token: string): Promise<ResultView> {
+export function getSharedResult(token: string): Promise<SafeSharedResultView> {
   return getEnvelope(`/api/shared/${encodeURIComponent(token)}`);
 }
