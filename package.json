@@ -20,6 +20,7 @@
     "test:integration": "vitest run --config vitest.integration.config.ts",
     "test:db": "npx supabase test db",
     "test:seed-replay": "node scripts/test-seed-replay.mjs",
+    "test:seed-replay-drift": "node scripts/test-seed-replay-drift.mjs",
     "db:start": "npx supabase start",
     "db:reset": "npx supabase db reset",
     "test:e2e": "playwright test",

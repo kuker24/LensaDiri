@@ -94,6 +94,9 @@ jobs:
       - name: Seed replay gate
         run: npm run test:seed-replay
 
+      - name: Seed replay drift gate
+        run: npm run test:seed-replay-drift
+
       - name: Reset disposable database for E2E
         run: |
           npm run db:reset

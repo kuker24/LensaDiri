@@ -6,6 +6,17 @@ import { spawnSync } from "node:child_process";
 const projectRoot = resolve(import.meta.dirname, "..");
 const databaseContainer = "supabase_db_lensa-diri";
 const supabaseConfigPath = resolve(projectRoot, "supabase/config.toml");
+const expectedCanonicalHash = "b0168c9e675fb453f11e6227613b90ff2f710d69d3a44f42a4e8e857ea1fe75b";
+const expectedCanonicalCounts = {
+  modules: 10,
+  module_versions: 5,
+  dimensions: 27,
+  questions: 258,
+  translations: 258,
+  mappings: 258,
+  combo_presets: 6,
+  combo_mappings: 27,
+};
 const seedPaths = [
   ...readFileSync(supabaseConfigPath, "utf8").matchAll(/"\.\/seed\/([^"\n]+\.sql)"/gu),
 ].map(([, path]) => `supabase/seed/${path}`);
@@ -256,6 +267,18 @@ function snapshot() {
   };
 }
 
+function hasExpectedCounts(counts) {
+  return Object.entries(expectedCanonicalCounts).every(
+    ([key, expected]) => counts[key] === expected,
+  );
+}
+
+function verifyReviewedCanonicalIdentity(value) {
+  if (!hasExpectedCounts(value.counts) || value.hash !== expectedCanonicalHash) {
+    fail("baseline canonical identity does not match reviewed seed identity");
+  }
+}
+
 function verifySnapshot(reference, label) {
   const current = snapshot();
   if (JSON.stringify(current.counts) !== JSON.stringify(reference.counts)) {
@@ -269,6 +292,7 @@ function verifySnapshot(reference, label) {
 
 assertLocalSupabase();
 const baseline = snapshot();
+verifyReviewedCanonicalIdentity(baseline);
 
 for (const seedPath of seedPaths) {
   applySeed(seedPath);
