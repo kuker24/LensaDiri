@@ -2,9 +2,12 @@
 -- These are LensaDiri-authored reflective items, not copies of proprietary instruments.
 -- Published version content becomes immutable through migration triggers.
 
+-- Catalog metadata becomes stable after initial publication. Replay never writes
+-- already-published rows or their timestamps.
 update public.modules
 set status = 'published', is_selectable = true
-where key in ('type_16', 'enneagram', 'temperament');
+where key in ('type_16', 'enneagram', 'temperament')
+  and (status <> 'published' or not is_selectable);
 
 insert into public.module_versions (
   module_id, version, scoring_strategy, scoring_version, item_bank_version,
@@ -299,7 +302,9 @@ insert into public.question_translations (
 select questions.id, 'id', questions.public_text, 'approved'
 from public.questions
 inner join public.module_versions on module_versions.id = questions.module_version_id
+inner join public.modules on modules.id = module_versions.module_id
 where module_versions.version = '1.0.0'
+  and modules.key in ('type_16', 'enneagram', 'temperament')
   and not exists (
     select 1 from public.question_translations
     where question_translations.question_id = questions.id
@@ -312,7 +317,9 @@ insert into public.question_dimension_mappings (
 select questions.id, questions.dimension_id, 'primary', questions.polarity, questions.weight, null
 from public.questions
 inner join public.module_versions on module_versions.id = questions.module_version_id
+inner join public.modules on modules.id = module_versions.module_id
 where module_versions.version = '1.0.0'
+  and modules.key in ('type_16', 'enneagram', 'temperament')
   and not exists (
     select 1 from public.question_dimension_mappings
     where question_dimension_mappings.question_id = questions.id

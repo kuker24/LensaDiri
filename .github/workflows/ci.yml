@@ -91,6 +91,9 @@ jobs:
       - name: Database security tests
         run: npm run test:db
 
+      - name: Seed replay gate
+        run: npm run test:seed-replay
+
       - name: Reset disposable database for E2E
         run: |
           npm run db:reset

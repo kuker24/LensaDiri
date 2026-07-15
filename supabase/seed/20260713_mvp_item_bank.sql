@@ -27,17 +27,7 @@ values (
   10,
   'module.trait_profile.description'
 )
-on conflict (key) do update set
-  public_name = excluded.public_name,
-  internal_name = excluded.internal_name,
-  description = excluded.description,
-  evidence_tier = excluded.evidence_tier,
-  status = excluded.status,
-  category = excluded.category,
-  is_selectable = excluded.is_selectable,
-  minimum_age = excluded.minimum_age,
-  default_order = excluded.default_order,
-  description_key = excluded.description_key;
+on conflict (key) do nothing;
 
 insert into public.module_versions (
   module_id,
@@ -64,15 +54,7 @@ select
   now()
 from public.modules
 where modules.key = 'trait_profile'
-on conflict (module_id, version) do update set
-  scoring_strategy = excluded.scoring_strategy,
-  scoring_version = excluded.scoring_version,
-  item_bank_version = excluded.item_bank_version,
-  status = excluded.status,
-  config_json = excluded.config_json,
-  composer_config_json = excluded.composer_config_json,
-  report_template_version = excluded.report_template_version,
-  published_at = excluded.published_at;
+on conflict (module_id, version) do nothing;
 
 with version as (
   select module_versions.id
@@ -91,9 +73,7 @@ cross join (
     ('agreeableness', 'Kooperasi', 'Kecenderungan memahami, mempercayai, dan bekerja bersama orang lain.'),
     ('emotional_sensitivity', 'Kepekaan emosi', 'Intensitas respons terhadap tekanan dan perubahan suasana.')
 ) as dimensions(construct_key, label, description)
-on conflict (module_version_id, construct_key, facet_key) do update set
-  label = excluded.label,
-  description = excluded.description;
+on conflict (module_version_id, construct_key, facet_key) do nothing;
 
 with version as (
   select module_versions.id
@@ -198,32 +178,32 @@ select
 from version
 inner join public.question_dimensions as dimensions on dimensions.module_version_id = version.id
 inner join item_bank on item_bank.construct_key = dimensions.construct_key
-on conflict (module_version_id, item_code) do update set
-  dimension_id = excluded.dimension_id,
-  public_text = excluded.public_text,
-  internal_construct_note = excluded.internal_construct_note,
-  polarity = excluded.polarity,
-  weight = excluded.weight,
-  quick_enabled = excluded.quick_enabled,
-  mode_eligibility = excluded.mode_eligibility,
-  information_priority = excluded.information_priority,
-  review_status = excluded.review_status,
-  display_order = excluded.display_order,
-  status = excluded.status;
+on conflict (module_version_id, item_code) do nothing;
 
+-- This legacy seed owns only trait_profile/mvp-1. Published modular content
+-- remains insert-once and is never selected by replay writes.
+with legacy_version as (
+  select module_versions.id
+  from public.module_versions
+  inner join public.modules on modules.id = module_versions.module_id
+  where modules.key = 'trait_profile' and module_versions.version = 'mvp-1'
+)
 insert into public.question_translations (question_id, locale, public_text, review_status)
-select id, 'id', public_text, 'approved'
+select questions.id, 'id', questions.public_text, 'approved'
 from public.questions
-on conflict (question_id, locale) do update set
-  public_text = excluded.public_text,
-  review_status = excluded.review_status;
+inner join legacy_version on legacy_version.id = questions.module_version_id
+on conflict (question_id, locale) do nothing;
 
+with legacy_version as (
+  select module_versions.id
+  from public.module_versions
+  inner join public.modules on modules.id = module_versions.module_id
+  where modules.key = 'trait_profile' and module_versions.version = 'mvp-1'
+)
 insert into public.question_dimension_mappings (
   question_id, dimension_id, scoring_role, polarity, weight
 )
-select id, dimension_id, 'primary', polarity, weight
+select questions.id, questions.dimension_id, 'primary', questions.polarity, questions.weight
 from public.questions
-on conflict (question_id, dimension_id) do update set
-  scoring_role = excluded.scoring_role,
-  polarity = excluded.polarity,
-  weight = excluded.weight;
+inner join legacy_version on legacy_version.id = questions.module_version_id
+on conflict (question_id, dimension_id) do nothing;

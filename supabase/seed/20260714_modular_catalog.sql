@@ -68,18 +68,7 @@ values
     'EXPERIMENTAL', 'experimental', 'experimental', false, true, 18, 100,
     'module.psychosophy.description'
   )
-on conflict (key) do update set
-  public_name = excluded.public_name,
-  internal_name = excluded.internal_name,
-  description = excluded.description,
-  evidence_tier = excluded.evidence_tier,
-  status = excluded.status,
-  category = excluded.category,
-  is_selectable = excluded.is_selectable,
-  is_experimental = excluded.is_experimental,
-  minimum_age = excluded.minimum_age,
-  default_order = excluded.default_order,
-  description_key = excluded.description_key;
+on conflict (key) do nothing;
 
 insert into public.assessment_mode_profiles (
   mode, public_name, description, target_item_min, target_item_max,
@@ -103,19 +92,7 @@ values
     100, 120, 60, 100, 120, 15, 85, 92, false,
     '{"recommended":false,"clarifierMin":12,"clarifierMax":24}'::jsonb
   )
-on conflict (mode) do update set
-  public_name = excluded.public_name,
-  description = excluded.description,
-  target_item_min = excluded.target_item_min,
-  target_item_max = excluded.target_item_max,
-  single_module_item_min = excluded.single_module_item_min,
-  single_module_item_max = excluded.single_module_item_max,
-  max_items_per_segment = excluded.max_items_per_segment,
-  seconds_per_item = excluded.seconds_per_item,
-  provisional_precision_min = excluded.provisional_precision_min,
-  provisional_precision_max = excluded.provisional_precision_max,
-  is_selectable = excluded.is_selectable,
-  configuration_json = excluded.configuration_json;
+on conflict (mode) do nothing;
 
 insert into public.combo_presets (
   key, public_name, description, status, recommended_mode, is_full_spectrum,
@@ -153,15 +130,7 @@ values
     'Seluruh modul published dan kompatibel, dibagi menjadi beberapa segment bila perlu.',
     'draft', 'deep', true, 60, '{}'::jsonb, null
   )
-on conflict (key) do update set
-  public_name = excluded.public_name,
-  description = excluded.description,
-  status = excluded.status,
-  recommended_mode = excluded.recommended_mode,
-  is_full_spectrum = excluded.is_full_spectrum,
-  default_order = excluded.default_order,
-  compatibility_json = excluded.compatibility_json,
-  published_at = excluded.published_at;
+on conflict (key) do nothing;
 
 with preset_modules(preset_key, module_key, display_order, required, dependency_rule_json) as (
   values
@@ -214,11 +183,7 @@ left join lateral (
   order by module_versions.published_at desc nulls last, module_versions.created_at desc
   limit 1
 ) as latest_version on true
-on conflict (combo_preset_id, module_id) do update set
-  module_version_id = excluded.module_version_id,
-  display_order = excluded.display_order,
-  required = excluded.required,
-  dependency_rule_json = excluded.dependency_rule_json;
+on conflict (combo_preset_id, module_id) do nothing;
 
 insert into public.feature_flags (key, enabled, description, configuration_json)
 values
@@ -242,7 +207,4 @@ values
     'Allows consent-gated AI-assisted wording after deterministic scoring.',
     '{"requiresConsent":true,"primaryScoringForbidden":true}'::jsonb
   )
-on conflict (key) do update set
-  enabled = false,
-  description = excluded.description,
-  configuration_json = excluded.configuration_json;
+on conflict (key) do nothing;
