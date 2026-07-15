@@ -8,14 +8,14 @@ LensaDiri adalah platform eksplorasi kepribadian modular, privacy-first, dan mob
 
 ## Project State
 
-- Status repository: **ESTABLISHED**. MVP hobby production aktif, struktur dan quality gates stabil, serta migrasi menuju target modular PRD 2.0 menjadi pekerjaan berikutnya.
-- Status peta DOX: **CURRENT**. Root map dan child DOX `src/`, `tests/`, `docs/`, serta `supabase/` membedakan baseline production dari target modular.
-- `docs/product/PRD_FULL_LensaDiri.md` versi 2.0 adalah canonical product and engineering contract. Baseline Quick 40/Standard 60 adalah MVP transisi, bukan implementasi final PRD 2.0.
-- Public landing, metode, privasi, disclaimer, auth UI, dashboard privacy, dan health endpoint tersedia.
+- Status repository: **ESTABLISHED**. MVP hobby production aktif; branch `agent/phase-1-foundation` memuat implementasi modular PRD 2.0 yang masih menjalani remediation dan belum dirilis ke production.
+- Status peta DOX: **CURRENT**. Root map dan child DOX `src/`, `tests/`, `docs/`, serta `supabase/` membedakan baseline production, implementasi modular feature-flagged, dan gap release.
+- `docs/product/PRD_FULL_LensaDiri.md` versi 2.0 adalah canonical product and engineering contract. `docs/qa/PRD_V2_IMPLEMENTATION_AUDIT.md` mencatat evidence dan blocker audit terbaru selama remediation.
+- Public landing, metode, privasi, disclaimer, auth UI, dashboard privacy, health endpoint, legacy assessment, modular selection/review, runner, dan report UI tersedia.
 - Internal auth mencakup register/login/logout, session HttpOnly, CSRF, rate limit, password Argon2id, dan hard-delete akun dengan re-authentication.
-- MVP assessment production mencakup Quick 40 item dan Standard 60 item original, consent, autosave/resume, scoring trait deterministik, tiga legacy overlay reflektif, private/account result, feedback, safe share, revoke, export JSON, dan delete result.
-- Docker-backed Supabase reset, PostgreSQL integration test, pgTAP, Playwright desktop/mobile, dan GitHub Actions full gates sudah terverifikasi pada 2026-07-13.
-- Hobby production baseline aktif di `https://lensadiri.vercel.app` dengan Supabase hosted Singapore; modular backend, independent per-module scoring, Test Composer, Normal/Complex/Clarifier, monitoring, backup/restore drill, custom domain, staging terpisah, admin UI, email verification, dan password reset belum selesai.
+- Baseline production tetap Quick 40/Standard 60 dengan legacy result compatibility. Modular catalog, estimate, immutable Test Composer, pause/resume, clarifier runtime, independent scoring untuk Trait Profile, 16-Type, Enneagram, dan Temperament, correlation, serta modular result reader sudah ada pada branch tetapi `FEATURE_MODULAR_COMPOSER` default OFF.
+- Candidate `679d54e` memiliki evidence unit 50, integration 16, pgTAP 201, dan Playwright 12 desktop/mobile sebelum audit remediation. Source remediation saat ini belum di-commit: Trait `modular-1` provenance, seed replay gate, dan safe shared-result projection sudah ada dengan targeted local evidence; full gates, three-run loop, GitHub Actions, dan release audit delta tetap wajib sebelum release.
+- Hobby production baseline aktif di `https://lensadiri.vercel.app` dengan Supabase hosted Singapore. Modular migration, seed, deployment, dan feature activation production belum dijalankan; monitoring, backup/restore drill, custom domain, staging terpisah, admin UI, email verification, password reset, formal accessibility audit, dan psychometric validation belum selesai.
 
 ## Technology
 
@@ -34,8 +34,8 @@ LensaDiri adalah platform eksplorasi kepribadian modular, privacy-first, dan mob
 - `src/app/start/`, `src/app/test/[token]/`, `src/app/result/[token]/`, dan `src/app/shared/[token]/`: assessment dan result flow.
 - `src/app/api/auth/`, `src/app/api/account/`, `src/app/api/assessment/`, `src/app/api/result/`, dan `src/app/api/shared/`: trusted auth, assessment, result, export, feedback, share, dan deletion boundaries.
 - `src/lib/db/`, `src/server/repositories/`, dan `src/server/services/`: validated PostgreSQL access serta trusted orchestration.
-- `src/lib/scoring/likert.ts` dan `src/lib/scoring/profile.ts`: pure deterministic scoring primitives dan MVP profile engine.
-- `supabase/migrations/`: foundation, account erasure, assessment/result, dan feedback schema; `supabase/seed/` memuat item bank lokal.
+- `src/lib/scoring/likert.ts`, `src/lib/scoring/profile.ts`, dan `src/lib/scoring/modules/`: deterministic legacy scoring serta independent modular engines; modular dispatch harus mengikuti immutable blueprint scoring provenance.
+- `supabase/migrations/`: foundation, account erasure, legacy assessment/result, feedback, modular catalog/composer/result, dan clarifier schema; `supabase/seed/` memuat legacy serta independent modular item banks.
 
 ## Repository Structure
 
@@ -110,6 +110,7 @@ npm run test:integration   # run real PostgreSQL integration suite; TEST_DATABAS
 npm run db:start           # start local Supabase; Docker required
 npm run db:reset           # reset local Supabase and apply migrations; Docker required
 npm run test:db            # run pgTAP database tests; Docker required
+npm run test:seed-replay   # replay configured seeds twice and verify stable canonical counts/hash
 npm run test:e2e           # run serial Playwright desktop + Pixel 5 tests against disposable shared DB
 npm audit                  # audit production and development dependency tree
 npm run check              # lint, typecheck, unit test, and build
@@ -143,20 +144,22 @@ Untuk perubahan flow UI, wajib jalankan:
 npm run test:e2e
 ```
 
-GitHub Actions menjalankan clean install, format, lint, typecheck, unit, build, dependency audit, disposable Supabase reset, integration, pgTAP, reset ulang, serta serial Playwright desktop/Pixel 5. CI memakai dummy test-only environment values; production credential tidak boleh masuk workflow.
+GitHub Actions menjalankan clean install, format, lint, typecheck, unit, build, dependency audit, disposable Supabase reset, integration, pgTAP, seed replay, reset ulang, serta serial Playwright desktop/Pixel 5. CI memakai dummy test-only environment values; production credential tidak boleh masuk workflow.
 
 Definition of done: requirement terpenuhi, input tervalidasi, error state aman, test relevan tersedia, aksesibilitas diperiksa, dokumentasi diperbarui, dan CI hijau.
 
 ## Known Constraints
 
-- PRD 2.0 adalah canonical contract dan blueprint target. Jangan menyamakan modular catalog, Test Composer, independent scoring, atau route target dengan kode yang sudah ada.
-- Existing `quick` tetap valid; existing `standard` menjadi public label Normal saat migration; target `deep`/Complex dan Clarifier belum tersedia.
-- Existing trait-derived overlays adalah legacy MVP interpretation. Reader lama wajib tetap bekerja, tetapi session modular baru harus memakai per-module items dan independent scoring.
-- Scoring MVP adalah trait-profile internal untuk refleksi, bukan instrumen psikometri tervalidasi formal.
-- Item bank original saat ini hanya Bahasa Indonesia dan belum melewati validasi domain expert atau norming populasi.
+- PRD 2.0 adalah canonical contract. Implementasi modular saat ini partial dan feature-flagged; status hanya boleh dinaikkan berdasarkan backend, frontend, database, test, privacy, dan feature-flag evidence.
+- Existing `quick` dan `standard` legacy tetap valid; modular memakai public label Quick/Normal/Complex. Complex dan Full Spectrum belum release-ready.
+- Existing trait-derived overlays adalah legacy MVP interpretation. Reader lama wajib tetap bekerja; session modular memakai per-module items dan independent scoring.
+- Trait modular remediation mempertahankan `trait_profile/mvp-1` untuk legacy dan menambah additive `modular-1` dengan `trait-profile-modular-1`. Composer/blueprint/result provenance dan scoring registry wajib match by module key plus scoring version; unknown or mismatched version fails closed. Do not mutate published version or old result.
+- Full seed replay uses `npm run test:seed-replay`: configured seeds replay twice, all flags stay false, duplicates are rejected, and canonical count/hash must remain stable. Published-content immutability trigger remains required; every seed touches only owning module/version content.
+- Private result, public shared result, and export use separate contracts. `toSafeSharedResultView()` is explicit allowlist mapping; public share never exposes quality diagnostics, raw scores, timing, IDs, scoring configuration, clarifier data, feedback, audit data, token hashes, or owner data.
+- Scoring dan item bank bersifat reflektif, original Bahasa Indonesia, dan belum melewati formal domain-expert validation, norming, reliability, factor, test-retest, atau DIF study.
 - Database runtime lokal memakai Docker-backed Supabase. Production memakai Vercel + satu Supabase hosted project Singapore dengan migration-only workflow.
-- Admin UI, email verification, password reset, monitoring, dan formal production verification tetap di luar baseline lokal saat ini.
-- Production single-project memakai migration-only workflow; reset dan test destructive tetap local-only. Ikuti `docs/deployment/PRODUCTION_VERCEL_SUPABASE.md`.
+- Admin UI, email verification, password reset, monitoring, backup/restore drill, dan formal production/accessibility verification tetap belum selesai.
+- Production single-project memakai migration-only workflow; reset dan destructive integration/pgTAP/E2E tetap disposable-local-only. Ikuti `docs/deployment/PRODUCTION_VERCEL_SUPABASE.md`.
 - `docs/architecture/ADR-0001-phase-0-foundation.md` adalah catatan keputusan historis. Catatan lamanya tentang belum ada package lock tidak menggambarkan kondisi saat ini; `package-lock.json` kini ada.
 - Jangan membaca atau mencetak `.env`, credential, token, key, atau secret.
 
