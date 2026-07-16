@@ -13,6 +13,13 @@ export type AssessmentSelectionType = (typeof assessmentSelectionTypes)[number];
 export const evidenceTiers = ["A", "B", "B_EXPERIMENTAL", "EXPERIMENTAL", "C"] as const;
 export type EvidenceTier = (typeof evidenceTiers)[number];
 
+export const releaseDispositions = [
+  "RELEASE_READY",
+  "DEFERRED_WITH_REASON",
+  "BLOCKED_EXTERNAL",
+] as const;
+export type ReleaseDisposition = (typeof releaseDispositions)[number];
+
 export const moduleCategories = [
   "trait",
   "typology",
@@ -31,6 +38,7 @@ export type SelectableModuleStatus = (typeof selectableModuleStatuses)[number];
 export type ModuleModeQuota = Readonly<Record<AssessmentMode, number>>;
 
 export interface AssessmentModuleDefinition {
+  readonly availabilityReason?: string | null;
   readonly category: ModuleCategory;
   readonly defaultOrder: number;
   readonly description: string;
@@ -41,6 +49,7 @@ export interface AssessmentModuleDefinition {
   readonly minimumAge: number;
   readonly modeQuota: ModuleModeQuota;
   readonly publicName: string;
+  readonly releaseDisposition?: ReleaseDisposition;
   readonly status: SelectableModuleStatus | "draft" | "paused" | "retired";
   readonly version: string | null;
 }
@@ -112,6 +121,7 @@ export function getPublicModeName(mode: AssessmentMode): AssessmentModeProfile["
 
 export function isPubliclyAvailableModule(module: AssessmentModuleDefinition): boolean {
   return (
+    (module.releaseDisposition ?? "RELEASE_READY") === "RELEASE_READY" &&
     module.isSelectable &&
     selectableModuleStatuses.includes(module.status as SelectableModuleStatus)
   );
