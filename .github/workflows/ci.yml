@@ -39,13 +39,29 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
+      - name: Upload source before formatting
+        uses: actions/upload-artifact@v4
+        with:
+          name: prettier-before-${{ github.sha }}
+          path: |
+            .github
+            docs
+            scripts
+            src
+            supabase
+            tests
+            package.json
+            playwright.config.ts
+            vitest.integration.config.ts
+          retention-days: 1
+
       - name: Format source
         run: npm run format
 
       - name: Upload formatted source
         uses: actions/upload-artifact@v4
         with:
-          name: prettier-output-${{ github.sha }}
+          name: prettier-after-${{ github.sha }}
           path: |
             .github
             docs
