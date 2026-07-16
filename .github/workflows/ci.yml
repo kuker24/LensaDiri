@@ -39,8 +39,27 @@ jobs:
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
 
-      - name: Format
-        run: npm run format:check
+      - name: Format source
+        run: npm run format
+
+      - name: Upload formatted source
+        uses: actions/upload-artifact@v4
+        with:
+          name: prettier-output-${{ github.sha }}
+          path: |
+            .github
+            docs
+            scripts
+            src
+            supabase
+            tests
+            package.json
+            playwright.config.ts
+            vitest.integration.config.ts
+          retention-days: 1
+
+      - name: Verify formatting was already clean
+        run: git diff --exit-code
 
       - name: Lint
         run: npm run lint
