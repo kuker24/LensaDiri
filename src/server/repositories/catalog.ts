@@ -7,12 +7,14 @@ import type {
   ComboPresetDefinition,
   EvidenceTier,
   ModuleCategory,
+  ReleaseDisposition,
   SelectableModuleStatus,
 } from "@/lib/assessment/catalog";
 import { getDatabase } from "@/lib/db/client";
 import { runDatabaseOperation } from "@/server/database";
 
 type CatalogModuleRow = {
+  availability_reason: string | null;
   category: ModuleCategory;
   composer_config_json: Partial<Record<AssessmentMode, number>> & {
     deepQuota?: number;
@@ -27,6 +29,7 @@ type CatalogModuleRow = {
   key: string;
   minimum_age: number;
   public_name: string;
+  release_disposition: ReleaseDisposition;
   status: AssessmentModuleDefinition["status"];
   version: string | null;
 };
@@ -73,6 +76,7 @@ function toQuota(row: CatalogModuleRow): AssessmentModuleDefinition["modeQuota"]
 
 function toModule(row: CatalogModuleRow): AssessmentModuleDefinition {
   return {
+    availabilityReason: row.availability_reason,
     category: row.category,
     defaultOrder: row.default_order,
     description: row.description,
@@ -83,6 +87,7 @@ function toModule(row: CatalogModuleRow): AssessmentModuleDefinition {
     minimumAge: row.minimum_age,
     modeQuota: toQuota(row),
     publicName: row.public_name,
+    releaseDisposition: row.release_disposition,
     status: row.status,
     version: row.version,
   };
@@ -105,6 +110,8 @@ export async function listCatalogModules(
         modules.is_experimental,
         modules.minimum_age,
         modules.default_order,
+        modules.release_disposition,
+        modules.availability_reason,
         module_versions.version,
         coalesce(module_versions.composer_config_json, '{}'::jsonb) as composer_config_json
       from public.modules
@@ -112,13 +119,14 @@ export async function listCatalogModules(
         select version, composer_config_json
         from public.module_versions
         where module_versions.module_id = modules.id
-          and module_versions.status in ('pilot', 'published', 'experimental')
+          and module_versions.status in ('pilot', 'published', 'experimental', 'active')
         order by module_versions.published_at desc nulls last, module_versions.created_at desc
         limit 1
       ) as module_versions on true
       where ${options.includeUnavailable ?? false}
         or (
-          modules.is_selectable
+          modules.release_disposition = 'RELEASE_READY'
+          and modules.is_selectable
           and modules.status in ('active', 'pilot', 'published', 'experimental')
           and module_versions.version is not null
         )
@@ -131,7 +139,7 @@ export async function listCatalogModules(
 export async function getCatalogModuleByKey(
   key: string,
 ): Promise<AssessmentModuleDefinition | null> {
-  const modules = await listCatalogModules();
+  const modules = await listCatalogModules({ includeUnavailable: true });
   return modules.find((module) => module.key === key) ?? null;
 }
 
