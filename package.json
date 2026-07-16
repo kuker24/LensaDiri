@@ -24,6 +24,7 @@
     "db:start": "npx supabase start",
     "db:reset": "npx supabase db reset",
     "test:e2e": "playwright test",
+    "test:a11y": "playwright test tests/e2e/accessibility.spec.ts",
     "check": "npm run lint && npm run typecheck && npm run test && npm run build"
   },
   "dependencies": {
