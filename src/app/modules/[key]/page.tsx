@@ -28,17 +28,13 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
             Evidence {catalogModule.evidenceTier.replace("_", " ")}
           </span>
           <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-800">
-            {available
-              ? "Release-ready"
-              : catalogModule.releaseDisposition?.replaceAll("_", " ")}
+            {available ? "Release-ready" : catalogModule.releaseDisposition?.replaceAll("_", " ")}
           </span>
         </div>
         <h1 className="mt-5 text-4xl font-semibold tracking-tight sm:text-5xl">
           {catalogModule.publicName}
         </h1>
-        <p className="mt-5 max-w-3xl leading-7 text-[var(--muted)]">
-          {catalogModule.description}
-        </p>
+        <p className="mt-5 max-w-3xl leading-7 text-[var(--muted)]">{catalogModule.description}</p>
 
         <section className="mt-8" aria-labelledby="depth-heading">
           <h2 className="text-2xl font-semibold" id="depth-heading">
@@ -56,10 +52,7 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
           </dl>
         </section>
 
-        <section
-          className="mt-8 rounded-2xl bg-violet-50 p-5"
-          aria-labelledby="boundary-heading"
-        >
+        <section className="mt-8 rounded-2xl bg-violet-50 p-5" aria-labelledby="boundary-heading">
           <h2 className="font-semibold" id="boundary-heading">
             Batas interpretasi
           </h2>

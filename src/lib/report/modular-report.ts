@@ -82,9 +82,7 @@ function findScore(
   constructKey: string,
 ): ModuleDimensionScore | null {
   for (const resultModule of modules) {
-    const score = resultModule.scores.find(
-      (candidate) => candidate.constructKey === constructKey,
-    );
+    const score = resultModule.scores.find((candidate) => candidate.constructKey === constructKey);
     if (score) return score;
   }
   return null;
