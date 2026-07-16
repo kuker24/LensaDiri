@@ -36,8 +36,8 @@ function label(key: string): string {
   return constructLabels[key] ?? key.replaceAll("_", " ");
 }
 
-function orderedScores(module: IndependentModuleResult): readonly ModuleDimensionScore[] {
-  return module.scores.toSorted(
+function orderedScores(resultModule: IndependentModuleResult): readonly ModuleDimensionScore[] {
+  return resultModule.scores.toSorted(
     (left, right) =>
       right.normalizedScore - left.normalizedScore ||
       left.constructKey.localeCompare(right.constructKey),
@@ -52,8 +52,10 @@ function describeBand(score: ModuleDimensionScore): string {
   return `kecenderungan ${label(score.constructKey)} relatif seimbang`;
 }
 
-export function buildModuleReflection(module: IndependentModuleResult): ModuleReflectionSection {
-  const ordered = orderedScores(module);
+export function buildModuleReflection(
+  resultModule: IndependentModuleResult,
+): ModuleReflectionSection {
+  const ordered = orderedScores(resultModule);
   const strongest = ordered[0];
   const second = ordered[1];
   const lowest = ordered.at(-1);
@@ -65,7 +67,7 @@ export function buildModuleReflection(module: IndependentModuleResult): ModuleRe
           "Periksa konteks sebelum menjadikan satu pola sebagai aturan tetap tentang dirimu.",
         ]
       : ["Data belum cukup untuk menyusun blind spot yang stabil."],
-    moduleKey: module.moduleKey,
+    moduleKey: resultModule.moduleKey,
     practicalReflection: strongest
       ? `Amati kapan ${label(strongest.constructKey)} membantumu dan kapan kamu perlu menyeimbangkannya dengan respons lain.`
       : "Gunakan hasil sebagai bahan refleksi, bukan label mutlak.",
@@ -79,8 +81,10 @@ function findScore(
   modules: readonly IndependentModuleResult[],
   constructKey: string,
 ): ModuleDimensionScore | null {
-  for (const module of modules) {
-    const score = module.scores.find((candidate) => candidate.constructKey === constructKey);
+  for (const resultModule of modules) {
+    const score = resultModule.scores.find(
+      (candidate) => candidate.constructKey === constructKey,
+    );
     if (score) return score;
   }
   return null;
