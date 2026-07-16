@@ -7,7 +7,7 @@ on:
     branches: [main]
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
@@ -30,7 +30,6 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
         with:
-          ref: ${{ github.event_name == 'push' && github.ref_name || github.event.pull_request.head.sha }}
           fetch-depth: 0
 
       - name: Set up Node.js
@@ -41,28 +40,6 @@ jobs:
 
       - name: Install dependencies
         run: npm ci --no-audit --no-fund
-
-      - name: Apply reviewed seed identity
-        if: github.event_name == 'push' && startsWith(github.ref, 'refs/heads/agent/')
-        run: |
-          python3 <<'PY'
-          from pathlib import Path
-          path = Path('scripts/test-seed-replay.mjs')
-          source = path.read_text()
-          source = source.replace(
-              'b0168c9e675fb453f11e6227613b90ff2f710d69d3a44f42a4e8e857ea1fe75b',
-              'aa6b8d576d65447bf702dbe9bab704efd493517885fc9c4e6c1a4e324ae7c093',
-          )
-          source = source.replace('  combo_mappings: 27,', '  combo_mappings: 19,')
-          path.write_text(source)
-          PY
-          if ! git diff --quiet -- scripts/test-seed-replay.mjs; then
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git add -- scripts/test-seed-replay.mjs
-            git commit -m "test(seed): lock reviewed PRD v2 canonical identity"
-            git push origin HEAD:${GITHUB_REF_NAME}
-          fi
 
       - name: Format
         run: npm run format:check
@@ -109,22 +86,18 @@ jobs:
       - name: Start disposable Supabase
         run: npm run db:start
 
-      - name: Reset disposable database
-        run: npm run db:reset
-
-      - name: Verify seed replay
-        run: npm run test:seed-replay
-
-      - name: Verify seed replay drift
-        run: npm run test:seed-replay-drift
-
-      - name: Run integration tests
+      - name: Three clean-reset verification loops
         env:
           TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
-        run: npm run test:integration
-
-      - name: Run pgTAP
-        run: npm run test:db
+        run: |
+          for iteration in 1 2 3; do
+            echo "Clean reset loop ${iteration}/3"
+            npm run db:reset
+            npm run test:seed-replay
+            npm run test:seed-replay-drift
+            npm run test:integration
+            npm run test:db
+          done
 
       - name: Reset disposable database for browser fixtures
         run: |
