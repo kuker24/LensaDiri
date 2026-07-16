@@ -89,8 +89,30 @@ jobs:
       - name: Reset disposable database
         run: npm run db:reset
 
+      - name: Instrument canonical seed diagnostics
+        run: |
+          node <<'NODE'
+          const { readFileSync, writeFileSync } = require('node:fs')
+          const path = 'scripts/test-seed-replay.mjs'
+          const source = readFileSync(path, 'utf8')
+          const target = 'fail("baseline canonical identity does not match reviewed seed identity");'
+          const replacement = 'fail(`baseline canonical identity mismatch counts=${JSON.stringify(value.counts)} canonical_sha256=${value.hash}`);'
+          if (!source.includes(target)) throw new Error('seed diagnostic target not found')
+          writeFileSync(path, source.replace(target, replacement))
+          NODE
+
       - name: Verify seed replay
-        run: npm run test:seed-replay
+        run: |
+          set -o pipefail
+          npm run test:seed-replay 2>&1 | tee seed-replay-report.txt
+
+      - name: Upload seed replay report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seed-replay-report-${{ github.sha }}
+          path: seed-replay-report.txt
+          retention-days: 1
 
       - name: Verify seed replay drift
         run: npm run test:seed-replay-drift
