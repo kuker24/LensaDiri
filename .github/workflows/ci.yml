@@ -47,18 +47,6 @@ jobs:
       - name: Lint
         run: npm run lint
 
-      - name: Capture typecheck report
-        run: |
-          npx next typegen > typecheck-report.txt 2>&1 || true
-          npx tsc --noEmit --pretty false >> typecheck-report.txt 2>&1 || true
-
-      - name: Upload typecheck report
-        uses: actions/upload-artifact@v4
-        with:
-          name: typecheck-report-${{ github.sha }}
-          path: typecheck-report.txt
-          retention-days: 1
-
       - name: Typecheck
         run: npm run typecheck
 
