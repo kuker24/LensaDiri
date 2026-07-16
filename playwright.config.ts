@@ -16,11 +16,17 @@ export default defineConfig({
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        extraHTTPHeaders: { "x-forwarded-for": "192.0.2.10" },
+      },
     },
     {
       name: "mobile-chromium",
-      use: { ...devices["Pixel 5"] },
+      use: {
+        ...devices["Pixel 5"],
+        extraHTTPHeaders: { "x-forwarded-for": "192.0.2.20" },
+      },
     },
   ],
   webServer: {
@@ -28,6 +34,8 @@ export default defineConfig({
     env: {
       ...process.env,
       RECOVERY_TEST_TRANSPORT: "1",
+      TEST_DATABASE_URL: process.env.TEST_DATABASE_URL ?? process.env.DATABASE_URL ?? "",
+      VERCEL: "1",
     },
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,

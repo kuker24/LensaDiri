@@ -36,7 +36,9 @@ test("account lifecycle registers, logs in, rejects wrong deletion password, the
   await page.getByLabel("Password").fill(password);
   await page.getByRole("button", { name: "Masuk", exact: true }).click();
   await expect(page).toHaveURL(/\/dashboard$/u);
-  await expect(page.getByRole("heading", { name: "Selamat datang kembali." })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Sesi, hasil, dan kontrol datamu" }),
+  ).toBeVisible();
 
   await page.getByRole("link", { name: "Buka pusat privasi" }).click();
   await expect(page.getByRole("heading", { name: "Pusat privasi" })).toBeVisible();

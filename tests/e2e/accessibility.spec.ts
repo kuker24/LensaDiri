@@ -49,5 +49,5 @@ test("authentication controls have programmatic labels", async ({ page }) => {
   await page.goto("/login");
   await expect(page.getByLabel(/email/i)).toBeVisible();
   await expect(page.getByLabel(/password|kata sandi/i)).toBeVisible();
-  await expect(page.getByRole("button")).toBeEnabled();
+  await expect(page.getByRole("button", { name: "Masuk", exact: true })).toBeEnabled();
 });

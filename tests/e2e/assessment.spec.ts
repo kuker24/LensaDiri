@@ -8,8 +8,8 @@ test("modular selection estimates, starts, pauses, resumes, and completes", asyn
   await expect(page.getByText("Estimasi dari server")).toBeVisible();
   await expect(page.getByText(/item · sekitar/u)).toBeVisible();
 
-  await page.getByText("16-Type").click();
-  await page.getByText("Profil Trait").click();
+  await page.getByRole("checkbox", { name: /16-Type Jungian-inspired/u }).check();
+  await page.getByRole("checkbox", { name: /Profil Trait/u }).uncheck();
   await page.getByRole("button", { name: /Quick/u }).click();
   await expect(page.getByText(/32 item · sekitar/u)).toBeVisible();
   await page.getByRole("button", { name: "Tinjau pilihan" }).click();
