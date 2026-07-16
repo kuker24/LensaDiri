@@ -46,7 +46,7 @@ export default async function CombosPage() {
               </ul>
               <Link
                 className="focus-ring mt-6 inline-flex min-h-12 items-center rounded-xl bg-[var(--foreground)] px-5 font-semibold text-white hover:bg-violet-700"
-                href="/start/combos"
+                href="/start/modules"
               >
                 Pilih preset
               </Link>
