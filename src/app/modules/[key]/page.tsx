@@ -8,12 +8,12 @@ export const dynamic = "force-dynamic";
 
 export default async function ModuleDetailPage({ params }: { params: Promise<{ key: string }> }) {
   const { key } = await params;
-  const module = await getCatalogModuleByKey(key);
-  if (!module) notFound();
+  const catalogModule = await getCatalogModuleByKey(key);
+  if (!catalogModule) notFound();
 
-  const available = isPubliclyAvailableModule(module);
+  const available = isPubliclyAvailableModule(catalogModule);
   const modes = (["quick", "standard", "deep"] as const).map((mode) => ({
-    count: module.modeQuota[mode],
+    count: catalogModule.modeQuota[mode],
     label: getPublicModeName(mode),
   }));
 
@@ -25,16 +25,20 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
       <article className="mt-6 max-w-4xl rounded-3xl border border-[var(--line)] bg-white p-7 sm:p-10">
         <div className="flex flex-wrap gap-3 text-sm">
           <span className="rounded-full bg-violet-100 px-3 py-1 font-semibold text-violet-900">
-            Evidence {module.evidenceTier.replace("_", " ")}
+            Evidence {catalogModule.evidenceTier.replace("_", " ")}
           </span>
           <span className="rounded-full bg-slate-100 px-3 py-1 font-semibold text-slate-800">
-            {available ? "Release-ready" : module.releaseDisposition?.replaceAll("_", " ")}
+            {available
+              ? "Release-ready"
+              : catalogModule.releaseDisposition?.replaceAll("_", " ")}
           </span>
         </div>
         <h1 className="mt-5 text-4xl font-semibold tracking-tight sm:text-5xl">
-          {module.publicName}
+          {catalogModule.publicName}
         </h1>
-        <p className="mt-5 max-w-3xl leading-7 text-[var(--muted)]">{module.description}</p>
+        <p className="mt-5 max-w-3xl leading-7 text-[var(--muted)]">
+          {catalogModule.description}
+        </p>
 
         <section className="mt-8" aria-labelledby="depth-heading">
           <h2 className="text-2xl font-semibold" id="depth-heading">
@@ -52,7 +56,10 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
           </dl>
         </section>
 
-        <section className="mt-8 rounded-2xl bg-violet-50 p-5" aria-labelledby="boundary-heading">
+        <section
+          className="mt-8 rounded-2xl bg-violet-50 p-5"
+          aria-labelledby="boundary-heading"
+        >
           <h2 className="font-semibold" id="boundary-heading">
             Batas interpretasi
           </h2>
@@ -73,7 +80,7 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
           <div className="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-5 text-amber-950">
             <h2 className="font-semibold">Belum dapat dipilih</h2>
             <p className="mt-2 text-sm leading-6">
-              {module.availabilityReason ?? "Modul masih berada dalam review."}
+              {catalogModule.availabilityReason ?? "Modul masih berada dalam review."}
             </p>
           </div>
         )}
