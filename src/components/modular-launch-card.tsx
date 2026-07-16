@@ -1,10 +1,6 @@
 import Link from "next/link";
 
-import { isFeatureEnabled } from "@/server/repositories/catalog";
-
-export async function ModularLaunchCard() {
-  if (!(await isFeatureEnabled("FEATURE_MODULAR_COMPOSER"))) return null;
-
+export function ModularLaunchCard() {
   return (
     <div className="mx-auto mt-10 max-w-4xl rounded-3xl bg-[var(--foreground)] p-7 text-white shadow-[var(--shadow)] sm:flex sm:items-center sm:justify-between sm:gap-8 sm:p-9">
       <div>
