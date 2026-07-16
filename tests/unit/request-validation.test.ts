@@ -7,7 +7,13 @@ import {
   startAssessmentSchema,
   tokenRequestSchema,
 } from "@/lib/validation/assessment";
-import { deleteAccountRequestSchema, loginRequestSchema } from "@/lib/validation/auth";
+import {
+  deleteAccountRequestSchema,
+  loginRequestSchema,
+  recoveryRequestSchema,
+  resetPasswordRequestSchema,
+  verifyEmailRequestSchema,
+} from "@/lib/validation/auth";
 
 describe("authentication request validation", () => {
   it("accepts bounded credentials with no extra fields", async () => {
@@ -41,6 +47,20 @@ describe("authentication request validation", () => {
     expect(valid.success).toBe(true);
     expect(wrongConfirmation.success).toBe(false);
     expect(extraField.success).toBe(false);
+  });
+
+  it("strictly validates recovery email, token, and new password", () => {
+    const token = "a".repeat(43);
+    expect(recoveryRequestSchema.safeParse({ email: "person@example.test" }).success).toBe(true);
+    expect(
+      recoveryRequestSchema.safeParse({ email: "person@example.test", role: "admin" }).success,
+    ).toBe(false);
+    expect(verifyEmailRequestSchema.safeParse({ token }).success).toBe(true);
+    expect(verifyEmailRequestSchema.safeParse({ token: "short" }).success).toBe(false);
+    expect(
+      resetPasswordRequestSchema.safeParse({ password: "new password 123", token }).success,
+    ).toBe(true);
+    expect(resetPasswordRequestSchema.safeParse({ password: "short", token }).success).toBe(false);
   });
 
   it("strictly validates assessment consent, opaque token, UUID, and Likert value", () => {

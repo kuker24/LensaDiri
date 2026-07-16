@@ -12,7 +12,12 @@ export type AuditAction =
   | "consent_recorded"
   | "consent_revoked"
   | "admin_accessed"
-  | "admin_content_changed";
+  | "admin_content_changed"
+  | "email_verification_requested"
+  | "email_verified"
+  | "password_reset_requested"
+  | "password_reset_completed"
+  | "password_reset_failed";
 
 export type AuditEntityType =
   "account" | "account_session" | "consent" | "admin_resource" | "system";

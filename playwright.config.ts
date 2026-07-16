@@ -5,6 +5,7 @@ export default defineConfig({
   fullyParallel: true,
   forbidOnly: Boolean(process.env.CI),
   retries: process.env.CI ? 2 : 0,
+  timeout: 60_000,
   // Lifecycle specs share one disposable DB and intentionally exercise global fallback rate limits.
   workers: 1,
   reporter: process.env.CI ? "github" : "html",
@@ -24,6 +25,10 @@ export default defineConfig({
   ],
   webServer: {
     command: "npm run dev",
+    env: {
+      ...process.env,
+      RECOVERY_TEST_TRANSPORT: "1",
+    },
     url: "http://127.0.0.1:3000",
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,

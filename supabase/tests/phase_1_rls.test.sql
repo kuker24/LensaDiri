@@ -1,6 +1,6 @@
 begin;
 
-select plan(92);
+select plan(104);
 
 -- Tables created by Phase 1 migration.
 select ok(to_regclass('public.accounts') is not null, 'accounts table exists');
@@ -111,6 +111,60 @@ select ok(not has_function_privilege('authenticated', 'public.hard_delete_accoun
 select ok(exists (select 1 from pg_constraint where conrelid = 'public.account_sessions'::regclass and conname = 'account_sessions_account_id_fkey' and confdeltype = 'c'), 'sessions cascade on account hard delete');
 select ok(exists (select 1 from pg_constraint where conrelid = 'public.consents'::regclass and conname = 'consents_account_id_fkey' and confdeltype = 'n'), 'consents retain record after account hard delete');
 select ok(exists (select 1 from pg_constraint where conrelid = 'public.audit_logs'::regclass and conname = 'audit_logs_actor_account_id_fkey' and confdeltype = 'n'), 'audit logs retain record after actor hard delete');
+
+select ok(
+  (select relrowsecurity and relforcerowsecurity
+   from pg_class where oid = 'public.account_recovery_tokens'::regclass),
+  'account recovery tokens enforce RLS'
+);
+select is(
+  (select count(*)::integer from pg_policies
+   where schemaname = 'public' and tablename = 'account_recovery_tokens'),
+  0,
+  'account recovery tokens expose no browser policy'
+);
+select is(
+  (select count(*)::integer from information_schema.role_table_grants
+   where table_schema = 'public' and table_name = 'account_recovery_tokens'
+     and grantee in ('anon', 'authenticated')),
+  0,
+  'account recovery tokens grant no browser privileges'
+);
+select ok(
+  exists (
+    select 1 from information_schema.columns
+    where table_schema = 'public' and table_name = 'account_recovery_tokens'
+      and column_name = 'token_hash' and is_nullable = 'NO'
+  ),
+  'account recovery token hash is required'
+);
+select ok(exists (select 1 from pg_constraint where conname = 'account_recovery_tokens_hash_hex'), 'account recovery tokens require HMAC hash format');
+select ok(exists (select 1 from pg_constraint where conname = 'account_recovery_tokens_expiry_after_creation'), 'account recovery tokens require future expiry');
+select ok(exists (select 1 from pg_constraint where conname = 'account_recovery_tokens_delivered_after_creation'), 'account recovery tokens validate delivery time');
+select ok(exists (select 1 from pg_constraint where conname = 'account_recovery_tokens_consumed_after_delivery'), 'account recovery tokens require delivery before consumption');
+select ok(to_regclass('public.account_recovery_tokens_token_hash_key') is not null, 'account recovery tokens have unique token hash');
+select ok(to_regclass('public.account_recovery_tokens_one_active') is not null, 'account recovery tokens allow one delivered active token per purpose');
+select ok(
+  exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.account_recovery_tokens'::regclass
+      and conname = 'account_recovery_tokens_account_id_fkey'
+      and confdeltype = 'c'
+  ),
+  'account recovery tokens cascade on account hard delete'
+);
+select ok(
+  exists (
+    select 1 from pg_enum e
+    join pg_type t on t.oid = e.enumtypid
+    join pg_namespace n on n.oid = t.typnamespace
+    where n.nspname = 'public' and t.typname = 'account_recovery_purpose'
+      and e.enumlabel in ('email_verification', 'password_reset')
+    group by t.oid
+    having count(*) = 2
+  ),
+  'account recovery purpose enum is constrained'
+);
 
 select * from finish();
 rollback;

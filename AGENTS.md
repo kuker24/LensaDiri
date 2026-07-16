@@ -14,8 +14,8 @@ LensaDiri adalah platform eksplorasi kepribadian modular, privacy-first, dan mob
 - Public landing, metode, privasi, disclaimer, auth UI, dashboard privacy, health endpoint, legacy assessment, modular selection/review, runner, dan report UI tersedia.
 - Internal auth mencakup register/login/logout, session HttpOnly, CSRF, rate limit, password Argon2id, dan hard-delete akun dengan re-authentication.
 - Baseline production tetap Quick 40/Standard 60 dengan legacy result compatibility. Modular catalog, estimate, immutable Test Composer, pause/resume, clarifier runtime, independent scoring untuk Trait Profile, 16-Type, Enneagram, dan Temperament, correlation, serta modular result reader sudah ada pada branch tetapi `FEATURE_MODULAR_COMPOSER` default OFF.
-- Candidate `679d54e` memiliki evidence unit 50, integration 16, pgTAP 201, dan Playwright 12 desktop/mobile sebelum audit remediation. Source remediation saat ini belum di-commit: Trait `modular-1` provenance, seed replay gate, dan safe shared-result projection sudah ada dengan targeted local evidence; full gates, three-run loop, GitHub Actions, dan release audit delta tetap wajib sebelum release.
-- Hobby production baseline aktif di `https://lensadiri.vercel.app` dengan Supabase hosted Singapore. Modular migration, seed, deployment, dan feature activation production belum dijalankan; monitoring, backup/restore drill, custom domain, staging terpisah, admin UI, email verification, password reset, formal accessibility audit, dan psychometric validation belum selesai.
+- Candidate lokal terbaru memiliki evidence unit 64, integration 46, pgTAP 237, dan Playwright 22 desktop/mobile. Tiga clean-reset loop, seed replay/drift/upgrade parity, build, serta audit dependency lulus. Commit/push dan GitHub Actions pada SHA candidate masih wajib sebelum release.
+- Hobby production baseline aktif di `https://lensadiri.vercel.app` dengan Supabase hosted Singapore. Modular migration, seed, deployment, dan feature activation production belum dijalankan. Account-recovery foundation sudah ada lokal tetapi provider email dan mandatory verification tetap blocked external. Monitoring, backup/restore drill, custom domain, staging terpisah, admin UI, formal accessibility audit, dan psychometric validation belum selesai.
 
 ## Technology
 
@@ -152,14 +152,14 @@ Definition of done: requirement terpenuhi, input tervalidasi, error state aman, 
 ## Known Constraints
 
 - PRD 2.0 adalah canonical contract. Implementasi modular saat ini partial dan feature-flagged; status hanya boleh dinaikkan berdasarkan backend, frontend, database, test, privacy, dan feature-flag evidence.
-- Existing `quick` dan `standard` legacy tetap valid; modular memakai public label Quick/Normal/Complex. Complex dan Full Spectrum belum release-ready.
+- Existing `quick` dan `standard` legacy tetap valid; modular memakai public label Quick/Normal/Complex. Complex dan Full Spectrum terverifikasi lokal tetapi tetap default OFF dan belum production-release-ready.
 - Existing trait-derived overlays adalah legacy MVP interpretation. Reader lama wajib tetap bekerja; session modular memakai per-module items dan independent scoring.
 - Trait modular remediation mempertahankan `trait_profile/mvp-1` untuk legacy dan menambah additive `modular-1` dengan `trait-profile-modular-1`. Composer/blueprint/result provenance dan scoring registry wajib match by module key plus scoring version; unknown or mismatched version fails closed. Do not mutate published version or old result.
 - Full seed replay uses `npm run test:seed-replay`: configured seeds replay twice, all flags stay false, duplicates are rejected, and reviewed canonical count/hash must match. `npm run test:seed-replay-drift` must reject intentional local identity drift, restore it, and pass replay again. Published-content immutability trigger remains required; every seed touches only owning module/version content.
 - Private result, public shared result, and export use separate contracts. `toSafeSharedResultView()` is explicit allowlist mapping; public share never exposes quality diagnostics, raw scores, timing, IDs, scoring configuration, clarifier data, feedback, audit data, token hashes, or owner data.
 - Scoring dan item bank bersifat reflektif, original Bahasa Indonesia, dan belum melewati formal domain-expert validation, norming, reliability, factor, test-retest, atau DIF study.
 - Database runtime lokal memakai Docker-backed Supabase. Production memakai Vercel + satu Supabase hosted project Singapore dengan migration-only workflow.
-- Admin UI, email verification, password reset, monitoring, backup/restore drill, dan formal production/accessibility verification tetap belum selesai.
+- Admin UI, provider email production, mandatory email verification, monitoring, backup/restore drill, dan formal production/accessibility verification tetap belum selesai. Recovery token/password-reset foundation sudah terverifikasi lokal dan dormant.
 - Production single-project memakai migration-only workflow; reset dan destructive integration/pgTAP/E2E tetap disposable-local-only. Ikuti `docs/deployment/PRODUCTION_VERCEL_SUPABASE.md`.
 - `docs/architecture/ADR-0001-phase-0-foundation.md` adalah catatan keputusan historis. Catatan lamanya tentang belum ada package lock tidak menggambarkan kondisi saat ini; `package-lock.json` kini ada.
 - Jangan membaca atau mencetak `.env`, credential, token, key, atau secret.

@@ -2,87 +2,72 @@
 
 ## Objective
 
-Reproducible hobby-production checkpoint for LensaDiri MVP and PRD v2 modular remediation: private internal-auth accounts, legacy Quick/Standard lifecycle, versioned modular assessment contracts, deterministic scoring, privacy controls, additive database migrations, GitHub source, and Vercel deployment backed by hosted Supabase PostgreSQL.
+Reproducible release-candidate checkpoint for LensaDiri legacy compatibility, feature-flagged modular assessment, account-recovery foundation, privacy controls, additive migrations, and disposable-local verification.
 
 ## Source checkpoint
 
 - Branch: `agent/phase-1-foundation`
 - Production URL: `https://lensadiri.vercel.app`
 - Pull request: `https://github.com/kuker24/LensaDiri/pull/3`
-- Production build source: GitHub repository branch above; exact commit recorded in PR and Vercel build logs
-- Working-tree requirement: clean before and after verification
+- Production remains legacy Quick 40/Standard 60. Modular migrations, deployment, and feature activation have not occurred.
+- Candidate changes remain local until explicit commits and branch push complete.
 
-Production project identifiers, database URLs, access tokens, passwords, API keys, and secret values are intentionally excluded.
+Production identifiers, database URLs, access tokens, passwords, API keys, and secret values are intentionally excluded.
 
-## Implemented scope
+## Implemented candidate scope
 
-- Internal auth: opaque registration, Argon2id login, HttpOnly session, same-origin CSRF, logout, private dashboard, and permanent account erasure.
-- Legacy assessment: consent, Quick 40, Standard 60, idempotent autosave, resume, atomic completion, deterministic server scoring, private result, feedback, share/revoke, safe JSON export, and result deletion.
-- Modular remediation source: additive `trait_profile/modular-1`, version-aware scoring dispatch, immutable result provenance, replay-safe seed contract, and separated private/shared/export result DTOs.
-- Privacy boundary: token HMAC hashes, forced RLS, no browser policies/direct table privileges, trusted server PostgreSQL client, generic API failures, and explicit allowlist mapping for public shared results.
-- Operations: liveness-only health endpoint, Vercel/Supabase production guide, migration map, security headers, and ignored local runtime metadata.
-- Modular release remains feature-flagged. P0/P1 remediation passes full disposable-local gates, three clean-reset loops, and canonical-drift rejection/restoration. Implementation commits `f8c1c3c`, `65f934b`, `e400834`, and `b3f86f6` exist locally; this evidence update, branch push, and GitHub Actions remain pending. No production migration, deploy, or flag activation has occurred.
+- Legacy Quick 40/Standard 60 compatibility remains covered.
+- Modular catalog/composer is default-off and hidden when `FEATURE_MODULAR_COMPOSER=false`.
+- Complex and Full Spectrum are hidden when `FEATURE_COMPLEX_MODE=false`.
+- Catalog and preset pins reject unsupported scoring provenance before session composition.
+- Immutable blueprint, segmented lifecycle, Full Spectrum, Complex, clarifier, dashboard navigation, safe share/export/delete, and independent modular scoring are covered locally.
+- Recovery foundation uses hash-only single-use tokens, explicit delivery state, expiry, concurrent-consume safety, session revocation, generic responses, CSRF, rate limits, and forced RLS. Production email transport and login verification enforcement remain disabled pending provider/product approval.
+- Recovery bearer links use URL fragments rather than query strings. Test delivery remains non-production/disposable-only.
+- Assessment and clarifier progress expose accessible progressbar semantics.
+- Migration map records hosted history, pending checksums, dependencies, backfill, lock risk, compatibility, backup limitation, stop threshold, fix-forward, and postverify contract.
 
-## Database provenance
+## Verification evidence
 
-Applied additive migration versions:
+All commands below used disposable local Supabase and test-only values. No destructive or write command targeted production.
 
-1. `202607120001_phase_1_foundation.sql`
-2. `202607130001_account_hard_delete.sql`
-3. `202607130002_mvp_assessment.sql`
-4. `202607130003_mvp_feedback.sql`
-5. `202607130004_portable_email_constraint.sql`
+| Check                          | Current result                                                                                                                |
+| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
+| `npm run format:check`         | PASS.                                                                                                                         |
+| `npm run lint`                 | PASS.                                                                                                                         |
+| `npm run typecheck`            | PASS.                                                                                                                         |
+| `npm test`                     | PASS: 14 files, 64 tests.                                                                                                     |
+| `npm run build`                | PASS with complete dummy test-only environment.                                                                               |
+| `npm audit --audit-level=high` | PASS: zero vulnerabilities.                                                                                                   |
+| `npm run db:reset`             | PASS against disposable local Supabase.                                                                                       |
+| `npm run test:seed-replay`     | PASS: modules 10, module versions 13, dimensions 64, questions/translations/mappings 642, combo presets 6, combo mappings 25. |
+| Canonical seed SHA-256         | `c3d01263dc56ad7f6434fe7af99d1e6b934e82182aed2c6c2539d5818a4b69f0`.                                                           |
+| Seed drift gate                | PASS: intentional drift rejected, restored, replay passed.                                                                    |
+| Seed upgrade parity            | PASS: prior checkpoint identity matched canonical.                                                                            |
+| `npm run test:integration`     | PASS: 8 files, 46 tests.                                                                                                      |
+| `npm run test:db`              | PASS: 237 assertions.                                                                                                         |
+| `npm run test:e2e`             | PASS: 22 tests, 11 desktop Chromium and 11 Pixel 5.                                                                           |
+| Three clean-reset loops        | PASS: each reset, replay, drift, parity, integration 46, pgTAP 237, and E2E 22 with identical canonical hash.                 |
+| `git diff --check`             | PASS before documentation refresh.                                                                                            |
+| GitHub Actions                 | PENDING until candidate commits are pushed.                                                                                   |
 
-Migration history matched local SQL statement-by-statement. Hosted dry-run reported database up to date. Seed `20260713_mvp_item_bank.sql` is idempotent and produces 60 Standard questions, including 40 Quick questions. Hosted smoke found 15 forced-RLS tables and zero browser policies.
-
-## Verification
-
-Baseline verification used disposable local-only secrets and local Supabase PostgreSQL. No production reset or destructive test ran.
-
-| Command or check                       | Result                                                                                                                                                                                                 |
-| -------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| `npm ci`                               | PASS; lockfile unchanged.                                                                                                                                                                              |
-| `npm run format:check`                 | PASS.                                                                                                                                                                                                  |
-| `npm run lint`                         | PASS.                                                                                                                                                                                                  |
-| `npm run typecheck`                    | PASS.                                                                                                                                                                                                  |
-| `npm test`                             | PASS: `13 files / 53 tests`.                                                                                                                                                                           |
-| `npm run build`                        | PASS using complete disposable test-only environment; no production credential used.                                                                                                                   |
-| `npm audit`                            | PASS: `0 vulnerabilities`.                                                                                                                                                                             |
-| `npm run db:reset`                     | PASS against disposable local Supabase only.                                                                                                                                                           |
-| `npm run test:seed-replay`             | PASS: modules `10`, versions `5`, dimensions `27`, questions/translations/mappings `258`, combos `6`, combo mappings `27`; SHA-256 `b0168c9e675fb453f11e6227613b90ff2f710d69d3a44f42a4e8e857ea1fe75b`. |
-| `npm run test:seed-replay-drift`       | PASS: intentional local canonical mismatch exits `1`; restoration and post-restore replay PASS.                                                                                                        |
-| `npm run test:integration`             | PASS: `5 files / 21 tests`.                                                                                                                                                                            |
-| `npm run test:db`                      | PASS: plans `66 + 48 + 92 = 206` assertions; command exit `0`.                                                                                                                                         |
-| `CI=1 npm run test:e2e`                | PASS: `12/12`, 6 desktop Chrome and 6 Pixel 5 tests.                                                                                                                                                   |
-| Three clean-reset loops                | PASS: each loop reset, replay, integration `21`, pgTAP `206`, E2E `12`; canonical seed hash unchanged.                                                                                                 |
-| Scoped concrete-secret scan            | PASS: `0`; dummy CI values only.                                                                                                                                                                       |
-| `git diff --check`                     | PASS.                                                                                                                                                                                                  |
-| GitHub Actions for remediation commits | PENDING until follow-up commits are pushed; must cover replay and canonical-drift CI gates.                                                                                                            |
+Initial E2E loop attempts exposed shared test rate-limit state and missing autosave synchronization. Test-only rate-limit guards now require non-production, recovery test transport, and disposable `TEST_DATABASE_URL`. Browser tests now wait for persisted answer counts before completion. Three final loops passed without retry-only success.
 
 ## Production evidence
 
-- Supabase migration dry-run: remote up to date.
-- Vercel Git integration: repository and `agent/phase-1-foundation` source confirmed in build logs.
-- Vercel Git production build: Ready.
-- `/api/health`: HTTP 200 with exactly `{"status":"ok"}`.
-- Public route smoke: `/`, `/method`, `/privacy`, `/disclaimer`, `/login`, `/register`, and `/start` returned HTTP 200.
-- Security headers: content-type sniffing, framing, referrer, permissions, opener, and resource policies present.
-- Disposable production account smoke: registration 202, login 200, dashboard 200, deletion 200, post-delete login 401; record removed.
+Read-only checks only:
 
-## Secret safety
+- Vercel CLI authentication available and local project link present.
+- Public deployment and `/api/health` responded successfully.
+- Hosted Supabase project reported active healthy.
+- `supabase migration list` showed only versions `202607120001` through `202607130004` applied remotely.
+- Versions `202607130005` through `202607200001` remain local-only.
+- No hosted dry-run, backup/export, migration, seed, deploy, alias, environment, merge, or feature-flag action occurred.
 
-- Broad name scan found environment-variable names, docs, placeholders, and dummy local fixtures only.
-- Concrete credential scan found zero production secrets.
-- Production project/token identifier scan in repository content found zero matches.
-- History hits contained localhost/test-only dummy database URLs; no production credential evidence.
-- `.env.local`, `.vercel/`, `supabase/.temp/`, `supabase/.branches/`, credential files, private keys, and dumps remain ignored.
-- No credential rotation required from repository evidence.
+## Residual risks and deferred scope
 
-## Residual risks
-
-- P0/P1 remediation full local gates, three clean-reset loops, and canonical-drift proof PASS, but this evidence update, branch push, GitHub Actions, release migration map, backup/forward-fix decision, and audit delta remain required before hosted dry-run.
-- PRD v2 remains PARTIAL: Complex/full-spectrum proof, public catalog/supporting routes, active-session dashboard, additional module engines, retention/consent expansion, operations readiness, formal WCAG, and psychometric validation remain open.
-- Single hobby Supabase production project; no staging environment.
-- Monitoring integration, backup/restore drill, custom domain, email verification, password reset, formal WCAG audit, and psychometric/domain-expert validation remain open.
-- Keep `FEATURE_MODULAR_COMPOSER`, `FEATURE_COMPLEX_MODE`, `FEATURE_PROVISIONAL_PRECISION`, and `FEATURE_AI_NARRATIVE` OFF in production.
-- Never run local reset, destructive integration, pgTAP, or E2E suites against production.
+- GitHub Actions must pass on pushed candidate SHA before merge consideration.
+- Production migration requires separate approval, non-destructive dry-run, backup capability/limitation decision, and per-step postverify.
+- Provider email delivery and mandatory verification remain `BLOCKED_EXTERNAL`.
+- Formal psychometric validation, third-party WCAG certification, AI narrative, monitoring provider, restore drill, staging, custom domain, admin publication UI, retention automation, optional consent expansion, public catalog/legal/blog routes, and complete long-form growth report remain deferred or partial.
+- Feature flags remain OFF in production.
+- Never run local reset, integration, pgTAP, seed, or E2E suites against production.

@@ -127,7 +127,14 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
           </span>
           <span>{answeredCount} tersimpan</span>
         </div>
-        <div className="mt-3 h-2 overflow-hidden rounded-full bg-violet-100">
+        <div
+          aria-label="Progres clarifier"
+          aria-valuemax={clarifier.totalCount}
+          aria-valuemin={0}
+          aria-valuenow={answeredCount}
+          className="mt-3 h-2 overflow-hidden rounded-full bg-violet-100"
+          role="progressbar"
+        >
           <div
             className="h-full bg-violet-700 transition-[width]"
             style={{ width: `${(answeredCount / clarifier.totalCount) * 100}%` }}
@@ -322,7 +329,14 @@ export function TestRunner({ token }: { token: string }) {
             {saveStatus === "saving" ? "Menyimpan…" : `${answeredCount} tersimpan`}
           </span>
         </div>
-        <div className="mt-3 h-2 overflow-hidden rounded-full bg-violet-100">
+        <div
+          aria-label="Progres assessment"
+          aria-valuemax={session.totalCount}
+          aria-valuemin={0}
+          aria-valuenow={answeredCount}
+          className="mt-3 h-2 overflow-hidden rounded-full bg-violet-100"
+          role="progressbar"
+        >
           <div
             className="h-full bg-violet-700 transition-[width]"
             style={{ width: `${(answeredCount / session.totalCount) * 100}%` }}

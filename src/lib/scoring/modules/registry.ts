@@ -21,6 +21,10 @@ export const independentlyScoredModuleKeys = Object.keys(
 ) as (keyof typeof independentScoringVersions)[];
 export type IndependentlyScoredModuleKey = (typeof independentlyScoredModuleKeys)[number];
 
+export function hasIndependentScoringEngine(moduleKey: string, scoringVersion: string): boolean {
+  return independentScoringVersions[moduleKey as IndependentlyScoredModuleKey] === scoringVersion;
+}
+
 type IndependentScoringInput = {
   readonly answers: readonly ModuleScoringAnswer[];
   readonly expectedAnswers: number;

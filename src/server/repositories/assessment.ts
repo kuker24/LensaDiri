@@ -643,11 +643,13 @@ async function completeModularAssessmentInTransaction(
         )
     `;
     const availableCount = capacity?.count ?? 0;
-    clarifiers.push({
-      ...decision,
-      itemCount: Math.min(decision.itemCount, Math.max(12, availableCount)),
-      required: decision.required && availableCount >= 12,
-    });
+    if (availableCount >= 12) {
+      clarifiers.push({
+        ...decision,
+        itemCount: Math.min(decision.itemCount, availableCount),
+        required: decision.required,
+      });
+    }
   }
   const requiredModuleKey = clarifiers
     .filter((clarifier) => clarifier.required)

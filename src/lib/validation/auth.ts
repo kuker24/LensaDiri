@@ -11,6 +11,8 @@ const redirectPathSchema = z
     "Redirect must be an internal path.",
   );
 
+const recoveryTokenSchema = z.string().regex(/^[A-Za-z0-9_-]{43}$/u);
+
 const credentialsSchema = z
   .object({
     email: emailSchema,
@@ -25,6 +27,14 @@ export const deleteAccountRequestSchema = z
   .object({
     confirmation: z.literal("HAPUS AKUN"),
     password: z.string().min(PASSWORD_MIN_LENGTH).max(PASSWORD_MAX_LENGTH),
+  })
+  .strict();
+export const recoveryRequestSchema = z.object({ email: emailSchema }).strict();
+export const verifyEmailRequestSchema = z.object({ token: recoveryTokenSchema }).strict();
+export const resetPasswordRequestSchema = z
+  .object({
+    password: z.string().min(PASSWORD_MIN_LENGTH).max(PASSWORD_MAX_LENGTH),
+    token: recoveryTokenSchema,
   })
   .strict();
 

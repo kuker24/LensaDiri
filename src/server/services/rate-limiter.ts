@@ -12,10 +12,25 @@ export type RateLimitPolicy = {
 
 export const authRateLimitPolicies = {
   accountDelete: { limit: 5, routeKey: "account_delete", windowMs: 15 * 60 * 1_000 },
+  forgotPassword: {
+    limit: 5,
+    routeKey: "auth_forgot_password",
+    windowMs: 60 * 60 * 1_000,
+  },
   login: { limit: 5, routeKey: "auth_login", windowMs: 15 * 60 * 1_000 },
   logout: { limit: 30, routeKey: "auth_logout", windowMs: 15 * 60 * 1_000 },
   register: { limit: 3, routeKey: "auth_register", windowMs: 60 * 60 * 1_000 },
+  resetPassword: {
+    limit: 10,
+    routeKey: "auth_reset_password",
+    windowMs: 60 * 60 * 1_000,
+  },
   session: { limit: 300, routeKey: "auth_session", windowMs: 15 * 60 * 1_000 },
+  verifyEmail: {
+    limit: 10,
+    routeKey: "auth_verify_email",
+    windowMs: 60 * 60 * 1_000,
+  },
 } as const satisfies Record<string, RateLimitPolicy>;
 
 export const assessmentRateLimitPolicies = {

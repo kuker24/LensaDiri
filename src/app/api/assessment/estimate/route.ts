@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 
 import { getServerEnvironment } from "@/lib/db/env";
 import { estimateAssessment } from "@/lib/assessment/estimate";
+import { isValidCsrfMutation } from "@/lib/security/csrf";
 import { parseJsonRequest } from "@/lib/security/http";
 import { getRequestRateLimitIdentity } from "@/lib/security/rate-limit";
 import { estimateAssessmentSchema } from "@/lib/validation/assessment";
@@ -17,12 +18,22 @@ import { assessmentRateLimitPolicies, consumeRateLimit } from "@/server/services
 export const runtime = "nodejs";
 
 export async function POST(request: Request): Promise<NextResponse> {
+  const environment = getServerEnvironment();
+  if (
+    !isValidCsrfMutation(
+      request,
+      environment.appOrigin,
+      environment.csrfSecret,
+      environment.isProduction,
+    )
+  ) {
+    return NextResponse.json(apiFailure("csrf_invalid"), { headers: noStoreHeaders, status: 403 });
+  }
   const parsed = await parseJsonRequest(request, estimateAssessmentSchema);
   if (!parsed.success) {
     return NextResponse.json(apiFailure(parsed.reason), { headers: noStoreHeaders, status: 400 });
   }
 
-  const environment = getServerEnvironment();
   try {
     const limited = await consumeRateLimit(
       getRequestRateLimitIdentity(request),
@@ -36,13 +47,21 @@ export async function POST(request: Request): Promise<NextResponse> {
       });
     }
 
-    const [modules, combos, modeProfiles, precisionEnabled, complexEnabled] = await Promise.all([
-      listCatalogModules(),
-      listComboPresets(),
-      listAssessmentModeProfiles(),
-      isFeatureEnabled("FEATURE_PROVISIONAL_PRECISION"),
-      isFeatureEnabled("FEATURE_COMPLEX_MODE"),
-    ]);
+    const [modules, combos, modeProfiles, modularEnabled, precisionEnabled, complexEnabled] =
+      await Promise.all([
+        listCatalogModules(),
+        listComboPresets(),
+        listAssessmentModeProfiles(),
+        isFeatureEnabled("FEATURE_MODULAR_COMPOSER"),
+        isFeatureEnabled("FEATURE_PROVISIONAL_PRECISION"),
+        isFeatureEnabled("FEATURE_COMPLEX_MODE"),
+      ]);
+    if (!modularEnabled) {
+      return NextResponse.json(apiFailure("feature_unavailable"), {
+        headers: noStoreHeaders,
+        status: 404,
+      });
+    }
     const selectableModes = modeProfiles.map((profile) =>
       profile.internalMode === "deep" ? { ...profile, isSelectable: complexEnabled } : profile,
     );
