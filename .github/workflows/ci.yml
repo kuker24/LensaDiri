@@ -90,7 +90,17 @@ jobs:
         run: npm run db:reset
 
       - name: Verify seed replay
-        run: npm run test:seed-replay
+        run: |
+          set -o pipefail
+          npm run test:seed-replay 2>&1 | tee seed-replay-stage-report.txt
+
+      - name: Upload seed replay stage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seed-replay-stage-${{ github.sha }}
+          path: seed-replay-stage-report.txt
+          retention-days: 1
 
       - name: Verify seed replay drift
         run: npm run test:seed-replay-drift
