@@ -174,7 +174,9 @@ select
   preset_modules.required,
   preset_modules.dependency_rule_json
 from preset_modules
-inner join public.combo_presets on combo_presets.key = preset_modules.preset_key
+inner join public.combo_presets
+  on combo_presets.key = preset_modules.preset_key
+  and combo_presets.status = 'draft'
 inner join public.modules on modules.key = preset_modules.module_key
 left join lateral (
   select module_versions.id
