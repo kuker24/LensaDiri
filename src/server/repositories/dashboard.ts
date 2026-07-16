@@ -24,7 +24,9 @@ export interface AccountDashboardResultSummary {
   readonly scoringVersion: string;
 }
 
-export async function listAccountActiveSessions(accountId: string): Promise<AccountSessionSummary[]> {
+export async function listAccountActiveSessions(
+  accountId: string,
+): Promise<AccountSessionSummary[]> {
   return runDatabaseOperation(async () => {
     const sql = getDatabase();
     const rows = await sql<

@@ -7,7 +7,10 @@ import { parseJsonRequest } from "@/lib/security/http";
 import { generateOpaqueToken, hashOpaqueToken } from "@/lib/security/tokens";
 import { getCurrentSession } from "@/server/current-session";
 import { apiFailure, apiSuccess, getDatabaseFailureStatus, noStoreHeaders } from "@/server/http";
-import { rotateAccountResultToken, rotateAccountSessionToken } from "@/server/repositories/dashboard";
+import {
+  rotateAccountResultToken,
+  rotateAccountSessionToken,
+} from "@/server/repositories/dashboard";
 import { assessmentRateLimitPolicies, consumeRateLimit } from "@/server/services/rate-limiter";
 
 export const runtime = "nodejs";

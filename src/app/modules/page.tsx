@@ -12,10 +12,13 @@ export default async function ModulesPage() {
     <main className="container-shell py-12 sm:py-18">
       <header className="max-w-3xl">
         <p className="text-sm font-semibold text-violet-700">Katalog lensa</p>
-        <h1 className="mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">Pilih lensa yang relevan</h1>
+        <h1 className="mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">
+          Pilih lensa yang relevan
+        </h1>
         <p className="mt-5 leading-7 text-[var(--muted)]">
-          Setiap modul memiliki item dan scoring sendiri. Modul yang belum melewati review tetap terlihat
-          sebagai roadmap, tetapi tidak dapat dipilih dan tidak pernah ditebak dari Profil Trait.
+          Setiap modul memiliki item dan scoring sendiri. Modul yang belum melewati review tetap
+          terlihat sebagai roadmap, tetapi tidak dapat dipilih dan tidak pernah ditebak dari Profil
+          Trait.
         </p>
       </header>
 

@@ -2,12 +2,12 @@
 
 ## Environment topology
 
-| Environment | Application | Database | Secrets | Data policy |
-|---|---|---|---|---|
-| Local | Next.js dev server | Supabase CLI disposable | `.env.local`, tidak di-commit | Reset dan fixture diperbolehkan |
-| CI | GitHub Actions ephemeral | Supabase CLI disposable | GitHub Actions env | Reset, seed replay, feature fixture diperbolehkan |
-| Preview | Vercel Preview | Preview-scoped database wajib | Preview-only | Tidak boleh memakai production secrets |
-| Production | Vercel production | Supabase hosted | Production-only | Tidak boleh di-reset atau menjadi target test destructive |
+| Environment | Application              | Database                      | Secrets                       | Data policy                                               |
+| ----------- | ------------------------ | ----------------------------- | ----------------------------- | --------------------------------------------------------- |
+| Local       | Next.js dev server       | Supabase CLI disposable       | `.env.local`, tidak di-commit | Reset dan fixture diperbolehkan                           |
+| CI          | GitHub Actions ephemeral | Supabase CLI disposable       | GitHub Actions env            | Reset, seed replay, feature fixture diperbolehkan         |
+| Preview     | Vercel Preview           | Preview-scoped database wajib | Preview-only                  | Tidak boleh memakai production secrets                    |
+| Production  | Vercel production        | Supabase hosted               | Production-only               | Tidak boleh di-reset atau menjadi target test destructive |
 
 Preview database dan preview-scoped secret belum tersedia. Status: `BLOCKED_EXTERNAL` sampai resource dibuat oleh owner platform.
 

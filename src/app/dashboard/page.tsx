@@ -61,10 +61,7 @@ export default async function DashboardPage() {
         ) : (
           <ul className="mt-4 space-y-4">
             {activeSessions.map((item) => (
-              <li
-                className="rounded-2xl border border-[var(--line)] bg-white p-5"
-                key={item.id}
-              >
+              <li className="rounded-2xl border border-[var(--line)] bg-white p-5" key={item.id}>
                 <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
                   <div>
                     <p className="font-semibold capitalize">
@@ -106,10 +103,7 @@ export default async function DashboardPage() {
         ) : (
           <ul className="mt-4 space-y-4">
             {results.map((result) => (
-              <li
-                className="rounded-2xl border border-[var(--line)] bg-white p-5"
-                key={result.id}
-              >
+              <li className="rounded-2xl border border-[var(--line)] bg-white p-5" key={result.id}>
                 <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
                   <div>
                     <p className="font-semibold capitalize">

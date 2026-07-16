@@ -13,9 +13,12 @@ export default async function CombosPage() {
     <main className="container-shell py-12 sm:py-18">
       <header className="max-w-3xl">
         <p className="text-sm font-semibold text-violet-700">Preset terkurasi</p>
-        <h1 className="mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">Gabungkan lensa tanpa mencampur skor</h1>
+        <h1 className="mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">
+          Gabungkan lensa tanpa mencampur skor
+        </h1>
         <p className="mt-5 leading-7 text-[var(--muted)]">
-          Setiap lensa tetap dihitung secara independen. Korelasi baru disusun setelah seluruh skor primer final.
+          Setiap lensa tetap dihitung secara independen. Korelasi baru disusun setelah seluruh skor
+          primer final.
         </p>
       </header>
 
@@ -37,9 +40,15 @@ export default async function CombosPage() {
               </div>
               <h2 className="mt-4 text-2xl font-semibold">{combo.publicName}</h2>
               <p className="mt-3 leading-7 text-[var(--muted)]">{combo.description}</p>
-              <ul className="mt-5 flex flex-wrap gap-2" aria-label={`Modul dalam ${combo.publicName}`}>
+              <ul
+                className="mt-5 flex flex-wrap gap-2"
+                aria-label={`Modul dalam ${combo.publicName}`}
+              >
                 {combo.moduleKeys.map((key) => (
-                  <li className="rounded-full bg-violet-100 px-3 py-1 text-sm text-violet-900" key={key}>
+                  <li
+                    className="rounded-full bg-violet-100 px-3 py-1 text-sm text-violet-900"
+                    key={key}
+                  >
                     {names.get(key) ?? key.replaceAll("_", " ")}
                   </li>
                 ))}

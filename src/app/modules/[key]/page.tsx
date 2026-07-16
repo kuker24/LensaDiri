@@ -31,26 +31,34 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
             {available ? "Release-ready" : module.releaseDisposition?.replaceAll("_", " ")}
           </span>
         </div>
-        <h1 className="mt-5 text-4xl font-semibold tracking-tight sm:text-5xl">{module.publicName}</h1>
+        <h1 className="mt-5 text-4xl font-semibold tracking-tight sm:text-5xl">
+          {module.publicName}
+        </h1>
         <p className="mt-5 max-w-3xl leading-7 text-[var(--muted)]">{module.description}</p>
 
         <section className="mt-8" aria-labelledby="depth-heading">
-          <h2 className="text-2xl font-semibold" id="depth-heading">Coverage per mode</h2>
+          <h2 className="text-2xl font-semibold" id="depth-heading">
+            Coverage per mode
+          </h2>
           <dl className="mt-4 grid gap-3 sm:grid-cols-3">
             {modes.map((mode) => (
               <div className="rounded-xl border border-[var(--line)] p-4" key={mode.label}>
                 <dt className="font-semibold">{mode.label}</dt>
-                <dd className="mt-1 text-sm text-[var(--muted)]">Target alokasi {mode.count} item</dd>
+                <dd className="mt-1 text-sm text-[var(--muted)]">
+                  Target alokasi {mode.count} item
+                </dd>
               </div>
             ))}
           </dl>
         </section>
 
         <section className="mt-8 rounded-2xl bg-violet-50 p-5" aria-labelledby="boundary-heading">
-          <h2 className="font-semibold" id="boundary-heading">Batas interpretasi</h2>
+          <h2 className="font-semibold" id="boundary-heading">
+            Batas interpretasi
+          </h2>
           <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
-            Hasil menggambarkan kecenderungan jawaban saat ini. Lensa ini bukan diagnosis, instrumen resmi,
-            atau kepastian identitas.
+            Hasil menggambarkan kecenderungan jawaban saat ini. Lensa ini bukan diagnosis, instrumen
+            resmi, atau kepastian identitas.
           </p>
         </section>
 
@@ -64,7 +72,9 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
         ) : (
           <div className="mt-8 rounded-xl border border-amber-200 bg-amber-50 p-5 text-amber-950">
             <h2 className="font-semibold">Belum dapat dipilih</h2>
-            <p className="mt-2 text-sm leading-6">{module.availabilityReason ?? "Modul masih berada dalam review."}</p>
+            <p className="mt-2 text-sm leading-6">
+              {module.availabilityReason ?? "Modul masih berada dalam review."}
+            </p>
           </div>
         )}
       </article>

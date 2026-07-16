@@ -6,13 +6,13 @@ Migration PRD v2 bersifat additive. Tidak ada reset production, destructive back
 
 ## Ordered map
 
-| Order | Migration | Dependency | Data operation | Lock risk |
-|---:|---|---|---|---|
-| 1 | `202607130005_modular_enum_extensions.sql` | phase 1 enum | enum value additions | rendah, singkat |
-| 2 | `202607130006_modular_assessment_foundation.sql` | enum extensions, MVP tables | table/index/trigger modular | sedang saat DDL |
-| 3 | `202607150001_modular_clarifier_runtime.sql` | modular foundation | clarifier tables dan status | rendah-sedang |
-| 4 | `202607160001_result_module_provenance.sql` | result module tables | provenance constraint/index | rendah-sedang |
-| 5 | `202607160002_prd_v2_release_contract.sql` | review status, catalog, flags, session tables | release disposition, policy tables, operator functions | sedang saat alter `modules` |
+| Order | Migration                                        | Dependency                                    | Data operation                                         | Lock risk                   |
+| ----: | ------------------------------------------------ | --------------------------------------------- | ------------------------------------------------------ | --------------------------- |
+|     1 | `202607130005_modular_enum_extensions.sql`       | phase 1 enum                                  | enum value additions                                   | rendah, singkat             |
+|     2 | `202607130006_modular_assessment_foundation.sql` | enum extensions, MVP tables                   | table/index/trigger modular                            | sedang saat DDL             |
+|     3 | `202607150001_modular_clarifier_runtime.sql`     | modular foundation                            | clarifier tables dan status                            | rendah-sedang               |
+|     4 | `202607160001_result_module_provenance.sql`      | result module tables                          | provenance constraint/index                            | rendah-sedang               |
+|     5 | `202607160002_prd_v2_release_contract.sql`       | review status, catalog, flags, session tables | release disposition, policy tables, operator functions | sedang saat alter `modules` |
 
 ## Checksum
 

@@ -60,7 +60,11 @@ export function ConsentDecisionControl({
           Tolak atau cabut
         </button>
       </div>
-      {error ? <p className="mt-3 text-sm text-red-800" role="alert">{error}</p> : null}
+      {error ? (
+        <p className="mt-3 text-sm text-red-800" role="alert">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }

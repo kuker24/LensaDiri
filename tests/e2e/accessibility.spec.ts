@@ -27,7 +27,9 @@ for (const route of publicRoutes) {
     });
     expect(duplicateIds).toEqual([]);
 
-    const overflow = await page.evaluate(() => document.documentElement.scrollWidth - window.innerWidth);
+    const overflow = await page.evaluate(
+      () => document.documentElement.scrollWidth - window.innerWidth,
+    );
     expect(overflow).toBeLessThanOrEqual(1);
 
     const imagesWithoutAlt = await page.locator("img:not([alt])").count();

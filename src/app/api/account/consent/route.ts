@@ -58,10 +58,13 @@ export async function POST(request: Request): Promise<NextResponse> {
       ...parsed.data,
       accountId: session.accountId,
     });
-    return NextResponse.json(recorded ? apiSuccess({ recorded: true }) : apiFailure("invalid_state"), {
-      headers: noStoreHeaders,
-      status: recorded ? 200 : 409,
-    });
+    return NextResponse.json(
+      recorded ? apiSuccess({ recorded: true }) : apiFailure("invalid_state"),
+      {
+        headers: noStoreHeaders,
+        status: recorded ? 200 : 409,
+      },
+    );
   } catch (error) {
     return NextResponse.json(apiFailure("service_unavailable"), {
       headers: noStoreHeaders,

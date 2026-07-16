@@ -38,13 +38,17 @@ function label(key: string): string {
 
 function orderedScores(module: IndependentModuleResult): readonly ModuleDimensionScore[] {
   return module.scores.toSorted(
-    (left, right) => right.normalizedScore - left.normalizedScore || left.constructKey.localeCompare(right.constructKey),
+    (left, right) =>
+      right.normalizedScore - left.normalizedScore ||
+      left.constructKey.localeCompare(right.constructKey),
   );
 }
 
 function describeBand(score: ModuleDimensionScore): string {
-  if (score.normalizedScore >= 65) return `kecenderungan ${label(score.constructKey)} cukup menonjol`;
-  if (score.normalizedScore <= 35) return `kecenderungan ${label(score.constructKey)} lebih selektif atau kontekstual`;
+  if (score.normalizedScore >= 65)
+    return `kecenderungan ${label(score.constructKey)} cukup menonjol`;
+  if (score.normalizedScore <= 35)
+    return `kecenderungan ${label(score.constructKey)} lebih selektif atau kontekstual`;
   return `kecenderungan ${label(score.constructKey)} relatif seimbang`;
 }
 
@@ -71,7 +75,10 @@ export function buildModuleReflection(module: IndependentModuleResult): ModuleRe
   };
 }
 
-function findScore(modules: readonly IndependentModuleResult[], constructKey: string): ModuleDimensionScore | null {
+function findScore(
+  modules: readonly IndependentModuleResult[],
+  constructKey: string,
+): ModuleDimensionScore | null {
   for (const module of modules) {
     const score = module.scores.find((candidate) => candidate.constructKey === constructKey);
     if (score) return score;

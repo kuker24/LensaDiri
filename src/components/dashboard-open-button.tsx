@@ -5,13 +5,7 @@ import { useState } from "react";
 
 import { postAuthenticatedMutation } from "@/lib/auth/client";
 
-export function DashboardOpenButton({
-  id,
-  kind,
-}: {
-  id: string;
-  kind: "result" | "session";
-}) {
+export function DashboardOpenButton({ id, kind }: { id: string; kind: "result" | "session" }) {
   const router = useRouter();
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -41,7 +35,11 @@ export function DashboardOpenButton({
       >
         {pending ? "Membuka…" : kind === "session" ? "Lanjutkan" : "Buka dan kelola"}
       </button>
-      {error ? <p className="mt-2 text-sm text-red-800" role="alert">{error}</p> : null}
+      {error ? (
+        <p className="mt-2 text-sm text-red-800" role="alert">
+          {error}
+        </p>
+      ) : null}
     </div>
   );
 }
