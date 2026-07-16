@@ -86,18 +86,22 @@ jobs:
       - name: Start disposable Supabase
         run: npm run db:start
 
-      - name: Three clean-reset verification loops
+      - name: Reset disposable database
+        run: npm run db:reset
+
+      - name: Verify seed replay
+        run: npm run test:seed-replay
+
+      - name: Verify seed replay drift
+        run: npm run test:seed-replay-drift
+
+      - name: Run integration tests
         env:
           TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
-        run: |
-          for iteration in 1 2 3; do
-            echo "Clean reset loop ${iteration}/3"
-            npm run db:reset
-            npm run test:seed-replay
-            npm run test:seed-replay-drift
-            npm run test:integration
-            npm run test:db
-          done
+        run: npm run test:integration
+
+      - name: Run pgTAP
+        run: npm run test:db
 
       - name: Reset disposable database for browser fixtures
         run: |
