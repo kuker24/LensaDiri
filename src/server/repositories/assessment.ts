@@ -845,7 +845,8 @@ async function completeModularAssessmentInTransaction(
   `;
   await sql`
     update public.test_session_segments
-    set status = 'completed', completed_at = now(), paused_at = null
+    set status = 'completed', started_at = coalesce(started_at, now()),
+      completed_at = now(), paused_at = null
     where session_id = ${session.id}
   `;
   await sql`

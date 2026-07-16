@@ -46,6 +46,7 @@ function distributeTarget(
   modules: readonly AssessmentModuleDefinition[],
   mode: AssessmentSelectionInput["mode"],
   target: number,
+  minimumCoverage: Readonly<Record<string, number>>,
 ): readonly Readonly<{ itemCount: number; moduleKey: string }>[] {
   const requested = modules.map((module) => Math.max(1, module.modeQuota[mode]));
   const requestedTotal = requested.reduce((sum, count) => sum + count, 0);
@@ -65,6 +66,31 @@ function distributeTarget(
     if (!recipient) break;
     base[recipient.index] = (base[recipient.index] ?? 0) + 1;
     assigned += 1;
+  }
+
+  const minimums = modules.map((module) => Math.max(1, minimumCoverage[module.key] ?? 1));
+  const minimumTotal = minimums.reduce((sum, count) => sum + count, 0);
+  if (minimumTotal > target) {
+    throw new RangeError(`Module minimum coverage ${minimumTotal} exceeds target ${target}.`);
+  }
+
+  for (const recipient of modules.map((_, index) => index)) {
+    let deficit = minimums[recipient]! - base[recipient]!;
+    while (deficit > 0) {
+      const donor = modules
+        .map((module, index) => ({
+          index,
+          order: module.defaultOrder,
+          surplus: base[index]! - minimums[index]!,
+        }))
+        .filter((candidate) => candidate.surplus > 0)
+        .toSorted((left, right) => right.surplus - left.surplus || left.order - right.order)[0];
+      if (!donor) throw new RangeError("Module allocation cannot satisfy minimum coverage.");
+      const transfer = Math.min(deficit, donor.surplus);
+      base[donor.index] = base[donor.index]! - transfer;
+      base[recipient] = base[recipient]! + transfer;
+      deficit -= transfer;
+    }
   }
 
   return modules.map((module, index) => ({
@@ -112,7 +138,10 @@ export function estimateAssessment(
   catalog: readonly AssessmentModuleDefinition[],
   presets: readonly ComboPresetDefinition[],
   modeProfiles: readonly AssessmentModeProfile[],
-  options: Readonly<{ provisionalPrecisionEnabled: boolean }> = {
+  options: Readonly<{
+    minimumCoverage?: Readonly<Record<string, number>>;
+    provisionalPrecisionEnabled: boolean;
+  }> = {
     provisionalPrecisionEnabled: false,
   },
 ): AssessmentEstimateResult {
@@ -126,7 +155,12 @@ export function estimateAssessment(
     (left, right) => left.defaultOrder - right.defaultOrder,
   );
   const itemCount = getTargetItemCount(input, modules, profile);
-  const moduleAllocation = distributeTarget(modules, input.mode, itemCount);
+  const moduleAllocation = distributeTarget(
+    modules,
+    input.mode,
+    itemCount,
+    options.minimumCoverage ?? {},
+  );
   const estimatedMinutes = Math.max(1, Math.ceil((itemCount * profile.secondsPerItem) / 60));
 
   return {

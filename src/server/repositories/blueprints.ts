@@ -130,15 +130,39 @@ export async function loadComposerCandidates(
   });
 }
 
+export function getMinimumModuleCoverage(
+  candidates: readonly ComposerItemCandidate[],
+): Readonly<Record<string, number>> {
+  const coverageByDimension = new Map<string, number>();
+  for (const candidate of candidates) {
+    const dimensionKey = `${candidate.moduleKey}\u0000${candidate.constructKey}\u0000${candidate.facetKey}`;
+    coverageByDimension.set(
+      dimensionKey,
+      Math.max(coverageByDimension.get(dimensionKey) ?? 0, candidate.minimumDimensionCoverage),
+    );
+  }
+
+  const coverageByModule: Record<string, number> = {};
+  for (const [dimensionKey, coverage] of coverageByDimension) {
+    const [moduleKey] = dimensionKey.split("\u0000");
+    if (!moduleKey) continue;
+    coverageByModule[moduleKey] = (coverageByModule[moduleKey] ?? 0) + coverage;
+  }
+  return coverageByModule;
+}
+
 export async function composeFromDatabase(input: {
+  candidates?: readonly ComposerItemCandidate[];
   contentVersion: string;
   estimate: AssessmentEstimate;
   locale: "id" | "en";
   seed: string;
 }): Promise<ComposedBlueprint> {
-  const candidates = await loadComposerCandidates(
-    input.estimate.moduleAllocation.map((allocation) => allocation.moduleKey),
-  );
+  const candidates =
+    input.candidates ??
+    (await loadComposerCandidates(
+      input.estimate.moduleAllocation.map((allocation) => allocation.moduleKey),
+    ));
   return composeAssessment({ ...input, candidates });
 }
 

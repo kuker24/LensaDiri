@@ -2,7 +2,12 @@ import "server-only";
 
 import type { AssessmentSelectionInput } from "@/lib/assessment/catalog";
 import { estimateAssessment } from "@/lib/assessment/estimate";
-import { composeFromDatabase, persistModularSession } from "@/server/repositories/blueprints";
+import {
+  composeFromDatabase,
+  getMinimumModuleCoverage,
+  loadComposerCandidates,
+  persistModularSession,
+} from "@/server/repositories/blueprints";
 import {
   isFeatureEnabled,
   listAssessmentModeProfiles,
@@ -71,10 +76,15 @@ export async function startAssessment(input: {
   const availableModes = modeProfiles.map((profile) =>
     profile.internalMode === "deep" ? { ...profile, isSelectable: complexEnabled } : profile,
   );
-  const estimate = estimateAssessment(input.request.selection, modules, combos, availableModes);
+  const candidates = await loadComposerCandidates(input.request.selection.moduleKeys);
+  const estimate = estimateAssessment(input.request.selection, modules, combos, availableModes, {
+    minimumCoverage: getMinimumModuleCoverage(candidates),
+    provisionalPrecisionEnabled: false,
+  });
   if (!estimate.success) return estimate;
 
   const blueprint = await composeFromDatabase({
+    candidates,
     contentVersion: "modular-catalog-1",
     estimate: estimate.estimate,
     locale: input.request.locale,

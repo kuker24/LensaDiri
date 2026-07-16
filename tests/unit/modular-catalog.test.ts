@@ -301,6 +301,38 @@ describe("assessment estimate", () => {
     });
   });
 
+  it("reserves module minimum coverage before distributing combo remainder", () => {
+    const result = estimateAssessment(
+      {
+        age: 18,
+        experimentalAcknowledged: false,
+        mode: "standard",
+        moduleKeys: ["trait_profile", "type_16", "enneagram"],
+        presetKey: null,
+        selectionType: "custom_combo",
+      },
+      modules,
+      presets,
+      modeProfiles,
+      {
+        minimumCoverage: { enneagram: 40, trait_profile: 1, type_16: 30 },
+        provisionalPrecisionEnabled: false,
+      },
+    );
+
+    expect(result).toMatchObject({
+      estimate: {
+        itemCount: 90,
+        moduleAllocation: [
+          { itemCount: 20, moduleKey: "trait_profile" },
+          { itemCount: 30, moduleKey: "type_16" },
+          { itemCount: 40, moduleKey: "enneagram" },
+        ],
+      },
+      success: true,
+    });
+  });
+
   it("segments Complex without exceeding cap", () => {
     const result = estimateAssessment(
       {

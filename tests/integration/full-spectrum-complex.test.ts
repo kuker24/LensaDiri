@@ -87,7 +87,12 @@ async function runFullSpectrum(mode: AssessmentMode) {
       });
       await expect(setAssessmentPaused(sessionTokenHash, false)).resolves.toBe(true);
       const reloaded = await getAssessmentSessionByHash(sessionTokenHash);
-      expect(reloaded?.questions).toEqual(initial!.questions);
+      expect(reloaded?.questions.map((question) => question.id)).toEqual(
+        initial!.questions.map((question) => question.id),
+      );
+      expect(reloaded?.questions.slice(0, 8).map((question) => question.answer)).toEqual([
+        1, 2, 3, 4, 5, 1, 2, 3,
+      ]);
       expect(reloaded).toMatchObject({ answeredCount: 8, status: "active" });
     }
 

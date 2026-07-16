@@ -58,7 +58,14 @@ describe("modular catalog PostgreSQL boundary", () => {
       { internalMode: "standard", publicName: "Normal" },
       { internalMode: "deep", isSelectable: false, publicName: "Complex" },
     ]);
-    await expect(listComboPresets()).resolves.toEqual([]);
+    await expect(listComboPresets()).resolves.toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({ key: "core_personality", status: "published" }),
+        expect.objectContaining({ key: "deep_self_discovery", status: "published" }),
+        expect.objectContaining({ key: "full_spectrum", status: "published" }),
+      ]),
+    );
+    await expect(listComboPresets()).resolves.toHaveLength(3);
     await expect(listComboPresets({ includeUnavailable: true })).resolves.toHaveLength(6);
   });
 

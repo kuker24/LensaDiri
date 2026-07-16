@@ -139,7 +139,7 @@ export async function listCatalogModules(
 export async function getCatalogModuleByKey(
   key: string,
 ): Promise<AssessmentModuleDefinition | null> {
-  const modules = await listCatalogModules({ includeUnavailable: true });
+  const modules = await listCatalogModules();
   return modules.find((module) => module.key === key) ?? null;
 }
 

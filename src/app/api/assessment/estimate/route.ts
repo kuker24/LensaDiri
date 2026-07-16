@@ -7,6 +7,7 @@ import { parseJsonRequest } from "@/lib/security/http";
 import { getRequestRateLimitIdentity } from "@/lib/security/rate-limit";
 import { estimateAssessmentSchema } from "@/lib/validation/assessment";
 import { apiFailure, apiSuccess, getDatabaseFailureStatus, noStoreHeaders } from "@/server/http";
+import { getMinimumModuleCoverage, loadComposerCandidates } from "@/server/repositories/blueprints";
 import {
   isFeatureEnabled,
   listAssessmentModeProfiles,
@@ -65,7 +66,9 @@ export async function POST(request: Request): Promise<NextResponse> {
     const selectableModes = modeProfiles.map((profile) =>
       profile.internalMode === "deep" ? { ...profile, isSelectable: complexEnabled } : profile,
     );
+    const candidates = await loadComposerCandidates(parsed.data.moduleKeys);
     const result = estimateAssessment(parsed.data, modules, combos, selectableModes, {
+      minimumCoverage: getMinimumModuleCoverage(candidates),
       provisionalPrecisionEnabled: precisionEnabled,
     });
 
