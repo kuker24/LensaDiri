@@ -44,16 +44,6 @@ jobs:
       - name: Format
         run: npm run format:check
 
-      - name: Capture lint report
-        run: npx eslint . --max-warnings=0 --format json --output-file eslint-report.json || true
-
-      - name: Upload lint report
-        uses: actions/upload-artifact@v4
-        with:
-          name: eslint-report-${{ github.sha }}
-          path: eslint-report.json
-          retention-days: 1
-
       - name: Lint
         run: npm run lint
 
