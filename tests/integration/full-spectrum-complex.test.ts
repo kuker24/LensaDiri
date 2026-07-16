@@ -103,7 +103,7 @@ async function runFullSpectrum(mode: AssessmentMode) {
   }
 
   const completion = await completeAssessment({ resultTokenHash, sessionTokenHash });
-  if ("status" in completion && completion.status === "clarifier_required") {
+  if (completion !== null && "status" in completion && completion.status === "clarifier_required") {
     await expect(
       resolveClarifier({
         action: "skip",
