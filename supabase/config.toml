@@ -1,0 +1,32 @@
+project_id = "lensa-diri"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public"]
+extra_search_path = ["public", "extensions"]
+max_rows = 1000
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[db.migrations]
+enabled = true
+schema_paths = []
+
+[db.seed]
+enabled = true
+sql_paths = [
+  "./seed/20260713_mvp_item_bank.sql",
+  "./seed/20260714_modular_catalog.sql",
+  "./seed/20260715_independent_core_modules.sql",
+  "./seed/20260716_trait_profile_modular.sql",
+  "./seed/20260716_release_catalog.sql",
+]
+
+# LensaDiri uses internal, server-side authentication. Supabase Auth is not an
+# application trust boundary and remains disabled for local development.
+[auth]
+enabled = false

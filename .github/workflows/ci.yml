@@ -13,24 +13,36 @@ concurrency:
   group: ci-${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
+env:
+  AUTH_SESSION_SECRET: ci-auth-session-secret-at-least-32-characters
+  CSRF_SECRET: ci-csrf-secret-at-least-32-characters
+  DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+  NEXT_PUBLIC_APP_URL: http://127.0.0.1:3000
+  RATE_LIMIT_SECRET: ci-rate-limit-secret-at-least-32-characters
+  TOKEN_HASH_PEPPER: ci-token-hash-pepper-at-least-32-characters
+
 jobs:
   quality:
     name: Quality and build
     runs-on: ubuntu-latest
     timeout-minutes: 20
-    env:
-      NEXT_PUBLIC_APP_URL: http://localhost:3000
     steps:
       - name: Checkout
         uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
+          cache: npm
           node-version: 22
 
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
+
+      - name: Format
+        run: npm run format:check
 
       - name: Lint
         run: npm run lint
@@ -44,13 +56,17 @@ jobs:
       - name: Production build
         run: npm run build
 
-  e2e:
-    name: Browser smoke tests
+      - name: Dependency audit
+        run: npm audit
+
+      - name: Diff whitespace check
+        run: git diff --check origin/main...HEAD
+
+  database-and-e2e:
+    name: Database and browser tests
     needs: quality
     runs-on: ubuntu-latest
-    timeout-minutes: 20
-    env:
-      NEXT_PUBLIC_APP_URL: http://localhost:3000
+    timeout-minutes: 60
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -58,13 +74,61 @@ jobs:
       - name: Set up Node.js
         uses: actions/setup-node@v4
         with:
+          cache: npm
           node-version: 22
 
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
 
       - name: Install Chromium
         run: npx playwright install --with-deps chromium
 
-      - name: Run Playwright
+      - name: Start disposable Supabase
+        run: npm run db:start
+
+      - name: Reset disposable database
+        run: npm run db:reset
+
+      - name: Verify seed replay
+        run: |
+          set -o pipefail
+          npm run test:seed-replay 2>&1 | tee seed-replay-stage-report.txt
+
+      - name: Upload seed replay stage report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: seed-replay-stage-${{ github.sha }}
+          path: seed-replay-stage-report.txt
+          retention-days: 1
+
+      - name: Verify seed replay drift
+        run: npm run test:seed-replay-drift
+
+      - name: Run integration tests
+        env:
+          TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+        run: npm run test:integration
+
+      - name: Run pgTAP
+        run: npm run test:db
+
+      - name: Reset disposable database for browser fixtures
+        run: |
+          npm run db:reset
+          docker exec supabase_db_lensa-diri psql -U postgres -d postgres -v ON_ERROR_STOP=1 \
+            -c "update public.feature_flags set enabled = true where key in ('FEATURE_MODULAR_COMPOSER', 'FEATURE_COMPLEX_MODE')"
+
+      - name: Run Playwright desktop and mobile
+        env:
+          TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
         run: npm run test:e2e
+
+      - name: Run accessibility routes
+        env:
+          TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
+        run: npm run test:a11y
+
+      - name: Stop disposable Supabase
+        if: always()
+        run: npx supabase stop --no-backup

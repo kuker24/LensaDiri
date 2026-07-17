@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 export default function DisclaimerPage() {
   return (
     <article className="container-shell max-w-4xl py-16 lg:py-24">
-      <p className="text-sm font-semibold uppercase tracking-[0.16em] text-violet-700">
+      <p className="text-sm font-semibold tracking-[0.16em] text-violet-700 uppercase">
         Disclaimer
       </p>
       <h1 className="mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
@@ -25,8 +25,8 @@ export default function DisclaimerPage() {
           bukan batasan identitas.
         </p>
         <p className="leading-7">
-          Untuk kebutuhan klinis, hukum, pendidikan formal, atau keputusan berisiko tinggi,
-          gunakan layanan dan instrumen yang sesuai di bawah tenaga profesional yang berwenang.
+          Untuk kebutuhan klinis, hukum, pendidikan formal, atau keputusan berisiko tinggi, gunakan
+          layanan dan instrumen yang sesuai di bawah tenaga profesional yang berwenang.
         </p>
       </div>
     </article>

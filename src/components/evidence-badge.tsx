@@ -16,7 +16,9 @@ const labels: Record<EvidenceTier, string> = {
 
 export function EvidenceBadge({ tier }: { tier: EvidenceTier }) {
   return (
-    <span className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${styles[tier]}`}>
+    <span
+      className={`inline-flex rounded-full border px-3 py-1 text-xs font-semibold ${styles[tier]}`}
+    >
       {labels[tier]}
     </span>
   );

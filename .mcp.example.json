@@ -1,0 +1,29 @@
+{
+  "mcpServers": {
+    "filesystem-lensadiri": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@modelcontextprotocol/server-filesystem",
+        "<ABSOLUTE_PATH_TO_LENSADIRI_REPOSITORY>"
+      ]
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["-y", "@playwright/mcp@latest"]
+    },
+    "github-optional": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-github"],
+      "env": {
+        "GITHUB_PERSONAL_ACCESS_TOKEN": "${MCP_GITHUB_TOKEN}"
+      },
+      "disabled": true
+    },
+    "postgres-development-readonly-optional": {
+      "command": "npx",
+      "args": ["-y", "@modelcontextprotocol/server-postgres", "${MCP_DEV_READONLY_DATABASE_URL}"],
+      "disabled": true
+    }
+  }
+}

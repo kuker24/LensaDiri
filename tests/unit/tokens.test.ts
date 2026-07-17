@@ -1,5 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { generateOpaqueToken, hashOpaqueToken, verifyOpaqueToken } from "@/lib/security/tokens";
+import {
+  deriveOpaqueToken,
+  generateOpaqueToken,
+  hashOpaqueToken,
+  verifyOpaqueToken,
+} from "@/lib/security/tokens";
 
 const pepper = "development-only-pepper-value-with-32-plus-chars";
 
@@ -11,6 +16,18 @@ describe("opaque tokens", () => {
     expect(first).not.toBe(second);
     expect(first).toMatch(/^[A-Za-z0-9_-]+$/u);
     expect(first.length).toBeGreaterThanOrEqual(43);
+  });
+
+  it("derives retry-safe domain-separated opaque tokens", () => {
+    expect(deriveOpaqueToken("session-token", "assessment_result", pepper)).toBe(
+      deriveOpaqueToken("session-token", "assessment_result", pepper),
+    );
+    expect(deriveOpaqueToken("session-token", "assessment_result", pepper)).not.toBe(
+      deriveOpaqueToken("session-token", "result_share", pepper),
+    );
+    expect(deriveOpaqueToken("session-token", "assessment_result", pepper)).toMatch(
+      /^[A-Za-z0-9_-]{43}$/u,
+    );
   });
 
   it("stores and verifies only the keyed token hash", () => {
