@@ -9,7 +9,25 @@ import {
 import { scoreTraitProfileModule } from "@/lib/scoring/modules/trait-profile";
 import { scoreType16Module, type16ConstructKeys } from "@/lib/scoring/modules/type16";
 import { traitKeys } from "@/lib/scoring/profile";
-import type { ModuleScoringAnswer } from "@/lib/scoring/quality";
+import { assessModuleQuality, type ModuleScoringAnswer } from "@/lib/scoring/quality";
+
+type PairValue = 1 | 2 | 3 | 4 | 5;
+
+function pairAnswer(
+  constructKey: string,
+  polarity: 1 | -1,
+  value: PairValue,
+  index: number,
+): ModuleScoringAnswer {
+  return {
+    constructKey,
+    itemCode: `${constructKey}-${polarity === -1 ? "r" : "f"}-${index}`,
+    polarity,
+    responseTimeMs: 1800,
+    value,
+    weight: 1,
+  };
+}
 
 function answers<ConstructKey extends string>(
   keys: readonly ConstructKey[],
@@ -168,5 +186,63 @@ describe("independent module scoring", () => {
     expect(result.quality.flags).toEqual(
       expect.arrayContaining(["incomplete", "low_module_coverage", "clarifier_recommended"]),
     );
+  });
+});
+
+describe("contradiction-pair detection (PRD §15.4)", () => {
+  it("keeps contradictionRate at zero when forward and reverse items agree", () => {
+    // Forward answers 5 ("sesuai"), reverse answers 1 ("tidak sesuai").
+    // After reverse coding both point to 5, so the pair is consistent.
+    const consistent = [
+      pairAnswer("focus", 1, 5, 0),
+      pairAnswer("focus", 1, 5, 1),
+      pairAnswer("focus", -1, 1, 0),
+      pairAnswer("focus", -1, 1, 1),
+    ];
+    const quality = assessModuleQuality({
+      ambiguity: 0.1,
+      answers: consistent,
+      dimensionCoverage: 1,
+      expectedAnswers: consistent.length,
+      reverseConsistency: 1,
+    });
+
+    expect(quality.contradictionRate).toBe(0);
+    expect(quality.flags).not.toContain("inconsistent_pair");
+  });
+
+  it("flags inconsistent_pair and lowers confidence when a pair contradicts", () => {
+    // Forward answers 5 and reverse also answers 5. After reverse coding the
+    // reverse item points to 1 while the forward points to 5: a contradiction.
+    const contradictory = [
+      pairAnswer("focus", 1, 5, 0),
+      pairAnswer("focus", 1, 5, 1),
+      pairAnswer("focus", -1, 5, 0),
+      pairAnswer("focus", -1, 5, 1),
+    ];
+    const contradicted = assessModuleQuality({
+      ambiguity: 0.1,
+      answers: contradictory,
+      dimensionCoverage: 1,
+      expectedAnswers: contradictory.length,
+      reverseConsistency: 1,
+    });
+    const clean = assessModuleQuality({
+      ambiguity: 0.1,
+      answers: [
+        pairAnswer("focus", 1, 5, 0),
+        pairAnswer("focus", 1, 5, 1),
+        pairAnswer("focus", -1, 1, 0),
+        pairAnswer("focus", -1, 1, 1),
+      ],
+      dimensionCoverage: 1,
+      expectedAnswers: 4,
+      reverseConsistency: 1,
+    });
+
+    expect(contradicted.contradictionRate).toBeGreaterThan(0);
+    expect(contradicted.flags).toContain("inconsistent_pair");
+    expect(contradicted.flags).toContain("clarifier_recommended");
+    expect(contradicted.confidence).toBeLessThan(clean.confidence);
   });
 });

@@ -1,4 +1,4 @@
-import type { ItemPolarity, LikertValue } from "@/lib/scoring/likert";
+import { reverseLikert, type ItemPolarity, type LikertValue } from "@/lib/scoring/likert";
 
 export const qualityFlagKeys = [
   "incomplete",
@@ -6,6 +6,7 @@ export const qualityFlagKeys = [
   "straightlining",
   "low_variance",
   "reverse_inconsistency",
+  "inconsistent_pair",
   "threshold_ambiguity",
   "clarifier_recommended",
   "low_module_coverage",
@@ -26,6 +27,7 @@ export interface ModuleQuality {
   readonly averageResponseTimeMs: number | null;
   readonly completion: number;
   readonly confidence: number;
+  readonly contradictionRate: number;
   readonly flags: readonly QualityFlag[];
   readonly midpointRate: number;
   readonly responseVariance: number;
@@ -36,6 +38,36 @@ function variance(values: readonly number[]): number {
   if (values.length < 2) return 0;
   const mean = values.reduce((sum, value) => sum + value, 0) / values.length;
   return values.reduce((sum, value) => sum + (value - mean) ** 2, 0) / values.length;
+}
+
+/**
+ * Contradiction-pair detection (PRD §15.4). For each construct that has both a
+ * forward (polarity 1) and a reverse (polarity -1) item, both directions should
+ * point the same way once reverse coding is applied. A wide gap between the
+ * reverse-coded forward mean and reverse-coded reverse mean signals an
+ * inconsistent pair. Returns the fraction of eligible constructs that diverge.
+ */
+function contradictionRate(answers: readonly ModuleScoringAnswer[]): number {
+  const byConstruct = new Map<string, { readonly forward: number[]; readonly reverse: number[] }>();
+  for (const answer of answers) {
+    const bucket = byConstruct.get(answer.constructKey) ?? { forward: [], reverse: [] };
+    const coded = answer.polarity === -1 ? reverseLikert(answer.value) : answer.value;
+    if (answer.polarity === -1) bucket.reverse.push(coded);
+    else bucket.forward.push(coded);
+    byConstruct.set(answer.constructKey, bucket);
+  }
+
+  const eligible = [...byConstruct.values()].filter(
+    (bucket) => bucket.forward.length > 0 && bucket.reverse.length > 0,
+  );
+  if (eligible.length === 0) return 0;
+
+  const mean = (values: readonly number[]): number =>
+    values.reduce((sum, value) => sum + value, 0) / values.length;
+  const contradictory = eligible.filter(
+    (bucket) => Math.abs(mean(bucket.forward) - mean(bucket.reverse)) > 1.5,
+  ).length;
+  return Number((contradictory / eligible.length).toFixed(4));
 }
 
 export function assessModuleQuality(input: {
@@ -59,6 +91,7 @@ export function assessModuleQuality(input: {
     .filter((time): time is number => time !== null);
   const averageResponseTimeMs =
     timed.length === 0 ? null : timed.reduce((sum, time) => sum + time, 0) / timed.length;
+  const pairContradiction = contradictionRate(input.answers);
 
   const flags = new Set<QualityFlag>();
   if (completion < 1) flags.add("incomplete");
@@ -67,11 +100,13 @@ export function assessModuleQuality(input: {
   if (values.length >= 8 && uniqueResponses === 1) flags.add("straightlining");
   if (values.length >= 8 && responseVariance < 0.35) flags.add("low_variance");
   if (input.reverseConsistency < 0.65) flags.add("reverse_inconsistency");
+  if (pairContradiction > 0) flags.add("inconsistent_pair");
   if (input.ambiguity >= 0.7) flags.add("threshold_ambiguity");
   if (midpointRate > 0.55) flags.add("excessive_midpoint");
   if (
     flags.has("threshold_ambiguity") ||
     flags.has("reverse_inconsistency") ||
+    flags.has("inconsistent_pair") ||
     flags.has("low_module_coverage")
   ) {
     flags.add("clarifier_recommended");
@@ -82,6 +117,7 @@ export function assessModuleQuality(input: {
     (flags.has("straightlining") ? 0.3 : 0) +
     (flags.has("low_variance") ? 0.1 : 0) +
     (flags.has("reverse_inconsistency") ? 0.15 : 0) +
+    (flags.has("inconsistent_pair") ? pairContradiction * 0.15 : 0) +
     (flags.has("threshold_ambiguity") ? 0.12 : 0) +
     (flags.has("excessive_midpoint") ? 0.08 : 0);
   const confidence = Number(
@@ -103,6 +139,7 @@ export function assessModuleQuality(input: {
       averageResponseTimeMs === null ? null : Math.round(averageResponseTimeMs),
     completion: Number(completion.toFixed(4)),
     confidence,
+    contradictionRate: pairContradiction,
     flags: [...flags].toSorted(),
     midpointRate: Number(midpointRate.toFixed(4)),
     responseVariance: Number(responseVariance.toFixed(4)),

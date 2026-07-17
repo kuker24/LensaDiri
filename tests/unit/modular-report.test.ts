@@ -12,6 +12,7 @@ const moduleResult: IndependentModuleResult = {
     averageResponseTimeMs: 3200,
     completion: 1,
     confidence: 0.82,
+    contradictionRate: 0,
     flags: [],
     midpointRate: 0.2,
     responseVariance: 1.1,

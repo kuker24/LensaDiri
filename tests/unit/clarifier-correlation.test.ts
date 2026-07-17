@@ -22,6 +22,7 @@ function result(
       averageResponseTimeMs: 1800,
       completion: 1,
       confidence,
+      contradictionRate: 0,
       flags: options.flags ?? [],
       midpointRate: 0,
       responseVariance: 1,

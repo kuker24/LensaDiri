@@ -25,6 +25,7 @@ const privateModularResult: PrivateResultView = {
         averageResponseTimeMs: 250,
         completion: 1,
         confidence: 0.42,
+        contradictionRate: 0,
         flags: ["too_fast", "straightlining", "low_variance", "reverse_inconsistency"],
         midpointRate: 0.8,
         responseVariance: 0,
