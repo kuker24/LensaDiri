@@ -120,9 +120,13 @@ jobs:
             -c "update public.feature_flags set enabled = true where key in ('FEATURE_MODULAR_COMPOSER', 'FEATURE_COMPLEX_MODE')"
 
       - name: Run Playwright desktop and mobile
+        env:
+          TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
         run: npm run test:e2e
 
       - name: Run accessibility routes
+        env:
+          TEST_DATABASE_URL: postgresql://postgres:postgres@127.0.0.1:54322/postgres
         run: npm run test:a11y
 
       - name: Stop disposable Supabase

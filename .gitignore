@@ -36,6 +36,9 @@ production-dump*
 .mcp.*.json
 !.mcp.example.json
 
+# Claude Code local worktrees
+.claude/
+
 # Vercel
 .vercel/
 

@@ -12,7 +12,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Toolchain and commands
 
-Requires Node.js 20.9+, npm 10+, and Docker-backed local Supabase for database suites.
+Requires Node.js 22.x, npm 10+, and Docker-backed local Supabase for database suites.
 
 ```bash
 npm ci                         # install the locked dependency tree
@@ -48,7 +48,6 @@ npm run test:integration
 npm run test:db
 npm run test:seed-replay
 npm run test:seed-replay-drift
-npm run test:seed-upgrade-parity
 npm run test:e2e
 ```
 

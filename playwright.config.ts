@@ -1,5 +1,13 @@
 import { defineConfig, devices } from "@playwright/test";
 
+const testDatabaseUrl = process.env.TEST_DATABASE_URL;
+
+if (!testDatabaseUrl) {
+  throw new Error(
+    "TEST_DATABASE_URL is required for Playwright. Start local Supabase, reset it, then export TEST_DATABASE_URL.",
+  );
+}
+
 export default defineConfig({
   testDir: "./tests/e2e",
   fullyParallel: true,
@@ -33,8 +41,14 @@ export default defineConfig({
     command: "npm run dev",
     env: {
       ...process.env,
+      AUTH_SESSION_SECRET: "e2e-auth-session-secret-at-least-32-characters",
+      CSRF_SECRET: "e2e-csrf-secret-at-least-32-characters",
+      DATABASE_URL: testDatabaseUrl,
+      NEXT_PUBLIC_APP_URL: "http://127.0.0.1:3000",
+      RATE_LIMIT_SECRET: "e2e-rate-limit-secret-at-least-32-characters",
       RECOVERY_TEST_TRANSPORT: "1",
-      TEST_DATABASE_URL: process.env.TEST_DATABASE_URL ?? process.env.DATABASE_URL ?? "",
+      TEST_DATABASE_URL: testDatabaseUrl,
+      TOKEN_HASH_PEPPER: "e2e-token-hash-pepper-at-least-32-characters",
       VERCEL: "1",
     },
     url: "http://127.0.0.1:3000",

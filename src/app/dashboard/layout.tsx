@@ -9,6 +9,8 @@ export const metadata: Metadata = {
   robots: { follow: false, index: false },
 };
 
+export const dynamic = "force-dynamic";
+
 export default async function DashboardLayout({ children }: Readonly<{ children: ReactNode }>) {
   const session = await getCurrentSession();
   if (!session) {

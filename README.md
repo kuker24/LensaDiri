@@ -29,7 +29,7 @@ Database runtime migration, integration test, dan pgTAP RLS test belum terverifi
 
 ## Prasyarat
 
-- Node.js 20.9 atau lebih baru
+- Node.js 22.x
 - npm 10 atau lebih baru
 - Docker Engine dengan Docker Compose untuk Supabase lokal, migration reset, integration test, dan pgTAP test
 - Supabase CLI melalui `npx supabase` atau instalasi CLI lokal

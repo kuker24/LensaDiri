@@ -9,7 +9,7 @@
 | Preview     | Vercel Preview           | Preview-scoped database wajib | Preview-only                  | Tidak boleh memakai production secrets                    |
 | Production  | Vercel production        | Supabase hosted               | Production-only               | Tidak boleh di-reset atau menjadi target test destructive |
 
-Preview database dan preview-scoped secret belum tersedia. Status: `BLOCKED_EXTERNAL` sampai resource dibuat oleh owner platform.
+Preview database dan preview-scoped secret wajib diverifikasi sebelum Preview fungsional. Jika belum tersedia, status tetap `BLOCKED_EXTERNAL`; jangan menggantinya dengan production database atau production secret.
 
 ## Monitoring minimum
 
@@ -92,4 +92,7 @@ Function hanya membersihkan guest session kedaluwarsa dan rate-limit bucket lama
 - feature flags production tetap OFF sebelum approval
 - monitoring dan rollback owner aktif
 - preview menggunakan secret terpisah
-- PR tetap open sampai keputusan merge manusia
+- PR tetap open sampai Preview, hosted migration postcheck, dan keputusan merge lulus
+- Vercel dan CI memakai Node.js 22.x
+- production seed dan seluruh feature flag modular tetap OFF untuk release aman
+- deployment production sehat sebelumnya tercatat sebagai target rollback aplikasi
