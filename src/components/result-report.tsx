@@ -1,3 +1,4 @@
+import { getPublicModeName } from "@/lib/assessment/catalog";
 import { buildIntegratedReflection, buildModuleReflection } from "@/lib/report/modular-report";
 import type { ResultView } from "@/server/repositories/assessment";
 
@@ -130,6 +131,10 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
           Ringkasan sesi
         </h2>
         <dl className="mt-3 grid gap-4 sm:grid-cols-2">
+          <div>
+            <dt className="text-xs font-semibold text-[var(--muted)]">Mode</dt>
+            <dd className="mt-1 text-sm leading-6">{getPublicModeName(result.mode)}</dd>
+          </div>
           <div>
             <dt className="text-xs font-semibold text-[var(--muted)]">Lensa terpilih</dt>
             <dd className="mt-1 text-sm leading-6">

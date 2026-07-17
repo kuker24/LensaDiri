@@ -32,8 +32,11 @@ test("modular selection estimates, starts, pauses, resumes, and completes", asyn
   await expect(page).toHaveURL(/\/result\//u);
   await expect(page.getByRole("heading", { name: "16-Type" })).toBeVisible();
   await expect(page.getByText(/Confidence keseluruhan/u)).toBeVisible();
-  // §17.2: session meta with selected lenses, completion date, and scoring versions.
+  // §17.2: session meta with mode, selected lenses, completion date, scoring versions.
+  const sessionMeta = page.getByRole("region", { name: "Ringkasan sesi" });
   await expect(page.getByRole("heading", { name: "Ringkasan sesi" })).toBeVisible();
+  await expect(sessionMeta.getByRole("term").filter({ hasText: "Mode" })).toBeVisible();
+  await expect(sessionMeta.getByText("Quick", { exact: true })).toBeVisible();
   await expect(page.getByText(/Versi scoring/u)).toBeVisible();
   await expect(page.getByText(/type16-score-1/u)).toBeVisible();
 });
