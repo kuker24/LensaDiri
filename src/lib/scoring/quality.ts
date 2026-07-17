@@ -194,7 +194,11 @@ export function assessModuleQuality(input: {
     .filter((time): time is number => time !== null);
   const averageResponseTimeMs =
     timed.length === 0 ? null : timed.reduce((sum, time) => sum + time, 0) / timed.length;
-  const pairContradiction = contradictionRate(input.answers);
+  // Contradiction-pair is a module-quality-2 factor only. module-quality-1 must
+  // stay byte-identical to the d7b2c40 formula, so it neither computes the rate
+  // nor lets it touch flags or confidence.
+  const isModel2 = modelVersion === "module-quality-2";
+  const pairContradiction = isModel2 ? contradictionRate(input.answers) : 0;
 
   const flags = new Set<QualityFlag>();
   if (completion < 1) flags.add("incomplete");
@@ -203,7 +207,7 @@ export function assessModuleQuality(input: {
   if (values.length >= 8 && uniqueResponses === 1) flags.add("straightlining");
   if (values.length >= 8 && responseVariance < 0.35) flags.add("low_variance");
   if (input.reverseConsistency < 0.65) flags.add("reverse_inconsistency");
-  if (pairContradiction > 0) flags.add("inconsistent_pair");
+  if (isModel2 && pairContradiction > 0) flags.add("inconsistent_pair");
   if (input.ambiguity >= 0.7) flags.add("threshold_ambiguity");
   if (midpointRate > 0.55) flags.add("excessive_midpoint");
   if (

@@ -194,7 +194,9 @@ describe("independent module scoring", () => {
   });
 });
 
-describe("contradiction-pair detection (PRD §15.4)", () => {
+const MODEL2 = { qualityModelVersion: "module-quality-2" } as const;
+
+describe("contradiction-pair detection (PRD §15.4, module-quality-2)", () => {
   it("keeps contradictionRate at zero when forward and reverse items agree", () => {
     // Forward answers 5 ("sesuai"), reverse answers 1 ("tidak sesuai").
     // After reverse coding both point to 5, so the pair is consistent.
@@ -207,6 +209,7 @@ describe("contradiction-pair detection (PRD §15.4)", () => {
     const quality = assessModuleQuality({
       ambiguity: 0.1,
       answers: consistent,
+      context: MODEL2,
       dimensionCoverage: 1,
       expectedAnswers: consistent.length,
       reverseConsistency: 1,
@@ -228,6 +231,7 @@ describe("contradiction-pair detection (PRD §15.4)", () => {
     const contradicted = assessModuleQuality({
       ambiguity: 0.1,
       answers: contradictory,
+      context: MODEL2,
       dimensionCoverage: 1,
       expectedAnswers: contradictory.length,
       reverseConsistency: 1,
@@ -240,6 +244,7 @@ describe("contradiction-pair detection (PRD §15.4)", () => {
         pairAnswer("focus", -1, 1, 0),
         pairAnswer("focus", -1, 1, 1),
       ],
+      context: MODEL2,
       dimensionCoverage: 1,
       expectedAnswers: 4,
       reverseConsistency: 1,
@@ -249,6 +254,86 @@ describe("contradiction-pair detection (PRD §15.4)", () => {
     expect(contradicted.flags).toContain("inconsistent_pair");
     expect(contradicted.flags).toContain("clarifier_recommended");
     expect(contradicted.confidence).toBeLessThan(clean.confidence);
+  });
+});
+
+// Frozen fixtures: confidence and flags captured from the assessModuleQuality
+// formula at main d7b2c40 (before any contradiction-pair or versioned factor).
+// These do NOT compare the new code to itself; they pin absolute values so a
+// module-quality-1 regression is caught even if both paths change together.
+describe("module-quality-1 frozen regression (d7b2c40)", () => {
+  // A contradictory forward/reverse pair. Under d7b2c40 there was no pair logic,
+  // so confidence is high (0.98) and no inconsistent_pair flag exists.
+  const contradictory = [
+    pairAnswer("focus", 1, 5, 0),
+    pairAnswer("focus", 1, 5, 1),
+    pairAnswer("focus", -1, 5, 0),
+    pairAnswer("focus", -1, 5, 1),
+  ];
+  const contradictoryInput = {
+    ambiguity: 0.1,
+    answers: contradictory,
+    dimensionCoverage: 1,
+    expectedAnswers: contradictory.length,
+    reverseConsistency: 1,
+  } as const;
+
+  // Eight fast midpoint responses trip most legacy flags at once.
+  const rich = Array.from({ length: 8 }, (_, index) => ({
+    constructKey: "focus",
+    itemCode: `f-${index}`,
+    polarity: 1 as const,
+    responseTimeMs: 300,
+    value: 3 as const,
+    weight: 1,
+  }));
+  const richInput = {
+    ambiguity: 0.8,
+    answers: rich,
+    dimensionCoverage: 1,
+    expectedAnswers: 8,
+    reverseConsistency: 1,
+  } as const;
+
+  it("matches the frozen d7b2c40 confidence and flags for a contradictory pair", () => {
+    // Implicit (no context) and explicit module-quality-1 must both be legacy.
+    for (const context of [undefined, { qualityModelVersion: "module-quality-1" as const }]) {
+      const quality = assessModuleQuality({ ...contradictoryInput, context });
+      expect(quality.confidence).toBe(0.98);
+      expect(quality.flags).toEqual([]);
+      expect(quality.contradictionRate).toBe(0);
+      expect(quality.flags).not.toContain("inconsistent_pair");
+    }
+  });
+
+  it("matches the frozen d7b2c40 confidence and flags for a multi-flag response", () => {
+    const quality = assessModuleQuality({
+      ...richInput,
+      context: { qualityModelVersion: "module-quality-1" },
+    });
+    expect(quality.confidence).toBe(0.12);
+    expect(quality.flags).toEqual([
+      "clarifier_recommended",
+      "excessive_midpoint",
+      "low_variance",
+      "straightlining",
+      "threshold_ambiguity",
+      "too_fast",
+    ]);
+  });
+
+  it("keeps module-quality-1 free of contradiction penalty and flag", () => {
+    // Same contradictory input: v1 stays at the frozen 0.98, v2 drops and flags.
+    const v1 = assessModuleQuality({
+      ...contradictoryInput,
+      context: { qualityModelVersion: "module-quality-1" },
+    });
+    const v2 = assessModuleQuality({ ...contradictoryInput, context: MODEL2 });
+
+    expect(v1.confidence).toBe(0.98);
+    expect(v1.flags).not.toContain("inconsistent_pair");
+    expect(v2.flags).toContain("inconsistent_pair");
+    expect(v2.confidence).toBeLessThan(v1.confidence);
   });
 });
 
@@ -273,7 +358,7 @@ describe("versioned confidence model (PRD §15.4)", () => {
     return assessModuleQuality({ ...baseInput, context }).confidence;
   }
 
-  it("leaves module-quality-1 numbers identical to the unversioned formula", () => {
+  it("ignores every module-quality-2 factor under module-quality-1", () => {
     const legacyExplicit = assessModuleQuality({
       ...baseInput,
       context: { qualityModelVersion: "module-quality-1" },
@@ -282,7 +367,9 @@ describe("versioned confidence model (PRD §15.4)", () => {
 
     expect(legacyExplicit.qualityModelVersion).toBe("module-quality-1");
     expect(legacyImplicit.qualityModelVersion).toBe("module-quality-1");
-    // The four new factors are ignored, even when supplied.
+    expect(legacyImplicit.confidence).toBe(legacyExplicit.confidence);
+    // The four new factors are ignored, even when supplied. A default v2 run on
+    // the same clean input applies the deltas and diverges, proving the gate.
     const withFactors = assessModuleQuality({
       ...baseInput,
       context: {
@@ -294,6 +381,17 @@ describe("versioned confidence model (PRD §15.4)", () => {
       },
     });
     expect(withFactors.confidence).toBe(legacyExplicit.confidence);
+    const sameFactorsV2 = assessModuleQuality({
+      ...baseInput,
+      context: {
+        clarifier: "completed",
+        itemQualityWeight: 0.2,
+        modeDepth: "deep",
+        optionalItems: { answered: 0, expected: 4 },
+        qualityModelVersion: "module-quality-2",
+      },
+    });
+    expect(sameFactorsV2.confidence).not.toBe(legacyExplicit.confidence);
   });
 
   it("stamps the resolved model version on the result", () => {
