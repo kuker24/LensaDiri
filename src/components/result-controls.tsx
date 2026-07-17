@@ -63,6 +63,7 @@ export function ResultControls({ token }: { token: string }) {
       </h2>
       <p className="mt-2 leading-7 text-[var(--muted)]">
         Hasil private sampai kamu membuat link. Export tidak memuat jawaban mentah atau ID internal.
+        Tes ulang memulai sesi baru tanpa menghapus hasil ini.
       </p>
       <div className="mt-5 flex flex-wrap gap-3">
         <button
@@ -87,6 +88,12 @@ export function ResultControls({ token }: { token: string }) {
           href={`/api/result/export/${encodeURIComponent(token)}`}
         >
           Export JSON
+        </a>
+        <a
+          className="focus-ring rounded-xl border border-[var(--line)] px-4 py-3 font-semibold"
+          href="/start"
+        >
+          Tes ulang
         </a>
         <button
           className="focus-ring rounded-xl border border-red-300 px-4 py-3 font-semibold text-red-800 disabled:opacity-50"

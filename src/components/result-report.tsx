@@ -37,6 +37,7 @@ const labels: Record<string, string> = {
   low_variance: "variasi respons rendah",
   consistency_unavailable: "konsistensi belum tersedia",
   reverse_inconsistency: "pasangan respons kurang konsisten",
+  inconsistent_pair: "pasangan forward dan reverse bertentangan",
   threshold_ambiguity: "skor dekat batas",
   excessive_midpoint: "terlalu banyak respons tengah",
   clarifier_recommended: "clarifier direkomendasikan",
@@ -65,6 +66,31 @@ const narrativeLabels: Record<string, string> = {
 
 function formatKey(value: string): string {
   return labels[value] ?? value.replaceAll("_", " ");
+}
+
+function formatDate(value: string): string {
+  const parsed = new Date(value);
+  if (Number.isNaN(parsed.getTime())) return value;
+  return new Intl.DateTimeFormat("id-ID", { dateStyle: "long" }).format(parsed);
+}
+
+function optionalString(value: unknown): string | null {
+  return typeof value === "string" && value.trim().length > 0 ? value : null;
+}
+
+/** Alternate candidate (§17.1): each engine records a shape-specific field. */
+function alternateCandidate(ambiguity: Readonly<Record<string, unknown>>): string | null {
+  return (
+    optionalString(ambiguity.alternateType) ??
+    optionalString(ambiguity.alternatePattern) ??
+    optionalString(ambiguity.alternateTemperament) ??
+    optionalString(ambiguity.alternate)
+  );
+}
+
+/** Limitation note (§17.1): module-owned disclaimer, versioned per engine. */
+function limitationNote(summary: Readonly<Record<string, unknown>>): string | null {
+  return optionalString(summary.disclaimer);
 }
 
 function ReflectionList({ items }: { items: readonly string[] }) {
@@ -97,6 +123,40 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
       </div>
 
       <section
+        className="mt-8 rounded-2xl border border-[var(--line)] bg-white p-5"
+        aria-labelledby="result-meta-heading"
+      >
+        <h2 className="text-sm font-semibold text-[var(--muted)]" id="result-meta-heading">
+          Ringkasan sesi
+        </h2>
+        <dl className="mt-3 grid gap-4 sm:grid-cols-2">
+          <div>
+            <dt className="text-xs font-semibold text-[var(--muted)]">Lensa terpilih</dt>
+            <dd className="mt-1 text-sm leading-6">
+              {result.summary.moduleKeys.map(formatKey).join(", ")}
+            </dd>
+          </div>
+          <div>
+            <dt className="text-xs font-semibold text-[var(--muted)]">Tanggal selesai</dt>
+            <dd className="mt-1 text-sm leading-6">{formatDate(result.createdAt)}</dd>
+          </div>
+          <div className="sm:col-span-2">
+            <dt className="text-xs font-semibold text-[var(--muted)]">Versi scoring</dt>
+            <dd className="mt-1 flex flex-wrap gap-2">
+              {result.modules.map((module) => (
+                <span
+                  className="rounded-full bg-slate-100 px-2.5 py-1 text-xs text-slate-700"
+                  key={module.moduleKey}
+                >
+                  {formatKey(module.moduleKey)}: {module.scoringVersion}
+                </span>
+              ))}
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <section
         className="mt-8 rounded-2xl border border-amber-200 bg-amber-50 p-5 text-amber-950"
         aria-labelledby="quality-heading"
       >
@@ -117,6 +177,8 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
       <div className="mt-8 space-y-8">
         {result.modules.map((module) => {
           const reflection = buildModuleReflection(module);
+          const alternate = alternateCandidate(module.ambiguity);
+          const limitation = limitationNote(module.summary);
           return (
             <section
               aria-labelledby={`module-${module.moduleKey}`}
@@ -172,6 +234,18 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
               <p className="mt-5 text-sm leading-6 text-[var(--muted)]">
                 {reflection.practicalReflection}
               </p>
+              {alternate ? (
+                <p className="mt-4 rounded-xl bg-amber-50 px-4 py-3 text-sm leading-6 text-amber-900">
+                  <span className="font-semibold">Kandidat alternatif:</span> {alternate}. Skor
+                  beberapa dimensi dekat batas, jadi baca hasil ini sebagai kecenderungan, bukan
+                  label pasti.
+                </p>
+              ) : null}
+              {limitation ? (
+                <p className="mt-4 text-xs leading-6 text-[var(--muted)]">
+                  <span className="font-semibold">Catatan keterbatasan:</span> {limitation}
+                </p>
+              ) : null}
             </section>
           );
         })}
