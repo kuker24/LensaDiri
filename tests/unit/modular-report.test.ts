@@ -15,6 +15,7 @@ const moduleResult: IndependentModuleResult = {
     contradictionRate: 0,
     flags: [],
     midpointRate: 0.2,
+    qualityModelVersion: "module-quality-1",
     responseVariance: 1.1,
     uniqueResponses: 5,
   },

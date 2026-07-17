@@ -9,7 +9,12 @@ import {
 import { scoreTraitProfileModule } from "@/lib/scoring/modules/trait-profile";
 import { scoreType16Module, type16ConstructKeys } from "@/lib/scoring/modules/type16";
 import { traitKeys } from "@/lib/scoring/profile";
-import { assessModuleQuality, type ModuleScoringAnswer } from "@/lib/scoring/quality";
+import {
+  assessModuleQuality,
+  resolveQualityModelVersion,
+  type ModuleScoringAnswer,
+  type QualityModelContext,
+} from "@/lib/scoring/quality";
 
 type PairValue = 1 | 2 | 3 | 4 | 5;
 
@@ -244,5 +249,160 @@ describe("contradiction-pair detection (PRD §15.4)", () => {
     expect(contradicted.flags).toContain("inconsistent_pair");
     expect(contradicted.flags).toContain("clarifier_recommended");
     expect(contradicted.confidence).toBeLessThan(clean.confidence);
+  });
+});
+
+describe("versioned confidence model (PRD §15.4)", () => {
+  // A clean, complete answer set so factor deltas are the only thing that moves
+  // confidence between cases.
+  const baseAnswers = answers(type16ConstructKeys, {
+    extraversion: 5,
+    feeling: 4,
+    intuition: 2,
+    judging: 5,
+  });
+  const baseInput = {
+    ambiguity: 0.1,
+    answers: baseAnswers,
+    dimensionCoverage: 1,
+    expectedAnswers: baseAnswers.length,
+    reverseConsistency: 1,
+  } as const;
+
+  function confidenceWith(context: QualityModelContext): number {
+    return assessModuleQuality({ ...baseInput, context }).confidence;
+  }
+
+  it("leaves module-quality-1 numbers identical to the unversioned formula", () => {
+    const legacyExplicit = assessModuleQuality({
+      ...baseInput,
+      context: { qualityModelVersion: "module-quality-1" },
+    });
+    const legacyImplicit = assessModuleQuality({ ...baseInput });
+
+    expect(legacyExplicit.qualityModelVersion).toBe("module-quality-1");
+    expect(legacyImplicit.qualityModelVersion).toBe("module-quality-1");
+    // The four new factors are ignored, even when supplied.
+    const withFactors = assessModuleQuality({
+      ...baseInput,
+      context: {
+        clarifier: "completed",
+        itemQualityWeight: 0.2,
+        modeDepth: "deep",
+        optionalItems: { answered: 0, expected: 4 },
+        qualityModelVersion: "module-quality-1",
+      },
+    });
+    expect(withFactors.confidence).toBe(legacyExplicit.confidence);
+  });
+
+  it("stamps the resolved model version on the result", () => {
+    const v2 = assessModuleQuality({
+      ...baseInput,
+      context: { qualityModelVersion: "module-quality-2" },
+    });
+    expect(v2.qualityModelVersion).toBe("module-quality-2");
+  });
+
+  it("lowers confidence for skipped optional items only when optionals exist", () => {
+    const base = confidenceWith({ qualityModelVersion: "module-quality-2" });
+    const halfSkipped = confidenceWith({
+      optionalItems: { answered: 2, expected: 4 },
+      qualityModelVersion: "module-quality-2",
+    });
+    const noOptional = confidenceWith({
+      optionalItems: { answered: 0, expected: 0 },
+      qualityModelVersion: "module-quality-2",
+    });
+
+    expect(halfSkipped).toBeLessThan(base);
+    expect(noOptional).toBe(base);
+  });
+
+  it("rewards a completed clarifier over a skipped one", () => {
+    const completed = confidenceWith({
+      clarifier: "completed",
+      qualityModelVersion: "module-quality-2",
+    });
+    const skipped = confidenceWith({
+      clarifier: "skipped",
+      qualityModelVersion: "module-quality-2",
+    });
+    const none = confidenceWith({ clarifier: "none", qualityModelVersion: "module-quality-2" });
+
+    expect(completed).toBeGreaterThan(none);
+    expect(skipped).toBeLessThan(none);
+    expect(completed).toBeGreaterThan(skipped);
+  });
+
+  it("scales confidence down as server-authoritative item weight falls", () => {
+    const fullWeight = confidenceWith({
+      itemQualityWeight: 1,
+      qualityModelVersion: "module-quality-2",
+    });
+    const lowWeight = confidenceWith({
+      itemQualityWeight: 0.4,
+      qualityModelVersion: "module-quality-2",
+    });
+
+    expect(lowWeight).toBeLessThan(fullWeight);
+  });
+
+  it("gives deeper modes a deterministic depth bonus", () => {
+    const quick = confidenceWith({ modeDepth: "quick", qualityModelVersion: "module-quality-2" });
+    const standard = confidenceWith({
+      modeDepth: "standard",
+      qualityModelVersion: "module-quality-2",
+    });
+    const deep = confidenceWith({ modeDepth: "deep", qualityModelVersion: "module-quality-2" });
+
+    expect(standard).toBeGreaterThan(quick);
+    expect(deep).toBeGreaterThan(standard);
+  });
+
+  it("keeps confidence bounded within [0, 1] under extreme factors", () => {
+    const floored = assessModuleQuality({
+      ...baseInput,
+      ambiguity: 1,
+      context: {
+        clarifier: "skipped",
+        itemQualityWeight: 0,
+        optionalItems: { answered: 0, expected: 8 },
+        qualityModelVersion: "module-quality-2",
+      },
+      reverseConsistency: 0,
+    }).confidence;
+    const ceiled = confidenceWith({
+      clarifier: "completed",
+      itemQualityWeight: 1,
+      modeDepth: "deep",
+      qualityModelVersion: "module-quality-2",
+    });
+
+    expect(floored).toBeGreaterThanOrEqual(0);
+    expect(ceiled).toBeLessThanOrEqual(1);
+  });
+
+  it("replays identical output for identical input and version", () => {
+    const context: QualityModelContext = {
+      clarifier: "completed",
+      itemQualityWeight: 0.8,
+      modeDepth: "deep",
+      optionalItems: { answered: 3, expected: 4 },
+      qualityModelVersion: "module-quality-2",
+    };
+    const first = assessModuleQuality({ ...baseInput, context });
+    const second = assessModuleQuality({ ...baseInput, context });
+
+    expect(second).toEqual(first);
+  });
+
+  it("resolves stored version and fails closed on an unknown one", () => {
+    expect(resolveQualityModelVersion(null)).toBe("module-quality-1");
+    expect(resolveQualityModelVersion(undefined)).toBe("module-quality-1");
+    expect(resolveQualityModelVersion("module-quality-2")).toBe("module-quality-2");
+    expect(() => resolveQualityModelVersion("module-quality-99")).toThrow(
+      "Unknown quality model version",
+    );
   });
 });

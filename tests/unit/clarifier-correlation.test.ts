@@ -25,6 +25,7 @@ function result(
       contradictionRate: 0,
       flags: options.flags ?? [],
       midpointRate: 0,
+      qualityModelVersion: "module-quality-1",
       responseVariance: 1,
       uniqueResponses: 5,
     },

@@ -1,4 +1,4 @@
-import type { ModuleScoringAnswer } from "@/lib/scoring/quality";
+import type { ModuleScoringAnswer, QualityModelContext } from "@/lib/scoring/quality";
 import {
   getScoreGap,
   scoreConstructs,
@@ -38,6 +38,7 @@ function patternNumber(key: EnneagramConstructKey): number {
 export function scoreEnneagramModule(
   answers: readonly ModuleScoringAnswer<EnneagramConstructKey>[],
   expectedAnswers: number,
+  context?: QualityModelContext,
 ): IndependentModuleResult<"enneagram", EnneagramConstructKey> {
   const scores = scoreConstructs(answers, enneagramConstructKeys);
   const ordered = scores.toSorted((left, right) => right.normalizedScore - left.normalizedScore);
@@ -56,6 +57,7 @@ export function scoreEnneagramModule(
     ambiguity,
     answers,
     constructKeys: enneagramConstructKeys,
+    context,
     expectedAnswers,
   });
   return {

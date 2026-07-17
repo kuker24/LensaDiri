@@ -3,6 +3,7 @@ import {
   assessModuleQuality,
   type ModuleQuality,
   type ModuleScoringAnswer,
+  type QualityModelContext,
 } from "@/lib/scoring/quality";
 
 export interface ModuleDimensionScore<ConstructKey extends string = string> {
@@ -65,6 +66,7 @@ export function scoreQuality<ConstructKey extends string>(input: {
   ambiguity: number;
   answers: readonly ModuleScoringAnswer<ConstructKey>[];
   constructKeys: readonly ConstructKey[];
+  context?: QualityModelContext | undefined;
   expectedAnswers: number;
 }): ModuleQuality {
   const covered = new Set(input.answers.map((answer) => answer.constructKey)).size;
@@ -76,6 +78,7 @@ export function scoreQuality<ConstructKey extends string>(input: {
   return assessModuleQuality({
     ambiguity: input.ambiguity,
     answers: input.answers,
+    context: input.context,
     dimensionCoverage: covered / input.constructKeys.length,
     expectedAnswers: input.expectedAnswers,
     reverseConsistency,
