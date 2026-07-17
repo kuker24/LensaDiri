@@ -11,21 +11,28 @@ Production project identifiers, database URLs, passwords, API keys, and connecti
 
 ## Applied migration mapping
 
-Verified read-only on 2026-07-16 with `supabase migration list`. Production contains only versions `202607120001` through `202607130004`. Local names and hosted migration history agree.
+Verified after the approved production migration on 2026-07-17 with `supabase migration list`. Production contains versions `202607120001` through `202607200001`. Local names and hosted migration history agree.
 
-| Version        | Repository source                                                | SHA-256                                                            | Production status | Purpose                                                                             |
-| -------------- | ---------------------------------------------------------------- | ------------------------------------------------------------------ | ----------------- | ----------------------------------------------------------------------------------- |
-| `202607120001` | `supabase/migrations/202607120001_phase_1_foundation.sql`        | `b075bc62db2c676272ecb3469c1b3912367038a9b4cb8b94768690fbb24c03b9` | Applied           | Accounts, sessions, consent, rate limit, audit, forced RLS, browser-role revocation |
-| `202607130001` | `supabase/migrations/202607130001_account_hard_delete.sql`       | `bca0fdcb14c1bafac0c98d19d0292278dd2cfd731fc943ccaad36a433acdb003` | Applied           | Trusted account erasure and account-delete rate limit                               |
-| `202607130002` | `supabase/migrations/202607130002_mvp_assessment.sql`            | `38a4578dc0f86792a67901aa356a680a6aa66a9e2ed20690b5235d476655f9e3` | Applied           | Legacy question bank, assessment, result, share, and forced-RLS schema              |
-| `202607130003` | `supabase/migrations/202607130003_mvp_feedback.sql`              | `4fce3896854ca161c37af0e49ba1fcb197760aa94965a5ab304bf310ed56b3d8` | Applied           | Server-only result feedback                                                         |
-| `202607130004` | `supabase/migrations/202607130004_portable_email_constraint.sql` | `371bd1719b6ba02d3efe93b489f7e1a8c58fdc00ef2458039d089817d29c3b08` | Applied           | Portable hosted/local email constraint                                              |
+| Version        | Repository source                                                    | SHA-256                                                            | Production status | Purpose                                                                             |
+| -------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------ | ----------------- | ----------------------------------------------------------------------------------- |
+| `202607120001` | `supabase/migrations/202607120001_phase_1_foundation.sql`            | `b075bc62db2c676272ecb3469c1b3912367038a9b4cb8b94768690fbb24c03b9` | Applied           | Accounts, sessions, consent, rate limit, audit, forced RLS, browser-role revocation |
+| `202607130001` | `supabase/migrations/202607130001_account_hard_delete.sql`           | `bca0fdcb14c1bafac0c98d19d0292278dd2cfd731fc943ccaad36a433acdb003` | Applied           | Trusted account erasure and account-delete rate limit                               |
+| `202607130002` | `supabase/migrations/202607130002_mvp_assessment.sql`                | `38a4578dc0f86792a67901aa356a680a6aa66a9e2ed20690b5235d476655f9e3` | Applied           | Legacy question bank, assessment, result, share, and forced-RLS schema              |
+| `202607130003` | `supabase/migrations/202607130003_mvp_feedback.sql`                  | `4fce3896854ca161c37af0e49ba1fcb197760aa94965a5ab304bf310ed56b3d8` | Applied           | Server-only result feedback                                                         |
+| `202607130004` | `supabase/migrations/202607130004_portable_email_constraint.sql`     | `371bd1719b6ba02d3efe93b489f7e1a8c58fdc00ef2458039d089817d29c3b08` | Applied           | Portable hosted/local email constraint                                              |
+| `202607130005` | `supabase/migrations/202607130005_modular_enum_extensions.sql`       | `b28deeba68f92e221ddc37950144ca48fdeb311552e3c863976d2b191c12d166` | Applied           | Modular enum extensions                                                             |
+| `202607130006` | `supabase/migrations/202607130006_modular_assessment_foundation.sql` | `f8a781e63d5c734388ec91482dd536473cc2e7c90113f2e103b4173e0f0b19c6` | Applied           | Modular assessment foundation and legacy result-version backfill                    |
+| `202607150001` | `supabase/migrations/202607150001_modular_clarifier_runtime.sql`     | `6f567d1170305563b06b3016d831b8faca95f09c1fbd49989f59ad853cc7ef65` | Applied           | Clarifier runtime schema                                                            |
+| `202607160001` | `supabase/migrations/202607160001_result_module_provenance.sql`      | `60b33f6e61692bccce988b46a1d69db8ba86ece5f063d130c55cf264ecde06c2` | Applied           | Result module provenance                                                            |
+| `202607160002` | `supabase/migrations/202607160002_prd_v2_release_contract.sql`       | `2e75f373717a37b18e76394841d4572be344cb2c6bfb059286e21334f61244eb` | Applied           | PRD v2 release and publication contract                                             |
+| `202607160003` | `supabase/migrations/202607160003_dashboard_audit_extension.sql`     | `f6e167e4ffc264e563c3bacfbd7097cb888fa41658932e45133acc68e6b73980` | Applied           | Canonical audit constraint normalization                                            |
+| `202607200001` | `supabase/migrations/202607200001_account_recovery_foundation.sql`   | `bd2060b4b1c5457e24eee5bb77edc44ffc3a9677b293885ebb6a59211436400d` | Applied           | Dormant account recovery foundation                                                 |
 
-Last recorded production smoke baseline: 5 migrations, 15 forced-RLS tables, zero browser policies, 60 seeded Standard questions, and 40 Quick questions. These counts describe the legacy production checkpoint, not the modular candidate.
+Production checkpoint after migration: 12 migrations, 60 active legacy questions, 40 Quick questions, zero enabled feature flags, zero browser grants on new sensitive tables, and all checked new tables use forced RLS. No modular production seed or feature activation occurred.
 
-## Pending additive chain
+## Applied additive chain
 
-Versions below are local-only as of the read-only check above. The seven repository files are the canonical pending chain. Because none are hosted, they remain pending. Do not rename or apply them without a reviewed release decision.
+Versions below were applied on 2026-07-17 after logical backup, aggregate preflight, checksum review, and a seven-migration dry-run. They are now immutable production history. Future changes require additive fix-forward migrations.
 
 | Version        | Repository source                                | SHA-256                                                            | Dependency and effect                                                                                                                                      | Backfill and compatibility                                                                                    | Lock and fix-forward risk                                                                                                      |
 | -------------- | ------------------------------------------------ | ------------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
@@ -45,16 +52,18 @@ Checksums describe the candidate after local recovery lifecycle fixes. Recalcula
 
 Production seed application is not authorized in this release phase. A future release must compare expected reviewed counts and canonical SHA-256 from a clean local reset before any hosted seed action.
 
-## Required preflight before hosted dry-run
+## Production migration evidence
 
-These steps require separate user approval. They are not executed by local CI:
+Executed on 2026-07-17 against the verified Singapore production project:
 
-1. Confirm exact linked project and current hosted migration history.
-2. Record a provider backup checkpoint or explicitly accept that the hobby topology has no proven restore drill.
-3. Measure legacy `personality_results` count and local `result_versions` backfill runtime.
-4. Prove zero invalid question mode-eligibility rows and zero combo ownership mismatches.
-5. Run `supabase db push --linked --dry-run` and compare only the seven reviewed pending versions.
-6. Stop immediately if migration order, checksum, DDL, expected row effect, RLS, policy, grant, or preflight result differs.
+1. Linked history contained only `202607120001` through `202607130004` before rollout.
+2. Provider physical backup/PITR was unavailable. A permission-restricted logical schema/data/roles backup was created outside the repository and its SHA-256 manifest verified. Restore drill remains blocked without an isolated project.
+3. Aggregate preflight found zero active legacy results, 60 active questions, 40 Quick questions, no `feature_flags` table yet, and one compatible audit aggregate value.
+4. `supabase db push --linked --dry-run` reported exactly the seven reviewed versions.
+5. `supabase db push --linked` applied all seven versions successfully. Linked history now matches all 12 repository migrations.
+6. Postchecks found zero RLS, browser-grant, result-version, deferred-selectability, combo-ownership, or enabled-feature-flag violations. Legacy `trait_profile/mvp-1` remains intentionally `active`, not `published`.
+7. Vercel production deployment `dpl_C5miY5hwXuz68fmP7JESVbvqrhBm` built merge SHA `814f467a67e5fd01d03ba7010cf2ace6e7c2ec12`, reached `Ready`, and serves the stable alias.
+8. `/api/health` returned HTTP 200 with only `{"status":"ok"}`. Public routes, DB-backed module/combo routes, dashboard guest redirect, legacy 60/40 counts, and security headers passed non-destructive smoke checks.
 
 ## Read-only post-migration verification contract
 
@@ -91,4 +100,4 @@ Never run reset, integration, pgTAP, seed replay/drift/parity, or E2E against ho
 
 ## Release boundary
 
-Current authorization ends at local verification, explicit commits, branch push, and GitHub Actions observation. Hosted dry-run, backup/export, migration, production seed, Vercel deployment/alias/environment changes, PR merge, and feature activation all require separate approval.
+Approved backup, PR merge, hosted dry-run, migration, and Vercel production deployment completed on 2026-07-17. Production seed and feature activation remain unauthorized and undone. All feature flags remain OFF. Recovery remains dormant until provider email and mandatory verification are approved.

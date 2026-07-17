@@ -125,14 +125,15 @@ from public.modules
 where release_disposition <> 'RELEASE_READY'
   and (is_selectable or availability_reason is null);
 
--- Selectable module harus memiliki version published.
+-- Selectable module harus memiliki version aktif. Legacy mvp-1 tetap berstatus active;
+-- publication workflow modular memakai published.
 select modules.key
 from public.modules
 where modules.is_selectable
   and not exists (
     select 1 from public.module_versions
     where module_versions.module_id = modules.id
-      and module_versions.status = 'published'
+      and module_versions.status in ('active', 'published')
   );
 
 -- Published combo harus mengunci required version milik module yang tepat.
