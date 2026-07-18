@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 
 import { AuthApiError, postAuthenticatedMutation } from "@/lib/auth/client";
+import { Input, Label } from "@/components/ui/input";
 
 export function DeleteAccountForm() {
   const router = useRouter();
@@ -40,12 +41,10 @@ export function DeleteAccountForm() {
   return (
     <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
       <div>
-        <label className="block text-sm font-semibold" htmlFor="delete-password">
-          Password saat ini
-        </label>
-        <input
+        <Label htmlFor="delete-password">Password saat ini</Label>
+        <Input
           autoComplete="current-password"
-          className="focus-ring mt-2 min-h-12 w-full rounded-xl border border-red-200 bg-white px-4 text-base transition outline-none hover:border-red-400"
+          className="border-danger-soft hover:border-danger"
           id="delete-password"
           maxLength={128}
           minLength={12}
@@ -55,12 +54,12 @@ export function DeleteAccountForm() {
         />
       </div>
       <div>
-        <label className="block text-sm font-semibold" htmlFor="delete-confirmation">
+        <Label htmlFor="delete-confirmation">
           Ketik <span className="font-mono">HAPUS AKUN</span>
-        </label>
-        <input
+        </Label>
+        <Input
           autoComplete="off"
-          className="focus-ring mt-2 min-h-12 w-full rounded-xl border border-red-200 bg-white px-4 text-base transition outline-none hover:border-red-400"
+          className="border-danger-soft hover:border-danger"
           id="delete-confirmation"
           maxLength={10}
           onChange={(event) => setConfirmation(event.target.value)}
@@ -72,7 +71,7 @@ export function DeleteAccountForm() {
 
       {error ? (
         <p
-          className="rounded-xl border border-red-200 bg-white px-4 py-3 text-sm text-red-900"
+          className="border-danger-soft text-danger rounded-md border bg-white/90 px-4 py-3 text-sm"
           role="alert"
         >
           {error}
@@ -80,7 +79,7 @@ export function DeleteAccountForm() {
       ) : null}
 
       <button
-        className="focus-ring min-h-12 rounded-xl bg-red-700 px-5 py-3 font-semibold text-white transition hover:bg-red-800 disabled:cursor-not-allowed disabled:opacity-50"
+        className="focus-ring bg-danger text-canvas hover:bg-danger/90 min-h-12 rounded-md px-5 py-3 font-semibold transition-colors duration-150 ease-out disabled:cursor-not-allowed disabled:opacity-50"
         disabled={confirmation !== "HAPUS AKUN" || isPending}
         type="submit"
       >

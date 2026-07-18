@@ -5,6 +5,7 @@ import { useState } from "react";
 
 import { startAssessment } from "@/lib/assessment/client";
 import type { AssessmentMode } from "@/server/repositories/assessment";
+import { Button } from "@/components/ui/button";
 
 export function StartAssessmentForm({ mode }: { mode: AssessmentMode }) {
   const router = useRouter();
@@ -26,9 +27,9 @@ export function StartAssessmentForm({ mode }: { mode: AssessmentMode }) {
 
   return (
     <div>
-      <label className="flex items-start gap-3 rounded-xl bg-violet-50 p-4 text-sm leading-6">
+      <label className="border-line bg-lens-soft/40 flex items-start gap-3 rounded-md border p-4 text-sm leading-6">
         <input
-          className="focus-ring mt-1 h-5 w-5"
+          className="focus-ring accent-lens mt-1 h-5 w-5"
           checked={consent}
           onChange={(event) => setConsent(event.target.checked)}
           type="checkbox"
@@ -39,18 +40,13 @@ export function StartAssessmentForm({ mode }: { mode: AssessmentMode }) {
         </span>
       </label>
       {error ? (
-        <p className="mt-3 text-sm text-red-800" role="alert">
+        <p className="text-danger mt-3 text-sm" role="alert">
           Gagal memulai. Coba lagi.
         </p>
       ) : null}
-      <button
-        className="focus-ring mt-5 min-h-12 w-full rounded-xl bg-[var(--foreground)] px-5 py-3 font-semibold text-white disabled:opacity-50"
-        disabled={!consent || pending}
-        onClick={start}
-        type="button"
-      >
+      <Button className="mt-5 w-full" disabled={!consent || pending} onClick={start} type="button">
         {pending ? "Menyiapkan…" : `Mulai ${mode === "quick" ? "Quick" : "Standard"}`}
-      </button>
+      </Button>
     </div>
   );
 }

@@ -11,6 +11,7 @@ Engineering baseline mengikuti WCAG 2.2 AA sebagai target desain. Dokumen ini bu
 - Target sentuh utama minimum 44 CSS pixel.
 - Status save, error, progress, dan completion diumumkan melalui semantic role atau `aria-live`.
 - Progress tidak bergantung pada warna saja dan memiliki label teks.
+- Kontras warna memenuhi batas minimum WCAG AA: teks normal minimum 4.5:1, teks besar/bold minimum 3:1, dan elemen non-teks/focus ring minimum 3:1. Token khusus `--color-aperture-on-dark` (#f39257) digunakan untuk latar gelap (`bg-lens-strong`) dan `--color-warning` digelapkan ke `#91621e` untuk latar canvas.
 - Form memakai label programmatic, error spesifik, serta tidak menghapus input pengguna saat gagal.
 - Result chart memiliki nama aksesibel dan nilai teks.
 - Diagnostics private tidak masuk shared DTO.
@@ -35,7 +36,7 @@ Engineering baseline mengikuti WCAG 2.2 AA sebagai target desain. Dokumen ini bu
 - `/login`
 - `/register`
 
-Gate otomatis mencakup satu heading level 1, duplicate ID, image alt, horizontal overflow desktop/mobile, keyboard focus, dan label auth.
+Gate otomatis mencakup satu heading level 1, duplicate ID, image alt, nested interactive control, target utama minimum 44px, horizontal overflow desktop/mobile, keyboard focus, label auth, serta fixture Dialog nyata untuk focus containment, Escape, close control, unique ID, focus restoration, dan reduced motion.
 
 Command:
 
@@ -63,7 +64,7 @@ CI menjalankan command setelah database disposable di-reset dan feature fixture 
 ## Manual review yang masih diperlukan
 
 - Screen reader NVDA/JAWS/VoiceOver lintas browser: `BLOCKED_EXTERNAL`
-- Audit contrast final setelah visual design replacement: `DEFERRED_WITH_REASON`
+- Review persepsi warna dan kontras oleh auditor manusia pada perangkat nyata: `BLOCKED_EXTERNAL`. Token kritis dan pasangan aperture pada surface gelap sudah memiliki gate otomatis.
 - Cognitive walkthrough bersama pengguna neurodiverse: `BLOCKED_EXTERNAL`
 - Bahasa Indonesia oleh accessibility reviewer: `BLOCKED_EXTERNAL`
 
