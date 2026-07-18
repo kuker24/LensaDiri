@@ -24,12 +24,12 @@ export function SiteHeader() {
           <span className="font-display text-lg tracking-tight">LensaDiri</span>
         </Link>
         <div className="flex items-center gap-2">
-          <Link href="/login" passHref legacyBehavior>
+          <Link href="/login">
             <Button size="sm" variant="ghost">
               Masuk
             </Button>
           </Link>
-          <Link href="/start" passHref legacyBehavior>
+          <Link href="/start">
             <Button size="sm">
               Mulai
             </Button>

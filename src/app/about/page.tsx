@@ -30,7 +30,7 @@ export default function AboutPage() {
             </p>
           </section>
         </div>
-        <Link href="/modules" passHref legacyBehavior>
+        <Link href="/modules">
           <Button className="mt-8">
             Lihat katalog modul
           </Button>
