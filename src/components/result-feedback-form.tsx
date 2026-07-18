@@ -1,6 +1,9 @@
 "use client";
 import { type FormEvent, useState } from "react";
 import { postAuthenticatedMutation } from "@/lib/auth/client";
+import { Button } from "@/components/ui/button";
+import { Label, Textarea } from "@/components/ui/input";
+
 export function ResultFeedbackForm({ token }: { token: string }) {
   const [sent, setSent] = useState(false);
   const [error, setError] = useState(false);
@@ -24,18 +27,18 @@ export function ResultFeedbackForm({ token }: { token: string }) {
   }
   if (sent)
     return (
-      <p className="mt-8 rounded-xl bg-emerald-50 p-4 text-emerald-950" role="status">
+      <p className="mt-8 rounded-md border border-success bg-white p-4 text-success font-medium" role="status">
         Terima kasih. Feedback tersimpan.
       </p>
     );
   return (
-    <form className="mt-8 rounded-2xl border border-[var(--line)] bg-white p-6" onSubmit={submit}>
-      <h2 className="text-xl font-semibold">Apakah hasil ini membantu?</h2>
-      <label className="mt-4 block text-sm font-semibold" htmlFor="feedback-rating">
+    <form className="mt-8 rounded-lg border border-line bg-white p-6 shadow-surface" onSubmit={submit}>
+      <h2 className="font-display text-xl font-semibold text-ink">Apakah hasil ini membantu?</h2>
+      <Label className="mt-4" htmlFor="feedback-rating">
         Rating 1 sampai 5
-      </label>
+      </Label>
       <select
-        className="focus-ring mt-2 min-h-12 w-full rounded-xl border border-[var(--line)] bg-white px-4"
+        className="focus-ring mt-2 min-h-12 w-full rounded-sm border border-line bg-canvas px-4 text-sm text-ink outline-none transition duration-150 ease-out hover:border-lens/50"
         defaultValue=""
         id="feedback-rating"
         name="rating"
@@ -50,27 +53,27 @@ export function ResultFeedbackForm({ token }: { token: string }) {
           </option>
         ))}
       </select>
-      <label className="mt-4 block text-sm font-semibold" htmlFor="feedback-message">
+      <Label className="mt-4" htmlFor="feedback-message">
         Catatan opsional
-      </label>
-      <textarea
-        className="focus-ring mt-2 min-h-28 w-full rounded-xl border border-[var(--line)] p-4"
+      </Label>
+      <Textarea
+        className="mt-2 min-h-28"
         id="feedback-message"
         maxLength={1000}
         name="message"
       />
       {error ? (
-        <p className="mt-3 text-sm text-red-800" role="alert">
+        <p className="mt-3 text-sm text-danger" role="alert">
           Feedback gagal dikirim.
         </p>
       ) : null}
-      <button
-        className="focus-ring mt-4 rounded-xl bg-[var(--foreground)] px-5 py-3 font-semibold text-white disabled:opacity-50"
+      <Button
+        className="mt-4"
         disabled={pending}
         type="submit"
       >
         {pending ? "Mengirim…" : "Kirim feedback"}
-      </button>
+      </Button>
     </form>
   );
 }

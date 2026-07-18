@@ -9,7 +9,7 @@ export default async function SharedPage({ params }: { params: Promise<{ token: 
   return (
     <section className="container-shell py-12 sm:py-16">
       <ResultLoader shared token={token} />
-      <p className="mt-8 text-center text-sm text-[var(--muted)]">
+      <p className="mt-8 text-center text-sm text-ink-muted">
         Tampilan aman dari link berbagi eksplisit. Jawaban mentah dan ID internal tidak disertakan.
       </p>
     </section>

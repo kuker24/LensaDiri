@@ -20,11 +20,11 @@ function PrivateResultLoader({ token }: { token: string }) {
 
   if (failed)
     return (
-      <p className="py-20 text-center text-red-800" role="alert">
+      <p className="py-20 text-center text-danger font-medium" role="alert">
         Hasil tidak ditemukan atau sudah dihapus.
       </p>
     );
-  if (!result) return <p className="py-20 text-center text-[var(--muted)]">Memuat hasil…</p>;
+  if (!result) return <p className="py-20 text-center text-ink-muted">Memuat hasil…</p>;
   return <ResultReport result={result} />;
 }
 
@@ -40,11 +40,11 @@ function SharedResultLoader({ token }: { token: string }) {
 
   if (failed)
     return (
-      <p className="py-20 text-center text-red-800" role="alert">
+      <p className="py-20 text-center text-danger font-medium" role="alert">
         Hasil tidak ditemukan, kedaluwarsa, atau sudah dicabut.
       </p>
     );
-  if (!result) return <p className="py-20 text-center text-[var(--muted)]">Memuat hasil…</p>;
+  if (!result) return <p className="py-20 text-center text-ink-muted">Memuat hasil…</p>;
   return <SharedResultReport result={result} />;
 }
 
