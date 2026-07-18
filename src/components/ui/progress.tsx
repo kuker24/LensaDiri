@@ -5,16 +5,19 @@ export function Progress({
   max = 100,
   label,
   className,
+  "aria-label": ariaLabel,
 }: {
   value: number;
   max?: number;
   label?: string;
   className?: string;
+  "aria-label"?: string;
 }) {
   const percent = Math.min(100, Math.max(0, (value / max) * 100));
   return (
     <div className={cn("w-full", className)}>
       <div
+        aria-label={ariaLabel}
         aria-valuemax={max}
         aria-valuemin={0}
         aria-valuenow={Math.round(value)}

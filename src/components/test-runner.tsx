@@ -18,6 +18,8 @@ import type {
   ClarifierQuestion,
   ClarifierSessionView,
 } from "@/server/repositories/assessment";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 
 const labels = ["Sangat tidak sesuai", "Tidak sesuai", "Netral", "Sesuai", "Sangat sesuai"];
 
@@ -31,20 +33,21 @@ function LikertSelector({
   onAnswer: (value: number) => void;
 }) {
   return (
-    <fieldset className="mt-8 grid gap-3">
+    <fieldset className="mt-8 grid gap-2.5">
       <legend className="sr-only">Pilih tingkat kesesuaian</legend>
       {labels.map((label, itemIndex) => {
         const value = itemIndex + 1;
+        const selected = answer === value;
         return (
           <button
-            aria-pressed={answer === value}
-            className="focus-ring min-h-12 rounded-xl border border-[var(--line)] px-4 text-left font-medium hover:border-violet-400 aria-pressed:border-violet-700 aria-pressed:bg-violet-50"
+            aria-pressed={selected}
+            className="focus-ring group flex min-h-14 items-center rounded-md border border-line px-4 text-left font-medium text-ink transition-colors duration-150 ease-out hover:border-lens hover:bg-lens-soft/40 aria-pressed:border-lens aria-pressed:bg-lens-soft"
             disabled={disabled}
             key={label}
             onClick={() => onAnswer(value)}
             type="button"
           >
-            <span className="mr-3 inline-grid h-7 w-7 place-items-center rounded-full bg-violet-100 text-sm text-violet-800">
+            <span className="tabular-nums mr-3.5 inline-grid h-7 w-7 shrink-0 place-items-center rounded-full border border-line bg-canvas text-sm text-ink-muted transition-colors duration-150 ease-out group-aria-pressed:border-lens group-aria-pressed:bg-lens group-aria-pressed:text-canvas">
               {value}
             </span>
             {label}
@@ -114,79 +117,64 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
   return (
     <section className="container-shell py-10 sm:py-16">
       <div className="mx-auto max-w-3xl">
-        <div className="rounded-2xl border border-amber-200 bg-amber-50 p-5 text-amber-950">
-          <h1 className="text-xl font-semibold">Perjelas pola yang masih berdekatan</h1>
-          <p className="mt-2 text-sm leading-6">
+        <div className="rounded-md border border-line bg-aperture-soft p-5 text-ink">
+          <h1 className="font-display text-xl font-semibold">Perjelas pola yang masih berdekatan</h1>
+          <p className="mt-2 text-sm leading-6 text-ink-muted">
             Tambahan singkat ini membantu confidence. Kamu boleh melewatinya; hasil tetap tersedia
             dengan catatan kualitas.
           </p>
         </div>
-        <div className="mt-6 flex items-center justify-between gap-4 text-sm text-[var(--muted)]">
-          <span>
+        <div className="mt-6 flex items-center justify-between gap-4 text-sm text-ink-muted">
+          <span className="tabular-nums">
             Clarifier {index + 1} dari {clarifier.totalCount}
           </span>
-          <span>{answeredCount} tersimpan</span>
+          <span className="tabular-nums">{answeredCount} tersimpan</span>
         </div>
-        <div
-          aria-label="Progres clarifier"
-          aria-valuemax={clarifier.totalCount}
-          aria-valuemin={0}
-          aria-valuenow={answeredCount}
-          className="mt-3 h-2 overflow-hidden rounded-full bg-violet-100"
-          role="progressbar"
-        >
-          <div
-            className="h-full bg-violet-700 transition-[width]"
-            style={{ width: `${(answeredCount / clarifier.totalCount) * 100}%` }}
-          />
-        </div>
-        <article className="mt-8 rounded-3xl border border-[var(--line)] bg-white p-6 shadow-[var(--shadow)] sm:p-10">
-          <p className="text-sm font-semibold text-violet-700 capitalize">
+        <Progress className="mt-3" max={clarifier.totalCount} value={answeredCount} />
+        <article className="mt-8 rounded-lg border border-line bg-white p-6 shadow-surface sm:p-10">
+          <p className="text-sm font-semibold text-lens capitalize">
             {question.moduleKey.replaceAll("_", " ")}
           </p>
-          <h2 className="mt-3 text-2xl leading-tight font-semibold sm:text-3xl">{question.text}</h2>
+          <h2 className="font-display mt-3 text-2xl leading-tight font-semibold sm:text-3xl">
+            {question.text}
+          </h2>
           <LikertSelector answer={question.answer} disabled={pending} onAnswer={answer} />
           {error ? (
-            <p className="mt-4 text-sm text-red-800" role="alert">
+            <p className="mt-4 text-sm text-danger" role="alert">
               {error}
             </p>
           ) : null}
           <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
-            <button
-              className="focus-ring rounded-xl border border-[var(--line)] px-4 py-3 font-semibold disabled:opacity-40"
+            <Button
               disabled={index === 0 || pending}
               onClick={() => setIndex(index - 1)}
               type="button"
+              variant="secondary"
             >
               Kembali
-            </button>
+            </Button>
             <div className="flex flex-wrap gap-3">
-              <button
-                className="focus-ring rounded-xl border border-[var(--line)] px-4 py-3 font-semibold disabled:opacity-40"
+              <Button
                 disabled={pending}
                 onClick={() => resolve("skip")}
                 type="button"
+                variant="secondary"
               >
                 Lewati clarifier
-              </button>
+              </Button>
               {answeredCount === clarifier.totalCount ? (
-                <button
-                  className="focus-ring rounded-xl bg-[var(--foreground)] px-5 py-3 font-semibold text-white disabled:opacity-50"
-                  disabled={pending}
-                  onClick={() => resolve("complete")}
-                  type="button"
-                >
+                <Button disabled={pending} onClick={() => resolve("complete")} type="button">
                   Lihat hasil
-                </button>
+                </Button>
               ) : (
-                <button
-                  className="focus-ring rounded-xl border border-[var(--line)] px-4 py-3 font-semibold disabled:opacity-40"
+                <Button
                   disabled={index === clarifier.totalCount - 1 || pending}
                   onClick={() => setIndex(index + 1)}
                   type="button"
+                  variant="secondary"
                 >
                   Berikutnya
-                </button>
+                </Button>
               )}
             </div>
           </div>
@@ -308,121 +296,106 @@ export function TestRunner({ token }: { token: string }) {
   if (clarifier) return <ClarifierRunner clarifier={clarifier} token={token} />;
   if (error && !session) {
     return (
-      <p className="mx-auto max-w-xl py-20 text-center text-red-800" role="alert">
+      <p className="mx-auto max-w-xl py-20 text-center text-danger" role="alert">
         {error}
       </p>
     );
   }
   if (!session || !question) {
-    return <p className="py-20 text-center text-[var(--muted)]">Memuat assessment…</p>;
+    return <p className="py-20 text-center text-ink-muted">Memuat assessment…</p>;
   }
 
   const modular = session.isModular;
   return (
     <section className="container-shell py-10 sm:py-16">
       <div className="mx-auto max-w-3xl">
-        <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-[var(--muted)]">
-          <span>
+        <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-ink-muted">
+          <span className="tabular-nums">
             Pertanyaan {index + 1} dari {session.totalCount}
           </span>
-          <span aria-live="polite">
+          <span aria-live="polite" className="tabular-nums">
             {saveStatus === "saving" ? "Menyimpan…" : `${answeredCount} tersimpan`}
           </span>
         </div>
-        <div
+        <Progress
           aria-label="Progres assessment"
-          aria-valuemax={session.totalCount}
-          aria-valuemin={0}
-          aria-valuenow={answeredCount}
-          className="mt-3 h-2 overflow-hidden rounded-full bg-violet-100"
-          role="progressbar"
-        >
-          <div
-            className="h-full bg-violet-700 transition-[width]"
-            style={{ width: `${(answeredCount / session.totalCount) * 100}%` }}
-          />
-        </div>
+          className="mt-3"
+          max={session.totalCount}
+          value={answeredCount}
+        />
         {modular && question.segmentIndex ? (
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-xl bg-white/70 px-4 py-3 text-sm">
-            <span>
+          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-md border border-line bg-white/70 px-4 py-3 text-sm">
+            <span className="tabular-nums">
               Bagian {question.segmentIndex} dari {session.segmentCount ?? 1} · {segmentAnswered}/
               {segmentQuestions.length} terjawab
             </span>
             {session.status !== "paused" ? (
-              <button
-                className="focus-ring rounded-lg border border-[var(--line)] bg-white px-3 py-2 font-semibold disabled:opacity-50"
+              <Button
                 disabled={pending}
                 onClick={togglePause}
+                size="sm"
                 type="button"
+                variant="secondary"
               >
                 Jeda sesi
-              </button>
+              </Button>
             ) : null}
           </div>
         ) : null}
         {session.status === "paused" ? (
-          <div className="mt-8 rounded-2xl border border-violet-200 bg-violet-50 p-6 text-center">
-            <h1 className="text-xl font-semibold">Sesi dijeda</h1>
-            <p className="mt-2 text-sm leading-6 text-[var(--muted)]">
+          <div className="mt-8 rounded-lg border border-lens-soft bg-lens-soft p-6 text-center">
+            <h1 className="font-display text-xl font-semibold text-ink">Sesi dijeda</h1>
+            <p className="mt-2 text-sm leading-6 text-ink-muted">
               Progres tersimpan. Lanjutkan saat kamu siap.
             </p>
-            <button
-              className="focus-ring mt-5 min-h-12 rounded-xl bg-[var(--foreground)] px-5 font-semibold text-white"
-              onClick={togglePause}
-              type="button"
-            >
+            <Button className="mt-5" onClick={togglePause} type="button">
               Lanjutkan sesi
-            </button>
+            </Button>
           </div>
         ) : (
-          <article className="mt-8 rounded-3xl border border-[var(--line)] bg-white p-6 shadow-[var(--shadow)] sm:p-10">
+          <article className="mt-8 rounded-lg border border-line bg-white p-6 shadow-surface sm:p-10">
             {modular ? (
-              <p className="text-sm font-semibold text-violet-700 capitalize">
+              <p className="text-sm font-semibold text-lens capitalize">
                 {(question.moduleKey ?? "").replaceAll("_", " ")}
               </p>
             ) : null}
-            <h1 className="mt-3 text-2xl leading-tight font-semibold sm:text-3xl">
+            <h1 className="font-display mt-3 text-2xl leading-tight font-semibold sm:text-3xl">
               {question.text}
             </h1>
             <LikertSelector answer={question.answer} disabled={pending} onAnswer={answer} />
             {error ? (
-              <p className="mt-4 text-sm text-red-800" role="alert">
+              <p className="mt-4 text-sm text-danger" role="alert">
                 {error}
               </p>
             ) : null}
             <div className="mt-8 flex items-center justify-between gap-3">
-              <button
-                className="focus-ring rounded-xl border border-[var(--line)] px-4 py-3 font-semibold disabled:opacity-40"
+              <Button
                 disabled={index === 0 || pending}
                 onClick={() => {
                   setIndex(index - 1);
                   setStartedAt(Date.now());
                 }}
                 type="button"
+                variant="secondary"
               >
                 Kembali
-              </button>
+              </Button>
               {answeredCount === session.totalCount ? (
-                <button
-                  className="focus-ring rounded-xl bg-[var(--foreground)] px-5 py-3 font-semibold text-white disabled:opacity-50"
-                  disabled={pending}
-                  onClick={finish}
-                  type="button"
-                >
+                <Button disabled={pending} onClick={finish} type="button">
                   Lihat hasil
-                </button>
+                </Button>
               ) : (
-                <button
-                  className="focus-ring rounded-xl border border-[var(--line)] px-4 py-3 font-semibold disabled:opacity-40"
+                <Button
                   disabled={index === session.totalCount - 1 || pending}
                   onClick={() => {
                     setIndex(index + 1);
                     setStartedAt(Date.now());
                   }}
                   type="button"
+                  variant="secondary"
                 >
                   Berikutnya
-                </button>
+                </Button>
               )}
             </div>
           </article>
