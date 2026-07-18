@@ -57,7 +57,7 @@ with item_bank(construct_key, item_code, public_text, polarity, item_order, cons
     ('gut', 'TC_G02', 'Melindungi diri dan orang yang kusayangi adalah prioritas.', 1, 2, 3),
     ('gut', 'TC_G03', 'Aku lebih nyaman ketika punya kontrol atas situasi.', 1, 3, 3),
     ('gut', 'TC_G04', 'Aku tidak ragu mengambil keputusan tegas bila perlu.', 1, 4, 3),
-    ('gut', 'TC_G05', 'Insting dan firasat sering mempengaruhi tindakanku.', 1, 5, 3),
+    ('gut', 'TC_G05', 'Insting dan firasat sering memengaruhi tindakanku.', 1, 5, 3),
     ('gut', 'TC_G06', 'Aku lebih suka bertindak daripada terlalu banyak berpikir.', 1, 6, 3),
     ('gut', 'TC_G07', 'Keberanian untuk menghadapi tantangan adalah nilai penting.', 1, 7, 3)
 )
@@ -144,14 +144,14 @@ with item_bank(construct_key, item_code, public_text, polarity, item_order, cons
     ('self_preservation', 'INST_SP03', 'Aku cenderung berhati-hati dengan kesehatan dan kesejahteraan.', 1, 3, 1),
     ('self_preservation', 'INST_SP04', 'Persiapan dan perencanaan memberi rasa aman.', 1, 4, 1),
     ('self_preservation', 'INST_SP05', 'Aku lebih suka lingkungan yang stabil dan dapat diprediksi.', 1, 5, 1),
-    ('self_preservation', 'INST_SP06', 'Menjaga keberlanjutan hidup lebih penting dari pada bersenang-senang.', 1, 6, 1),
+    ('self_preservation', 'INST_SP06', 'Menjaga keberlanjutan hidup lebih penting daripada kesenangan sesaat.', 1, 6, 1),
     ('social', 'INST_SO01', 'Posisi dan reputasi dalam kelompok sangat berarti bagiku.', 1, 1, 2),
     ('social', 'INST_SO02', 'Aku merasa perlu berkontribusi agar diterima dalam kelompok.', 1, 2, 2),
-    ('social', 'INST_SO03', 'Status sosial mempengaruhi kepercayaan diriku.', 1, 3, 2),
+    ('social', 'INST_SO03', 'Posisiku dalam kelompok memengaruhi kepercayaan diriku.', 1, 3, 2),
     ('social', 'INST_SO04', 'Aku berusaha menjaga hubungan baik dengan banyak orang.', 1, 4, 2),
     ('social', 'INST_SO05', 'Pendapat dan dukungan dari kelompok penting bagiku.', 1, 5, 2),
     ('social', 'INST_SO06', 'Aku ingin merasa menjadi bagian dari komunitas.', 1, 6, 2),
-    ('one_to_one', 'INST_O201', 'Kedekatan dengan satu orang terdekat lebih berarti dari pada lingkaran sosial yang luas.', 1, 1, 3),
+    ('one_to_one', 'INST_O201', 'Kedekatan dengan satu orang terdekat lebih berarti daripada lingkaran sosial yang luas.', 1, 1, 3),
     ('one_to_one', 'INST_O202', 'Aku sangat memperhatikan satu orang yang sangat aku sayangi.', 1, 2, 3),
     ('one_to_one', 'INST_O203', 'Hubungan intim yang mendalam adalah prioritas utama.', 1, 3, 3),
     ('one_to_one', 'INST_O204', 'Aku lebih suka waktu berkualitas dengan satu orang terdekat daripada kelompok besar.', 1, 4, 3),
@@ -253,17 +253,17 @@ with item_bank(construct_key, item_code, public_text, polarity, item_order, cons
     ('investigative', 'RIAS_I06', 'Aku lebih suka bekerja dengan ide daripada orang.', 1, 6, 2),
     ('artistic', 'RIAS_A01', 'Ekspresi kreatif sangat penting dalam hidupku.', 1, 1, 3),
     ('artistic', 'RIAS_A02', 'Aku menikmati kebebasan dalam cara menyelesaikan pekerjaan.', 1, 2, 3),
-    ('artistic', 'RIAS_A03', 'Estetika dan keindahan mempengaruhi pilihanku.', 1, 3, 3),
+    ('artistic', 'RIAS_A03', 'Estetika dan keindahan memengaruhi pilihanku.', 1, 3, 3),
     ('artistic', 'RIAS_A04', 'Aku lebih suka pekerjaan yang tidak terstruktur secara ketat.', 1, 4, 3),
     ('artistic', 'RIAS_A05', 'Seni dan desain memberi inspirasi bagiku.', 1, 5, 3),
     ('artistic', 'RIAS_A06', 'Aku suka menciptakan sesuatu yang baru dan berbeda.', 1, 6, 3),
     ('social', 'RIAS_S01', 'Membantu orang lain memberi kepuasan bagiku.', 1, 1, 4),
     ('social', 'RIAS_S02', 'Aku menikmati interaksi dengan banyak orang setiap hari.', 1, 2, 4),
-    ('social', 'RIAS_S03', 'Mengajarkan dan membimbing orang lain memang bermakna.', 1, 3, 4),
+    ('social', 'RIAS_S03', 'Mengajar dan membimbing orang lain terasa bermakna bagiku.', 1, 3, 4),
     ('social', 'RIAS_S04', 'Aku peka terhadap kebutuhan orang lain.', 1, 4, 4),
     ('social', 'RIAS_S05', 'Pekerjaan yang melibatkan layanan sosial menarik.', 1, 5, 4),
     ('social', 'RIAS_S06', 'Aku lebih suka bekerja dalam tim daripada sendiri.', 1, 6, 4),
-    ('enterprising', 'RIAS_E01', 'Memimpin dan mempengaruhi orang lain menjadi kekuatan alami bagiku.', 1, 1, 5),
+    ('enterprising', 'RIAS_E01', 'Memimpin dan mengajak orang lain menuju tujuan bersama terasa alami bagiku.', 1, 1, 5),
     ('enterprising', 'RIAS_E02', 'Target yang menantang memberi semangat.', 1, 2, 5),
     ('enterprising', 'RIAS_E03', 'Aku mampu meyakinkan dan membujuk orang dengan mudah.', 1, 3, 5),
     ('enterprising', 'RIAS_E04', 'Bisnis dan kewirausahaan menarik bagiku.', 1, 4, 5),
@@ -334,7 +334,7 @@ on conflict do nothing;
 with dimension_data(construct_key, label, description, minimum_coverage) as (
   values
     ('secure', 'Secure', 'Merasa nyaman dengan kedekatan dan percaya pada pasangan.', 4),
-    ('anxious', 'Anxious', 'Merasa tidak pasti dan butuh validasi konstan dalam relasi.', 4),
+    ('anxious', 'Anxious', 'Merasa tidak pasti dan sering membutuhkan kepastian dalam relasi.', 4),
     ('avoidant', 'Avoidant', 'Merasa perlu menjaga jarak dan mandiri dalam relasi.', 4),
     ('fearful', 'Fearful', 'Merasa takut dan menghindari keintiman karena pengalaman lalu.', 4)
 )
@@ -362,13 +362,13 @@ with item_bank(construct_key, item_code, public_text, polarity, item_order, cons
     ('secure', 'ATT_S05', 'Aku tidak merasa cemas ketika pasangan butuh ruang sendiri.', 1, 5, 1),
     ('secure', 'ATT_S06', 'Hubungan yang sehat dan saling menghormati penting.', 1, 6, 1),
     ('secure', 'ATT_S07', 'Aku bisa menjadi mandiri tanpa merasa cemas.', 1, 7, 1),
-    ('secure', 'ATT_S08', 'Aku merasa nyaman baik mendekati maupun dijauhi.', 1, 8, 1),
+    ('secure', 'ATT_S08', 'Aku nyaman menjaga kedekatan sekaligus memberi ruang dalam hubungan.', 1, 8, 1),
     ('anxious', 'ATT_A01', 'Aku sering khawatir pasangan tidak benar-benar mencintaiku.', 1, 1, 2),
-    ('anxious', 'ATT_A02', 'Aku butuh validasi konstan untuk merasa aman dalam relasi.', 1, 2, 2),
+    ('anxious', 'ATT_A02', 'Aku sering membutuhkan kepastian dari pasangan untuk merasa aman dalam relasi.', 1, 2, 2),
     ('anxious', 'ATT_A03', 'Aku sering merasa tidak pasti tentang status hubungan.', 1, 3, 2),
-    ('anxious', 'ATT_A04', 'Ketakutan ditinggalkan sering mempengaruhi perilakuku.', 1, 4, 2),
+    ('anxious', 'ATT_A04', 'Kekhawatiran akan ditinggalkan sering memengaruhi perilakuku.', 1, 4, 2),
     ('anxious', 'ATT_A05', 'Aku bisa menjadi sangat cemas jika pasangan tidak merespons.', 1, 5, 2),
-    ('anxious', 'ATT_A06', 'Aku ingin pasangan selalu tersedia untukku.', 1, 6, 2),
+    ('anxious', 'ATT_A06', 'Aku berharap pasangan mudah dihubungi ketika aku membutuhkan dukungan.', 1, 6, 2),
     ('anxious', 'ATT_A07', 'Aku sering mengkhawatirkan hal-hal yang mungkin terjadi.', 1, 7, 2),
     ('anxious', 'ATT_A08', 'Perasaan tidak aman sering muncul dalam hubungan.', 1, 8, 2),
     ('avoidant', 'ATT_AV01', 'Aku lebih nyaman menjaga jarak emosional dalam relasi.', 1, 1, 3),
@@ -380,11 +380,11 @@ with item_bank(construct_key, item_code, public_text, polarity, item_order, cons
     ('avoidant', 'ATT_AV07', 'Menunjukkan kelemahan terasa sulit bagiku.', 1, 7, 3),
     ('avoidant', 'ATT_AV08', 'Aku lebih memilih tidak terlalu dekat dengan orang lain.', 1, 8, 3),
     ('fearful', 'ATT_F01', 'Aku takut akan penolakan sehingga menghindari keintiman.', 1, 1, 4),
-    ('fearful', 'ATT_F02', 'Pengalaman masa lalu mempengaruhi cara berelasi.', 1, 2, 4),
+    ('fearful', 'ATT_F02', 'Pengalaman relasi sebelumnya memengaruhi caraku membangun kedekatan.', 1, 2, 4),
     ('fearful', 'ATT_F03', 'Aku ingin dekat tetapi juga takut terluka.', 1, 3, 4),
     ('fearful', 'ATT_F04', 'Sulit dipercaya orang setelah ada yang menyakiti.', 1, 4, 4),
     ('fearful', 'ATT_F05', 'Aku menghindari hubungan karena takut terluka.', 1, 5, 4),
-    ('fearful', 'ATT_F06', 'Trauma masa lalu masih mempengaruhi hubungan saat ini.', 1, 6, 4),
+    ('fearful', 'ATT_F06', 'Pengalaman relasi yang menyakitkan masih memengaruhi hubunganku saat ini.', 1, 6, 4),
     ('fearful', 'ATT_F07', 'Aku merasa tidak layak untuk dicintai.', 1, 7, 4),
     ('fearful', 'ATT_F08', 'Hubungan serius menakutkan karena ada kemungkinan terluka.', 1, 8, 4)
 )
@@ -470,8 +470,8 @@ with item_bank(construct_key, item_code, public_text, polarity, item_order, cons
     ('emotion', 'PSY_E01', 'Pengalaman emosional adalah sumber makna terbesarku.', 1, 1, 1),
     ('emotion', 'PSY_E02', 'Perasaan sering memimpin keputusan hidupku.', 1, 2, 1),
     ('emotion', 'PSY_E03', 'Aku menyadari emosi diri sendiri dengan baik.', 1, 3, 1),
-    ('emotion', 'PSY_E04', 'Seni dan musik sangat mempengaruhi diriku.', 1, 4, 1),
-    ('emotion', 'PSY_E05', 'Intuisi dan perasaan lebih akurat daripada logika.', 1, 5, 1),
+    ('emotion', 'PSY_E04', 'Seni dan musik sangat memengaruhi suasana batinku.', 1, 4, 1),
+    ('emotion', 'PSY_E05', 'Aku lebih sering mengandalkan intuisi dan perasaan daripada analisis logis.', 1, 5, 1),
     ('emotion', 'PSY_E06', 'Emosi adalah aspek paling penting dari keberadaan.', 1, 6, 1),
     ('will', 'PSY_W01', 'Kehendak dan tekad adalah kekuatan utamaku.', 1, 1, 2),
     ('will', 'PSY_W02', 'Aku tidak menyerah mudah pada rintangan.', 1, 2, 2),
@@ -625,6 +625,30 @@ where module_versions.version = '1.0.0' and modules.key = 'socionics_communicati
     select 1 from public.question_dimension_mappings
     where question_dimension_mappings.question_id = questions.id
       and question_dimension_mappings.dimension_id = questions.dimension_id
+  );
+
+-- Keep the Indonesian source text in the versioned translation workflow.
+-- Translation rows remain draft and therefore cannot satisfy the publication gate yet.
+insert into public.question_translations (
+  question_id, locale, public_text, review_status
+)
+select questions.id, 'id', questions.public_text, 'draft'
+from public.questions
+inner join public.module_versions on module_versions.id = questions.module_version_id
+inner join public.modules on modules.id = module_versions.module_id
+where module_versions.version = '1.0.0'
+  and modules.key in (
+    'three_center',
+    'instinct',
+    'riasec',
+    'attachment',
+    'psychosophy',
+    'socionics_communication'
+  )
+  and not exists (
+    select 1 from public.question_translations
+    where question_translations.question_id = questions.id
+      and question_translations.locale = 'id'
   );
 
 -- Note: All these modules remain DEFERRED_WITH_REASON in the catalog.

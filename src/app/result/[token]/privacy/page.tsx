@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getCurrentSession } from "@/server/current-session";
-import { getResultByHash } from "@/server/repositories/assessment";
+import { getPrivateResultByToken } from "@/server/services/assessment";
 import { Button } from "@/components/ui/button";
 
 export default async function ResultPrivacyPage({
@@ -15,7 +15,7 @@ export default async function ResultPrivacyPage({
   if (!session) redirect("/login");
   const { token } = await params;
 
-  const result = await getResultByHash(token);
+  const result = await getPrivateResultByToken(token);
   if (!result) {
     return notFound();
   }
@@ -43,13 +43,16 @@ export default async function ResultPrivacyPage({
         <h2 className="text-lg font-semibold">Status data</h2>
         <ul className="mt-3 space-y-2 text-sm">
           <li>
-            <strong>Terenskripsi:</strong>{" "}
-            <span className="text-ink-muted">Data disimpan terenskripsi pada database.</span>
+            <strong>Token akses:</strong>{" "}
+            <span className="text-ink-muted">
+              Token hasil disimpan sebagai hash dan tidak disimpan dalam bentuk mentah.
+            </span>
           </li>
           <li>
-            <strong>Ownership:</strong>{" "}
+            <strong>Akses privat:</strong>{" "}
             <span className="text-ink-muted">
-              Hanya akunmu yang dapat mengakses data ini melalui token hasil.
+              Hasil hanya dapat dibuka melalui token privat atau link berbagi yang kamu buat secara
+              eksplisit.
             </span>
           </li>
         </ul>

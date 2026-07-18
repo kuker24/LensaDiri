@@ -1,16 +1,10 @@
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
+import { notFound, redirect } from "next/navigation";
 
-export default async function CompletePage() {
-  return (
-    <main className="container-shell py-12 text-center">
-      <h1 className="font-display text-3xl font-semibold">Sesi Lengkap</h1>
-      <p className="text-ink-muted mt-4 mb-8 leading-7">
-        Kamu telah menyelesaikan semua pertanyaan. Hasilmu sedang diproses.
-      </p>
-      <Link href="/dashboard/results">
-        <Button>Lihat Hasil</Button>
-      </Link>
-    </main>
-  );
+import { opaqueTokenSchema } from "@/lib/validation/assessment";
+
+export default async function CompletePage({ params }: { params: Promise<{ token: string }> }) {
+  const { token } = await params;
+  if (!opaqueTokenSchema.safeParse(token).success) notFound();
+
+  redirect(`/test/${token}`);
 }

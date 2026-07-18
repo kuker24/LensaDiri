@@ -24,6 +24,8 @@ Gate aktivasi modular LensaDiri. Migration schema readiness ada di `PRD_V2_MIGRA
 
 `attachment`, `instinct`, `riasec`, `socionics_communication`, `three_center` berstatus `draft`; `psychosophy` berstatus `experimental`. Semua `is_selectable=false`, dikecualikan dari Full Spectrum, estimate, dan komposisi. Tidak boleh diturunkan dari Big Five.
 
+Setiap modul sudah memiliki scoring engine independen (test-covered), draft item bank Bahasa Indonesia yang telah melewati audit bahasa awal non-klinis, dan draft translation rows. Status tetap deferred sampai review bahasa formal, validasi konstruk, review bias, dan pilot testing (n ≥ 50) selesai. Admin publication gate memblokir modul dengan `review_status = 'draft'` pada question atau translation mana pun.
+
 ## Activation gate
 
 Aktivasi modular pada production hanya boleh setelah seluruh kondisi berikut disetujui terpisah:

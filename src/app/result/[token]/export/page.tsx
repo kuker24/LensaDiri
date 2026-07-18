@@ -3,7 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getCurrentSession } from "@/server/current-session";
-import { getResultByHash } from "@/server/repositories/assessment";
+import { getPrivateResultByToken } from "@/server/services/assessment";
 import { Button } from "@/components/ui/button";
 
 export default async function ResultExportPage({ params }: { params: Promise<{ token: string }> }) {
@@ -11,7 +11,7 @@ export default async function ResultExportPage({ params }: { params: Promise<{ t
   if (!session) redirect("/login");
   const { token } = await params;
 
-  const result = await getResultByHash(token);
+  const result = await getPrivateResultByToken(token);
   if (!result) {
     return notFound();
   }

@@ -6,14 +6,14 @@ import { spawnSync } from "node:child_process";
 const projectRoot = resolve(import.meta.dirname, "..");
 const databaseContainer = "supabase_db_lensa-diri";
 const supabaseConfigPath = resolve(projectRoot, "supabase/config.toml");
-const expectedCanonicalHash = "aa6b8d576d65447bf702dbe9bab704efd493517885fc9c4e6c1a4e324ae7c093";
+const expectedCanonicalHash = "b5baf175d1eea4478d7acffe9d4cb00976e95a9510afda2d52d736e693b5c501";
 const expectedCanonicalCounts = {
   modules: 10,
-  module_versions: 5,
-  dimensions: 27,
-  questions: 258,
-  translations: 258,
-  mappings: 258,
+  module_versions: 11,
+  dimensions: 49,
+  questions: 405,
+  translations: 405,
+  mappings: 405,
   combo_presets: 6,
   combo_mappings: 19,
 };

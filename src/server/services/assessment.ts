@@ -2,6 +2,9 @@ import "server-only";
 
 import type { AssessmentSelectionInput } from "@/lib/assessment/catalog";
 import { estimateAssessment } from "@/lib/assessment/estimate";
+import { getServerEnvironment } from "@/lib/db/env";
+import { hashOpaqueToken } from "@/lib/security/tokens";
+import { opaqueTokenSchema } from "@/lib/validation/assessment";
 import {
   composeFromDatabase,
   getMinimumModuleCoverage,
@@ -14,7 +17,11 @@ import {
   listCatalogModules,
   listComboPresets,
 } from "@/server/repositories/catalog";
-import { createAssessmentSession } from "@/server/repositories/assessment";
+import {
+  createAssessmentSession,
+  getResultByHash,
+  type PrivateResultView,
+} from "@/server/repositories/assessment";
 
 export type LegacyStartRequest = Readonly<{
   kind: "legacy";
@@ -44,6 +51,13 @@ export type StartAssessmentResult =
         | "selection_type_mismatch";
       success: false;
     }>;
+
+export async function getPrivateResultByToken(token: string): Promise<PrivateResultView | null> {
+  if (!opaqueTokenSchema.safeParse(token).success) return null;
+
+  const environment = getServerEnvironment();
+  return getResultByHash(hashOpaqueToken(token, environment.tokenHashPepper));
+}
 
 export async function startAssessment(input: {
   accountId: string | null;
