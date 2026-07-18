@@ -1,14 +1,15 @@
 import { NextResponse } from "next/server";
 
 import { apiFailure, apiSuccess, getDatabaseFailureStatus, noStoreHeaders } from "@/server/http";
-import { isFeatureEnabled, listComboPresets } from "@/server/repositories/catalog";
+import { isFeatureEnabled } from "@/server/repositories/catalog";
+import { listComboPresetsFromCache } from "@/server/repositories/catalog-cache";
 
 export const runtime = "nodejs";
 
 export async function GET(): Promise<NextResponse> {
   try {
     const [combos, modularEnabled, complexEnabled] = await Promise.all([
-      listComboPresets(),
+      listComboPresetsFromCache(),
       isFeatureEnabled("FEATURE_MODULAR_COMPOSER"),
       isFeatureEnabled("FEATURE_COMPLEX_MODE"),
     ]);

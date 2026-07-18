@@ -10,17 +10,8 @@ import type {
   ReleaseDisposition,
   SelectableModuleStatus,
 } from "@/lib/assessment/catalog";
-import { unstable_cache } from "next/cache";
-
 import { getDatabase } from "@/lib/db/client";
 import { runDatabaseOperation } from "@/server/database";
-
-// Katalog modul, combo, dan mode profile bersumber dari konten immutable yang
-// hanya berubah lewat migration/seed yang direview manual. Cache runtime ini
-// menghapus query database berulang per request tanpa memicu prerender
-// build-time (halaman katalog tetap force-dynamic, jadi build tidak butuh DB).
-const CATALOG_CACHE_TAG = "catalog";
-const CATALOG_REVALIDATE_SECONDS = 300;
 
 type CatalogModuleRow = {
   availability_reason: string | null;
@@ -102,8 +93,8 @@ function toModule(row: CatalogModuleRow): AssessmentModuleDefinition {
   };
 }
 
-async function listCatalogModulesUncached(
-  includeUnavailable: boolean,
+export async function listCatalogModules(
+  options: Readonly<{ includeUnavailable?: boolean }> = {},
 ): Promise<AssessmentModuleDefinition[]> {
   return runDatabaseOperation(async () => {
     const sql = getDatabase();
@@ -132,7 +123,7 @@ async function listCatalogModulesUncached(
         order by module_versions.published_at desc nulls last, module_versions.created_at desc
         limit 1
       ) as module_versions on true
-      where ${includeUnavailable}
+      where ${options.includeUnavailable ?? false}
         or (
           modules.release_disposition = 'RELEASE_READY'
           and modules.is_selectable
@@ -145,17 +136,6 @@ async function listCatalogModulesUncached(
   });
 }
 
-const listCatalogModulesCached = unstable_cache(listCatalogModulesUncached, ["catalog-modules"], {
-  revalidate: CATALOG_REVALIDATE_SECONDS,
-  tags: [CATALOG_CACHE_TAG],
-});
-
-export async function listCatalogModules(
-  options: Readonly<{ includeUnavailable?: boolean }> = {},
-): Promise<AssessmentModuleDefinition[]> {
-  return listCatalogModulesCached(options.includeUnavailable ?? false);
-}
-
 export async function getCatalogModuleByKey(
   key: string,
 ): Promise<AssessmentModuleDefinition | null> {
@@ -163,7 +143,7 @@ export async function getCatalogModuleByKey(
   return modules.find((module) => module.key === key) ?? null;
 }
 
-async function listAssessmentModeProfilesUncached(): Promise<AssessmentModeProfile[]> {
+export async function listAssessmentModeProfiles(): Promise<AssessmentModeProfile[]> {
   return runDatabaseOperation(async () => {
     const sql = getDatabase();
     const rows = await sql<ModeProfileRow[]>`
@@ -203,14 +183,8 @@ async function listAssessmentModeProfilesUncached(): Promise<AssessmentModeProfi
   });
 }
 
-export const listAssessmentModeProfiles = unstable_cache(
-  listAssessmentModeProfilesUncached,
-  ["catalog-mode-profiles"],
-  { revalidate: CATALOG_REVALIDATE_SECONDS, tags: [CATALOG_CACHE_TAG] },
-);
-
-async function listComboPresetsUncached(
-  includeUnavailable: boolean,
+export async function listComboPresets(
+  options: Readonly<{ includeUnavailable?: boolean }> = {},
 ): Promise<ComboPresetDefinition[]> {
   return runDatabaseOperation(async () => {
     const sql = getDatabase();
@@ -231,7 +205,7 @@ async function listComboPresetsUncached(
       left join public.combo_preset_modules
         on combo_preset_modules.combo_preset_id = combo_presets.id
       left join public.modules on modules.id = combo_preset_modules.module_id
-      where ${includeUnavailable}
+      where ${options.includeUnavailable ?? false}
         or combo_presets.status in ('active', 'pilot', 'published', 'experimental')
       group by combo_presets.id
       order by combo_presets.default_order, combo_presets.key
@@ -246,17 +220,6 @@ async function listComboPresetsUncached(
       status: row.status,
     }));
   });
-}
-
-const listComboPresetsCached = unstable_cache(listComboPresetsUncached, ["catalog-combo-presets"], {
-  revalidate: CATALOG_REVALIDATE_SECONDS,
-  tags: [CATALOG_CACHE_TAG],
-});
-
-export async function listComboPresets(
-  options: Readonly<{ includeUnavailable?: boolean }> = {},
-): Promise<ComboPresetDefinition[]> {
-  return listComboPresetsCached(options.includeUnavailable ?? false);
 }
 
 export async function isFeatureEnabled(key: string): Promise<boolean> {
