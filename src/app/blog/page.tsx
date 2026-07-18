@@ -4,18 +4,18 @@ const articles = [
   {
     title: "Cara membaca confidence tanpa menganggapnya kepastian",
     summary: "Confidence menjelaskan coverage dan konsistensi respons, bukan validasi identitas.",
-    href: "/method",
+    href: "/blog/cara-membaca-confidence-tanpa-menganggapnya-kepastian",
   },
   {
     title: "Mengapa setiap lensa harus punya scoring independen",
     summary:
       "Modularitas yang jujur mencegah label dari satu modul diturunkan secara palsu ke modul lain.",
-    href: "/modules",
+    href: "/blog/mengapa-setiap-lensa-harus-punya-scoring-independen",
   },
   {
     title: "Privasi hasil dan share yang dapat dicabut",
     summary: "Hasil tetap private sampai pengguna membuat link terbatas dengan masa berlaku.",
-    href: "/privacy",
+    href: "/blog/privasi-hasil-dan-share-yang-dapat-dicabut",
   },
 ];
 

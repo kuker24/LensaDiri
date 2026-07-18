@@ -151,14 +151,113 @@ describe("independent module scoring", () => {
         scoringVersion: "trait-profile-unknown-1",
       }),
     ).toThrow("No independent scoring engine for trait_profile@trait-profile-unknown-1");
+    // Verify all 6 newly registered engines resolve and score with compatible answers.
+    const riasecInput = answers(
+      ["realistic", "investigative", "artistic", "social", "enterprising", "conventional"],
+      { realistic: 3, investigative: 4, artistic: 2, social: 3, enterprising: 4, conventional: 3 },
+    );
+    expect(
+      scoreIndependentModule({
+        answers: riasecInput,
+        expectedAnswers: riasecInput.length,
+        moduleKey: "riasec",
+        scoringVersion: "riasec-score-1",
+      }),
+    ).toMatchObject({
+      moduleKey: "riasec",
+      scoringVersion: "riasec-score-1",
+    });
+
+    const instinctInput = answers(["self_preservation", "social", "one_to_one"], {
+      self_preservation: 4,
+      social: 3,
+      one_to_one: 2,
+    });
+    expect(
+      scoreIndependentModule({
+        answers: instinctInput,
+        expectedAnswers: instinctInput.length,
+        moduleKey: "instinct",
+        scoringVersion: "instinct-score-1",
+      }),
+    ).toMatchObject({
+      moduleKey: "instinct",
+      scoringVersion: "instinct-score-1",
+    });
+
+    const threeCenterInput = answers(["head", "heart", "gut"], { head: 3, heart: 4, gut: 2 });
+    expect(
+      scoreIndependentModule({
+        answers: threeCenterInput,
+        expectedAnswers: threeCenterInput.length,
+        moduleKey: "three_center",
+        scoringVersion: "three-center-score-1",
+      }),
+    ).toMatchObject({
+      moduleKey: "three_center",
+      scoringVersion: "three-center-score-1",
+    });
+
+    const attachmentInput = answers(["secure", "anxious", "avoidant", "fearful"], {
+      secure: 4,
+      anxious: 3,
+      avoidant: 2,
+      fearful: 2,
+    });
+    expect(
+      scoreIndependentModule({
+        answers: attachmentInput,
+        expectedAnswers: attachmentInput.length,
+        moduleKey: "attachment",
+        scoringVersion: "attachment-score-1",
+      }),
+    ).toMatchObject({
+      moduleKey: "attachment",
+      scoringVersion: "attachment-score-1",
+    });
+
+    const socionicsInput = answers(["information_processing", "interaction_style"], {
+      information_processing: 4,
+      interaction_style: 3,
+    });
+    expect(
+      scoreIndependentModule({
+        answers: socionicsInput,
+        expectedAnswers: socionicsInput.length,
+        moduleKey: "socionics_communication",
+        scoringVersion: "socionics-score-1",
+      }),
+    ).toMatchObject({
+      moduleKey: "socionics_communication",
+      scoringVersion: "socionics-score-1",
+    });
+
+    const psychosophyInput = answers(["emotion", "will", "logic", "physics"], {
+      emotion: 4,
+      will: 3,
+      logic: 3,
+      physics: 2,
+    });
+    expect(
+      scoreIndependentModule({
+        answers: psychosophyInput,
+        expectedAnswers: psychosophyInput.length,
+        moduleKey: "psychosophy",
+        scoringVersion: "psychosophy-score-1",
+      }),
+    ).toMatchObject({
+      moduleKey: "psychosophy",
+      scoringVersion: "psychosophy-score-1",
+    });
+    // Unknown engine still throws.
     expect(() =>
       scoreIndependentModule({
         answers: type16Input,
         expectedAnswers: type16Input.length,
-        moduleKey: "riasec",
-        scoringVersion: "riasec-score-1",
+        moduleKey: "unknown_module",
+        scoringVersion: "unknown-score-1",
       }),
-    ).toThrow("No independent scoring engine for riasec@riasec-score-1");
+    ).toThrow("No independent scoring engine for unknown_module@unknown-score-1");
   });
 
   it("keeps confidence separate and flags low-quality responses", () => {

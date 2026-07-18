@@ -10,12 +10,12 @@ set
   is_selectable = false,
   release_disposition = 'DEFERRED_WITH_REASON',
   availability_reason = case key
-    when 'three_center' then 'Item bank dan scoring independen belum melewati review construct, bahasa, bias, dan pilot.'
-    when 'instinct' then 'Item bank dan scoring independen belum release-ready; hasil tidak boleh diturunkan dari Enneagram.'
-    when 'socionics_communication' then 'Modul eksperimental belum memiliki content review dan scoring provenance yang cukup untuk publikasi.'
-    when 'riasec' then 'Item minat karier dan report guardrail belum melewati review domain serta pilot.'
-    when 'attachment' then 'Konten sensitif non-klinis memerlukan review keamanan bahasa, usia, dan domain sebelum publikasi.'
-    when 'psychosophy' then 'Modul eksperimental belum memiliki item, scoring, consent khusus, dan report boundary yang release-ready.'
+    when 'three_center' then 'Item draft dan scoring independen belum melewati review konstruk, bahasa, bias, dan pilot.'
+    when 'instinct' then 'Item draft dan scoring independen belum melewati review konstruk, bahasa, bias, dan pilot; hasil tidak diturunkan dari Enneagram.'
+    when 'socionics_communication' then 'Item draft dan scoring independen eksperimental belum melewati review bahasa, konstruk, bias, dan pilot.'
+    when 'riasec' then 'Item draft, report guardrail, dan scoring independen belum melewati review domain, bias, serta pilot.'
+    when 'attachment' then 'Item draft sensitif non-klinis belum melewati review keamanan bahasa, usia, konstruk, bias, dan pilot.'
+    when 'psychosophy' then 'Item draft dan scoring independen eksperimental belum melewati review konstruk, bahasa, bias, consent khusus, dan pilot.'
   end
 where key in (
   'three_center', 'instinct', 'socionics_communication', 'riasec', 'attachment', 'psychosophy'
