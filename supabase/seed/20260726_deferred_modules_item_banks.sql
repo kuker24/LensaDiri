@@ -67,10 +67,10 @@ insert into public.questions (
   clarifier_enabled, exposure_group, sensitivity_level, review_status,
   display_order, status
 )
-select 
-  module_versions.id, 
-  question_dimensions.id, 
-  item_bank.item_code, 
+select
+  module_versions.id,
+  question_dimensions.id,
+  item_bank.item_code,
   item_bank.public_text,
   'Original LensaDiri three_center item ' || item_bank.item_code,
   item_bank.polarity, 1, true,
@@ -164,10 +164,10 @@ insert into public.questions (
   clarifier_enabled, exposure_group, sensitivity_level, review_status,
   display_order, status
 )
-select 
-  module_versions.id, 
-  question_dimensions.id, 
-  item_bank.item_code, 
+select
+  module_versions.id,
+  question_dimensions.id,
+  item_bank.item_code,
   item_bank.public_text,
   'Original LensaDiri instinct item ' || item_bank.item_code,
   item_bank.polarity, 1, true,
@@ -282,10 +282,10 @@ insert into public.questions (
   clarifier_enabled, exposure_group, sensitivity_level, review_status,
   display_order, status
 )
-select 
-  module_versions.id, 
-  question_dimensions.id, 
-  item_bank.item_code, 
+select
+  module_versions.id,
+  question_dimensions.id,
+  item_bank.item_code,
   item_bank.public_text,
   'Original LensaDiri riasec item ' || item_bank.item_code,
   item_bank.polarity, 1, true,
@@ -394,10 +394,10 @@ insert into public.questions (
   clarifier_enabled, exposure_group, sensitivity_level, review_status,
   display_order, status
 )
-select 
-  module_versions.id, 
-  question_dimensions.id, 
-  item_bank.item_code, 
+select
+  module_versions.id,
+  question_dimensions.id,
+  item_bank.item_code,
   item_bank.public_text,
   'Original LensaDiri attachment item ' || item_bank.item_code,
   item_bank.polarity, 1, true,
@@ -498,10 +498,10 @@ insert into public.questions (
   clarifier_enabled, exposure_group, sensitivity_level, review_status,
   display_order, status
 )
-select 
-  module_versions.id, 
-  question_dimensions.id, 
-  item_bank.item_code, 
+select
+  module_versions.id,
+  question_dimensions.id,
+  item_bank.item_code,
   item_bank.public_text,
   'Original LensaDiri psychosophy item ' || item_bank.item_code,
   item_bank.polarity, 1, true,
@@ -592,10 +592,10 @@ insert into public.questions (
   clarifier_enabled, exposure_group, sensitivity_level, review_status,
   display_order, status
 )
-select 
-  module_versions.id, 
-  question_dimensions.id, 
-  item_bank.item_code, 
+select
+  module_versions.id,
+  question_dimensions.id,
+  item_bank.item_code,
   item_bank.public_text,
   'Original LensaDiri socionics item ' || item_bank.item_code,
   item_bank.polarity, 1, true,
