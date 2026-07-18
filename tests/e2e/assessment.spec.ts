@@ -32,6 +32,13 @@ test("modular selection estimates, starts, pauses, resumes, and completes", asyn
   await expect(page).toHaveURL(/\/result\//u);
   await expect(page.getByRole("heading", { name: "16-Type" })).toBeVisible();
   await expect(page.getByText(/Confidence keseluruhan/u)).toBeVisible();
+  // §17.2: session meta with mode, selected lenses, completion date, scoring versions.
+  const sessionMeta = page.getByRole("region", { name: "Ringkasan sesi" });
+  await expect(page.getByRole("heading", { name: "Ringkasan sesi" })).toBeVisible();
+  await expect(sessionMeta.getByRole("term").filter({ hasText: "Mode" })).toBeVisible();
+  await expect(sessionMeta.getByText("Quick", { exact: true })).toBeVisible();
+  await expect(page.getByText(/Versi scoring/u)).toBeVisible();
+  await expect(page.getByText(/type16-score-1/u)).toBeVisible();
 });
 
 test("Quick assessment autosaves, resumes, completes, shares, exports, revokes, and deletes", async ({
@@ -69,6 +76,9 @@ test("Quick assessment autosaves, resumes, completes, shares, exports, revokes, 
   const exportBody = JSON.stringify(await exportResponse.json());
   expect(exportBody).not.toContain("raw_value");
   expect(exportBody).not.toContain("session_id");
+
+  // §17.2: retest control begins a fresh session without deleting this result.
+  await expect(page.getByRole("link", { name: "Tes ulang" })).toHaveAttribute("href", "/start");
 
   await page.getByRole("button", { name: "Buat link berbagi" }).click();
   const sharedLink = page.getByRole("link", { name: /\/shared\//u });

@@ -7,7 +7,7 @@ import { decideClarifier, type ClarifierDecision } from "@/lib/scoring/clarifier
 import { correlateModuleResults } from "@/lib/scoring/correlation";
 import { scoreIndependentModule } from "@/lib/scoring/modules/registry";
 import type { IndependentModuleResult } from "@/lib/scoring/modules/types";
-import type { ModuleScoringAnswer } from "@/lib/scoring/quality";
+import { resolveQualityModelVersion, type ModuleScoringAnswer } from "@/lib/scoring/quality";
 import {
   scoreProfile,
   traitKeys,
@@ -71,6 +71,7 @@ export type ModularResultView = {
     sourceModuleKeys: string[];
   }>;
   createdAt: string;
+  mode: AssessmentMode;
   modules: IndependentModuleResult[];
   quality: { confidence: number; flags: string[] };
   summary: { disclaimer: string; moduleKeys: string[] };
@@ -432,15 +433,17 @@ async function completeModularAssessmentInTransaction(
     {
       composer_version: string;
       content_version: string;
+      quality_model_version: string | null;
       selected_modules_json: unknown;
     }[]
   >`
-    select composer_version, content_version, selected_modules_json
+    select composer_version, content_version, quality_model_version, selected_modules_json
     from public.assessment_blueprints
     where id = ${session.blueprint_id}
     for update
   `;
   if (!blueprint) throw new Error("Blueprint provenance is unavailable.");
+  const qualityModelVersion = resolveQualityModelVersion(blueprint.quality_model_version);
   const lockedModules = parseLockedBlueprintModules(blueprint.selected_modules_json);
 
   const sessionModuleRows = await sql<
@@ -585,6 +588,16 @@ async function completeModularAssessmentInTransaction(
   const baseExpectedCount = expectedRows.reduce((sum, row) => sum + row.itemCount, 0);
   if (baseRows.length !== baseExpectedCount) return null;
 
+  const resolvedRows = await sql<{ module_version_id: string; status: "completed" | "skipped" }[]>`
+    select module_version_id, status
+    from public.result_clarifiers
+    where session_id = ${session.id} and status in ('completed', 'skipped')
+  `;
+  const resolvedVersions = new Set(resolvedRows.map((row) => row.module_version_id));
+  const clarifierStatusByVersion = new Map(
+    resolvedRows.map((row) => [row.module_version_id, row.status]),
+  );
+
   const moduleResults = expectedRows.map((expected) => {
     const moduleAnswers: ModuleScoringAnswer[] = rows
       .filter(
@@ -600,8 +613,21 @@ async function completeModularAssessmentInTransaction(
         value: row.raw_value,
         weight: Number(row.weight),
       }));
+    // Mean server-authoritative item weight for the quality-model factor (§15.4).
+    const itemQualityWeight =
+      moduleAnswers.length === 0
+        ? 1
+        : moduleAnswers.reduce((sum, answer) => sum + answer.weight, 0) / moduleAnswers.length;
     const result = scoreIndependentModule({
       answers: moduleAnswers,
+      context: {
+        clarifier: clarifierStatusByVersion.get(expected.moduleVersionId) ?? "none",
+        itemQualityWeight,
+        modeDepth: session.mode,
+        // Required equals total today, so this stays inert until data adds optionals.
+        optionalItems: { answered: moduleAnswers.length, expected: expected.itemCount },
+        qualityModelVersion,
+      },
       expectedAnswers: expected.itemCount,
       moduleKey: expected.moduleKey,
       scoringVersion: expected.scoringVersion,
@@ -615,12 +641,6 @@ async function completeModularAssessmentInTransaction(
     }
     return { expected, result };
   });
-  const resolvedRows = await sql<{ module_version_id: string; status: "completed" | "skipped" }[]>`
-    select module_version_id, status
-    from public.result_clarifiers
-    where session_id = ${session.id} and status in ('completed', 'skipped')
-  `;
-  const resolvedVersions = new Set(resolvedRows.map((row) => row.module_version_id));
   const clarifierCandidates = moduleResults
     .map(({ expected, result }) => ({ decision: decideClarifier(result), expected }))
     .filter(
@@ -1258,12 +1278,18 @@ async function getPrivateResult(tokenHash: string): Promise<PrivateResultView | 
       id: string;
       quality_json: LegacyResultView["quality"] | ModularResultView["quality"];
       scoring_version: string;
+      session_mode: AssessmentMode;
       summary_json: ProfileSummary | ModularResultView["summary"];
     };
     const resultRows = await sql<StoredResult[]>`
-      select id, scoring_version, summary_json, quality_json, created_at
+      select personality_results.id, personality_results.scoring_version,
+        personality_results.summary_json, personality_results.quality_json,
+        personality_results.created_at, test_sessions.mode as session_mode
       from public.personality_results
-      where result_token_hash = ${tokenHash} and deleted_at is null
+      inner join public.test_sessions
+        on test_sessions.id = personality_results.session_id
+      where personality_results.result_token_hash = ${tokenHash}
+        and personality_results.deleted_at is null
       limit 1
     `;
     const result = resultRows[0];
@@ -1305,12 +1331,18 @@ async function getPrivateResult(tokenHash: string): Promise<PrivateResultView | 
           where result_module_id = ${moduleRow.id}
           order by construct_key, facet_key
         `;
+        // Fail closed on an unknown stored quality model version (§15.4).
+        // Absent (legacy rows) resolves to module-quality-1; the resolved value
+        // is re-attached so the reader is self-describing.
+        const resolvedModelVersion = resolveQualityModelVersion(
+          (moduleRow.quality_json as { qualityModelVersion?: unknown }).qualityModelVersion,
+        );
         modules.push({
           ambiguity: moduleRow.ambiguity_json,
           confidence: Number(moduleRow.confidence),
           evidenceTier: moduleRow.evidence_tier,
           moduleKey: moduleRow.module_key,
-          quality: moduleRow.quality_json,
+          quality: { ...moduleRow.quality_json, qualityModelVersion: resolvedModelVersion },
           scores: scores.map((score) => ({
             confidence: Number(score.confidence),
             constructKey: score.construct_key,
@@ -1357,6 +1389,7 @@ async function getPrivateResult(tokenHash: string): Promise<PrivateResultView | 
         })),
         createdAt: result.created_at.toISOString(),
         kind: "modular",
+        mode: result.session_mode,
         modules,
         quality: result.quality_json as ModularResultView["quality"],
         summary: result.summary_json as ModularResultView["summary"],

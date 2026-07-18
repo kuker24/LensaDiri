@@ -7,7 +7,7 @@ import { scoreTraitProfileModule } from "@/lib/scoring/modules/trait-profile";
 import { scoreType16Module, type Type16ConstructKey } from "@/lib/scoring/modules/type16";
 import type { IndependentModuleResult } from "@/lib/scoring/modules/types";
 import type { TraitKey } from "@/lib/scoring/profile";
-import type { ModuleScoringAnswer } from "@/lib/scoring/quality";
+import type { ModuleScoringAnswer, QualityModelContext } from "@/lib/scoring/quality";
 
 export const independentScoringVersions = {
   enneagram: "enneagram-score-1",
@@ -27,6 +27,7 @@ export function hasIndependentScoringEngine(moduleKey: string, scoringVersion: s
 
 type IndependentScoringInput = {
   readonly answers: readonly ModuleScoringAnswer[];
+  readonly context?: QualityModelContext | undefined;
   readonly expectedAnswers: number;
 };
 
@@ -35,37 +36,45 @@ type IndependentScoringEngine = (input: IndependentScoringInput) => IndependentM
 const independentScoringRegistry = new Map<string, IndependentScoringEngine>([
   [
     "trait_profile@trait-profile-modular-1",
-    ({ answers, expectedAnswers }) =>
-      scoreTraitProfileModule(answers as readonly ModuleScoringAnswer<TraitKey>[], expectedAnswers),
+    ({ answers, context, expectedAnswers }) =>
+      scoreTraitProfileModule(
+        answers as readonly ModuleScoringAnswer<TraitKey>[],
+        expectedAnswers,
+        context,
+      ),
   ],
   [
     "type_16@type16-score-1",
-    ({ answers, expectedAnswers }) =>
+    ({ answers, context, expectedAnswers }) =>
       scoreType16Module(
         answers as readonly ModuleScoringAnswer<Type16ConstructKey>[],
         expectedAnswers,
+        context,
       ),
   ],
   [
     "enneagram@enneagram-score-1",
-    ({ answers, expectedAnswers }) =>
+    ({ answers, context, expectedAnswers }) =>
       scoreEnneagramModule(
         answers as readonly ModuleScoringAnswer<EnneagramConstructKey>[],
         expectedAnswers,
+        context,
       ),
   ],
   [
     "temperament@temperament-score-1",
-    ({ answers, expectedAnswers }) =>
+    ({ answers, context, expectedAnswers }) =>
       scoreTemperamentModule(
         answers as readonly ModuleScoringAnswer<TemperamentConstructKey>[],
         expectedAnswers,
+        context,
       ),
   ],
 ]);
 
 export function scoreIndependentModule(input: {
   readonly answers: readonly ModuleScoringAnswer[];
+  readonly context?: QualityModelContext | undefined;
   readonly expectedAnswers: number;
   readonly moduleKey: string;
   readonly scoringVersion: string;

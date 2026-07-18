@@ -178,13 +178,15 @@ export async function persistModularSession(input: {
       const hash = blueprintHash(input.blueprint);
       const [blueprintRow] = await sql<{ id: string }[]>`
         insert into public.assessment_blueprints (
-          status, composer_version, content_version, mode, selection_type, locale,
+          status, composer_version, content_version, quality_model_version, mode,
+          selection_type, locale,
           selected_modules_json, segment_plan_json, item_count, estimated_minutes,
           segment_count, blueprint_hash, seed_hash, locked_at
         )
         values (
           'locked', ${input.blueprint.composerVersion}, ${input.blueprint.contentVersion},
-          ${input.blueprint.mode}, ${input.blueprint.selectionType}, ${input.blueprint.locale},
+          'module-quality-2', ${input.blueprint.mode}, ${input.blueprint.selectionType},
+          ${input.blueprint.locale},
           ${sql.json(
             input.blueprint.modules.map((moduleAllocation) => ({
               evidenceTier: moduleAllocation.evidenceTier,

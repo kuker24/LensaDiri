@@ -1,4 +1,4 @@
-import type { ModuleScoringAnswer } from "@/lib/scoring/quality";
+import type { ModuleScoringAnswer, QualityModelContext } from "@/lib/scoring/quality";
 import {
   getScoreGap,
   scoreConstructs,
@@ -17,6 +17,7 @@ export type TemperamentConstructKey = (typeof temperamentConstructKeys)[number];
 export function scoreTemperamentModule(
   answers: readonly ModuleScoringAnswer<TemperamentConstructKey>[],
   expectedAnswers: number,
+  context?: QualityModelContext,
 ): IndependentModuleResult<"temperament", TemperamentConstructKey> {
   const scores = scoreConstructs(answers, temperamentConstructKeys);
   const ordered = scores.toSorted((left, right) => right.normalizedScore - left.normalizedScore);
@@ -25,6 +26,7 @@ export function scoreTemperamentModule(
     ambiguity,
     answers,
     constructKeys: temperamentConstructKeys,
+    context,
     expectedAnswers,
   });
   return {

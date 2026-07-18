@@ -1,4 +1,4 @@
-import type { ModuleScoringAnswer } from "@/lib/scoring/quality";
+import type { ModuleScoringAnswer, QualityModelContext } from "@/lib/scoring/quality";
 import {
   getBoundaryAmbiguity,
   scoreConstructs,
@@ -31,6 +31,7 @@ function typeFromScores(
 export function scoreType16Module(
   answers: readonly ModuleScoringAnswer<Type16ConstructKey>[],
   expectedAnswers: number,
+  context?: QualityModelContext,
 ): IndependentModuleResult<"type_16", Type16ConstructKey> {
   const scores = scoreConstructs(answers, type16ConstructKeys);
   const boundaryDistances = scores.map((score) => Math.abs(score.normalizedScore - 50));
@@ -48,6 +49,7 @@ export function scoreType16Module(
     ambiguity,
     answers,
     constructKeys: type16ConstructKeys,
+    context,
     expectedAnswers,
   });
   return {

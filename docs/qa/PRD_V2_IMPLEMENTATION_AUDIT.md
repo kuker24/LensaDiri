@@ -3,98 +3,101 @@
 ## Audit gate
 
 - Canonical contract: `docs/product/PRD_FULL_LensaDiri.md` v2.0.
-- Working branch: `agent/phase-1-foundation`.
-- PR: `https://github.com/kuker24/LensaDiri/pull/3`.
-- Production is excluded. No hosted write, migration, deployment, feature change, merge, credential read, or credential output occurred.
+- Working branch: `agent/prd-v2-final-completion` (dibuat dari `origin/main` `d7b2c40`).
+- Production dikecualikan. Tidak ada hosted write, migration, deployment, feature change, merge, credential read, atau credential output.
+- Bukti verifikasi di dokumen ini berasal dari disposable local Supabase pada branch di atas, bukan snapshot PR lama.
 
 ## Current decision
 
-**Safe modular candidate: locally verified and ready for explicit commits/push. Production rollout: blocked.**
+**Kondisi `main`: KEEP.** Seluruh engineering scope PRD v2 sudah ada di kode dan lulus semua gate lokal. Migration additive dan immutable. Feature flags production tetap default OFF. Legacy Quick 40/Standard 60 tetap baseline production.
 
-Legacy Quick 40/Standard 60 remains the production baseline. The branch candidate has current disposable-local evidence for modular catalog/composer, independent scoring, Full Spectrum, Complex segmented lifecycle, clarifier, dashboard, privacy DTOs, and dormant account-recovery foundation. Feature flags remain default OFF.
+Post-incident audit menyimpulkan tidak ada BLOCKER atau MAJOR pada security, database, atau scoring-correctness. Pekerjaan branch ini mempersempit gap presentasi result modular (§17.1, §17.2 termasuk mode Quick/Normal/Complex), melengkapi faktor confidence versioned (§15.4: contradiction-pair, skipped optional, clarifier completion, item quality weight, mode depth) di bawah `qualityModelVersion`, dan menyegarkan dokumentasi.
 
-Do not merge, run hosted dry-run, migrate, seed, deploy, or activate flags. After push, both GitHub Actions jobs must pass on the candidate SHA.
+**Status rilis:**
 
-## Candidate status
+- Engineering implementation: READY.
+- Production schema parity: PENDING `202607200002` (lihat `PRODUCTION_MIGRATION_MAP.md`, bagian "Pending candidate migration").
+- UI design readiness: READY.
+- Modular production activation: BLOCKED, menunggu penerapan migration `202607200002`, content publication modular, preview/staging terisolasi, monitoring, dan approval terpisah (lihat `MODULAR_RELEASE_READINESS.md`).
 
-| Area                                           | Status                         | Evidence and boundary                                                                                                                                            |
-| ---------------------------------------------- | ------------------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Legacy Quick 40/Standard 60                    | `IMPLEMENTED`                  | Unit, integration, pgTAP, and browser regressions pass. Legacy result readers remain compatible.                                                                 |
-| Four original release modules                  | `FEATURE_FLAGGED`              | Trait Profile, 16-Type, Enneagram, and Temperament use independent versioned item/scoring provenance.                                                            |
-| Additional reflective modules in local catalog | `FEATURE_FLAGGED`              | Engines/content exist locally and Full Spectrum E2E covers them. Product publication remains controlled by catalog status and flags. No formal validation claim. |
-| Catalog/composer                               | `FEATURE_FLAGGED`              | Default-off page/API gates, server-authoritative immutable blueprint, unknown scoring provenance rejected before composition.                                    |
-| Curated preset and Full Spectrum               | `FEATURE_FLAGGED`              | Published pins require complete module mapping and registered scoring engines. Full Spectrum requires Complex and has 135-item/3-segment browser proof.          |
-| Complex lifecycle                              | `FEATURE_FLAGGED`              | Pause, reload, resume, segment transition, completion, and report covered desktop/mobile.                                                                        |
-| Clarifier                                      | `FEATURE_FLAGGED`              | Trigger, autosave, revision, reload, complete, skip, retry identity, low-capacity filtering, and private-only diagnostics covered.                               |
-| Dashboard                                      | `IMPLEMENTED` locally          | Account-scoped session/result navigation, opaque locator, resume, share/revoke/export/delete, ownership and pagination coverage.                                 |
-| Safe share/export DTO                          | `IMPLEMENTED`                  | Explicit allowlist projection excludes diagnostics, timing, raw scores, scoring configuration, IDs, token hashes, clarifier data, and owner data.                |
-| Recovery foundation                            | `IMPLEMENTED` locally, dormant | Hash-only delivered-before-consumed tokens, generic response, expiry, single-use, concurrent safety, session revoke, CSRF, rate limit, RLS. Provider disabled.   |
-| Live email and mandatory verification          | `BLOCKED_EXTERNAL`             | Requires provider/product approval and production configuration. Login does not enforce verification.                                                            |
-| Formal psychometric validation                 | `DEFERRED_WITH_REASON`         | Pilot, expert review, reliability, factor, test-retest, DIF, norming, and technical manual incomplete.                                                           |
-| AI narrative                                   | `DEFERRED_WITH_REASON`         | No approved consent/minimization/provider/fallback runtime. Flag remains OFF.                                                                                    |
-| Formal WCAG certification                      | `DEFERRED_WITH_REASON`         | Internal semantics, keyboard/mobile smoke, focus, labels, reduced motion, and progressbar work exist. External audit incomplete.                                 |
-| Operations                                     | `PARTIAL`                      | Static liveness and deployment docs exist. Monitoring provider, readiness, staging, restore drill, and incident runbook incomplete.                              |
+## Requirement matrix
+
+| Area                                        | PRD     | Status                 | Evidence dan boundary                                                                                                                                                                                                                                                                                        |
+| ------------------------------------------- | ------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Legacy Quick 40/Standard 60                 | §30     | `IMPLEMENTED`          | Unit, integration, pgTAP, dan browser regression lulus. Overlay legacy trait-derived diizinkan §30.3, berlabel legacy, hanya jalur `personality_results`.                                                                                                                                                    |
+| Empat modul release-ready                   | §10-11  | `FEATURE_FLAGGED`      | Trait Profile (`active`), 16-Type, Enneagram, Temperament (`published`) `is_selectable=true`. Engine independen `src/lib/scoring/modules/*.ts`.                                                                                                                                                              |
+| Enam modul deferred                         | §10.3   | `DEFERRED_WITH_REASON` | attachment/instinct/riasec/socionics/three_center `draft`, psychosophy `experimental`. Semua `is_selectable=false`, dikecualikan Full Spectrum.                                                                                                                                                              |
+| Catalog/composer                            | §13     | `FEATURE_FLAGGED`      | Page/API gate default-off, immutable blueprint server-authoritative, provenance mismatch ditolak fail-closed sebelum komposisi.                                                                                                                                                                              |
+| Curated preset dan Full Spectrum            | §11     | `FEATURE_FLAGGED`      | 6 preset published. Full Spectrum hanya modul release-ready, butuh Complex, multi-segment. Browser proof desktop/mobile.                                                                                                                                                                                     |
+| Complex lifecycle                           | §12     | `FEATURE_FLAGGED`      | Pause, reload, resume, segment transition, atomic completion, report. `withTransaction` + `for update` + idempotent guard.                                                                                                                                                                                   |
+| Clarifier                                   | §12.4   | `FEATURE_FLAGGED`      | Trigger, autosave, revisi, reload, complete, skip, retry identity, supplemental tanpa duplikat, private-only diagnostics.                                                                                                                                                                                    |
+| Dashboard                                   | §19.5   | `IMPLEMENTED`          | Session/result account-scoped, opaque locator, resume, share/revoke/export/delete, ownership dan pagination.                                                                                                                                                                                                 |
+| Result per module (§17.1)                   | §17.1   | `IMPLEMENTED`          | name+tier, score, confidence, ambiguity/alternate, penjelasan, strengths, blind spots, practical reflection, limitation note. Dirender penuh.                                                                                                                                                                |
+| Integrated report (§17.2)                   | §17.2   | `IMPLEMENTED`          | Hero, ringkasan sesi (mode Quick/Normal/Complex, lensa terpilih, tanggal selesai, versi scoring), confidence/quality, per-module, correlations, growth 7/30 hari, retest.                                                                                                                                    |
+| Scoring confidence (§15.4)                  | §15.4   | `IMPLEMENTED`          | completion, coverage, reverse consistency, boundary ambiguity, response time, straightlining, contradiction-pair, plus faktor versioned `module-quality-2`: skipped optional, clarifier completion, item quality weight, mode depth. Dispatch version-aware, fail-closed pada unknown, replay deterministic. |
+| Safe share/export DTO                       | §17.4   | `IMPLEMENTED`          | Allowlist eksplisit. Public share hanya disclaimer/evidenceTier/key/name/scores/title. Tidak ada quality, flags, timing, ID, token hash, clarifier.                                                                                                                                                          |
+| Recovery foundation                         | §23     | `IMPLEMENTED` dormant  | Token HMAC delivered-before-consumed, generic response, expiry, single-use, concurrent-safe, session revoke, CSRF, rate limit, forced RLS.                                                                                                                                                                   |
+| Consent dan retention                       | §23.5-7 | `IMPLEMENTED`          | Optional consent default OFF, assessment tidak bergantung optional consent, versioned + withdrawal, trusted cleanup function.                                                                                                                                                                                |
+| Public routes dan legal                     | §19.1   | `IMPLEMENTED`          | `/modules`, `/modules/[key]`, `/combos`, `/about`, `/contact`, `/terms`, `/blog`, `/method`, `/privacy`, `/disclaimer` dengan state lengkap.                                                                                                                                                                 |
+| Operator publication workflow               | §24     | `IMPLEMENTED`          | Server-side SQL functions `transition_question_review`, `publish_module_version`, deny-by-default, immutable, audited. Runbook terpisah.                                                                                                                                                                     |
+| Live email dan mandatory verification       | §23.1   | `BLOCKED_EXTERNAL`     | Butuh provider/product approval dan production config. Login tidak memaksa verifikasi.                                                                                                                                                                                                                       |
+| AI narrative                                | §16     | `DEFERRED_WITH_REASON` | Belum ada consent/minimization/provider/fallback runtime. Flag `FEATURE_AI_NARRATIVE` OFF.                                                                                                                                                                                                                   |
+| Formal psychometric validation              | §25     | `DEFERRED_WITH_REASON` | Pilot, expert review, reliability, factor, test-retest, DIF, norming belum. Tidak diklaim.                                                                                                                                                                                                                   |
+| Formal WCAG certification                   | §26     | `DEFERRED_WITH_REASON` | Internal engineering audit PASS. Sertifikasi pihak ketiga belum.                                                                                                                                                                                                                                             |
+| Monitoring provider, staging, restore drill | §28     | `PARTIAL`              | Runbook dan kontrak ada. Provider eksternal, staging terisolasi, dan restore drill butuh keputusan operator.                                                                                                                                                                                                 |
+
+## Verification evidence
+
+Semua command memakai disposable local Supabase dan test-only values. Tidak ada command destructive atau write menyasar production.
+
+| Gate                             | Hasil                                                                                                                 |
+| -------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| `npm run format:check`           | PASS                                                                                                                  |
+| `npm run lint`                   | PASS                                                                                                                  |
+| `npm run typecheck`              | PASS                                                                                                                  |
+| `npm test`                       | PASS: 14 files, 68 tests                                                                                              |
+| `npm run build`                  | PASS dengan dummy test-only environment                                                                               |
+| `npm audit --audit-level=high`   | PASS: zero vulnerabilities                                                                                            |
+| `npm run db:reset`               | PASS terhadap disposable local Supabase                                                                               |
+| `npm run test:seed-replay`       | PASS: modules 10, module_versions 5, dimensions 27, questions/translations/mappings 258, presets 6, combo_mappings 19 |
+| Canonical seed SHA-256           | `aa6b8d576d65447bf702dbe9bab704efd493517885fc9c4e6c1a4e324ae7c093`                                                    |
+| `npm run test:seed-replay-drift` | PASS: drift ditolak dan dipulihkan                                                                                    |
+| `npm run test:integration`       | PASS: 8 files, 29 tests                                                                                               |
+| `npm run test:db`                | PASS: 236 assertions, 4 files                                                                                         |
+| `npm run test:e2e`               | PASS: 42 tests, desktop Chromium dan Pixel 5 (flags ON di disposable local)                                           |
+| `npm run test:a11y`              | PASS: 28 tests                                                                                                        |
+
+Catatan flags: E2E dan a11y modular mengharuskan `FEATURE_MODULAR_COMPOSER` dan `FEATURE_COMPLEX_MODE` ON di database disposable, persis langkah CI (`.github/workflows/ci.yml`). Flags produksi tetap OFF.
 
 ## Security audit
 
-- Database, repositories, services, scoring, and transport remain server-only.
-- Cookie-authenticated mutations use exact-origin CSRF. Estimate now follows the same mutation contract.
-- Auth, assessment, recovery, dashboard, and result boundaries retain strict validation and rate limits.
-- Passwords remain Argon2id. Session, assessment, result, share, and recovery tokens remain HMAC hashes at rest.
-- Recovery token lifecycle requires successful delivery before use. Undelivered tokens are discarded.
-- Recovery links use URL fragments rather than query parameters.
-- Sensitive tables retain forced RLS, zero browser policies, and zero direct `anon`/`authenticated` privileges.
-- Public shared result is explicit allowlist only. Private quality/clarifier diagnostics remain private.
-- Catalog and preset start paths reject unavailable scoring provenance before a session can become uncompletable.
-- Modular/Complex UI and APIs fail closed while flags are OFF.
-- Test-only transport/rate-limit behavior requires non-production and disposable `TEST_DATABASE_URL`.
-- No production credential was read or printed.
+- Database, repository, service, scoring, dan transport tetap server-only.
+- Cookie-authenticated mutation memakai exact same-origin CSRF plus rate limit di seluruh route mutasi.
+- Password Argon2id. Session, assessment, result, share, dan recovery token HMAC hash at rest.
+- Recovery token single-use, expiry, generic response, session revoke setelah reset, concurrent-consume safe.
+- Tabel sensitif forced RLS, zero browser policy, zero privilege langsung `anon`/`authenticated` (pgTAP).
+- Public shared result allowlist eksplisit. Private quality, confidence, clarifier, timing tetap private.
+- Metadata IP dan user agent hanya disimpan sebagai HMAC fingerprint. Tidak ada `console.*` server, tidak ada raw answer logging.
+- Modular/Complex UI dan API fail closed selama flags OFF.
 
-## Migration readiness
+## Perubahan branch ini
 
-Read-only hosted migration history on 2026-07-16 showed only `202607120001` through `202607130004` applied. Versions `202607130005` through `202607200001` remain local-only.
+- `src/lib/scoring/quality.ts`: contradiction-pair (§15.4), flag `inconsistent_pair`, `contradictionRate`, plus quality model versioned (`qualityModelVersion`, registry `module-quality-1`/`module-quality-2`) dengan faktor skipped optional, clarifier completion, item quality weight, dan mode depth. Semua bounded [0,1], `module-quality-1` byte-identical dengan formula lama. `resolveQualityModelVersion` fail-closed pada unknown. Field private-only, tidak diproyeksikan ke public DTO.
+- `src/lib/scoring/modules/*`: rantai `scoreQuality`/registry/4 engine meneruskan `QualityModelContext` opsional; default kosong = `module-quality-1`.
+- `supabase/migrations/202607200002_quality_model_version.sql`: kolom additive `quality_model_version` pada `assessment_blueprints`, default `module-quality-1`, constraint enum. Tidak masuk blueprint hash (seed-replay stabil).
+- `src/server/repositories/blueprints.ts`: blueprint baru dikunci `module-quality-2`.
+- `src/server/repositories/assessment.ts`: completion path membaca versi blueprint dan mengalirkan faktor per module; `ModularResultView.mode`; reader JOIN `test_sessions.mode` dan fail-closed pada versi tersimpan tak dikenal.
+- `src/components/result-report.tsx`: render mode (§17.2) via `getPublicModeName`, plus ringkasan sesi dan per-module ambiguity/limitation (§17.1) yang sudah ada.
+- Test: unit faktor versioned (arah tiap faktor, regression `module-quality-1`, bounded, replay, fail-closed) dan E2E assertion baris Mode.
 
-`docs/deployment/PRODUCTION_MIGRATION_MAP.md` now records every pending checksum, dependency, data effect, backfill, lock risk, compatibility rule, backup limitation, stop threshold, additive fix-forward path, and post-migration verification contract.
+## Residual scope jujur
 
-Production remains blocked because:
-
-1. candidate commits and GitHub Actions evidence are not yet complete;
-2. linked hosted dry-run requires separate approval;
-3. backup capability or accepted hobby-platform limitation needs operator decision;
-4. production migration, deployment, and feature activation each need separate approval.
-
-## Current verification evidence
-
-| Gate                        | Result                                                                                                    |
-| --------------------------- | --------------------------------------------------------------------------------------------------------- |
-| Format                      | PASS                                                                                                      |
-| Lint                        | PASS                                                                                                      |
-| Typecheck                   | PASS                                                                                                      |
-| Unit                        | PASS: 14 files, 64 tests                                                                                  |
-| Build                       | PASS with dummy test-only environment                                                                     |
-| Dependency audit            | PASS: zero vulnerabilities                                                                                |
-| Disposable reset            | PASS                                                                                                      |
-| Seed replay                 | PASS: modules 10, versions 13, dimensions 64, questions/translations/mappings 642, presets 6, mappings 25 |
-| Canonical hash              | `c3d01263dc56ad7f6434fe7af99d1e6b934e82182aed2c6c2539d5818a4b69f0`                                        |
-| Drift rejection/restoration | PASS                                                                                                      |
-| Upgrade parity              | PASS                                                                                                      |
-| Integration                 | PASS: 8 files, 46 tests                                                                                   |
-| pgTAP                       | PASS: 237 assertions                                                                                      |
-| Playwright                  | PASS: 22/22, 11 desktop Chromium and 11 Pixel 5                                                           |
-| Three clean-reset loops     | PASS with matching counts/hash and all integration/pgTAP/E2E gates                                        |
-| GitHub Actions              | PENDING until push                                                                                        |
-| Production actions          | SKIPPED                                                                                                   |
-
-## Honest residual scope
-
-Current target is a safe modular release candidate, not completion of every roadmap item. Public `/modules`, `/combos`, about/contact/terms/blog pages, broad admin UI, retention automation, optional consent taxonomy, integrated long-form growth plan, monitoring provider, readiness abstraction, restore drill, staging, custom domain, formal psychometric validation, and third-party accessibility certification remain partial, blocked external, or deferred.
-
-These items must not be described as implemented. Their absence does not authorize bypassing migration, CI, privacy, scientific, or feature-flag release gates.
+Monitoring provider eksternal, staging terisolasi, restore drill, custom domain, live email, formal psychometric validation, dan sertifikasi WCAG pihak ketiga tetap partial, blocked external, atau deferred. Hal ini tidak boleh dideskripsikan sebagai implemented dan tidak mengizinkan bypass migration, CI, privacy, scientific, atau feature-flag gate.
 
 ## Next order
 
-1. Review diff and stage explicit candidate paths.
-2. Commit logical source/test and documentation slices.
-3. Push `agent/phase-1-foundation`.
-4. Require `Quality and build` plus `Database and browser tests` PASS on the same SHA.
-5. Stop. Keep PR open and production untouched pending separate approval.
+1. Jalankan seluruh gate lokal dan tiga clean-reset loop.
+2. Commit slice logis source, test, dan dokumentasi.
+3. Push `agent/prd-v2-final-completion`.
+4. Wajibkan `Quality and build` plus `Database and browser tests` PASS pada SHA yang sama.
+5. Buat draft PR. Berhenti. Biarkan production tidak tersentuh sampai approval terpisah.

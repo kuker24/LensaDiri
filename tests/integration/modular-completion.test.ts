@@ -411,4 +411,74 @@ describe("modular completion PostgreSQL lifecycle", () => {
     `;
     expect(stored?.status).toBe("skipped");
   }, 120_000);
+
+  it("pins module-quality-2 on a new blueprint and reads back the version and mode", async () => {
+    const sql = getDatabase();
+    const sessionHash = await startAndAnswer(
+      ["type_16"],
+      (index) => ((index % 5) + 1) as 1 | 2 | 3 | 4 | 5,
+    );
+    const [session] = await sql<{ blueprint_id: string }[]>`
+      select blueprint_id from public.test_sessions where session_token_hash = ${sessionHash}
+    `;
+    const [blueprint] = await sql<{ quality_model_version: string }[]>`
+      select quality_model_version from public.assessment_blueprints where id = ${session!.blueprint_id}
+    `;
+    expect(blueprint?.quality_model_version).toBe("module-quality-2");
+
+    const resultHash = hashOpaqueToken(`qmv2-result-${randomUUID()}`, pepper);
+    await expect(
+      completeAssessment({ resultTokenHash: resultHash, sessionTokenHash: sessionHash }),
+    ).resolves.toEqual({ resultId: expect.any(String) });
+
+    const result = await getResultByHash(resultHash);
+    expect(result?.kind).toBe("modular");
+    if (result?.kind !== "modular") throw new Error("Expected modular result.");
+    // Mode flows through to the private DTO; stored quality carries the version.
+    expect(result.mode).toBe("quick");
+    expect(result.modules[0]?.quality.qualityModelVersion).toBe("module-quality-2");
+  }, 120_000);
+
+  it("completes an existing module-quality-1 blueprint with the legacy formula", async () => {
+    const sql = getDatabase();
+    // A blueprint predating the versioned model: force it back to v1 the way an
+    // already-applied migration backfill leaves historical rows.
+    const sessionHash = await startAndAnswer(
+      ["type_16"],
+      (index) => ((index % 5) + 1) as 1 | 2 | 3 | 4 | 5,
+    );
+    const [session] = await sql<{ blueprint_id: string }[]>`
+      select blueprint_id from public.test_sessions where session_token_hash = ${sessionHash}
+    `;
+    await sql`
+      alter table public.assessment_blueprints disable trigger assessment_blueprints_immutable
+    `;
+    try {
+      await sql`
+        update public.assessment_blueprints
+        set quality_model_version = 'module-quality-1'
+        where id = ${session!.blueprint_id}
+      `;
+    } finally {
+      await sql`
+        alter table public.assessment_blueprints enable trigger assessment_blueprints_immutable
+      `;
+    }
+
+    const resultHash = hashOpaqueToken(`qmv1-result-${randomUUID()}`, pepper);
+    await expect(
+      completeAssessment({ resultTokenHash: resultHash, sessionTokenHash: sessionHash }),
+    ).resolves.toEqual({ resultId: expect.any(String) });
+
+    const result = await getResultByHash(resultHash);
+    expect(result?.kind).toBe("modular");
+    if (result?.kind !== "modular") throw new Error("Expected modular result.");
+    // Legacy path: version stamped v1, and the v2-only contradiction flag never
+    // appears regardless of the responses.
+    for (const moduleResult of result.modules) {
+      expect(moduleResult.quality.qualityModelVersion).toBe("module-quality-1");
+      expect(moduleResult.quality.flags).not.toContain("inconsistent_pair");
+      expect(moduleResult.quality.contradictionRate).toBe(0);
+    }
+  }, 120_000);
 });

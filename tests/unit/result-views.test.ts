@@ -15,6 +15,7 @@ const privateModularResult: PrivateResultView = {
   ],
   createdAt: "2026-07-16T10:00:00.000Z",
   kind: "modular",
+  mode: "standard",
   modules: [
     {
       ambiguity: { level: 0.8, reason: "threshold" },
@@ -25,8 +26,10 @@ const privateModularResult: PrivateResultView = {
         averageResponseTimeMs: 250,
         completion: 1,
         confidence: 0.42,
+        contradictionRate: 0,
         flags: ["too_fast", "straightlining", "low_variance", "reverse_inconsistency"],
         midpointRate: 0.8,
+        qualityModelVersion: "module-quality-1",
         responseVariance: 0,
         uniqueResponses: 1,
       },
@@ -105,6 +108,7 @@ const prohibitedSharedFields = [
   "flags",
   "low_variance",
   "quality",
+  "qualityModelVersion",
   "rawScore",
   "reverse_inconsistency",
   "ruleKey",
