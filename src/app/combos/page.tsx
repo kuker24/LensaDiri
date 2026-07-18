@@ -1,12 +1,18 @@
 import Link from "next/link";
 
 import { getPublicModeName } from "@/lib/assessment/catalog";
-import { listCatalogModules, listComboPresets } from "@/server/repositories/catalog";
+import {
+  listCatalogModulesFromCache,
+  listComboPresetsFromCache,
+} from "@/server/repositories/catalog-cache";
 
 export const dynamic = "force-dynamic";
 
 export default async function CombosPage() {
-  const [combos, modules] = await Promise.all([listComboPresets(), listCatalogModules()]);
+  const [combos, modules] = await Promise.all([
+    listComboPresetsFromCache(),
+    listCatalogModulesFromCache(),
+  ]);
   const names = new Map(modules.map((module) => [module.key, module.publicName]));
 
   return (

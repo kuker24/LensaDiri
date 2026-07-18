@@ -2,14 +2,14 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getPublicModeName, isPubliclyAvailableModule } from "@/lib/assessment/catalog";
-import { getCatalogModuleByKey } from "@/server/repositories/catalog";
+import { getCatalogModuleByKeyFromCache } from "@/server/repositories/catalog-cache";
 import { Badge } from "@/components/ui/badge";
 
 export const dynamic = "force-dynamic";
 
 export default async function ModuleDetailPage({ params }: { params: Promise<{ key: string }> }) {
   const { key } = await params;
-  const catalogModule = await getCatalogModuleByKey(key);
+  const catalogModule = await getCatalogModuleByKeyFromCache(key);
   if (!catalogModule) notFound();
 
   const available = isPubliclyAvailableModule(catalogModule);

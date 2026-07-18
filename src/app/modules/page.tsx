@@ -1,13 +1,13 @@
 import Link from "next/link";
 
 import { isPubliclyAvailableModule } from "@/lib/assessment/catalog";
-import { listCatalogModules } from "@/server/repositories/catalog";
+import { listCatalogModulesFromCache } from "@/server/repositories/catalog-cache";
 import { Badge } from "@/components/ui/badge";
 
 export const dynamic = "force-dynamic";
 
 export default async function ModulesPage() {
-  const modules = await listCatalogModules({ includeUnavailable: true });
+  const modules = await listCatalogModulesFromCache({ includeUnavailable: true });
 
   return (
     <main className="container-shell py-12 sm:py-18">

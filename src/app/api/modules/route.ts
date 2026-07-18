@@ -1,15 +1,18 @@
 import { NextResponse } from "next/server";
 
 import { apiFailure, apiSuccess, getDatabaseFailureStatus, noStoreHeaders } from "@/server/http";
-import { listCatalogModules, listAssessmentModeProfiles } from "@/server/repositories/catalog";
+import {
+  listAssessmentModeProfilesFromCache,
+  listCatalogModulesFromCache,
+} from "@/server/repositories/catalog-cache";
 
 export const runtime = "nodejs";
 
 export async function GET(): Promise<NextResponse> {
   try {
     const [modules, modes] = await Promise.all([
-      listCatalogModules(),
-      listAssessmentModeProfiles(),
+      listCatalogModulesFromCache(),
+      listAssessmentModeProfilesFromCache(),
     ]);
     return NextResponse.json(apiSuccess({ modes, modules }), {
       headers: noStoreHeaders,
