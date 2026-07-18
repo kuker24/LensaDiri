@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 
 import { postAuthenticatedMutation } from "@/lib/auth/client";
+import { Button } from "@/components/ui/button";
 
 export function DashboardOpenButton({ id, kind }: { id: string; kind: "result" | "session" }) {
   const router = useRouter();
@@ -27,16 +28,11 @@ export function DashboardOpenButton({ id, kind }: { id: string; kind: "result" |
 
   return (
     <div>
-      <button
-        className="focus-ring min-h-11 rounded-xl border border-[var(--line)] px-4 font-semibold hover:border-violet-300 hover:text-violet-700 disabled:opacity-50"
-        disabled={pending}
-        onClick={open}
-        type="button"
-      >
+      <Button disabled={pending} onClick={open} type="button" variant="secondary">
         {pending ? "Membuka…" : kind === "session" ? "Lanjutkan" : "Buka dan kelola"}
-      </button>
+      </Button>
       {error ? (
-        <p className="mt-2 text-sm text-red-800" role="alert">
+        <p className="text-danger mt-2 text-sm" role="alert">
           {error}
         </p>
       ) : null}

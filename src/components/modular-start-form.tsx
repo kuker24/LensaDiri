@@ -17,6 +17,10 @@ import {
 } from "@/lib/assessment/client";
 import type { AssessmentEstimate } from "@/lib/assessment/estimate";
 import { saveAssessmentSelection } from "@/lib/assessment/selection-storage";
+import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Skeleton } from "@/components/ui/skeleton";
 
 const tierLabels: Record<string, string> = {
   A: "Evidence A",
@@ -138,10 +142,13 @@ export function ModularStartForm() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-3xl space-y-4 py-16" aria-label="Memuat katalog">
-        <div className="h-8 w-64 animate-pulse rounded-lg bg-violet-100" />
-        <div className="h-36 animate-pulse rounded-2xl bg-white" />
-        <div className="h-36 animate-pulse rounded-2xl bg-white" />
+      <div className="mx-auto max-w-3xl space-y-4 py-16" role="status">
+        <span className="sr-only">Memuat katalog assessment…</span>
+        <div aria-hidden="true" className="space-y-4">
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-36 rounded-lg" />
+          <Skeleton className="h-36 rounded-lg" />
+        </div>
       </div>
     );
   }
@@ -149,11 +156,11 @@ export function ModularStartForm() {
   return (
     <div className="mx-auto max-w-5xl">
       <div className="max-w-3xl">
-        <p className="text-sm font-semibold text-violet-700">Assessment modular</p>
-        <h1 className="mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
+        <p className="text-lens text-sm font-semibold">Assessment modular</p>
+        <h1 className="font-display mt-3 text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
           Pilih lensa yang ingin kamu pahami.
         </h1>
-        <p className="mt-5 max-w-2xl text-lg leading-8 text-[var(--muted)]">
+        <p className="text-ink-muted mt-5 max-w-2xl text-lg leading-8">
           Setiap lensa memakai item dan scoring independen. Hubungan antar-lensa baru dibaca setelah
           skor primer selesai.
         </p>
@@ -162,15 +169,15 @@ export function ModularStartForm() {
       <section className="mt-10" aria-labelledby="module-heading">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-semibold" id="module-heading">
+            <h2 className="font-display text-2xl font-semibold" id="module-heading">
               Lensa tersedia
             </h2>
-            <p className="mt-2 text-[var(--muted)]">Pilih satu atau buat combo sendiri.</p>
+            <p className="text-ink-muted mt-2">Pilih satu atau buat combo sendiri.</p>
           </div>
           <label className="flex items-center gap-3 text-sm font-medium">
             Usia <span className="sr-only">opsional</span>
-            <input
-              className="focus-ring w-24 rounded-xl border border-[var(--line)] bg-white px-3 py-2"
+            <Input
+              className="w-24"
               inputMode="numeric"
               max={99}
               min={13}
@@ -186,23 +193,21 @@ export function ModularStartForm() {
             const selected = selectedKeys.includes(module.key);
             return (
               <label
-                className={`flex cursor-pointer gap-4 rounded-2xl border bg-white p-5 transition focus-within:ring-3 focus-within:ring-violet-200 ${selected ? "border-violet-600 bg-violet-50" : "border-[var(--line)] hover:border-violet-300"}`}
+                className={`focus-within:ring-lens-soft flex cursor-pointer gap-4 rounded-lg border bg-white/90 p-5 shadow-[0_1px_2px_rgb(23_24_44_/_0.04)] transition-[border-color,background-color] duration-150 ease-out focus-within:ring-3 ${selected ? "border-lens bg-lens-soft/60" : "border-line hover:border-lens/50"}`}
                 key={module.key}
               >
                 <input
                   checked={selected}
-                  className="mt-1 h-5 w-5 accent-violet-700"
+                  className="accent-lens mt-1 h-5 w-5"
                   onChange={() => toggleModule(module.key)}
                   type="checkbox"
                 />
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-center gap-2">
                     <span className="text-lg font-semibold">{module.publicName}</span>
-                    <span className="rounded-full bg-violet-100 px-2.5 py-1 text-xs font-semibold text-violet-900">
-                      {tierLabels[module.evidenceTier]}
-                    </span>
+                    <Badge tone="lens">{tierLabels[module.evidenceTier]}</Badge>
                   </span>
-                  <span className="mt-2 block text-sm leading-6 text-[var(--muted)]">
+                  <span className="text-ink-muted mt-2 block text-sm leading-6">
                     {module.description}
                   </span>
                 </span>
@@ -214,20 +219,20 @@ export function ModularStartForm() {
 
       {combos.length > 0 ? (
         <section className="mt-10" aria-labelledby="combo-heading">
-          <h2 className="text-2xl font-semibold" id="combo-heading">
+          <h2 className="font-display text-2xl font-semibold" id="combo-heading">
             Preset combo
           </h2>
           <div className="mt-5 flex flex-wrap gap-4">
             {combos.map((combo) => (
               <button
                 aria-pressed={presetKey === combo.key}
-                className="focus-ring min-w-[min(100%,18rem)] flex-1 rounded-2xl border border-[var(--line)] bg-white p-5 text-left hover:border-violet-300 aria-pressed:border-violet-700 aria-pressed:bg-violet-50"
+                className="focus-ring border-line hover:border-lens/50 aria-pressed:border-lens aria-pressed:bg-lens-soft min-w-[min(100%,18rem)] flex-1 rounded-lg border bg-white/90 p-5 text-left shadow-[0_1px_2px_rgb(23_24_44_/_0.04)] transition-[border-color,background-color] duration-150 ease-out"
                 key={combo.key}
                 onClick={() => selectPreset(combo)}
                 type="button"
               >
                 <span className="font-semibold">{combo.publicName}</span>
-                <span className="mt-2 block text-sm leading-6 text-[var(--muted)]">
+                <span className="text-ink-muted mt-2 block text-sm leading-6">
                   {combo.description}
                 </span>
               </button>
@@ -237,14 +242,14 @@ export function ModularStartForm() {
       ) : null}
 
       <section className="mt-10" aria-labelledby="mode-heading">
-        <h2 className="text-2xl font-semibold" id="mode-heading">
+        <h2 className="font-display text-2xl font-semibold" id="mode-heading">
           Kedalaman
         </h2>
         <div className="mt-5 grid gap-4 sm:grid-cols-3">
           {modes.map((profile) => (
             <button
               aria-pressed={mode === profile.internalMode}
-              className="focus-ring rounded-2xl border border-[var(--line)] bg-white p-5 text-left hover:border-violet-300 disabled:cursor-not-allowed disabled:opacity-50 aria-pressed:border-violet-700 aria-pressed:bg-violet-50"
+              className="focus-ring border-line hover:border-lens/50 aria-pressed:border-lens aria-pressed:bg-lens-soft rounded-lg border bg-white/90 p-5 text-left shadow-[0_1px_2px_rgb(23_24_44_/_0.04)] transition-[border-color,background-color] duration-150 ease-out disabled:cursor-not-allowed disabled:opacity-50"
               disabled={!profile.isSelectable}
               key={profile.internalMode}
               onClick={() => setMode(profile.internalMode)}
@@ -253,14 +258,14 @@ export function ModularStartForm() {
               <span className="flex items-center justify-between gap-2">
                 <span className="text-lg font-semibold">{profile.publicName}</span>
                 {profile.internalMode === "standard" ? (
-                  <span className="text-xs font-semibold text-violet-700">Recommended</span>
+                  <span className="text-lens text-xs font-semibold">Recommended</span>
                 ) : null}
               </span>
-              <span className="mt-2 block text-sm leading-6 text-[var(--muted)]">
+              <span className="text-ink-muted mt-2 block text-sm leading-6">
                 {profile.description}
               </span>
               {!profile.isSelectable ? (
-                <span className="mt-2 block text-xs font-semibold text-[var(--muted)]">
+                <span className="text-ink-muted mt-2 block text-xs font-semibold">
                   Belum dibuka
                 </span>
               ) : null}
@@ -270,10 +275,10 @@ export function ModularStartForm() {
       </section>
 
       {modules.some((module) => selectedKeys.includes(module.key) && module.isExperimental) ? (
-        <label className="mt-6 flex items-start gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
+        <label className="border-aperture-soft bg-aperture-soft text-ink mt-6 flex items-start gap-3 rounded-md border p-4 text-sm leading-6">
           <input
             checked={experimentalAcknowledged}
-            className="mt-1 h-5 w-5"
+            className="accent-aperture mt-1 h-5 w-5"
             onChange={(event) => setExperimentalAcknowledged(event.target.checked)}
             type="checkbox"
           />
@@ -281,37 +286,38 @@ export function ModularStartForm() {
         </label>
       ) : null}
 
-      <aside className="mt-10 rounded-2xl bg-[var(--foreground)] p-6 text-white sm:flex sm:items-center sm:justify-between sm:gap-8">
+      <aside className="lens-glow bg-lens-strong text-canvas shadow-surface relative mt-10 overflow-hidden rounded-xl p-6 sm:flex sm:items-center sm:justify-between sm:gap-8">
         <div aria-live="polite">
-          <p className="font-semibold text-[var(--aqua)]">Estimasi dari server</p>
+          <p className="text-aperture-on-dark font-semibold">Estimasi dari server</p>
           {estimating ? (
-            <p className="mt-2 text-indigo-100">Menghitung pilihan…</p>
+            <p className="text-canvas/85 mt-2">Menghitung pilihan…</p>
           ) : estimate ? (
             <>
-              <p className="mt-2 text-xl font-semibold">
+              <p className="mt-2 text-xl font-semibold tabular-nums">
                 {estimate.itemCount} item · sekitar {estimate.estimatedMinutes} menit
               </p>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-indigo-100">
+              <p className="text-canvas/85 mt-2 max-w-2xl text-sm leading-6">
                 {estimate.disclaimer}
               </p>
             </>
           ) : (
-            <p className="mt-2 text-indigo-100">Pilih lensa untuk melihat estimasi.</p>
+            <p className="text-canvas/85 mt-2">Pilih lensa untuk melihat estimasi.</p>
           )}
           {error ? (
-            <p className="mt-3 text-sm text-rose-200" role="alert">
+            <p className="text-danger-soft mt-3 text-sm" role="alert">
               {error}
             </p>
           ) : null}
         </div>
-        <button
-          className="focus-ring mt-5 min-h-12 w-full shrink-0 rounded-xl bg-white px-5 font-semibold text-[var(--foreground)] disabled:cursor-not-allowed disabled:opacity-50 sm:mt-0 sm:w-auto"
+        <Button
+          className="bg-canvas text-lens-strong mt-5 w-full shrink-0 border-transparent hover:bg-white sm:mt-0 sm:w-auto"
           disabled={!estimate || estimating}
           onClick={continueToReview}
           type="button"
+          variant="secondary"
         >
           Tinjau pilihan
-        </button>
+        </Button>
       </aside>
     </div>
   );
