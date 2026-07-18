@@ -13,9 +13,17 @@ function PrivateResultLoader({ token }: { token: string }) {
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
+    let active = true;
     getPrivateResult(token)
-      .then(setResult)
-      .catch(() => setFailed(true));
+      .then((value) => {
+        if (active) setResult(value);
+      })
+      .catch(() => {
+        if (active) setFailed(true);
+      });
+    return () => {
+      active = false;
+    };
   }, [token]);
 
   if (failed)
@@ -55,9 +63,17 @@ function SharedResultLoader({ token }: { token: string }) {
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
+    let active = true;
     getSharedResult(token)
-      .then(setResult)
-      .catch(() => setFailed(true));
+      .then((value) => {
+        if (active) setResult(value);
+      })
+      .catch(() => {
+        if (active) setFailed(true);
+      });
+    return () => {
+      active = false;
+    };
   }, [token]);
 
   if (failed)
@@ -95,5 +111,9 @@ function SharedResultLoader({ token }: { token: string }) {
 }
 
 export function ResultLoader({ shared, token }: { shared?: boolean; token: string }) {
-  return shared ? <SharedResultLoader token={token} /> : <PrivateResultLoader token={token} />;
+  return shared ? (
+    <SharedResultLoader key={token} token={token} />
+  ) : (
+    <PrivateResultLoader key={token} token={token} />
+  );
 }

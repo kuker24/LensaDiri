@@ -18,6 +18,7 @@ import type {
   ClarifierQuestion,
   ClarifierSessionView,
 } from "@/server/repositories/assessment";
+import { boundedResponseTimeMs } from "@/components/assessment-response-timer";
 import { Button } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
 
@@ -83,7 +84,7 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
     try {
       await saveClarifierAssessmentAnswer({
         questionId: question.id,
-        responseTimeMs: Date.now() - startedAt,
+        responseTimeMs: boundedResponseTimeMs(startedAt),
         token,
         value,
       });
@@ -138,7 +139,12 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
           </span>
           <span className="tabular-nums">{answeredCount} tersimpan</span>
         </div>
-        <Progress className="mt-3" max={clarifier.totalCount} value={answeredCount} />
+        <Progress
+          aria-label="Progres clarifier"
+          className="mt-3"
+          max={clarifier.totalCount}
+          value={answeredCount}
+        />
         <article className="border-line shadow-surface mt-8 rounded-lg border bg-white p-6 sm:p-10">
           <p className="text-lens text-sm font-semibold capitalize">
             {question.moduleKey.replaceAll("_", " ")}
@@ -165,7 +171,10 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
           <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
             <Button
               disabled={index === 0 || pending}
-              onClick={() => setIndex(index - 1)}
+              onClick={() => {
+                setIndex(index - 1);
+                setStartedAt(Date.now());
+              }}
               type="button"
               variant="secondary"
             >
@@ -187,7 +196,10 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
               ) : (
                 <Button
                   disabled={index === clarifier.totalCount - 1 || pending}
-                  onClick={() => setIndex(index + 1)}
+                  onClick={() => {
+                    setIndex(index + 1);
+                    setStartedAt(Date.now());
+                  }}
                   type="button"
                   variant="secondary"
                 >
@@ -252,7 +264,7 @@ export function TestRunner({ token }: { token: string }) {
       await saveAnswer({
         idempotencyKey: crypto.randomUUID(),
         questionId: question.id,
-        responseTimeMs: Date.now() - startedAt,
+        responseTimeMs: boundedResponseTimeMs(startedAt),
         token,
         value,
       });
@@ -286,6 +298,8 @@ export function TestRunner({ token }: { token: string }) {
       if (session.status === "paused") {
         await resumeAssessment(token);
         setSession({ ...session, status: "active" });
+        setStartedAt(Date.now());
+        requestAnimationFrame(() => questionHeadingRef.current?.focus());
       } else {
         await pauseAssessment(token);
         setSession({ ...session, status: "paused" });

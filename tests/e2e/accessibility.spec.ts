@@ -60,19 +60,78 @@ for (const route of publicRoutes) {
   });
 }
 
-test("keyboard navigation exposes a visible focus target", async ({ page }) => {
-  await page.goto("/modules");
-  await page.keyboard.press("Tab");
-  const focused = page.locator(":focus");
-  await expect(focused).toBeVisible();
-  await expect(focused).not.toHaveCSS("outline-style", "none");
+test("keyboard focus treatment remains visible on light and dark surfaces", async ({ page }) => {
+  await page.goto("/");
+
+  const lightControl = page.getByRole("link", { name: "Pelajari metode" });
+  await lightControl.focus();
+  await expect(lightControl).toHaveCSS("outline-color", "rgb(247, 248, 252)");
+  await expect(lightControl).toHaveCSS("box-shadow", /rgb\(76, 62, 194\)/u);
+
+  await page.goto("/start/modules");
+  const darkControl = page.getByRole("button", { name: "Tinjau pilihan" });
+  await expect(darkControl).toBeEnabled();
+  await darkControl.focus();
+  await expect(darkControl).toHaveCSS("outline-color", "rgb(247, 248, 252)");
+  await expect(darkControl).toHaveCSS("box-shadow", /rgb\(76, 62, 194\)/u);
 });
 
-test("authentication controls have programmatic labels", async ({ page }) => {
+test("authentication controls have labels and mobile-safe font size", async ({ page }) => {
   await page.goto("/login");
-  await expect(page.getByLabel(/email/i)).toBeVisible();
-  await expect(page.getByLabel(/password|kata sandi/i)).toBeVisible();
+  const email = page.getByLabel(/email/i);
+  const password = page.getByLabel(/password|kata sandi/i);
+  await expect(email).toBeVisible();
+  await expect(password).toBeVisible();
   await expect(page.getByRole("button", { name: "Masuk", exact: true })).toBeEnabled();
+
+  if (page.viewportSize()?.width === 393) {
+    for (const control of [email, password]) {
+      const fontSize = await control.evaluate((element) =>
+        Number.parseFloat(window.getComputedStyle(element).fontSize),
+      );
+      expect(fontSize).toBeGreaterThanOrEqual(16);
+    }
+  }
+});
+
+test("module catalog disables unavailable detail navigation", async ({ page }) => {
+  await page.goto("/modules");
+  const unavailableCard = page.locator("li", { hasText: "RIASEC" });
+  await expect(unavailableCard.getByText("Detail belum tersedia")).toBeVisible();
+  await expect(unavailableCard.getByRole("link", { name: "Lihat detail" })).toHaveCount(0);
+
+  const availableCard = page.locator("li", { hasText: "16-Type Jungian-inspired" });
+  await expect(availableCard.getByRole("link", { name: "Lihat detail" })).toBeVisible();
+});
+
+test("module detail preserves valid selection and invalid query falls back", async ({ page }) => {
+  await page.goto("/modules/type_16");
+  const chooseModule = page.getByRole("link", { name: "Pilih modul ini" });
+  await expect(chooseModule).toHaveAttribute("href", "/start/modules?module=type_16");
+  await chooseModule.click();
+  await expect(page.getByRole("checkbox", { name: /16-Type Jungian-inspired/u })).toBeChecked();
+
+  await page.goto("/start/modules?module=not-in-catalog");
+  await expect(page.getByRole("checkbox", { name: /Profil Trait/u })).toBeChecked();
+});
+
+test("glow preserves explicit light and dark surface backgrounds", async ({ page }) => {
+  async function backgroundPixel(selector: string) {
+    return page.locator(selector).evaluate((element) => {
+      const canvas = document.createElement("canvas");
+      const context = canvas.getContext("2d");
+      if (!context) throw new Error("Canvas context unavailable");
+      context.fillStyle = window.getComputedStyle(element).backgroundColor;
+      context.fillRect(0, 0, 1, 1);
+      return [...context.getImageData(0, 0, 1, 1).data];
+    });
+  }
+
+  await page.goto("/");
+  expect(await backgroundPixel(".lens-glow.bg-white\\/82")).toEqual([255, 255, 255, 209]);
+
+  await page.goto("/start/modules");
+  expect(await backgroundPixel("aside.lens-glow")).toEqual([76, 62, 194, 255]);
 });
 
 test("result loading and failure states keep a single page heading", async ({ page }) => {

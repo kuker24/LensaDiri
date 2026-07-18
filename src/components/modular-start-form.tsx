@@ -10,6 +10,7 @@ import type {
   AssessmentSelectionInput,
   ComboPresetDefinition,
 } from "@/lib/assessment/catalog";
+import { isPubliclyAvailableModule } from "@/lib/assessment/catalog";
 import {
   estimateModularAssessment,
   getAssessmentCatalog,
@@ -48,7 +49,7 @@ function publicError(error: unknown): string {
   return errorLabels[code] ?? errorLabels.request_failed!;
 }
 
-export function ModularStartForm() {
+export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: string }) {
   const router = useRouter();
   const [modules, setModules] = useState<AssessmentModuleDefinition[]>([]);
   const [modes, setModes] = useState<AssessmentModeProfile[]>([]);
@@ -69,12 +70,18 @@ export function ModularStartForm() {
         setModules(catalog.modules);
         setModes(catalog.modes);
         setCombos(comboCatalog);
-        const first = catalog.modules[0];
-        if (first) setSelectedKeys([first.key]);
+        const initial = catalog.modules.find(
+          (module) => module.key === initialModuleKey && isPubliclyAvailableModule(module),
+        );
+        const first = initial ?? catalog.modules.find(isPubliclyAvailableModule);
+        setEstimate(null);
+        setError(null);
+        setEstimating(Boolean(first));
+        setSelectedKeys(first ? [first.key] : []);
       })
       .catch(() => setError("Katalog modular belum dapat dimuat."))
       .finally(() => setLoading(false));
-  }, []);
+  }, [initialModuleKey]);
 
   const selection = useMemo<AssessmentSelectionInput | null>(() => {
     if (selectedKeys.length === 0) return null;
@@ -97,19 +104,15 @@ export function ModularStartForm() {
 
   useEffect(() => {
     if (!selection) return;
+
     let active = true;
     const timeout = window.setTimeout(() => {
-      setEstimating(true);
-      setError(null);
       estimateModularAssessment(selection)
         .then((value) => {
           if (active) setEstimate(value);
         })
         .catch((caught) => {
-          if (active) {
-            setEstimate(null);
-            setError(publicError(caught));
-          }
+          if (active) setError(publicError(caught));
         })
         .finally(() => {
           if (active) setEstimating(false);
@@ -121,16 +124,29 @@ export function ModularStartForm() {
     };
   }, [selection]);
 
+  function prepareEstimate(hasSelection = selectedKeys.length > 0) {
+    setEstimate(null);
+    setError(null);
+    setEstimating(hasSelection);
+  }
+
+  function updateSelection(nextKeys: string[]) {
+    prepareEstimate(nextKeys.length > 0);
+    setSelectedKeys(nextKeys);
+  }
+
   function toggleModule(key: string) {
     setPresetKey(null);
-    setSelectedKeys((current) =>
-      current.includes(key) ? current.filter((item) => item !== key) : [...current, key],
+    updateSelection(
+      selectedKeys.includes(key)
+        ? selectedKeys.filter((item) => item !== key)
+        : [...selectedKeys, key],
     );
   }
 
   function selectPreset(combo: ComboPresetDefinition) {
     setPresetKey(combo.key);
-    setSelectedKeys([...combo.moduleKeys]);
+    updateSelection([...combo.moduleKeys]);
     setMode(combo.recommendedMode);
   }
 
@@ -181,7 +197,10 @@ export function ModularStartForm() {
               inputMode="numeric"
               max={99}
               min={13}
-              onChange={(event) => setAge(event.target.value ? Number(event.target.value) : null)}
+              onChange={(event) => {
+                prepareEstimate();
+                setAge(event.target.value ? Number(event.target.value) : null);
+              }}
               placeholder="13+"
               type="number"
               value={age ?? ""}
@@ -252,7 +271,10 @@ export function ModularStartForm() {
               className="focus-ring border-line hover:border-lens/50 aria-pressed:border-lens aria-pressed:bg-lens-soft rounded-lg border bg-white/90 p-5 text-left shadow-[0_1px_2px_rgb(23_24_44_/_0.04)] transition-[border-color,background-color] duration-150 ease-out disabled:cursor-not-allowed disabled:opacity-50"
               disabled={!profile.isSelectable}
               key={profile.internalMode}
-              onClick={() => setMode(profile.internalMode)}
+              onClick={() => {
+                prepareEstimate();
+                setMode(profile.internalMode);
+              }}
               type="button"
             >
               <span className="flex items-center justify-between gap-2">
@@ -279,14 +301,17 @@ export function ModularStartForm() {
           <input
             checked={experimentalAcknowledged}
             className="accent-aperture mt-1 h-5 w-5"
-            onChange={(event) => setExperimentalAcknowledged(event.target.checked)}
+            onChange={(event) => {
+              prepareEstimate();
+              setExperimentalAcknowledged(event.target.checked);
+            }}
             type="checkbox"
           />
           Aku memahami lensa eksperimental belum memiliki validasi formal dan hanya untuk refleksi.
         </label>
       ) : null}
 
-      <aside className="lens-glow bg-lens-strong text-canvas shadow-surface relative mt-10 overflow-hidden rounded-xl p-6 sm:flex sm:items-center sm:justify-between sm:gap-8">
+      <aside className="lens-glow text-canvas shadow-surface relative mt-10 overflow-hidden rounded-xl bg-[#4c3ec2] p-6 sm:flex sm:items-center sm:justify-between sm:gap-8">
         <div aria-live="polite">
           <p className="text-aperture-on-dark font-semibold">Estimasi dari server</p>
           {estimating ? (

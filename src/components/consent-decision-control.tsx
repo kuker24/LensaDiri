@@ -31,6 +31,7 @@ export function ConsentDecisionControl({
       router.refresh();
     } catch {
       setError("Keputusan consent belum tersimpan.");
+    } finally {
       setPending(false);
     }
   }

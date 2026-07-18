@@ -7,10 +7,15 @@ export const metadata: Metadata = {
   robots: { follow: false, index: false },
 };
 
-export default function ModularStartPage() {
+export default async function ModularStartPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ module?: string }>;
+}) {
+  const { module } = await searchParams;
   return (
     <section className="container-shell py-12 sm:py-16">
-      <ModularStartForm />
+      <ModularStartForm {...(module === undefined ? {} : { initialModuleKey: module })} />
     </section>
   );
 }

@@ -67,7 +67,7 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
         {available ? (
           <Link
             className="focus-ring bg-lens text-canvas hover:bg-lens-strong mt-8 inline-flex min-h-12 items-center rounded-md px-5 font-semibold transition-colors duration-150 ease-out"
-            href="/start/modules"
+            href={`/start/modules?module=${encodeURIComponent(catalogModule.key)}`}
           >
             Pilih modul ini
           </Link>

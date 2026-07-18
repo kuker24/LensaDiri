@@ -41,12 +41,16 @@ export default async function ModulesPage() {
                   {module.availabilityReason}
                 </p>
               ) : null}
-              <Link
-                className="focus-ring border-line text-ink hover:border-lens hover:text-lens mt-5 inline-flex min-h-11 items-center rounded-md border px-4 font-semibold transition-colors duration-150 ease-out"
-                href={`/modules/${module.key}`}
-              >
-                Lihat detail
-              </Link>
+              {available ? (
+                <Link
+                  className="focus-ring border-line text-ink hover:border-lens hover:text-lens mt-5 inline-flex min-h-11 items-center rounded-md border px-4 font-semibold transition-colors duration-150 ease-out"
+                  href={`/modules/${module.key}`}
+                >
+                  Lihat detail
+                </Link>
+              ) : (
+                <p className="text-ink-muted mt-5 text-sm font-semibold">Detail belum tersedia</p>
+              )}
             </li>
           );
         })}
