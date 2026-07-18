@@ -1,17 +1,51 @@
 @import "tailwindcss";
 
+/*
+  Design tokens for "Quiet Editorial Observatory" — see docs/design/UI_FINAL_DIRECTION.md.
+  Roles, not raw palette: canvas/ink/lens/aperture/mist/line + semantic state colors.
+*/
+@theme {
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-fraunces), Georgia, serif;
+
+  --color-canvas: #faf8f4;
+  --color-ink: #181511;
+  --color-ink-muted: #5b564c;
+  --color-lens: #2b4a43;
+  --color-lens-strong: #1c332e;
+  --color-lens-soft: #e2ece9;
+  --color-aperture: #c4703f;
+  --color-aperture-soft: #f3e3d6;
+  --color-mist: #efebe3;
+  --color-line: #ded7c9;
+  --color-success: #3f6b4e;
+  --color-warning: #b8863a;
+  --color-danger: #a6392f;
+  --color-danger-soft: #f6e4e1;
+
+  --radius-sm: 0.375rem;
+  --radius-md: 0.625rem;
+  --radius-lg: 1rem;
+
+  --shadow-surface: 0 12px 40px -12px rgb(24 21 17 / 0.16);
+
+  /* Override Tailwind's built-in ease-out/ease-in-out values (used via ease-out / ease-in-out utilities) */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
 :root {
-  --background: #f7f8fc;
-  --foreground: #17182c;
-  --muted: #62647a;
-  --surface: rgba(255, 255, 255, 0.82);
+  --background: var(--color-canvas);
+  --foreground: var(--color-ink);
+  --muted: var(--color-ink-muted);
+  --surface: var(--color-mist);
   --surface-strong: #ffffff;
-  --line: rgba(31, 33, 58, 0.1);
-  --brand: #6558d9;
-  --brand-strong: #4c3ec2;
-  --brand-soft: #ece9ff;
-  --aqua: #8be0d0;
-  --shadow: 0 24px 80px rgba(44, 38, 104, 0.12);
+  --line: var(--color-line);
+  --brand: var(--color-lens);
+  --brand-strong: var(--color-lens-strong);
+  --brand-soft: var(--color-lens-soft);
+  --aqua: var(--color-aperture);
+  --shadow: var(--shadow-surface);
 }
 
 * {
@@ -25,19 +59,10 @@ html {
 body {
   min-height: 100vh;
   margin: 0;
-  background:
-    radial-gradient(circle at 15% 0%, rgba(139, 224, 208, 0.22), transparent 30rem),
-    radial-gradient(circle at 85% 10%, rgba(101, 88, 217, 0.2), transparent 34rem),
-    var(--background);
+  background: var(--background);
   color: var(--foreground);
-  font-family:
-    Inter,
-    ui-sans-serif,
-    system-ui,
-    -apple-system,
-    BlinkMacSystemFont,
-    "Segoe UI",
-    sans-serif;
+  font-family: var(--font-sans);
+  font-feature-settings: "cv11";
   text-rendering: optimizeLegibility;
 }
 
@@ -52,7 +77,11 @@ a {
 }
 
 ::selection {
-  background: rgba(101, 88, 217, 0.2);
+  background: var(--color-lens-soft);
+}
+
+.tabular-nums {
+  font-variant-numeric: tabular-nums;
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -75,14 +104,61 @@ a {
   margin-inline: auto;
 }
 
-.glass-panel {
-  border: 1px solid var(--line);
-  background: var(--surface);
-  box-shadow: var(--shadow);
-  backdrop-filter: blur(18px);
+.prose-shell {
+  width: min(68ch, calc(100% - 2rem));
+  margin-inline: auto;
+}
+
+.surface-panel {
+  border: 1px solid var(--color-line);
+  background: var(--color-mist);
+  border-radius: var(--radius-md);
+}
+
+.lens-glow {
+  background: radial-gradient(circle at 30% 20%, rgb(196 112 63 / 0.08), transparent 60%);
 }
 
 .focus-ring:focus-visible {
-  outline: 3px solid rgba(101, 88, 217, 0.35);
+  outline: 3px solid rgb(43 74 67 / 0.45);
   outline-offset: 3px;
+}
+
+@keyframes toast-in {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+dialog[open] {
+  animation: dialog-in var(--duration-slow, 200ms) var(--ease-out);
+}
+
+dialog[open]::backdrop {
+  animation: backdrop-in var(--duration-slow, 200ms) var(--ease-out);
+}
+
+@keyframes dialog-in {
+  from {
+    opacity: 0;
+    transform: scale(0.98);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
