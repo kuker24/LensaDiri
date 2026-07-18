@@ -31,39 +31,38 @@ export default function HomePage() {
     <>
       <section className="container-shell grid gap-12 pt-16 pb-20 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:pt-24 lg:pb-28">
         <div>
-          <p className="mb-5 inline-flex rounded-full border border-violet-200 bg-white/70 px-4 py-2 text-sm font-semibold text-violet-700">
+          <p className="mb-5 inline-flex rounded-full border border-lens-soft bg-white/70 px-4 py-2 text-sm font-semibold text-lens">
             Self-discovery yang jujur dan privacy-first
           </p>
-          <h1 className="max-w-3xl text-5xl font-semibold tracking-[-0.045em] text-balance sm:text-6xl lg:text-7xl">
+          <h1 className="font-display max-w-3xl text-5xl font-semibold tracking-[-0.025em] text-balance sm:text-6xl lg:text-7xl">
             Kenali pola dirimu lewat banyak lensa.
           </h1>
-          <p className="mt-6 max-w-2xl text-lg leading-8 text-pretty text-[var(--muted)] sm:text-xl">
+          <p className="mt-6 max-w-2xl text-lg leading-8 text-pretty text-ink-muted sm:text-xl">
             LensaDiri membantu kamu memahami gaya berpikir, motivasi, emosi, relasi, dan arah
             pengembangan diri tanpa mengubah hasil refleksi menjadi label mutlak.
           </p>
           <div className="mt-9 flex flex-col gap-3 sm:flex-row">
             <Link
-              className="focus-ring rounded-2xl bg-[var(--brand)] px-6 py-4 text-center font-semibold text-white shadow-lg shadow-violet-500/20 transition hover:bg-[var(--brand-strong)]"
+              className="focus-ring rounded-sm bg-lens px-6 py-4 text-center font-semibold text-canvas shadow-surface transition-colors duration-150 ease-out hover:bg-lens-strong"
               href="/start"
             >
               Mulai eksplorasi
             </Link>
             <Link
-              className="focus-ring rounded-2xl border border-[var(--line)] bg-white/70 px-6 py-4 text-center font-semibold transition hover:bg-white"
+              className="focus-ring rounded-sm border border-line bg-white/70 px-6 py-4 text-center font-semibold text-ink transition-colors duration-150 ease-out hover:bg-white"
               href="/method"
             >
               Pelajari metode
             </Link>
           </div>
-          <p className="mt-5 text-sm leading-6 text-[var(--muted)]">
+          <p className="mt-5 text-sm leading-6 text-ink-muted">
             Bukan diagnosis klinis dan bukan pengganti asesmen profesional.
           </p>
         </div>
 
-        <div className="glass-panel relative overflow-hidden rounded-[2rem] p-6 sm:p-8">
-          <div className="absolute -top-20 -right-20 h-56 w-56 rounded-full bg-violet-300/30 blur-3xl" />
+        <div className="lens-glow relative overflow-hidden rounded-lg border border-line bg-white/70 p-6 shadow-surface sm:p-8">
           <div className="relative">
-            <p className="text-sm font-semibold tracking-[0.16em] text-violet-700 uppercase">
+            <p className="text-sm font-semibold tracking-[0.14em] text-lens uppercase">
               Contoh cara membaca hasil
             </p>
             <div className="mt-8 space-y-6">
@@ -77,19 +76,19 @@ export default function HomePage() {
                 <div key={String(label)}>
                   <div className="mb-2 flex items-center justify-between gap-4 text-sm">
                     <span className="font-medium">{label}</span>
-                    <span className="text-[var(--muted)] tabular-nums">{value}</span>
+                    <span className="tabular-nums text-ink-muted">{value}</span>
                   </div>
-                  <div className="h-2.5 overflow-hidden rounded-full bg-violet-100">
+                  <div className="h-1.5 overflow-hidden rounded-full bg-line">
                     <div
                       aria-hidden="true"
-                      className="h-full rounded-full bg-gradient-to-r from-violet-500 to-teal-400"
+                      className="h-full rounded-full bg-lens"
                       style={{ width: `${value}%` }}
                     />
                   </div>
                 </div>
               ))}
             </div>
-            <p className="mt-8 rounded-2xl bg-violet-50 p-4 text-sm leading-6 text-violet-950">
+            <p className="mt-8 rounded-md border border-lens-soft bg-lens-soft/50 p-4 text-sm leading-6 text-lens-strong">
               Skor dibaca sebagai kecenderungan pada spektrum. Angka di atas hanya ilustrasi
               tampilan, bukan hasil asesmen pengguna.
             </p>
@@ -97,13 +96,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="border-y border-[var(--line)] bg-white/55 py-20" id="cara-kerja">
+      <section className="border-y border-line bg-white/55 py-20" id="cara-kerja">
         <div className="container-shell">
           <div className="max-w-2xl">
-            <p className="text-sm font-semibold tracking-[0.16em] text-violet-700 uppercase">
+            <p className="text-sm font-semibold tracking-[0.14em] text-lens uppercase">
               Cara kerja
             </p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+            <h2 className="font-display mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
               Refleksi yang ringan, transparan, dan bisa ditindaklanjuti.
             </h2>
           </div>
@@ -125,13 +124,10 @@ export default function HomePage() {
                 "Hasil menjelaskan kecenderungan, confidence, batasan, dan langkah pengembangan.",
               ],
             ].map(([number, title, description]) => (
-              <article
-                className="rounded-3xl border border-[var(--line)] bg-white p-6"
-                key={number}
-              >
-                <p className="text-sm font-semibold text-violet-600">{number}</p>
-                <h3 className="mt-5 text-xl font-semibold">{title}</h3>
-                <p className="mt-3 leading-7 text-[var(--muted)]">{description}</p>
+              <article className="rounded-lg border border-line bg-white p-6" key={number}>
+                <p className="tabular-nums text-sm font-semibold text-lens">{number}</p>
+                <h3 className="font-display mt-5 text-xl font-semibold">{title}</h3>
+                <p className="mt-3 leading-7 text-ink-muted">{description}</p>
               </article>
             ))}
           </div>
@@ -141,44 +137,41 @@ export default function HomePage() {
       <section className="container-shell py-20 lg:py-28">
         <div className="flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div className="max-w-2xl">
-            <p className="text-sm font-semibold tracking-[0.16em] text-violet-700 uppercase">
+            <p className="text-sm font-semibold tracking-[0.14em] text-lens uppercase">
               Banyak lensa, posisi bukti tetap jelas
             </p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+            <h2 className="font-display mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
               Pisahkan fondasi trait dari lensa reflektif.
             </h2>
           </div>
-          <Link className="focus-ring font-semibold text-violet-700 hover:underline" href="/method">
+          <Link className="focus-ring font-semibold text-lens hover:underline" href="/method">
             Baca metodologi lengkap
           </Link>
         </div>
         <div className="mt-10 grid gap-5 lg:grid-cols-3">
           {lenses.map((lens) => (
-            <article className="glass-panel rounded-3xl p-7" key={lens.title}>
+            <article className="rounded-lg border border-line bg-white/70 p-7 shadow-surface" key={lens.title}>
               <EvidenceBadge tier={lens.tier} />
-              <h3 className="mt-6 text-2xl font-semibold">{lens.title}</h3>
-              <p className="mt-3 leading-7 text-[var(--muted)]">{lens.description}</p>
+              <h3 className="font-display mt-6 text-2xl font-semibold">{lens.title}</h3>
+              <p className="mt-3 leading-7 text-ink-muted">{lens.description}</p>
             </article>
           ))}
         </div>
       </section>
 
       <section className="container-shell pb-20 lg:pb-28">
-        <div className="overflow-hidden rounded-[2rem] bg-[#17182c] px-6 py-10 text-white sm:px-10 lg:grid lg:grid-cols-[0.85fr_1.15fr] lg:gap-14 lg:px-14 lg:py-14">
+        <div className="overflow-hidden rounded-lg bg-ink px-6 py-10 text-canvas sm:px-10 lg:grid lg:grid-cols-[0.85fr_1.15fr] lg:gap-14 lg:px-14 lg:py-14">
           <div>
-            <p className="text-sm font-semibold tracking-[0.16em] text-teal-300 uppercase">
+            <p className="text-sm font-semibold tracking-[0.14em] text-aperture uppercase">
               Trust by design
             </p>
-            <h2 className="mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
+            <h2 className="font-display mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">
               Kamu tetap memegang kontrol atas data dan hasilmu.
             </h2>
           </div>
           <ul className="mt-8 grid gap-4 sm:grid-cols-2 lg:mt-0">
             {principles.map((principle) => (
-              <li
-                className="rounded-2xl border border-white/10 bg-white/5 p-4 leading-6"
-                key={principle}
-              >
+              <li className="rounded-md border border-white/10 bg-white/5 p-4 leading-6" key={principle}>
                 {principle}
               </li>
             ))}
