@@ -105,10 +105,10 @@ export function AccountRecoveryForm({ mode, token = "" }: { mode: RecoveryMode; 
 
   if (success) {
     return (
-      <div className="rounded-md border border-success bg-white p-6" role="status">
-        <p className="font-semibold text-success">{selected.success}</p>
+      <div className="border-success rounded-md border bg-white p-6" role="status">
+        <p className="text-success font-semibold">{selected.success}</p>
         <Link
-          className="focus-ring mt-5 inline-flex min-h-12 items-center justify-center rounded-sm bg-lens px-5 py-3 font-semibold text-canvas transition-colors duration-150 ease-out hover:bg-lens-strong"
+          className="focus-ring bg-lens text-canvas hover:bg-lens-strong mt-5 inline-flex min-h-12 items-center justify-center rounded-sm px-5 py-3 font-semibold transition-colors duration-150 ease-out"
           href="/login"
         >
           Kembali ke login
@@ -146,21 +146,18 @@ export function AccountRecoveryForm({ mode, token = "" }: { mode: RecoveryMode; 
             required
             type="password"
           />
-          <p className="mt-2 text-sm text-ink-muted">
+          <p className="text-ink-muted mt-2 text-sm">
             Minimal 12 karakter. Semua session lama akan dicabut.
           </p>
         </div>
       ) : null}
       {selected.field === "token" && !fragmentToken ? (
-        <p
-          className="rounded-md border border-aperture bg-white p-4 text-ink-muted"
-          role="alert"
-        >
+        <p className="border-aperture text-ink-muted rounded-md border bg-white p-4" role="alert">
           Link tidak memuat token.
         </p>
       ) : null}
       {error ? (
-        <p className="rounded-md border border-danger bg-danger-soft p-4 text-danger" role="alert">
+        <p className="border-danger bg-danger-soft text-danger rounded-md border p-4" role="alert">
           {error}
         </p>
       ) : null}

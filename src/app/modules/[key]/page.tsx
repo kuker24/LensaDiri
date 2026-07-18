@@ -20,10 +20,10 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
 
   return (
     <main className="container-shell py-12 sm:py-18">
-      <Link className="focus-ring rounded-md text-sm font-semibold text-lens" href="/modules">
+      <Link className="focus-ring text-lens rounded-md text-sm font-semibold" href="/modules">
         Kembali ke katalog
       </Link>
-      <article className="mt-6 max-w-4xl rounded-lg border border-line bg-white p-7 sm:p-10">
+      <article className="border-line mt-6 max-w-4xl rounded-lg border bg-white p-7 sm:p-10">
         <div className="flex flex-wrap gap-3 text-sm">
           <Badge tone="lens">Evidence {catalogModule.evidenceTier.replace("_", " ")}</Badge>
           <Badge tone="neutral">
@@ -33,7 +33,7 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
         <h1 className="font-display mt-5 text-4xl font-semibold tracking-tight sm:text-5xl">
           {catalogModule.publicName}
         </h1>
-        <p className="mt-5 max-w-3xl leading-7 text-ink-muted">{catalogModule.description}</p>
+        <p className="text-ink-muted mt-5 max-w-3xl leading-7">{catalogModule.description}</p>
 
         <section className="mt-8" aria-labelledby="depth-heading">
           <h2 className="font-display text-2xl font-semibold" id="depth-heading">
@@ -41,9 +41,9 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
           </h2>
           <dl className="mt-4 grid gap-3 sm:grid-cols-3">
             {modes.map((mode) => (
-              <div className="rounded-md border border-line p-4" key={mode.label}>
+              <div className="border-line rounded-md border p-4" key={mode.label}>
                 <dt className="font-semibold">{mode.label}</dt>
-                <dd className="tabular-nums mt-1 text-sm text-ink-muted">
+                <dd className="text-ink-muted mt-1 text-sm tabular-nums">
                   Target alokasi {mode.count} item
                 </dd>
               </div>
@@ -51,11 +51,14 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
           </dl>
         </section>
 
-        <section className="mt-8 rounded-md border border-line bg-lens-soft/40 p-5" aria-labelledby="boundary-heading">
+        <section
+          className="border-line bg-lens-soft/40 mt-8 rounded-md border p-5"
+          aria-labelledby="boundary-heading"
+        >
           <h2 className="font-semibold" id="boundary-heading">
             Batas interpretasi
           </h2>
-          <p className="mt-2 text-sm leading-6 text-ink-muted">
+          <p className="text-ink-muted mt-2 text-sm leading-6">
             Hasil menggambarkan kecenderungan jawaban saat ini. Lensa ini bukan diagnosis, instrumen
             resmi, atau kepastian identitas.
           </p>
@@ -63,13 +66,13 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
 
         {available ? (
           <Link
-            className="focus-ring mt-8 inline-flex min-h-12 items-center rounded-sm bg-lens px-5 font-semibold text-canvas transition-colors duration-150 ease-out hover:bg-lens-strong"
+            className="focus-ring bg-lens text-canvas hover:bg-lens-strong mt-8 inline-flex min-h-12 items-center rounded-sm px-5 font-semibold transition-colors duration-150 ease-out"
             href="/start/modules"
           >
             Pilih modul ini
           </Link>
         ) : (
-          <div className="mt-8 rounded-md border border-aperture-soft bg-aperture-soft p-5 text-ink">
+          <div className="border-aperture-soft bg-aperture-soft text-ink mt-8 rounded-md border p-5">
             <h2 className="font-semibold">Belum dapat dipilih</h2>
             <p className="mt-2 text-sm leading-6">
               {catalogModule.availabilityReason ?? "Modul masih berada dalam review."}

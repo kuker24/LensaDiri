@@ -21,15 +21,15 @@ export function Progress({
         aria-valuemax={max}
         aria-valuemin={0}
         aria-valuenow={Math.round(value)}
-        className="h-1.5 w-full overflow-hidden rounded-full bg-line"
+        className="bg-line h-1.5 w-full overflow-hidden rounded-full"
         role="progressbar"
       >
         <div
-          className="h-full rounded-full bg-lens transition-[width] duration-200 ease-out"
+          className="bg-lens h-full rounded-full transition-[width] duration-200 ease-out"
           style={{ width: `${percent}%` }}
         />
       </div>
-      {label ? <p className="tabular-nums mt-1.5 text-xs text-ink-muted">{label}</p> : null}
+      {label ? <p className="text-ink-muted mt-1.5 text-xs tabular-nums">{label}</p> : null}
     </div>
   );
 }

@@ -70,13 +70,16 @@ export function DeleteAccountForm() {
       </div>
 
       {error ? (
-        <p className="rounded-md border border-danger-soft bg-white px-4 py-3 text-sm text-danger" role="alert">
+        <p
+          className="border-danger-soft text-danger rounded-md border bg-white px-4 py-3 text-sm"
+          role="alert"
+        >
           {error}
         </p>
       ) : null}
 
       <button
-        className="focus-ring min-h-12 rounded-sm bg-danger px-5 py-3 font-semibold text-canvas transition-colors duration-150 ease-out hover:bg-danger/90 disabled:cursor-not-allowed disabled:opacity-50"
+        className="focus-ring bg-danger text-canvas hover:bg-danger/90 min-h-12 rounded-sm px-5 py-3 font-semibold transition-colors duration-150 ease-out disabled:cursor-not-allowed disabled:opacity-50"
         disabled={confirmation !== "HAPUS AKUN" || isPending}
         type="submit"
       >

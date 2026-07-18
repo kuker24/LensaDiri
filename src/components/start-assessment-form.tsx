@@ -27,9 +27,9 @@ export function StartAssessmentForm({ mode }: { mode: AssessmentMode }) {
 
   return (
     <div>
-      <label className="flex items-start gap-3 rounded-md border border-line bg-lens-soft/40 p-4 text-sm leading-6">
+      <label className="border-line bg-lens-soft/40 flex items-start gap-3 rounded-md border p-4 text-sm leading-6">
         <input
-          className="focus-ring mt-1 h-5 w-5 accent-lens"
+          className="focus-ring accent-lens mt-1 h-5 w-5"
           checked={consent}
           onChange={(event) => setConsent(event.target.checked)}
           type="checkbox"
@@ -40,7 +40,7 @@ export function StartAssessmentForm({ mode }: { mode: AssessmentMode }) {
         </span>
       </label>
       {error ? (
-        <p className="mt-3 text-sm text-danger" role="alert">
+        <p className="text-danger mt-3 text-sm" role="alert">
           Gagal memulai. Coba lagi.
         </p>
       ) : null}

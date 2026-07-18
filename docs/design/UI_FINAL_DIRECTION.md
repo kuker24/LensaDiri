@@ -11,6 +11,7 @@ LensaDiri adalah instrumen refleksi kepribadian multi-lensa: pengguna memilih sa
 Ruang pengamatan yang tenang untuk mengamati pola diri sendiri — bukan formulir administrasi, bukan kuis hiburan, bukan dashboard korporat. Motif domain optik (lensa, fokus, spektrum, lapisan cahaya) muncul melalui komposisi dan detail interaksi, bukan ikon lensa ditempel di mana-mana.
 
 Anti-pattern AI generik yang dihindari secara sadar (dan alasannya):
+
 - **Bukan** cream `#F4F1EA` + serif kontras tinggi + aksen terracotta — default nomor satu AI, tidak berhubungan dengan domain optik/presisi.
 - **Bukan** near-black + aksen neon tunggal — kesan gaming/crypto, bertentangan dengan karakter "tepercaya, tenang".
 - **Bukan** broadsheet hairline-rule, radius nol, kolom koran padat — subjek bukan jurnalisme cetak, dan radius nol terasa keras untuk konteks refleksi personal.
@@ -22,23 +23,24 @@ Anti-pattern AI generik yang dihindari secara sadar (dan alasannya):
 
 Warna dideskripsikan sebagai peran, diimplementasikan sebagai CSS custom properties via Tailwind v4 `@theme` di `src/app/globals.css`. Skala neutral memakai OKLCH agar kontras konsisten lintas hue.
 
-| Peran | Light | Deskripsi |
-| --- | --- | --- |
-| `canvas` | `#FAF8F4` (warm paper, bukan cream klise `#F4F1EA`) | Latar utama, bukan putih steril |
-| `ink` | `#181511` (deep warm black, bukan `#000`) | Teks utama, kontras tinggi |
-| `lens` (brand) | `#2B4A43` (deep teal-forest — warna kaca lensa optik terpakai, bukan biru korporat) | Identitas utama: CTA primer, link, focus ring |
+| Peran               | Light                                                                                        | Deskripsi                                                       |
+| ------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
+| `canvas`            | `#FAF8F4` (warm paper, bukan cream klise `#F4F1EA`)                                          | Latar utama, bukan putih steril                                 |
+| `ink`               | `#181511` (deep warm black, bukan `#000`)                                                    | Teks utama, kontras tinggi                                      |
+| `lens` (brand)      | `#2B4A43` (deep teal-forest — warna kaca lensa optik terpakai, bukan biru korporat)          | Identitas utama: CTA primer, link, focus ring                   |
 | `aperture` (accent) | `#C4703F` (burnt amber terkontrol — cahaya lampu observatorium, bukan terracotta cream-look) | Aksen hangat terbatas: highlight, badge penting, growth actions |
-| `mist` | `#EFEBE3` | Surface sekunder, card fill halus |
-| `line` | `#DED7C9` | Border, divider |
+| `mist`              | `#EFEBE3`                                                                                    | Surface sekunder, card fill halus                               |
+| `line`              | `#DED7C9`                                                                                    | Border, divider                                                 |
 
 Semantik (tidak menggantikan makna warna sebagai satu-satunya pembawa informasi — selalu didampingi ikon/teks):
+
 - `success` `#3F6B4E`, `warning` `#B8863A`, `danger` `#A6392F`, `info` sama dengan `lens`.
 
 Signature element: gradient radial sangat halus (`aperture` → transparent, opacity ≤ 8%) di belakang hero dan di belakang confidence ring pada result report — mensimulasikan cahaya lolos lewat lensa, dipakai **hanya** di dua tempat itu, tidak di seluruh halaman.
 
 ### Tipografi (2 peran + tabular)
 
-- **Display**: `Fraunces` (variable, optical size axis) — serif humanist dengan karakter, dipakai *terbatas* (H1 hero, angka skor besar di result). Alasan: bukan sans generik, bukan serif kontras-tinggi editorial klise; Fraunces punya warmth tanpa jadi "cream+serif" trope karena dipasangkan dengan warna lensa/aperture, bukan terracotta.
+- **Display**: `Fraunces` (variable, optical size axis) — serif humanist dengan karakter, dipakai _terbatas_ (H1 hero, angka skor besar di result). Alasan: bukan sans generik, bukan serif kontras-tinggi editorial klise; Fraunces punya warmth tanpa jadi "cream+serif" trope karena dipasangkan dengan warna lensa/aperture, bukan terracotta.
 - **UI/Body**: `Inter` (variable) — sudah jadi ekspektasi fallback di codebase, self-host via `next/font/google` agar benar-benar termuat (saat ini hanya string fallback, tidak pernah di-load). Dipakai untuk seluruh body text, form, navigasi.
 - **Tabular**: `Inter` dengan `font-variant-numeric: tabular-nums` untuk skor, progres, tanggal, metadata numerik — konsisten lebar digit di seluruh laporan.
 - Line-height body 1.6–1.7 untuk Bahasa Indonesia (lebih longgar dari default 1.5 Inter). Line-length target 60–70 karakter (`max-width: 68ch` untuk paragraf panjang di legal/method/blog).
@@ -70,13 +72,13 @@ Mobile bukan desktop yang diperkecil — hierarki disusun ulang per breakpoint k
 
 ## 6. Before / after
 
-| Area | Sebelum | Sesudah |
-| --- | --- | --- |
-| Token | Tidak ada, warna Tailwind mentah (`violet-*`, `amber-*`) campur 10 CSS var ad hoc | `@theme` terpusat, seluruh warna/spacing/radius/motion by name |
-| Font | Fallback string, Inter tidak pernah termuat | `next/font` self-hosted Inter + Fraunces terbatas |
-| Primitives | Tidak ada `ui/` folder, semua komponen composite ad hoc | `src/components/ui/` primitives dipakai ulang lintas flow |
-| Assessment runner | Progress bar manual, Likert button-list polos | Kontrol Likert matang, progress dengan motion purposeful, tetap radio semantics |
-| Result report | Struktur lengkap tapi visual datar | Hierarki premium, anchor navigation, confidence bukan dekorasi |
-| Motion | Tidak ada | Purposeful, sub-300ms, direview `review-animations` |
+| Area              | Sebelum                                                                           | Sesudah                                                                         |
+| ----------------- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------- |
+| Token             | Tidak ada, warna Tailwind mentah (`violet-*`, `amber-*`) campur 10 CSS var ad hoc | `@theme` terpusat, seluruh warna/spacing/radius/motion by name                  |
+| Font              | Fallback string, Inter tidak pernah termuat                                       | `next/font` self-hosted Inter + Fraunces terbatas                               |
+| Primitives        | Tidak ada `ui/` folder, semua komponen composite ad hoc                           | `src/components/ui/` primitives dipakai ulang lintas flow                       |
+| Assessment runner | Progress bar manual, Likert button-list polos                                     | Kontrol Likert matang, progress dengan motion purposeful, tetap radio semantics |
+| Result report     | Struktur lengkap tapi visual datar                                                | Hierarki premium, anchor navigation, confidence bukan dekorasi                  |
+| Motion            | Tidak ada                                                                         | Purposeful, sub-300ms, direview `review-animations`                             |
 
 Field wajib §17.1/§17.2 dan safe-share allowlist §17.4 tidak berubah — dokumen ini murni lapisan visual.

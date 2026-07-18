@@ -57,10 +57,14 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html data-scroll-behavior="smooth" lang="id" className={`${inter.variable} ${fraunces.variable}`}>
+    <html
+      data-scroll-behavior="smooth"
+      lang="id"
+      className={`${inter.variable} ${fraunces.variable}`}
+    >
       <body>
         <a
-          className="focus-ring sr-only z-50 rounded-md bg-white px-4 py-3 text-ink focus:not-sr-only focus:fixed focus:top-4 focus:left-4"
+          className="focus-ring text-ink sr-only z-50 rounded-md bg-white px-4 py-3 focus:not-sr-only focus:fixed focus:top-4 focus:left-4"
           href="#konten-utama"
         >
           Lewati ke konten utama

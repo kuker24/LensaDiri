@@ -41,13 +41,13 @@ function LikertSelector({
         return (
           <button
             aria-pressed={selected}
-            className="focus-ring group flex min-h-14 items-center rounded-md border border-line px-4 text-left font-medium text-ink transition-colors duration-150 ease-out hover:border-lens hover:bg-lens-soft/40 aria-pressed:border-lens aria-pressed:bg-lens-soft"
+            className="focus-ring group border-line text-ink hover:border-lens hover:bg-lens-soft/40 aria-pressed:border-lens aria-pressed:bg-lens-soft flex min-h-14 items-center rounded-md border px-4 text-left font-medium transition-colors duration-150 ease-out"
             disabled={disabled}
             key={label}
             onClick={() => onAnswer(value)}
             type="button"
           >
-            <span className="tabular-nums mr-3.5 inline-grid h-7 w-7 shrink-0 place-items-center rounded-full border border-line bg-canvas text-sm text-ink-muted transition-colors duration-150 ease-out group-aria-pressed:border-lens group-aria-pressed:bg-lens group-aria-pressed:text-canvas">
+            <span className="border-line bg-canvas text-ink-muted group-aria-pressed:border-lens group-aria-pressed:bg-lens group-aria-pressed:text-canvas mr-3.5 inline-grid h-7 w-7 shrink-0 place-items-center rounded-full border text-sm tabular-nums transition-colors duration-150 ease-out">
               {value}
             </span>
             {label}
@@ -117,22 +117,24 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
   return (
     <section className="container-shell py-10 sm:py-16">
       <div className="mx-auto max-w-3xl">
-        <div className="rounded-md border border-line bg-aperture-soft p-5 text-ink">
-          <h1 className="font-display text-xl font-semibold">Perjelas pola yang masih berdekatan</h1>
-          <p className="mt-2 text-sm leading-6 text-ink-muted">
+        <div className="border-line bg-aperture-soft text-ink rounded-md border p-5">
+          <h1 className="font-display text-xl font-semibold">
+            Perjelas pola yang masih berdekatan
+          </h1>
+          <p className="text-ink-muted mt-2 text-sm leading-6">
             Tambahan singkat ini membantu confidence. Kamu boleh melewatinya; hasil tetap tersedia
             dengan catatan kualitas.
           </p>
         </div>
-        <div className="mt-6 flex items-center justify-between gap-4 text-sm text-ink-muted">
+        <div className="text-ink-muted mt-6 flex items-center justify-between gap-4 text-sm">
           <span className="tabular-nums">
             Clarifier {index + 1} dari {clarifier.totalCount}
           </span>
           <span className="tabular-nums">{answeredCount} tersimpan</span>
         </div>
         <Progress className="mt-3" max={clarifier.totalCount} value={answeredCount} />
-        <article className="mt-8 rounded-lg border border-line bg-white p-6 shadow-surface sm:p-10">
-          <p className="text-sm font-semibold text-lens capitalize">
+        <article className="border-line shadow-surface mt-8 rounded-lg border bg-white p-6 sm:p-10">
+          <p className="text-lens text-sm font-semibold capitalize">
             {question.moduleKey.replaceAll("_", " ")}
           </p>
           <h2 className="font-display mt-3 text-2xl leading-tight font-semibold sm:text-3xl">
@@ -140,7 +142,7 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
           </h2>
           <LikertSelector answer={question.answer} disabled={pending} onAnswer={answer} />
           {error ? (
-            <p className="mt-4 text-sm text-danger" role="alert">
+            <p className="text-danger mt-4 text-sm" role="alert">
               {error}
             </p>
           ) : null}
@@ -296,20 +298,20 @@ export function TestRunner({ token }: { token: string }) {
   if (clarifier) return <ClarifierRunner clarifier={clarifier} token={token} />;
   if (error && !session) {
     return (
-      <p className="mx-auto max-w-xl py-20 text-center text-danger" role="alert">
+      <p className="text-danger mx-auto max-w-xl py-20 text-center" role="alert">
         {error}
       </p>
     );
   }
   if (!session || !question) {
-    return <p className="py-20 text-center text-ink-muted">Memuat assessment…</p>;
+    return <p className="text-ink-muted py-20 text-center">Memuat assessment…</p>;
   }
 
   const modular = session.isModular;
   return (
     <section className="container-shell py-10 sm:py-16">
       <div className="mx-auto max-w-3xl">
-        <div className="flex flex-wrap items-center justify-between gap-4 text-sm text-ink-muted">
+        <div className="text-ink-muted flex flex-wrap items-center justify-between gap-4 text-sm">
           <span className="tabular-nums">
             Pertanyaan {index + 1} dari {session.totalCount}
           </span>
@@ -324,7 +326,7 @@ export function TestRunner({ token }: { token: string }) {
           value={answeredCount}
         />
         {modular && question.segmentIndex ? (
-          <div className="mt-4 flex flex-wrap items-center justify-between gap-3 rounded-md border border-line bg-white/70 px-4 py-3 text-sm">
+          <div className="border-line mt-4 flex flex-wrap items-center justify-between gap-3 rounded-md border bg-white/70 px-4 py-3 text-sm">
             <span className="tabular-nums">
               Bagian {question.segmentIndex} dari {session.segmentCount ?? 1} · {segmentAnswered}/
               {segmentQuestions.length} terjawab
@@ -343,9 +345,9 @@ export function TestRunner({ token }: { token: string }) {
           </div>
         ) : null}
         {session.status === "paused" ? (
-          <div className="mt-8 rounded-lg border border-lens-soft bg-lens-soft p-6 text-center">
-            <h1 className="font-display text-xl font-semibold text-ink">Sesi dijeda</h1>
-            <p className="mt-2 text-sm leading-6 text-ink-muted">
+          <div className="border-lens-soft bg-lens-soft mt-8 rounded-lg border p-6 text-center">
+            <h1 className="font-display text-ink text-xl font-semibold">Sesi dijeda</h1>
+            <p className="text-ink-muted mt-2 text-sm leading-6">
               Progres tersimpan. Lanjutkan saat kamu siap.
             </p>
             <Button className="mt-5" onClick={togglePause} type="button">
@@ -353,9 +355,9 @@ export function TestRunner({ token }: { token: string }) {
             </Button>
           </div>
         ) : (
-          <article className="mt-8 rounded-lg border border-line bg-white p-6 shadow-surface sm:p-10">
+          <article className="border-line shadow-surface mt-8 rounded-lg border bg-white p-6 sm:p-10">
             {modular ? (
-              <p className="text-sm font-semibold text-lens capitalize">
+              <p className="text-lens text-sm font-semibold capitalize">
                 {(question.moduleKey ?? "").replaceAll("_", " ")}
               </p>
             ) : null}
@@ -364,7 +366,7 @@ export function TestRunner({ token }: { token: string }) {
             </h1>
             <LikertSelector answer={question.answer} disabled={pending} onAnswer={answer} />
             {error ? (
-              <p className="mt-4 text-sm text-danger" role="alert">
+              <p className="text-danger mt-4 text-sm" role="alert">
                 {error}
               </p>
             ) : null}

@@ -153,11 +153,11 @@ export function ModularStartForm() {
   return (
     <div className="mx-auto max-w-5xl">
       <div className="max-w-3xl">
-        <p className="text-sm font-semibold text-lens">Assessment modular</p>
+        <p className="text-lens text-sm font-semibold">Assessment modular</p>
         <h1 className="font-display mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
           Pilih lensa yang ingin kamu pahami.
         </h1>
-        <p className="mt-5 max-w-2xl text-lg leading-8 text-ink-muted">
+        <p className="text-ink-muted mt-5 max-w-2xl text-lg leading-8">
           Setiap lensa memakai item dan scoring independen. Hubungan antar-lensa baru dibaca setelah
           skor primer selesai.
         </p>
@@ -169,7 +169,7 @@ export function ModularStartForm() {
             <h2 className="font-display text-2xl font-semibold" id="module-heading">
               Lensa tersedia
             </h2>
-            <p className="mt-2 text-ink-muted">Pilih satu atau buat combo sendiri.</p>
+            <p className="text-ink-muted mt-2">Pilih satu atau buat combo sendiri.</p>
           </div>
           <label className="flex items-center gap-3 text-sm font-medium">
             Usia <span className="sr-only">opsional</span>
@@ -190,12 +190,12 @@ export function ModularStartForm() {
             const selected = selectedKeys.includes(module.key);
             return (
               <label
-                className={`focus-within:ring-3 focus-within:ring-lens-soft flex cursor-pointer gap-4 rounded-md border bg-white p-5 transition-colors duration-150 ease-out ${selected ? "border-lens bg-lens-soft/60" : "border-line hover:border-lens/50"}`}
+                className={`focus-within:ring-lens-soft flex cursor-pointer gap-4 rounded-md border bg-white p-5 transition-colors duration-150 ease-out focus-within:ring-3 ${selected ? "border-lens bg-lens-soft/60" : "border-line hover:border-lens/50"}`}
                 key={module.key}
               >
                 <input
                   checked={selected}
-                  className="mt-1 h-5 w-5 accent-lens"
+                  className="accent-lens mt-1 h-5 w-5"
                   onChange={() => toggleModule(module.key)}
                   type="checkbox"
                 />
@@ -204,7 +204,7 @@ export function ModularStartForm() {
                     <span className="text-lg font-semibold">{module.publicName}</span>
                     <Badge tone="lens">{tierLabels[module.evidenceTier]}</Badge>
                   </span>
-                  <span className="mt-2 block text-sm leading-6 text-ink-muted">
+                  <span className="text-ink-muted mt-2 block text-sm leading-6">
                     {module.description}
                   </span>
                 </span>
@@ -223,13 +223,13 @@ export function ModularStartForm() {
             {combos.map((combo) => (
               <button
                 aria-pressed={presetKey === combo.key}
-                className="focus-ring min-w-[min(100%,18rem)] flex-1 rounded-md border border-line bg-white p-5 text-left transition-colors duration-150 ease-out hover:border-lens/50 aria-pressed:border-lens aria-pressed:bg-lens-soft"
+                className="focus-ring border-line hover:border-lens/50 aria-pressed:border-lens aria-pressed:bg-lens-soft min-w-[min(100%,18rem)] flex-1 rounded-md border bg-white p-5 text-left transition-colors duration-150 ease-out"
                 key={combo.key}
                 onClick={() => selectPreset(combo)}
                 type="button"
               >
                 <span className="font-semibold">{combo.publicName}</span>
-                <span className="mt-2 block text-sm leading-6 text-ink-muted">
+                <span className="text-ink-muted mt-2 block text-sm leading-6">
                   {combo.description}
                 </span>
               </button>
@@ -246,7 +246,7 @@ export function ModularStartForm() {
           {modes.map((profile) => (
             <button
               aria-pressed={mode === profile.internalMode}
-              className="focus-ring rounded-md border border-line bg-white p-5 text-left transition-colors duration-150 ease-out hover:border-lens/50 disabled:cursor-not-allowed disabled:opacity-50 aria-pressed:border-lens aria-pressed:bg-lens-soft"
+              className="focus-ring border-line hover:border-lens/50 aria-pressed:border-lens aria-pressed:bg-lens-soft rounded-md border bg-white p-5 text-left transition-colors duration-150 ease-out disabled:cursor-not-allowed disabled:opacity-50"
               disabled={!profile.isSelectable}
               key={profile.internalMode}
               onClick={() => setMode(profile.internalMode)}
@@ -255,14 +255,14 @@ export function ModularStartForm() {
               <span className="flex items-center justify-between gap-2">
                 <span className="text-lg font-semibold">{profile.publicName}</span>
                 {profile.internalMode === "standard" ? (
-                  <span className="text-xs font-semibold text-lens">Recommended</span>
+                  <span className="text-lens text-xs font-semibold">Recommended</span>
                 ) : null}
               </span>
-              <span className="mt-2 block text-sm leading-6 text-ink-muted">
+              <span className="text-ink-muted mt-2 block text-sm leading-6">
                 {profile.description}
               </span>
               {!profile.isSelectable ? (
-                <span className="mt-2 block text-xs font-semibold text-ink-muted">
+                <span className="text-ink-muted mt-2 block text-xs font-semibold">
                   Belum dibuka
                 </span>
               ) : null}
@@ -272,10 +272,10 @@ export function ModularStartForm() {
       </section>
 
       {modules.some((module) => selectedKeys.includes(module.key) && module.isExperimental) ? (
-        <label className="mt-6 flex items-start gap-3 rounded-md border border-aperture-soft bg-aperture-soft p-4 text-sm leading-6 text-ink">
+        <label className="border-aperture-soft bg-aperture-soft text-ink mt-6 flex items-start gap-3 rounded-md border p-4 text-sm leading-6">
           <input
             checked={experimentalAcknowledged}
-            className="mt-1 h-5 w-5 accent-aperture"
+            className="accent-aperture mt-1 h-5 w-5"
             onChange={(event) => setExperimentalAcknowledged(event.target.checked)}
             type="checkbox"
           />
@@ -283,31 +283,31 @@ export function ModularStartForm() {
         </label>
       ) : null}
 
-      <aside className="lens-glow relative mt-10 overflow-hidden rounded-lg bg-lens-strong p-6 text-canvas sm:flex sm:items-center sm:justify-between sm:gap-8">
+      <aside className="lens-glow bg-lens-strong text-canvas relative mt-10 overflow-hidden rounded-lg p-6 sm:flex sm:items-center sm:justify-between sm:gap-8">
         <div aria-live="polite">
-          <p className="font-semibold text-aperture">Estimasi dari server</p>
+          <p className="text-aperture-on-dark font-semibold">Estimasi dari server</p>
           {estimating ? (
-            <p className="mt-2 text-canvas/85">Menghitung pilihan…</p>
+            <p className="text-canvas/85 mt-2">Menghitung pilihan…</p>
           ) : estimate ? (
             <>
-              <p className="tabular-nums mt-2 text-xl font-semibold">
+              <p className="mt-2 text-xl font-semibold tabular-nums">
                 {estimate.itemCount} item · sekitar {estimate.estimatedMinutes} menit
               </p>
-              <p className="mt-2 max-w-2xl text-sm leading-6 text-canvas/85">
+              <p className="text-canvas/85 mt-2 max-w-2xl text-sm leading-6">
                 {estimate.disclaimer}
               </p>
             </>
           ) : (
-            <p className="mt-2 text-canvas/85">Pilih lensa untuk melihat estimasi.</p>
+            <p className="text-canvas/85 mt-2">Pilih lensa untuk melihat estimasi.</p>
           )}
           {error ? (
-            <p className="mt-3 text-sm text-danger-soft" role="alert">
+            <p className="text-danger-soft mt-3 text-sm" role="alert">
               {error}
             </p>
           ) : null}
         </div>
         <Button
-          className="mt-5 w-full shrink-0 border-transparent bg-canvas text-lens-strong hover:bg-white sm:mt-0 sm:w-auto"
+          className="bg-canvas text-lens-strong mt-5 w-full shrink-0 border-transparent hover:bg-white sm:mt-0 sm:w-auto"
           disabled={!estimate || estimating}
           onClick={continueToReview}
           type="button"

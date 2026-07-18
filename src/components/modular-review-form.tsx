@@ -52,29 +52,29 @@ export function ModularReviewForm() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <p className="text-sm font-semibold text-lens">Tinjau dan consent</p>
+      <p className="text-lens text-sm font-semibold">Tinjau dan consent</p>
       <h1 className="font-display mt-3 text-4xl font-semibold tracking-tight">
         Siap memulai eksplorasi?
       </h1>
-      <p className="mt-4 leading-7 text-ink-muted">
+      <p className="text-ink-muted mt-4 leading-7">
         Pastikan lensa dan kedalaman sesuai waktu yang kamu punya. Blueprint akan dikunci saat sesi
         dimulai agar urutan dan versi item tidak berubah.
       </p>
 
       {estimate ? (
-        <div className="mt-8 overflow-hidden rounded-lg border border-line bg-white">
-          <div className="grid gap-5 border-b border-line p-6 sm:grid-cols-3">
+        <div className="border-line mt-8 overflow-hidden rounded-lg border bg-white">
+          <div className="border-line grid gap-5 border-b p-6 sm:grid-cols-3">
             <div>
-              <p className="text-sm text-ink-muted">Mode</p>
+              <p className="text-ink-muted text-sm">Mode</p>
               <p className="mt-1 text-lg font-semibold">{estimate.publicMode}</p>
             </div>
             <div>
-              <p className="text-sm text-ink-muted">Jumlah</p>
-              <p className="tabular-nums mt-1 text-lg font-semibold">{estimate.itemCount} item</p>
+              <p className="text-ink-muted text-sm">Jumlah</p>
+              <p className="mt-1 text-lg font-semibold tabular-nums">{estimate.itemCount} item</p>
             </div>
             <div>
-              <p className="text-sm text-ink-muted">Durasi</p>
-              <p className="tabular-nums mt-1 text-lg font-semibold">
+              <p className="text-ink-muted text-sm">Durasi</p>
+              <p className="mt-1 text-lg font-semibold tabular-nums">
                 ± {estimate.estimatedMinutes} menit
               </p>
             </div>
@@ -84,28 +84,28 @@ export function ModularReviewForm() {
             <ul className="mt-3 flex flex-wrap gap-2">
               {modules.map((module) => (
                 <li
-                  className="rounded-sm border border-lens-soft bg-lens-soft px-3 py-1.5 text-sm text-lens-strong"
+                  className="border-lens-soft bg-lens-soft text-lens-strong rounded-sm border px-3 py-1.5 text-sm"
                   key={module.key}
                 >
                   {module.publicName}
                 </li>
               ))}
             </ul>
-            <p className="mt-5 text-sm leading-6 text-ink-muted">{estimate.disclaimer}</p>
+            <p className="text-ink-muted mt-5 text-sm leading-6">{estimate.disclaimer}</p>
           </div>
         </div>
       ) : null}
 
-      <div className="mt-8 space-y-3 rounded-md border border-line bg-lens-soft/40 p-5 text-sm leading-6">
+      <div className="border-line bg-lens-soft/40 mt-8 space-y-3 rounded-md border p-5 text-sm leading-6">
         <p>Jawaban dipakai hanya untuk scoring dan refleksi dari lensa yang dipilih.</p>
         <p>Skor primer dihitung di server. Correlation tidak mengubah skor module.</p>
         <p>Hasil private sampai kamu membuat link berbagi.</p>
         <p>Kamu dapat menghapus hasil dan jawaban terkait.</p>
       </div>
-      <label className="mt-5 flex items-start gap-3 rounded-md border border-line bg-white p-5 text-sm leading-6">
+      <label className="border-line mt-5 flex items-start gap-3 rounded-md border bg-white p-5 text-sm leading-6">
         <input
           checked={consent}
-          className="mt-1 h-5 w-5 accent-lens"
+          className="accent-lens mt-1 h-5 w-5"
           onChange={(event) => setConsent(event.target.checked)}
           type="checkbox"
         />
@@ -113,13 +113,13 @@ export function ModularReviewForm() {
         diagnosis atau penilaian mutlak.
       </label>
       {error ? (
-        <p className="mt-4 text-sm text-danger" role="alert">
+        <p className="text-danger mt-4 text-sm" role="alert">
           {error}
         </p>
       ) : null}
       <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
         <Link
-          className="focus-ring inline-flex min-h-12 items-center justify-center rounded-sm border border-line bg-white px-5 py-3 text-center font-semibold text-ink transition-colors duration-150 ease-out hover:bg-mist"
+          className="focus-ring border-line text-ink hover:bg-mist inline-flex min-h-12 items-center justify-center rounded-sm border bg-white px-5 py-3 text-center font-semibold transition-colors duration-150 ease-out"
           href="/start/modules"
         >
           Ubah pilihan

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef, type ReactNode } from "react";
+import { useEffect, useRef, useId, type ReactNode } from "react";
 import { cn } from "@/lib/cn";
 
 export function Dialog({
@@ -17,23 +17,38 @@ export function Dialog({
   className?: string;
 }) {
   const ref = useRef<HTMLDialogElement>(null);
+  const titleId = useId();
 
   useEffect(() => {
     const node = ref.current;
     if (!node) return;
-    if (open && !node.open) {
-      node.showModal();
-    } else if (!open && node.open) {
-      node.close();
+
+    let triggerEl: HTMLElement | null = null;
+
+    if (open) {
+      triggerEl = document.activeElement as HTMLElement;
+      if (!node.open) {
+        node.showModal();
+      }
+    } else {
+      if (node.open) {
+        node.close();
+      }
     }
+
+    return () => {
+      if (open && triggerEl) {
+        triggerEl.focus();
+      }
+    };
   }, [open]);
 
   return (
     <dialog
       ref={ref}
-      aria-labelledby="dialog-title"
+      aria-labelledby={titleId}
       className={cn(
-        "m-auto max-w-md rounded-lg border border-line bg-canvas p-6 text-ink shadow-surface backdrop:bg-ink/40 open:animate-none",
+        "border-line bg-canvas text-ink shadow-surface backdrop:bg-ink/40 relative m-auto max-w-md rounded-lg border p-6",
         className,
       )}
       onCancel={(event) => {
@@ -42,7 +57,15 @@ export function Dialog({
       }}
       onClose={onClose}
     >
-      <h2 className="font-display text-lg font-semibold" id="dialog-title">
+      <button
+        type="button"
+        onClick={onClose}
+        className="focus-ring text-ink-muted hover:bg-mist hover:text-ink absolute top-4 right-4 rounded-sm p-1.5"
+        aria-label="Tutup dialog"
+      >
+        <span aria-hidden="true">✕</span>
+      </button>
+      <h2 className="font-display pr-8 text-lg font-semibold" id={titleId}>
         {title}
       </h2>
       <div className="mt-4">{children}</div>

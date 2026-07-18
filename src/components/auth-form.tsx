@@ -58,13 +58,13 @@ export function AuthForm({ mode }: AuthFormProps) {
 
   if (registrationAccepted) {
     return (
-      <div className="rounded-md border border-success bg-white p-6" role="status">
-        <h2 className="font-display text-lg font-semibold text-success">Pendaftaran diterima</h2>
-        <p className="mt-2 leading-7 text-ink-muted">
+      <div className="border-success rounded-md border bg-white p-6" role="status">
+        <h2 className="font-display text-success text-lg font-semibold">Pendaftaran diterima</h2>
+        <p className="text-ink-muted mt-2 leading-7">
           Jika email belum terdaftar, akun sudah dibuat. Masuk untuk melanjutkan.
         </p>
         <Link
-          className="focus-ring mt-5 inline-flex min-h-12 items-center justify-center rounded-sm bg-lens px-5 py-3 font-semibold text-canvas transition-colors duration-150 ease-out hover:bg-lens-strong"
+          className="focus-ring bg-lens text-canvas hover:bg-lens-strong mt-5 inline-flex min-h-12 items-center justify-center rounded-sm px-5 py-3 font-semibold transition-colors duration-150 ease-out"
           href="/login"
         >
           Masuk sekarang
@@ -99,14 +99,14 @@ export function AuthForm({ mode }: AuthFormProps) {
           required
           type="password"
         />
-        <p className="mt-2 text-sm text-ink-muted" id={`${mode}-password-help`}>
+        <p className="text-ink-muted mt-2 text-sm" id={`${mode}-password-help`}>
           Minimal 12 karakter.
         </p>
       </div>
 
       {error ? (
         <p
-          className="rounded-md border border-danger-soft bg-danger-soft px-4 py-3 text-sm text-danger"
+          className="border-danger-soft bg-danger-soft text-danger rounded-md border px-4 py-3 text-sm"
           role="alert"
         >
           {error}

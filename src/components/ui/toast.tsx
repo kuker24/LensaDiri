@@ -1,6 +1,14 @@
 "use client";
 
-import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useMemo,
+  useRef,
+  useState,
+  type ReactNode,
+} from "react";
 import { cn } from "@/lib/cn";
 
 type ToastTone = "neutral" | "success" | "danger";
@@ -46,7 +54,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           <div
             key={item.id}
             className={cn(
-              "pointer-events-auto animate-[toast-in_200ms_ease-out] rounded-md border px-4 py-2.5 text-sm shadow-surface",
+              "shadow-surface pointer-events-auto animate-[toast-in_200ms_ease-out] rounded-md border px-4 py-2.5 text-sm",
               toneStyles[item.tone],
             )}
           >

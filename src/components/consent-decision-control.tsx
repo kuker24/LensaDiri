@@ -43,7 +43,7 @@ export function ConsentDecisionControl({
       <div className="mt-3 flex flex-wrap gap-3">
         <button
           aria-pressed={decision === "accepted"}
-          className="focus-ring min-h-11 rounded-sm border border-line px-4 font-semibold transition-colors duration-150 ease-out aria-pressed:border-lens aria-pressed:bg-lens-soft"
+          className="focus-ring border-line aria-pressed:border-lens aria-pressed:bg-lens-soft min-h-11 rounded-sm border px-4 font-semibold transition-colors duration-150 ease-out"
           disabled={pending}
           onClick={() => record(true)}
           type="button"
@@ -52,7 +52,7 @@ export function ConsentDecisionControl({
         </button>
         <button
           aria-pressed={decision === "rejected"}
-          className="focus-ring min-h-11 rounded-sm border border-line px-4 font-semibold transition-colors duration-150 ease-out aria-pressed:border-lens aria-pressed:bg-lens-soft"
+          className="focus-ring border-line aria-pressed:border-lens aria-pressed:bg-lens-soft min-h-11 rounded-sm border px-4 font-semibold transition-colors duration-150 ease-out"
           disabled={pending}
           onClick={() => record(false)}
           type="button"
@@ -61,7 +61,7 @@ export function ConsentDecisionControl({
         </button>
       </div>
       {error ? (
-        <p className="mt-3 text-sm text-danger" role="alert">
+        <p className="text-danger mt-3 text-sm" role="alert">
           {error}
         </p>
       ) : null}

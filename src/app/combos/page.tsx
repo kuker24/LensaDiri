@@ -12,41 +12,41 @@ export default async function CombosPage() {
   return (
     <main className="container-shell py-12 sm:py-18">
       <header className="max-w-3xl">
-        <p className="text-sm font-semibold text-lens">Preset terkurasi</p>
+        <p className="text-lens text-sm font-semibold">Preset terkurasi</p>
         <h1 className="font-display mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">
           Gabungkan lensa tanpa mencampur skor
         </h1>
-        <p className="mt-5 leading-7 text-ink-muted">
+        <p className="text-ink-muted mt-5 leading-7">
           Setiap lensa tetap dihitung secara independen. Korelasi baru disusun setelah seluruh skor
           primer final.
         </p>
       </header>
 
       {combos.length === 0 ? (
-        <p className="mt-10 rounded-lg border border-line bg-white p-6 text-ink-muted">
+        <p className="border-line text-ink-muted mt-10 rounded-lg border bg-white p-6">
           Belum ada preset yang memenuhi publication gate.
         </p>
       ) : (
         <ul className="mt-10 grid gap-5 md:grid-cols-2">
           {combos.map((combo) => (
-            <li className="rounded-lg border border-line bg-white p-6" key={combo.key}>
+            <li className="border-line rounded-lg border bg-white p-6" key={combo.key}>
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <span className="text-sm font-semibold text-lens">
+                <span className="text-lens text-sm font-semibold">
                   {combo.isFullSpectrum ? "Full Spectrum" : "Curated combo"}
                 </span>
-                <span className="text-xs font-semibold text-ink-muted">
+                <span className="text-ink-muted text-xs font-semibold">
                   Rekomendasi {getPublicModeName(combo.recommendedMode)}
                 </span>
               </div>
               <h2 className="font-display mt-4 text-2xl font-semibold">{combo.publicName}</h2>
-              <p className="mt-3 leading-7 text-ink-muted">{combo.description}</p>
+              <p className="text-ink-muted mt-3 leading-7">{combo.description}</p>
               <ul
                 className="mt-5 flex flex-wrap gap-2"
                 aria-label={`Modul dalam ${combo.publicName}`}
               >
                 {combo.moduleKeys.map((key) => (
                   <li
-                    className="rounded-sm border border-lens-soft bg-lens-soft px-3 py-1 text-sm text-lens-strong"
+                    className="border-lens-soft bg-lens-soft text-lens-strong rounded-sm border px-3 py-1 text-sm"
                     key={key}
                   >
                     {names.get(key) ?? key.replaceAll("_", " ")}
@@ -54,7 +54,7 @@ export default async function CombosPage() {
                 ))}
               </ul>
               <Link
-                className="focus-ring mt-6 inline-flex min-h-12 items-center rounded-sm bg-lens px-5 font-semibold text-canvas transition-colors duration-150 ease-out hover:bg-lens-strong"
+                className="focus-ring bg-lens text-canvas hover:bg-lens-strong mt-6 inline-flex min-h-12 items-center rounded-sm px-5 font-semibold transition-colors duration-150 ease-out"
                 href="/start/modules"
               >
                 Pilih preset

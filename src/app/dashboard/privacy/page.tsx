@@ -17,7 +17,7 @@ export default async function DashboardPrivacyPage() {
   return (
     <main className="container-shell py-14 sm:py-20">
       <Link
-        className="focus-ring rounded text-sm font-semibold text-lens hover:underline"
+        className="focus-ring text-lens rounded text-sm font-semibold hover:underline"
         href="/dashboard"
       >
         Kembali ke dashboard
@@ -26,7 +26,7 @@ export default async function DashboardPrivacyPage() {
         <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
           Pusat privasi
         </h1>
-        <p className="mt-4 max-w-2xl leading-7 text-ink-muted">
+        <p className="text-ink-muted mt-4 max-w-2xl leading-7">
           Consent dicatat sebagai ledger append-only. Keputusan terbaru berlaku, sedangkan riwayat
           lama tetap tersedia untuk audit internal tanpa diekspos ke browser.
         </p>
@@ -39,7 +39,7 @@ export default async function DashboardPrivacyPage() {
         <div className="mt-5 space-y-4">
           {policies.map((policy) => (
             <article
-              className="rounded-lg border border-line bg-white p-6"
+              className="border-line rounded-lg border bg-white p-6"
               key={`${policy.consentType}-${policy.version}`}
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -50,19 +50,19 @@ export default async function DashboardPrivacyPage() {
                   {policy.requiredForCore ? "Wajib untuk fungsi inti" : "Opsional"}
                 </Badge>
               </div>
-              <p className="mt-3 leading-7 text-ink-muted">{policy.purpose}</p>
+              <p className="text-ink-muted mt-3 leading-7">{policy.purpose}</p>
               <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-3">
                 <div>
                   <dt className="font-semibold">Versi</dt>
-                  <dd className="mt-1 text-ink-muted">{policy.version}</dd>
+                  <dd className="text-ink-muted mt-1">{policy.version}</dd>
                 </div>
                 <div>
                   <dt className="font-semibold">Data</dt>
-                  <dd className="mt-1 text-ink-muted">{policy.retentionSubject}</dd>
+                  <dd className="text-ink-muted mt-1">{policy.retentionSubject}</dd>
                 </div>
                 <div>
                   <dt className="font-semibold">Retensi</dt>
-                  <dd className="tabular-nums mt-1 text-ink-muted">
+                  <dd className="text-ink-muted mt-1 tabular-nums">
                     {policy.retentionDays
                       ? `${policy.retentionDays} hari`
                       : "Sampai dihapus pengguna"}
@@ -70,7 +70,7 @@ export default async function DashboardPrivacyPage() {
                 </div>
               </dl>
               {policy.requiredForCore ? (
-                <p className="mt-4 text-sm text-ink-muted">
+                <p className="text-ink-muted mt-4 text-sm">
                   Keputusan fungsi inti dibuat pada saat memulai assessment. Penghapusan hasil atau
                   akun menghentikan penyimpanan terkait.
                 </p>
@@ -87,26 +87,26 @@ export default async function DashboardPrivacyPage() {
       </section>
 
       <section
-        className="mt-10 max-w-4xl rounded-lg border border-lens-soft bg-lens-soft/40 p-6"
+        className="border-lens-soft bg-lens-soft/40 mt-10 max-w-4xl rounded-lg border p-6"
         aria-labelledby="retention-heading"
       >
         <h2 className="font-display text-xl font-semibold" id="retention-heading">
           Retention cleanup
         </h2>
-        <p className="mt-3 leading-7 text-ink-muted">
+        <p className="text-ink-muted mt-3 leading-7">
           Sesi guest kedaluwarsa dan bucket rate limit lama dibersihkan oleh trusted scheduled job.
           Hasil akun tidak dihapus otomatis dan tetap berada di bawah kontrol pengguna.
         </p>
       </section>
 
       <section
-        className="mt-10 max-w-4xl rounded-lg border border-danger-soft bg-danger-soft p-6 sm:p-8"
+        className="border-danger-soft bg-danger-soft mt-10 max-w-4xl rounded-lg border p-6 sm:p-8"
         aria-labelledby="delete-account-title"
       >
-        <h2 className="font-display text-2xl font-semibold text-danger" id="delete-account-title">
+        <h2 className="font-display text-danger text-2xl font-semibold" id="delete-account-title">
           Hapus akun permanen
         </h2>
-        <p className="mt-3 max-w-3xl leading-7 text-ink">
+        <p className="text-ink mt-3 max-w-3xl leading-7">
           Operasi ini hard-delete akun beserta session, consent, assessment, jawaban, hasil modular,
           share token, feedback, dan data turunan melalui cascade yang telah diuji. Operasi tidak
           dapat dibatalkan.

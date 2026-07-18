@@ -30,7 +30,7 @@ export function LogoutButton() {
         {isPending ? "Keluar…" : "Keluar"}
       </Button>
       {failed ? (
-        <p className="mt-2 text-sm text-danger" role="alert">
+        <p className="text-danger mt-2 text-sm" role="alert">
           Gagal keluar. Coba lagi.
         </p>
       ) : null}

@@ -32,7 +32,7 @@ export function DashboardOpenButton({ id, kind }: { id: string; kind: "result" |
         {pending ? "Membuka…" : kind === "session" ? "Lanjutkan" : "Buka dan kelola"}
       </Button>
       {error ? (
-        <p className="mt-2 text-sm text-danger" role="alert">
+        <p className="text-danger mt-2 text-sm" role="alert">
           {error}
         </p>
       ) : null}
