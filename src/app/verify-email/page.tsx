@@ -10,10 +10,10 @@ export const metadata: Metadata = {
 export default function VerifyEmailPage() {
   return (
     <section className="container-shell py-14 sm:py-20">
-      <div className="mx-auto max-w-xl rounded-3xl border border-[var(--line)] bg-white p-7 shadow-[var(--shadow)] sm:p-10">
-        <p className="text-sm font-semibold text-violet-700">Keamanan akun</p>
-        <h1 className="mt-2 text-3xl font-semibold">Verifikasi email</h1>
-        <p className="mt-3 leading-7 text-[var(--muted)]">
+      <div className="mx-auto max-w-xl rounded-lg border border-line bg-white p-7 shadow-surface sm:p-10">
+        <p className="text-sm font-semibold text-lens">Keamanan akun</p>
+        <h1 className="font-display mt-2 text-3xl font-semibold text-ink">Verifikasi email</h1>
+        <p className="mt-3 leading-7 text-ink-muted">
           Gunakan link sekali pakai dalam 30 menit. Token tidak disimpan dalam bentuk mentah.
         </p>
         <div className="mt-7">

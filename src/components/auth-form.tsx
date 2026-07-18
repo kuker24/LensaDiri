@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 
 import { AuthApiError, postAuthenticatedMutation } from "@/lib/auth/client";
+import { Button } from "@/components/ui/button";
+import { Input, Label } from "@/components/ui/input";
 
 type AuthFormProps = {
   mode: "login" | "register";
@@ -56,13 +58,13 @@ export function AuthForm({ mode }: AuthFormProps) {
 
   if (registrationAccepted) {
     return (
-      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6" role="status">
-        <h2 className="text-lg font-semibold text-emerald-950">Pendaftaran diterima</h2>
-        <p className="mt-2 leading-7 text-emerald-900">
+      <div className="rounded-md border border-success bg-white p-6" role="status">
+        <h2 className="font-display text-lg font-semibold text-success">Pendaftaran diterima</h2>
+        <p className="mt-2 leading-7 text-ink-muted">
           Jika email belum terdaftar, akun sudah dibuat. Masuk untuk melanjutkan.
         </p>
         <Link
-          className="focus-ring mt-5 inline-flex rounded-xl bg-[var(--foreground)] px-5 py-3 font-semibold text-white"
+          className="focus-ring mt-5 inline-flex min-h-12 items-center justify-center rounded-sm bg-lens px-5 py-3 font-semibold text-canvas transition-colors duration-150 ease-out hover:bg-lens-strong"
           href="/login"
         >
           Masuk sekarang
@@ -74,12 +76,9 @@ export function AuthForm({ mode }: AuthFormProps) {
   return (
     <form className="space-y-5" onSubmit={handleSubmit}>
       <div>
-        <label className="block text-sm font-semibold" htmlFor={`${mode}-email`}>
-          Email
-        </label>
-        <input
+        <Label htmlFor={`${mode}-email`}>Email</Label>
+        <Input
           autoComplete="email"
-          className="focus-ring mt-2 min-h-12 w-full rounded-xl border border-[var(--line)] bg-white px-4 text-base shadow-sm transition outline-none hover:border-violet-300"
           id={`${mode}-email`}
           inputMode="email"
           maxLength={320}
@@ -89,13 +88,10 @@ export function AuthForm({ mode }: AuthFormProps) {
         />
       </div>
       <div>
-        <label className="block text-sm font-semibold" htmlFor={`${mode}-password`}>
-          Password
-        </label>
-        <input
+        <Label htmlFor={`${mode}-password`}>Password</Label>
+        <Input
           aria-describedby={`${mode}-password-help`}
           autoComplete={isLogin ? "current-password" : "new-password"}
-          className="focus-ring mt-2 min-h-12 w-full rounded-xl border border-[var(--line)] bg-white px-4 text-base shadow-sm transition outline-none hover:border-violet-300"
           id={`${mode}-password`}
           maxLength={128}
           minLength={12}
@@ -103,27 +99,23 @@ export function AuthForm({ mode }: AuthFormProps) {
           required
           type="password"
         />
-        <p className="mt-2 text-sm text-[var(--muted)]" id={`${mode}-password-help`}>
+        <p className="mt-2 text-sm text-ink-muted" id={`${mode}-password-help`}>
           Minimal 12 karakter.
         </p>
       </div>
 
       {error ? (
         <p
-          className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900"
+          className="rounded-md border border-danger-soft bg-danger-soft px-4 py-3 text-sm text-danger"
           role="alert"
         >
           {error}
         </p>
       ) : null}
 
-      <button
-        className="focus-ring min-h-12 w-full rounded-xl bg-[var(--foreground)] px-5 py-3 font-semibold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60"
-        disabled={isPending}
-        type="submit"
-      >
+      <Button className="w-full" disabled={isPending} type="submit">
         {isPending ? "Memproses…" : isLogin ? "Masuk" : "Buat akun"}
-      </button>
+      </Button>
     </form>
   );
 }

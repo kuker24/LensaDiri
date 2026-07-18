@@ -4,6 +4,8 @@ import Link from "next/link";
 import { type FormEvent, useEffect, useState } from "react";
 
 import { AuthApiError, postAuthenticatedMutation } from "@/lib/auth/client";
+import { Button } from "@/components/ui/button";
+import { Input, Label } from "@/components/ui/input";
 
 type RecoveryMode = "forgot" | "request-verification" | "reset" | "verify";
 
@@ -103,10 +105,10 @@ export function AccountRecoveryForm({ mode, token = "" }: { mode: RecoveryMode; 
 
   if (success) {
     return (
-      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6" role="status">
-        <p className="font-semibold text-emerald-950">{selected.success}</p>
+      <div className="rounded-md border border-success bg-white p-6" role="status">
+        <p className="font-semibold text-success">{selected.success}</p>
         <Link
-          className="focus-ring mt-5 inline-flex rounded-xl bg-[var(--foreground)] px-5 py-3 font-semibold text-white"
+          className="focus-ring mt-5 inline-flex min-h-12 items-center justify-center rounded-sm bg-lens px-5 py-3 font-semibold text-canvas transition-colors duration-150 ease-out hover:bg-lens-strong"
           href="/login"
         >
           Kembali ke login
@@ -119,12 +121,9 @@ export function AccountRecoveryForm({ mode, token = "" }: { mode: RecoveryMode; 
     <form className="space-y-5" onSubmit={submit}>
       {selected.field === "email" ? (
         <div>
-          <label className="block text-sm font-semibold" htmlFor="recovery-email">
-            Email
-          </label>
-          <input
+          <Label htmlFor="recovery-email">Email</Label>
+          <Input
             autoComplete="email"
-            className="focus-ring mt-2 min-h-12 w-full rounded-xl border border-[var(--line)] px-4"
             id="recovery-email"
             maxLength={320}
             name="email"
@@ -137,12 +136,9 @@ export function AccountRecoveryForm({ mode, token = "" }: { mode: RecoveryMode; 
       )}
       {mode === "reset" ? (
         <div>
-          <label className="block text-sm font-semibold" htmlFor="recovery-password">
-            Password baru
-          </label>
-          <input
+          <Label htmlFor="recovery-password">Password baru</Label>
+          <Input
             autoComplete="new-password"
-            className="focus-ring mt-2 min-h-12 w-full rounded-xl border border-[var(--line)] px-4"
             id="recovery-password"
             maxLength={128}
             minLength={12}
@@ -150,31 +146,31 @@ export function AccountRecoveryForm({ mode, token = "" }: { mode: RecoveryMode; 
             required
             type="password"
           />
-          <p className="mt-2 text-sm text-[var(--muted)]">
+          <p className="mt-2 text-sm text-ink-muted">
             Minimal 12 karakter. Semua session lama akan dicabut.
           </p>
         </div>
       ) : null}
       {selected.field === "token" && !fragmentToken ? (
         <p
-          className="rounded-xl border border-amber-200 bg-amber-50 p-4 text-amber-950"
+          className="rounded-md border border-aperture bg-white p-4 text-ink-muted"
           role="alert"
         >
           Link tidak memuat token.
         </p>
       ) : null}
       {error ? (
-        <p className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-900" role="alert">
+        <p className="rounded-md border border-danger bg-danger-soft p-4 text-danger" role="alert">
           {error}
         </p>
       ) : null}
-      <button
-        className="focus-ring min-h-12 w-full rounded-xl bg-[var(--foreground)] px-5 py-3 font-semibold text-white disabled:opacity-50"
+      <Button
+        className="w-full"
         disabled={pending || (selected.field === "token" && !fragmentToken)}
         type="submit"
       >
         {pending ? "Memproses…" : selected.button}
-      </button>
+      </Button>
     </form>
   );
 }
