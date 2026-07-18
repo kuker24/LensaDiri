@@ -11,7 +11,7 @@ Production project identifiers, database URLs, passwords, API keys, and connecti
 
 ## Applied migration mapping
 
-Verified after the approved production migration on 2026-07-17 with `supabase migration list`. Production contains versions `202607120001` through `202607200001`. Local names and hosted migration history agree.
+Verified after the approved production migration on 2026-07-17 with `supabase migration list`. Production contains versions `202607120001` through `202607200001`. Repository on branch `agent/prd-v2-final-completion` additionally contains pending candidate `202607200002`, which has not been applied to production. Local and hosted migration history agree only through `202607200001`.
 
 | Version        | Repository source                                                    | SHA-256                                                            | Production status | Purpose                                                                             |
 | -------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------ | ----------------- | ----------------------------------------------------------------------------------- |
@@ -29,6 +29,42 @@ Verified after the approved production migration on 2026-07-17 with `supabase mi
 | `202607200001` | `supabase/migrations/202607200001_account_recovery_foundation.sql`   | `bd2060b4b1c5457e24eee5bb77edc44ffc3a9677b293885ebb6a59211436400d` | Applied           | Dormant account recovery foundation                                                 |
 
 Production checkpoint after migration: 12 migrations, 60 active legacy questions, 40 Quick questions, zero enabled feature flags, zero browser grants on new sensitive tables, and all checked new tables use forced RLS. No modular production seed or feature activation occurred.
+
+## Pending candidate migration
+
+| Version        | Repository source                                            | SHA-256                                                            | Production status | Purpose                                                       |
+| -------------- | ------------------------------------------------------------ | ------------------------------------------------------------------ | ----------------- | ------------------------------------------------------------- |
+| `202607200002` | `supabase/migrations/202607200002_quality_model_version.sql` | `73f84030fbbdbdbfda60bc14e240689acb7d497530d8589893697a14d7775eef` | Pending           | Versioned quality-model provenance on `assessment_blueprints` |
+
+Details:
+
+- Dependency: requires `202607130006` (`assessment_blueprints` table must already exist).
+- Effect: adds `assessment_blueprints.quality_model_version text not null default 'module-quality-1'`.
+- Backfill: existing blueprints default and backfill to `module-quality-1` (legacy formula, byte-identical numbers). New blueprints created after this migration are locked to `module-quality-2`.
+- Constraint: `assessment_blueprints_quality_model_version` CHECK accepts only `module-quality-1` or `module-quality-2`.
+- Lock profile: short `ALTER TABLE` metadata lock (add column with constant default, add CHECK constraint). No table rewrite, no row-by-row backfill loop, no destructive reset.
+- Rollback: additive fix-forward only, consistent with the release policy for every other applied migration in this map.
+- Activation ordering: this migration must be applied to production before any modular feature flag (`FEATURE_MODULAR_COMPOSER`, `FEATURE_COMPLEX_MODE`) is enabled on production, because modular completion paths read `quality_model_version` to select the versioned confidence factor set.
+- Current production risk: none. Production remains on `202607200001` and does not read or depend on `quality_model_version`. All modular feature flags remain OFF, so this pending migration does not change current production behavior.
+
+### Postcheck for a future approved apply
+
+```sql
+select quality_model_version, count(*)
+from public.assessment_blueprints
+group by quality_model_version
+order by quality_model_version;
+```
+
+A future approved migration window must also verify:
+
+- every preexisting blueprint reads `module-quality-1`;
+- constraint `assessment_blueprints_quality_model_version` exists and rejects any value outside `module-quality-1`/`module-quality-2`;
+- a used (published/consumed) blueprint still rejects mutation, including mutation of `quality_model_version`;
+- all feature flags remain false after apply;
+- legacy Quick 40 and Standard 60 session and result readers still pass smoke checks.
+
+This migration has not been applied to production. Do not describe local and hosted migration history as fully matching until `202607200002` is applied to production through a separate approved migration window.
 
 ## Applied additive chain
 
@@ -101,3 +137,5 @@ Never run reset, integration, pgTAP, seed replay/drift/parity, or E2E against ho
 ## Release boundary
 
 Approved backup, PR merge, hosted dry-run, migration, and Vercel production deployment completed on 2026-07-17. Production seed and feature activation remain unauthorized and undone. All feature flags remain OFF. Recovery remains dormant until provider email and mandatory verification are approved.
+
+Since 2026-07-17, branch `agent/prd-v2-final-completion` added candidate migration `202607200002`, which is not part of the 2026-07-17 release boundary and has not been applied to production. Production remains at `202607200001` until a separate approved migration window applies it.

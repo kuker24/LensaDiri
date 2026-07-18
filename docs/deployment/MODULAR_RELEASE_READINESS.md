@@ -4,10 +4,12 @@ Gate aktivasi modular LensaDiri. Migration schema readiness ada di `PRD_V2_MIGRA
 
 ## Posture saat ini
 
-- Schema modular sudah diterapkan ke production (migration additive, immutable).
+- Base modular schema sampai `202607200001`: applied ke production.
+- Quality-model provenance migration `202607200002`: pending production approval, belum diterapkan.
 - `feature_flags` production memiliki zero enabled rows. Tidak ada aktivasi modular.
 - Legacy Quick 40/Standard 60 tetap baseline produksi.
-- Modular seed tidak dijalankan pada production.
+- Modular seed: not applied.
+- Modular feature flags: OFF.
 
 ## Release-ready modules
 
@@ -26,11 +28,12 @@ Gate aktivasi modular LensaDiri. Migration schema readiness ada di `PRD_V2_MIGRA
 
 Aktivasi modular pada production hanya boleh setelah seluruh kondisi berikut disetujui terpisah:
 
-1. Content publication modular dijalankan lewat migration additive, bukan seed. Termasuk `consent_policy_versions` dan `retention_policies` agar privacy dashboard tidak kosong.
-2. Preview atau staging database dan secret terisolasi tersedia.
-3. Monitoring provider dan rollback owner aktif.
-4. Feature flag `FEATURE_MODULAR_COMPOSER` dan `FEATURE_COMPLEX_MODE` di-set dengan compare-and-set dan alasan perubahan.
-5. Pilot internal sebelum public enable.
+1. Migration `202607200002` (quality-model provenance) diterapkan ke production melalui approval terpisah. Modular completion path membaca `assessment_blueprints.quality_model_version` untuk memilih faktor confidence versioned, sehingga migration ini wajib mendahului aktivasi flag manapun.
+2. Content publication modular dijalankan lewat migration additive, bukan seed. Termasuk `consent_policy_versions` dan `retention_policies` agar privacy dashboard tidak kosong.
+3. Preview atau staging database dan secret terisolasi tersedia.
+4. Monitoring provider dan rollback owner aktif.
+5. Feature flag `FEATURE_MODULAR_COMPOSER` dan `FEATURE_COMPLEX_MODE` di-set dengan compare-and-set dan alasan perubahan.
+6. Pilot internal sebelum public enable.
 
 ## Verifikasi lokal sebelum activation
 

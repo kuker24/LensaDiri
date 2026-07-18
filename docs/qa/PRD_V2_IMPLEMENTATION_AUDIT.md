@@ -13,6 +13,13 @@
 
 Post-incident audit menyimpulkan tidak ada BLOCKER atau MAJOR pada security, database, atau scoring-correctness. Pekerjaan branch ini mempersempit gap presentasi result modular (§17.1, §17.2 termasuk mode Quick/Normal/Complex), melengkapi faktor confidence versioned (§15.4: contradiction-pair, skipped optional, clarifier completion, item quality weight, mode depth) di bawah `qualityModelVersion`, dan menyegarkan dokumentasi.
 
+**Status rilis:**
+
+- Engineering implementation: READY.
+- Production schema parity: PENDING `202607200002` (lihat `PRODUCTION_MIGRATION_MAP.md`, bagian "Pending candidate migration").
+- UI design readiness: READY.
+- Modular production activation: BLOCKED, menunggu penerapan migration `202607200002`, content publication modular, preview/staging terisolasi, monitoring, dan approval terpisah (lihat `MODULAR_RELEASE_READINESS.md`).
+
 ## Requirement matrix
 
 | Area                                        | PRD     | Status                 | Evidence dan boundary                                                                                                                                                                                                                                                                                        |
