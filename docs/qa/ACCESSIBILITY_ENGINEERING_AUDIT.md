@@ -26,11 +26,13 @@ Audit ini engineering-level mengikuti WCAG 2.2 AA sebagai target desain. Bukan s
 
 ## Evidence
 
-| Gate                | Hasil                                                           |
-| ------------------- | --------------------------------------------------------------- |
-| `npm run test:a11y` | PASS: 28 tests                                                  |
-| Route coverage      | `tests/e2e/accessibility.spec.ts` desktop dan Pixel 5           |
-| Reduced motion      | `src/app/globals.css` `@media (prefers-reduced-motion: reduce)` |
+| Gate                    | Hasil                                                                                  |
+| ----------------------- | -------------------------------------------------------------------------------------- |
+| `npm run test:a11y`     | PASS: 34 tests pada Chromium desktop dan Pixel 5                                       |
+| Route coverage          | `tests/e2e/accessibility.spec.ts`                                                      |
+| Dialog behavior         | Fixture test-only `/test-dialog`, aktif hanya saat `E2E_TEST_ROUTES=1`                 |
+| Critical token contrast | `tests/unit/contrast.test.ts`                                                          |
+| Reduced motion          | `src/app/globals.css` `@media (prefers-reduced-motion: reduce)` dan computed-style E2E |
 
 ## Deferred
 

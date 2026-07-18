@@ -14,7 +14,7 @@ export default function RegisterPage() {
     <section className="container-shell py-14 sm:py-20">
       <div className="border-line shadow-surface mx-auto grid max-w-4xl overflow-hidden rounded-lg border bg-white md:grid-cols-[0.9fr_1.1fr]">
         <div className="bg-lens-strong text-canvas p-7 sm:p-10">
-          <p className="text-aperture text-sm font-semibold">Private by default</p>
+          <p className="text-aperture-on-dark text-sm font-semibold">Private by default</p>
           <h1 className="font-display mt-4 text-3xl font-semibold tracking-tight">
             Simpan progres, tetap pegang kendali.
           </h1>

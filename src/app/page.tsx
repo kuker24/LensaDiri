@@ -144,7 +144,10 @@ export default function HomePage() {
               Pisahkan fondasi trait dari lensa reflektif.
             </h2>
           </div>
-          <Link className="focus-ring text-lens font-semibold hover:underline" href="/method">
+          <Link
+            className="focus-ring text-lens inline-flex min-h-11 items-center font-semibold hover:underline"
+            href="/method"
+          >
             Baca metodologi lengkap
           </Link>
         </div>
@@ -165,7 +168,7 @@ export default function HomePage() {
       <section className="container-shell pb-20 lg:pb-28">
         <div className="bg-ink text-canvas overflow-hidden rounded-lg px-6 py-10 sm:px-10 lg:grid lg:grid-cols-[0.85fr_1.15fr] lg:gap-14 lg:px-14 lg:py-14">
           <div>
-            <p className="text-aperture text-sm font-semibold tracking-[0.14em] uppercase">
+            <p className="text-aperture-on-dark text-sm font-semibold tracking-[0.14em] uppercase">
               Trust by design
             </p>
             <h2 className="font-display mt-3 text-3xl font-semibold tracking-tight sm:text-4xl">

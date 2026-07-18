@@ -40,7 +40,7 @@ export default function BlogPage() {
             <h2 className="font-display text-ink text-xl font-semibold">{article.title}</h2>
             <p className="text-ink-muted mt-3 leading-7">{article.summary}</p>
             <Link
-              className="focus-ring text-lens mt-5 inline-flex rounded font-semibold hover:underline"
+              className="focus-ring text-lens mt-5 inline-flex min-h-11 items-center rounded font-semibold hover:underline"
               href={article.href}
             >
               Baca materi

@@ -67,7 +67,7 @@ test("Quick assessment autosaves, resumes, completes, shares, exports, revokes, 
   await page.getByLabel("Rating 1 sampai 5").selectOption("5");
   await page.getByLabel("Catatan opsional").fill("Membantu memahami pola");
   await page.getByRole("button", { name: "Kirim feedback" }).click();
-  await expect(page.getByRole("status")).toContainText("Feedback tersimpan");
+  await expect(page.getByRole("status").first()).toContainText("Feedback tersimpan");
 
   const resultUrl = page.url();
   const resultToken = resultUrl.split("/result/")[1];

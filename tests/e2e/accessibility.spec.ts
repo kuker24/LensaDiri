@@ -27,35 +27,28 @@ for (const route of publicRoutes) {
     });
     expect(duplicateIds).toEqual([]);
 
-    // 1. Deteksi elemen interaktif bersarang (nested interactive controls)
     const nestedControlsCount = await page
       .locator("a button, button a, a [role='button'], button [role='link']")
       .count();
     expect(nestedControlsCount).toBe(0);
 
-    // 2. Deteksi target sentuh minimal 44px untuk elemen interaktif utama (tombol / tautan di dalam header/main/footer)
-    const interactiveElements = await page.locator("button, a").evaluateAll((elements) => {
-      return elements
-        .map((el) => {
-          const rect = el.getBoundingClientRect();
-          return {
-            text: el.textContent?.trim() || "",
-            width: rect.width,
-            height: rect.height,
-          };
-        })
-        .filter((item) => item.text.length > 0); // Hanya periksa yang memiliki teks/label visual
-    });
-
-    for (const item of interactiveElements) {
-      // Tombol / Link utama harus memenuhi tinggi sentuh minimal 44px
-      // Kita toleransi elemen inline text (seperti link dalam paragraf) yang tidak berukuran blok
-      if (item.height < 44 && (item.text.length > 20 || item.width > 120)) {
-        throw new Error(
-          `Target sentuh terlalu kecil: "${item.text}" (${item.width}x${item.height}px) kurang dari 44px`,
-        );
-      }
-    }
+    const undersizedPrimaryTargets = await page
+      .locator("main a, main button, main input, main select, main textarea")
+      .evaluateAll((elements) =>
+        elements.flatMap((element) => {
+          const rect = element.getBoundingClientRect();
+          const style = window.getComputedStyle(element);
+          const isInlineLink = element.tagName === "A" && style.display === "inline";
+          const isHidden = rect.width === 0 || rect.height === 0 || style.visibility === "hidden";
+          if (isInlineLink || isHidden) return [];
+          return rect.height < 44 || rect.width < 44
+            ? [
+                `${element.textContent?.trim() || element.getAttribute("aria-label")}: ${rect.width}x${rect.height}`,
+              ]
+            : [];
+        }),
+      );
+    expect(undersizedPrimaryTargets).toEqual([]);
 
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - window.innerWidth,
@@ -82,28 +75,76 @@ test("authentication controls have programmatic labels", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Masuk", exact: true })).toBeEnabled();
 });
 
-test("dialog native supports focus trap, key handling and reduced motion transition", async ({
-  page,
-}) => {
-  // Buka halaman dashboard yang memiliki tombol hapus akun (memicu modal dialog hapus akun)
-  // Untuk pengetesan terisolasi kita hanya perlu mock behavior atau test page dengan dialog
-  // Di LensaDiri, form hapus akun ada di /dashboard/privacy
-  await page.goto("/login");
-  // Isi form login tiruan untuk masuk dashboard atau gunakan mock bypass
-  // Tapi untuk menguji primitive dialog, kita bisa bypass/mock via evaluate atau cari pemicu dialog
-  // Kita coba buat dialog dinamis langsung di halaman saat ini untuk menguji fungsionalitas primitive React Dialog
-  await page.evaluate(() => {
-    // Inject custom dialog test container
-    const root = document.createElement("div");
-    root.id = "dialog-test-root";
-    document.body.appendChild(root);
+test.describe("Dialog primitive", () => {
+  test("manages focus, Escape, close controls, and unique IDs", async ({ page }) => {
+    await page.goto("/test-dialog");
+
+    const trigger1 = page.locator("#trigger-dialog-1");
+    const trigger2 = page.locator("#trigger-dialog-2");
+    const dialog1 = page.locator("dialog").first();
+
+    await trigger1.focus();
+    await trigger1.click();
+    await expect(dialog1).toBeVisible();
+
+    const titleId1 = await dialog1.getAttribute("aria-labelledby");
+    expect(titleId1).toBeTruthy();
+    await expect(dialog1.locator(`h2#${titleId1}`)).toHaveText("Judul Dialog Kesatu");
+    await expect(dialog1.locator(":focus")).toHaveAttribute("aria-label", "Tutup dialog");
+
+    await page.keyboard.press("Tab");
+    await expect(dialog1.locator("#dialog-button-1")).toBeFocused();
+    await page.keyboard.press("Tab");
+    await expect(dialog1.getByRole("button", { name: "Tutup dialog" })).toBeFocused();
+    await page.keyboard.press("Shift+Tab");
+    await expect(dialog1.locator("#dialog-button-1")).toBeFocused();
+
+    await page.keyboard.press("Escape");
+    await expect(dialog1).not.toBeVisible();
+    await expect(trigger1).toBeFocused();
+
+    await trigger1.click();
+    await dialog1.getByRole("button", { name: "Tutup dialog" }).click();
+    await expect(dialog1).not.toBeVisible();
+    await expect(trigger1).toBeFocused();
+
+    await trigger2.click();
+    const dialog2 = page.locator("dialog").nth(1);
+    const titleId2 = await dialog2.getAttribute("aria-labelledby");
+    expect(titleId2).toBeTruthy();
+    expect(titleId1).not.toEqual(titleId2);
+
+    const duplicateIds = await page.locator("[id]").evaluateAll((elements) => {
+      const ids = elements.map((element) => element.id).filter(Boolean);
+      return ids.filter((id, index) => ids.indexOf(id) !== index);
+    });
+    expect(duplicateIds).toEqual([]);
   });
-  // Namun, cara paling robust adalah menguji unit test dialog.tsx atau test secara fungsional.
-  // Karena E2E dijalankan di browser, kita bisa mock dialog HTML langsung jika halaman target butuh login.
-  // Mari verifikasi transisi media query prefers-reduced-motion
-  await page.emulateMedia({ reducedMotion: "reduce" });
-  const hasReducedMotion = await page.evaluate(
-    () => window.matchMedia("(prefers-reduced-motion: reduce)").matches,
-  );
-  expect(hasReducedMotion).toBe(true);
+
+  test("restores focus when initially open under Strict Mode", async ({ page }) => {
+    await page.goto("/test-dialog?initial=1");
+    const dialog = page.locator("dialog").first();
+    await expect(dialog).toBeVisible();
+    await dialog.getByRole("button", { name: "Tutup dialog" }).click();
+    await expect(dialog).not.toBeVisible();
+    await expect(page.locator("#initial-dialog-trigger")).toBeFocused();
+  });
+
+  test("uses near-instant motion when reduced motion is requested", async ({ page }) => {
+    await page.emulateMedia({ reducedMotion: "reduce" });
+    await page.goto("/test-dialog");
+    await page.locator("#trigger-dialog-1").click();
+
+    const dialog = page.locator("dialog").first();
+    await expect(dialog).toBeVisible();
+    const durations = await dialog.evaluate((element) => {
+      const style = window.getComputedStyle(element);
+      return {
+        animation: Number.parseFloat(style.animationDuration),
+        transition: Number.parseFloat(style.transitionDuration),
+      };
+    });
+    expect(durations.animation).toBeLessThan(0.02);
+    expect(durations.transition).toBeLessThan(0.02);
+  });
 });

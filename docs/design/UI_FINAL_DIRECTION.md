@@ -21,27 +21,28 @@ Anti-pattern AI generik yang dihindari secara sadar (dan alasannya):
 
 ### Warna (4 peran inti + semantik)
 
-Warna dideskripsikan sebagai peran, diimplementasikan sebagai CSS custom properties via Tailwind v4 `@theme` di `src/app/globals.css`. Skala neutral memakai OKLCH agar kontras konsisten lintas hue.
+Warna dideskripsikan sebagai peran dan diimplementasikan sebagai CSS custom properties via Tailwind v4 `@theme` di `src/app/globals.css`. Nilai hex berikut adalah token kanonis yang telah diperiksa sebagai pasangan kontras, bukan skala warna generatif.
 
-| Peran               | Light                                                                                        | Deskripsi                                                       |
-| ------------------- | -------------------------------------------------------------------------------------------- | --------------------------------------------------------------- |
-| `canvas`            | `#FAF8F4` (warm paper, bukan cream klise `#F4F1EA`)                                          | Latar utama, bukan putih steril                                 |
-| `ink`               | `#181511` (deep warm black, bukan `#000`)                                                    | Teks utama, kontras tinggi                                      |
-| `lens` (brand)      | `#2B4A43` (deep teal-forest — warna kaca lensa optik terpakai, bukan biru korporat)          | Identitas utama: CTA primer, link, focus ring                   |
-| `aperture` (accent) | `#C4703F` (burnt amber terkontrol — cahaya lampu observatorium, bukan terracotta cream-look) | Aksen hangat terbatas: highlight, badge penting, growth actions |
-| `mist`              | `#EFEBE3`                                                                                    | Surface sekunder, card fill halus                               |
-| `line`              | `#DED7C9`                                                                                    | Border, divider                                                 |
+| Peran               | Light                                                                                        | Deskripsi                                                            |
+| ------------------- | -------------------------------------------------------------------------------------------- | -------------------------------------------------------------------- |
+| `canvas`            | `#FAF8F4` (warm paper, bukan cream klise `#F4F1EA`)                                          | Latar utama, bukan putih steril                                      |
+| `ink`               | `#181511` (deep warm black, bukan `#000`)                                                    | Teks utama, kontras tinggi                                           |
+| `lens` (brand)      | `#2B4A43` (deep teal-forest — warna kaca lensa optik terpakai, bukan biru korporat)          | Identitas utama: CTA primer, link, focus ring                        |
+| `aperture` (accent) | `#C4703F` (burnt amber terkontrol — cahaya lampu observatorium, bukan terracotta cream-look) | Aksen hangat terbatas: highlight, badge penting, growth actions      |
+| `aperture-on-dark`  | `#F39257`                                                                                    | Aksen hangat untuk latar belakang gelap (`bg-lens-strong`, `bg-ink`) |
+| `mist`              | `#EFEBE3`                                                                                    | Surface sekunder, card fill halus                                    |
+| `line`              | `#DED7C9`                                                                                    | Border, divider                                                      |
 
 Semantik (tidak menggantikan makna warna sebagai satu-satunya pembawa informasi — selalu didampingi ikon/teks):
 
-- `success` `#3F6B4E`, `warning` `#B8863A`, `danger` `#A6392F`, `info` sama dengan `lens`.
+- `success` `#3F6B4E`, `warning` `#91621e`, `danger` `#A6392F`, `info` sama dengan `lens`.
 
-Signature element: gradient radial sangat halus (`aperture` → transparent, opacity ≤ 8%) di belakang hero dan di belakang confidence ring pada result report — mensimulasikan cahaya lolos lewat lensa, dipakai **hanya** di dua tempat itu, tidak di seluruh halaman.
+Signature element: gradient radial sangat halus (`aperture` → transparent, opacity ≤ 8%) mensimulasikan cahaya lolos lewat lensa. Penggunaan dibatasi pada surface gelap yang menjadi titik orientasi utama: modular launch/estimate dan header laporan private/shared. Tidak dipakai pada card konten biasa atau seluruh halaman.
 
 ### Tipografi (2 peran + tabular)
 
-- **Display**: `Fraunces` (variable, optical size axis) — serif humanist dengan karakter, dipakai _terbatas_ (H1 hero, angka skor besar di result). Alasan: bukan sans generik, bukan serif kontras-tinggi editorial klise; Fraunces punya warmth tanpa jadi "cream+serif" trope karena dipasangkan dengan warna lensa/aperture, bukan terracotta.
-- **UI/Body**: `Inter` (variable) — sudah jadi ekspektasi fallback di codebase, self-host via `next/font/google` agar benar-benar termuat (saat ini hanya string fallback, tidak pernah di-load). Dipakai untuk seluruh body text, form, navigasi.
+- **Display**: `Fraunces` weight 500/600 — serif humanist dengan karakter, dipakai terbatas pada heading utama dan angka skor besar. Alasan: bukan sans generik, bukan serif kontras-tinggi editorial klise; Fraunces memberi karakter tanpa mengambil alih label dan kontrol produk.
+- **UI/Body**: `Inter` (variable) — dimuat melalui `next/font/google` dan dipakai untuk seluruh body text, form, serta navigasi.
 - **Tabular**: `Inter` dengan `font-variant-numeric: tabular-nums` untuk skor, progres, tanggal, metadata numerik — konsisten lebar digit di seluruh laporan.
 - Line-height body 1.6–1.7 untuk Bahasa Indonesia (lebih longgar dari default 1.5 Inter). Line-length target 60–70 karakter (`max-width: 68ch` untuk paragraf panjang di legal/method/blog).
 - Uppercase hanya untuk label pendek (badge evidence tier, kicker section) dengan `letter-spacing: 0.06em`, ukuran kecil — tidak untuk heading.
@@ -56,7 +57,7 @@ Shadow tunggal terkendali: `--shadow-surface` (blur besar, opacity sangat rendah
 
 ### Motion
 
-Ringkasan dari `emil-design-eng` (detail penuh diterapkan Tahap 5): durasi UI ≤ 300ms, `ease-out` untuk enter, `ease-in-out` untuk transisi state, transform+opacity only, origin-aware untuk popover/dialog, `prefers-reduced-motion` → fade sederhana pengganti motion spasial. Assessment runner lebih restrained dari landing page.
+Ringkasan dari `emil-design-eng` (detail penuh diterapkan Tahap 5): durasi UI ≤ 300ms, `ease-out` untuk enter, `ease-in-out` untuk transisi state, motion utama mengutamakan transform/opacity; progress width adalah pengecualian terukur, origin-aware untuk popover/dialog, `prefers-reduced-motion` → fade sederhana pengganti motion spasial. Assessment runner lebih restrained dari landing page.
 
 ## 4. Bahasa komponen
 

@@ -16,7 +16,7 @@ export function Input({ className, ...props }: InputHTMLAttributes<HTMLInputElem
   return (
     <input
       className={cn(
-        "focus-ring border-line bg-canvas text-ink placeholder:text-ink-muted w-full rounded-sm border px-3.5 py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-60",
+        "focus-ring border-line bg-canvas text-ink placeholder:text-ink-muted min-h-11 w-full rounded-sm border px-3.5 py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-60",
         className,
       )}
       {...props}
@@ -28,7 +28,7 @@ export function Textarea({ className, ...props }: TextareaHTMLAttributes<HTMLTex
   return (
     <textarea
       className={cn(
-        "focus-ring border-line bg-canvas text-ink placeholder:text-ink-muted w-full rounded-sm border px-3.5 py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-60",
+        "focus-ring border-line bg-canvas text-ink placeholder:text-ink-muted min-h-11 w-full rounded-sm border px-3.5 py-2.5 text-sm disabled:cursor-not-allowed disabled:opacity-60",
         className,
       )}
       {...props}
