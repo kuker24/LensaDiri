@@ -25,8 +25,8 @@ export function Progress({
         role="progressbar"
       >
         <div
-          className="bg-lens h-full rounded-full transition-[width] duration-200 ease-out"
-          style={{ width: `${percent}%` }}
+          className="bg-lens h-full w-full origin-left rounded-full transition-transform duration-200 ease-out motion-reduce:transition-none"
+          style={{ transform: `scaleX(${percent / 100})` }}
         />
       </div>
       {label ? <p className="text-ink-muted mt-1.5 text-xs tabular-nums">{label}</p> : null}

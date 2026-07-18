@@ -94,13 +94,21 @@ a {
   *::before,
   *::after {
     scroll-behavior: auto !important;
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
   }
 
   .active\:scale-\[0\.97\]:active {
     transform: none !important;
+  }
+
+  dialog[open],
+  dialog[open]::backdrop {
+    animation-name: none;
+  }
+
+  .toast-motion {
+    transform: none;
+    transition-duration: 150ms;
+    transition-property: opacity;
   }
 }
 
@@ -130,14 +138,16 @@ a {
   box-shadow: 0 0 0 4px var(--color-lens);
 }
 
-@keyframes toast-in {
-  from {
+.toast-motion {
+  opacity: 1;
+  transform: translateY(0);
+  transition:
+    opacity 200ms var(--ease-out),
+    transform 200ms var(--ease-out);
+
+  @starting-style {
     opacity: 0;
     transform: translateY(8px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
   }
 }
 
@@ -166,5 +176,18 @@ dialog[open]::backdrop {
   }
   to {
     opacity: 1;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  dialog[open],
+  dialog[open]::backdrop {
+    animation: none;
+  }
+
+  .toast-motion {
+    transform: none;
+    transition-duration: 150ms;
+    transition-property: opacity;
   }
 }

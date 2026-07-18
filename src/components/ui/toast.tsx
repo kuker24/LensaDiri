@@ -54,7 +54,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           <div
             key={item.id}
             className={cn(
-              "shadow-surface pointer-events-auto animate-[toast-in_200ms_ease-out] rounded-md border px-4 py-2.5 text-sm",
+              "toast-motion shadow-surface pointer-events-auto rounded-md border px-4 py-2.5 text-sm",
               toneStyles[item.tone],
             )}
           >

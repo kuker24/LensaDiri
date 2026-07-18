@@ -57,7 +57,7 @@ export function SiteHeader() {
                 aria-current={isActive ? "page" : undefined}
                 onFocus={(e) =>
                   e.currentTarget.scrollIntoView({
-                    behavior: "smooth",
+                    behavior: "auto",
                     block: "nearest",
                     inline: "center",
                   })
