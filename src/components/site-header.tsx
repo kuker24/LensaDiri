@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 const navigation = [
   { href: "/modules", label: "Modul" },
@@ -11,29 +12,27 @@ const navigation = [
 
 export function SiteHeader() {
   return (
-    <header className="border-b border-[var(--line)] bg-white/80 backdrop-blur-xl">
+    <header className="border-b border-line bg-white/80 backdrop-blur-xl">
       <div className="container-shell flex min-h-16 flex-wrap items-center justify-between gap-x-5 gap-y-3 py-3">
-        <Link className="focus-ring flex items-center gap-3 rounded-lg font-semibold" href="/">
+        <Link className="focus-ring flex items-center gap-2.5 rounded-sm font-semibold text-ink" href="/">
           <span
             aria-hidden="true"
-            className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-violet-600 to-teal-400 text-sm text-white shadow-md shadow-violet-500/20"
+            className="font-display grid h-9 w-9 place-items-center rounded-sm bg-lens text-lg font-semibold text-canvas shadow-surface"
           >
             L
           </span>
-          <span>LensaDiri</span>
+          <span className="font-display text-lg tracking-tight">LensaDiri</span>
         </Link>
         <div className="flex items-center gap-2">
-          <Link
-            className="focus-ring rounded-xl px-3 py-2.5 text-sm font-semibold text-[var(--muted)] transition hover:text-violet-700"
-            href="/login"
-          >
-            Masuk
+          <Link href="/login" passHref legacyBehavior>
+            <Button size="sm" variant="ghost">
+              Masuk
+            </Button>
           </Link>
-          <Link
-            className="focus-ring rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700"
-            href="/start"
-          >
-            Mulai
+          <Link href="/start" passHref legacyBehavior>
+            <Button size="sm">
+              Mulai
+            </Button>
           </Link>
         </div>
         <nav
@@ -42,7 +41,7 @@ export function SiteHeader() {
         >
           {navigation.map((item) => (
             <Link
-              className="focus-ring shrink-0 rounded-md text-[var(--muted)] hover:text-[var(--foreground)]"
+              className="focus-ring shrink-0 rounded-sm text-ink-muted transition-colors duration-150 hover:text-ink"
               href={item.href}
               key={item.href}
             >
