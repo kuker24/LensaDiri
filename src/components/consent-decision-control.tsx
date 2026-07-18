@@ -31,6 +31,7 @@ export function ConsentDecisionControl({
       router.refresh();
     } catch {
       setError("Keputusan consent belum tersimpan.");
+    } finally {
       setPending(false);
     }
   }
@@ -43,7 +44,7 @@ export function ConsentDecisionControl({
       <div className="mt-3 flex flex-wrap gap-3">
         <button
           aria-pressed={decision === "accepted"}
-          className="focus-ring min-h-11 rounded-xl border border-[var(--line)] px-4 font-semibold aria-pressed:border-violet-700 aria-pressed:bg-violet-50"
+          className="focus-ring border-line aria-pressed:border-lens aria-pressed:bg-lens-soft min-h-11 rounded-md border px-4 font-semibold transition-colors duration-150 ease-out"
           disabled={pending}
           onClick={() => record(true)}
           type="button"
@@ -52,7 +53,7 @@ export function ConsentDecisionControl({
         </button>
         <button
           aria-pressed={decision === "rejected"}
-          className="focus-ring min-h-11 rounded-xl border border-[var(--line)] px-4 font-semibold aria-pressed:border-violet-700 aria-pressed:bg-violet-50"
+          className="focus-ring border-line aria-pressed:border-lens aria-pressed:bg-lens-soft min-h-11 rounded-md border px-4 font-semibold transition-colors duration-150 ease-out"
           disabled={pending}
           onClick={() => record(false)}
           type="button"
@@ -61,7 +62,7 @@ export function ConsentDecisionControl({
         </button>
       </div>
       {error ? (
-        <p className="mt-3 text-sm text-red-800" role="alert">
+        <p className="text-danger mt-3 text-sm" role="alert">
           {error}
         </p>
       ) : null}

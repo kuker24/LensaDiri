@@ -11,7 +11,8 @@ Engineering baseline mengikuti WCAG 2.2 AA sebagai target desain. Dokumen ini bu
 - Target sentuh utama minimum 44 CSS pixel.
 - Status save, error, progress, dan completion diumumkan melalui semantic role atau `aria-live`.
 - Progress tidak bergantung pada warna saja dan memiliki label teks.
-- Form memakai label programmatic, error spesifik, serta tidak menghapus input pengguna saat gagal.
+- Kontras warna memenuhi batas minimum WCAG AA: teks normal minimum 4.5:1, teks besar/bold minimum 3:1, dan elemen non-teks/focus ring minimum 3:1. Token `--color-aperture-on-dark` memakai `#8be0d0`, `--color-warning` memakai `#8a5a12`, dan focus indicator memakai inner outline canvas 3px plus outer ring `--color-lens-focus` 8px.
+- Form memakai label programmatic, error spesifik, serta tidak menghapus input pengguna saat gagal. Kontrol input dan textarea memakai font minimum 16px pada viewport mobile untuk mencegah auto-zoom iOS Safari.
 - Result chart memiliki nama aksesibel dan nilai teks.
 - Diagnostics private tidak masuk shared DTO.
 - Layout tidak menghasilkan horizontal overflow pada Desktop Chromium atau Pixel 5.
@@ -35,7 +36,7 @@ Engineering baseline mengikuti WCAG 2.2 AA sebagai target desain. Dokumen ini bu
 - `/login`
 - `/register`
 
-Gate otomatis mencakup satu heading level 1, duplicate ID, image alt, horizontal overflow desktop/mobile, keyboard focus, dan label auth.
+Gate otomatis mencakup satu heading level 1, duplicate ID, image alt, nested interactive control, target utama minimum 44px, horizontal overflow desktop/mobile, computed keyboard focus pada surface terang/gelap, label auth, ukuran font kontrol mobile, background surface glow, navigasi katalog/preselection modul, serta fixture Dialog nyata untuk focus containment, Escape, close control, unique ID, focus restoration, dan reduced motion.
 
 Command:
 
@@ -50,7 +51,7 @@ CI menjalankan command setelah database disposable di-reset dan feature fixture 
 - Likert menggunakan button dengan `aria-pressed` dan label angka plus teks.
 - Autosave memakai `aria-live`.
 - Pause/resume mempertahankan jawaban dan memberi state heading eksplisit.
-- Segment progress menampilkan bagian aktif dan jumlah jawaban.
+- Segment progress menampilkan bagian aktif dan jumlah jawaban. Assessment dan clarifier menyediakan progressbar bernama dengan nilai minimum, maksimum, dan posisi saat ini.
 - Clarifier menyediakan previous/next, complete, dan skip dengan error `role=alert`.
 
 ## Result dan dashboard
@@ -63,7 +64,7 @@ CI menjalankan command setelah database disposable di-reset dan feature fixture 
 ## Manual review yang masih diperlukan
 
 - Screen reader NVDA/JAWS/VoiceOver lintas browser: `BLOCKED_EXTERNAL`
-- Audit contrast final setelah visual design replacement: `DEFERRED_WITH_REASON`
+- Review persepsi warna dan kontras oleh auditor manusia pada perangkat nyata: `BLOCKED_EXTERNAL`. Token kritis dan pasangan aperture pada surface gelap sudah memiliki gate otomatis.
 - Cognitive walkthrough bersama pengguna neurodiverse: `BLOCKED_EXTERNAL`
 - Bahasa Indonesia oleh accessibility reviewer: `BLOCKED_EXTERNAL`
 

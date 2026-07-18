@@ -13,18 +13,48 @@ function PrivateResultLoader({ token }: { token: string }) {
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
+    let active = true;
     getPrivateResult(token)
-      .then(setResult)
-      .catch(() => setFailed(true));
+      .then((value) => {
+        if (active) setResult(value);
+      })
+      .catch(() => {
+        if (active) setFailed(true);
+      });
+    return () => {
+      active = false;
+    };
   }, [token]);
 
   if (failed)
     return (
-      <p className="py-20 text-center text-red-800" role="alert">
-        Hasil tidak ditemukan atau sudah dihapus.
-      </p>
+      <div
+        className="border-danger-soft shadow-surface mx-auto my-10 max-w-xl rounded-xl border bg-white/90 p-8 text-center"
+        role="alert"
+      >
+        <p className="text-danger text-sm font-semibold">Hasil pribadi</p>
+        <h1 className="font-display mt-2 text-2xl font-semibold">Hasil tidak ditemukan</h1>
+        <p className="text-ink-muted mt-3 leading-7">
+          Hasil mungkin sudah dihapus atau tautannya tidak valid.
+        </p>
+      </div>
     );
-  if (!result) return <p className="py-20 text-center text-[var(--muted)]">Memuat hasil…</p>;
+  if (!result)
+    return (
+      <div
+        className="border-line shadow-surface mx-auto my-10 max-w-xl rounded-xl border bg-white/90 p-8 text-center"
+        role="status"
+      >
+        <span
+          aria-hidden="true"
+          className="bg-lens-soft mx-auto block h-1.5 w-24 overflow-hidden rounded-full"
+        >
+          <span className="bg-lens block h-full w-1/2 rounded-full" />
+        </span>
+        <h1 className="font-display mt-5 text-2xl font-semibold">Memuat hasil pribadi</h1>
+        <p className="text-ink-muted mt-3 leading-7">Menyiapkan ringkasan reflektifmu…</p>
+      </div>
+    );
   return <ResultReport result={result} />;
 }
 
@@ -33,21 +63,57 @@ function SharedResultLoader({ token }: { token: string }) {
   const [failed, setFailed] = useState(false);
 
   useEffect(() => {
+    let active = true;
     getSharedResult(token)
-      .then(setResult)
-      .catch(() => setFailed(true));
+      .then((value) => {
+        if (active) setResult(value);
+      })
+      .catch(() => {
+        if (active) setFailed(true);
+      });
+    return () => {
+      active = false;
+    };
   }, [token]);
 
   if (failed)
     return (
-      <p className="py-20 text-center text-red-800" role="alert">
-        Hasil tidak ditemukan, kedaluwarsa, atau sudah dicabut.
-      </p>
+      <div
+        className="border-danger-soft shadow-surface mx-auto my-10 max-w-xl rounded-xl border bg-white/90 p-8 text-center"
+        role="alert"
+      >
+        <p className="text-danger text-sm font-semibold">Link berbagi</p>
+        <h1 className="font-display mt-2 text-2xl font-semibold">Hasil tidak ditemukan</h1>
+        <p className="text-ink-muted mt-3 leading-7">
+          Tautan mungkin kedaluwarsa, sudah dicabut, atau tidak valid.
+        </p>
+      </div>
     );
-  if (!result) return <p className="py-20 text-center text-[var(--muted)]">Memuat hasil…</p>;
+  if (!result)
+    return (
+      <div
+        className="border-line shadow-surface mx-auto my-10 max-w-xl rounded-xl border bg-white/90 p-8 text-center"
+        role="status"
+      >
+        <span
+          aria-hidden="true"
+          className="bg-lens-soft mx-auto block h-1.5 w-24 overflow-hidden rounded-full"
+        >
+          <span className="bg-lens block h-full w-1/2 rounded-full" />
+        </span>
+        <h1 className="font-display mt-5 text-2xl font-semibold">Memuat hasil yang dibagikan</h1>
+        <p className="text-ink-muted mt-3 leading-7">
+          Menyiapkan tampilan aman tanpa diagnostik pribadi…
+        </p>
+      </div>
+    );
   return <SharedResultReport result={result} />;
 }
 
 export function ResultLoader({ shared, token }: { shared?: boolean; token: string }) {
-  return shared ? <SharedResultLoader token={token} /> : <PrivateResultLoader token={token} />;
+  return shared ? (
+    <SharedResultLoader key={token} token={token} />
+  ) : (
+    <PrivateResultLoader key={token} token={token} />
+  );
 }

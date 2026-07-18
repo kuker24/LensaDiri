@@ -1,4 +1,9 @@
+"use client";
+
 import Link from "next/link";
+import { usePathname } from "next/navigation";
+import { getButtonClassName } from "@/components/ui/button";
+import { cn } from "@/lib/cn";
 
 const navigation = [
   { href: "/modules", label: "Modul" },
@@ -10,29 +15,28 @@ const navigation = [
 ];
 
 export function SiteHeader() {
+  const pathname = usePathname();
+
   return (
-    <header className="border-b border-[var(--line)] bg-white/80 backdrop-blur-xl">
+    <header className="border-line border-b bg-white/70 backdrop-blur-[18px]">
       <div className="container-shell flex min-h-16 flex-wrap items-center justify-between gap-x-5 gap-y-3 py-3">
-        <Link className="focus-ring flex items-center gap-3 rounded-lg font-semibold" href="/">
+        <Link
+          className="focus-ring text-ink flex items-center gap-2.5 rounded-md font-semibold"
+          href="/"
+        >
           <span
             aria-hidden="true"
-            className="grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-violet-600 to-teal-400 text-sm text-white shadow-md shadow-violet-500/20"
+            className="bg-lens text-canvas grid h-9 w-9 place-items-center rounded-md text-lg font-semibold shadow-[0_8px_18px_rgb(101_88_217_/_0.2)]"
           >
             L
           </span>
-          <span>LensaDiri</span>
+          <span className="font-display text-lg font-semibold tracking-tight">LensaDiri</span>
         </Link>
         <div className="flex items-center gap-2">
-          <Link
-            className="focus-ring rounded-xl px-3 py-2.5 text-sm font-semibold text-[var(--muted)] transition hover:text-violet-700"
-            href="/login"
-          >
+          <Link href="/login" className={getButtonClassName("ghost", "sm")}>
             Masuk
           </Link>
-          <Link
-            className="focus-ring rounded-xl bg-[var(--foreground)] px-4 py-2.5 text-sm font-semibold text-white transition hover:bg-violet-700"
-            href="/start"
-          >
+          <Link href="/start" className={getButtonClassName("primary", "sm")}>
             Mulai
           </Link>
         </div>
@@ -40,15 +44,29 @@ export function SiteHeader() {
           aria-label="Navigasi utama"
           className="order-3 flex w-full gap-5 overflow-x-auto pb-1 text-sm md:order-none md:w-auto md:flex-1 md:justify-center md:pb-0"
         >
-          {navigation.map((item) => (
-            <Link
-              className="focus-ring shrink-0 rounded-md text-[var(--muted)] hover:text-[var(--foreground)]"
-              href={item.href}
-              key={item.href}
-            >
-              {item.label}
-            </Link>
-          ))}
+          {navigation.map((item) => {
+            const isActive = pathname === item.href;
+            return (
+              <Link
+                className={cn(
+                  "focus-ring text-ink-muted hover:text-ink relative shrink-0 rounded-md py-1 font-medium transition-colors duration-150",
+                  isActive && "text-lens border-lens border-b-2 font-semibold",
+                )}
+                href={item.href}
+                key={item.href}
+                aria-current={isActive ? "page" : undefined}
+                onFocus={(event) =>
+                  event.currentTarget.scrollIntoView({
+                    behavior: "auto",
+                    block: "nearest",
+                    inline: "center",
+                  })
+                }
+              >
+                {item.label}
+              </Link>
+            );
+          })}
         </nav>
       </div>
     </header>

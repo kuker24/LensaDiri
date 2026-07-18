@@ -3,6 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { postAuthenticatedMutation } from "@/lib/auth/client";
+import { Button } from "@/components/ui/button";
 
 export function ResultControls({ token }: { token: string }) {
   const router = useRouter();
@@ -55,48 +56,38 @@ export function ResultControls({ token }: { token: string }) {
 
   return (
     <section
-      className="mt-10 rounded-2xl border border-[var(--line)] bg-white p-6"
+      className="border-line mt-10 rounded-xl border bg-white/90 p-6 shadow-[0_1px_2px_rgb(23_24_44_/_0.04)]"
       aria-labelledby="result-controls-title"
     >
-      <h2 className="text-xl font-semibold" id="result-controls-title">
+      <h2 className="font-display text-xl font-semibold" id="result-controls-title">
         Kontrol hasil
       </h2>
-      <p className="mt-2 leading-7 text-[var(--muted)]">
+      <p className="text-ink-muted mt-2 leading-7">
         Hasil private sampai kamu membuat link. Export tidak memuat jawaban mentah atau ID internal.
         Tes ulang memulai sesi baru tanpa menghapus hasil ini.
       </p>
       <div className="mt-5 flex flex-wrap gap-3">
-        <button
-          className="focus-ring rounded-xl bg-[var(--foreground)] px-4 py-3 font-semibold text-white disabled:opacity-50"
-          disabled={pending}
-          onClick={share}
-          type="button"
-        >
+        <Button disabled={pending} onClick={share} type="button">
           Buat link berbagi
-        </button>
-        <button
-          className="focus-ring rounded-xl border border-[var(--line)] px-4 py-3 font-semibold disabled:opacity-50"
-          disabled={pending}
-          onClick={revoke}
-          type="button"
-        >
+        </Button>
+        <Button disabled={pending} onClick={revoke} type="button" variant="secondary">
           Cabut semua link
-        </button>
+        </Button>
         <a
-          className="focus-ring rounded-xl border border-[var(--line)] px-4 py-3 font-semibold"
+          className="focus-ring border-line text-ink hover:bg-mist inline-flex items-center rounded-sm border px-4 py-3 font-semibold transition-colors duration-150 ease-out"
           download
           href={`/api/result/export/${encodeURIComponent(token)}`}
         >
           Export JSON
         </a>
         <a
-          className="focus-ring rounded-xl border border-[var(--line)] px-4 py-3 font-semibold"
+          className="focus-ring border-line text-ink hover:bg-mist inline-flex items-center rounded-sm border px-4 py-3 font-semibold transition-colors duration-150 ease-out"
           href="/start"
         >
           Tes ulang
         </a>
         <button
-          className="focus-ring rounded-xl border border-red-300 px-4 py-3 font-semibold text-red-800 disabled:opacity-50"
+          className="focus-ring border-danger-soft text-danger hover:bg-danger-soft rounded-sm border px-4 py-3 font-semibold transition-colors duration-150 ease-out disabled:opacity-50"
           disabled={pending}
           onClick={remove}
           type="button"
@@ -105,14 +96,14 @@ export function ResultControls({ token }: { token: string }) {
         </button>
       </div>
       {shareUrl ? (
-        <p className="mt-4 rounded-xl bg-violet-50 p-4 text-sm break-all">
-          <a className="focus-ring text-violet-800 underline" href={shareUrl}>
+        <p className="border-lens-soft bg-lens-soft/40 mt-4 rounded-md border p-4 text-sm break-all">
+          <a className="focus-ring text-lens-strong underline" href={shareUrl}>
             {shareUrl}
           </a>
         </p>
       ) : null}
       {message ? (
-        <p className="mt-4 text-sm text-[var(--muted)]" role="status">
+        <p className="text-ink-muted mt-4 text-sm" role="status">
           {message}
         </p>
       ) : null}

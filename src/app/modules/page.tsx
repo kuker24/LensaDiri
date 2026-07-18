@@ -2,6 +2,7 @@ import Link from "next/link";
 
 import { isPubliclyAvailableModule } from "@/lib/assessment/catalog";
 import { listCatalogModules } from "@/server/repositories/catalog";
+import { Badge } from "@/components/ui/badge";
 
 export const dynamic = "force-dynamic";
 
@@ -11,11 +12,11 @@ export default async function ModulesPage() {
   return (
     <main className="container-shell py-12 sm:py-18">
       <header className="max-w-3xl">
-        <p className="text-sm font-semibold text-violet-700">Katalog lensa</p>
-        <h1 className="mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">
+        <p className="text-lens text-sm font-semibold">Katalog lensa</p>
+        <h1 className="mt-2 text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
           Pilih lensa yang relevan
         </h1>
-        <p className="mt-5 leading-7 text-[var(--muted)]">
+        <p className="text-ink-muted mt-5 leading-7">
           Setiap modul memiliki item dan scoring sendiri. Modul yang belum melewati review tetap
           terlihat sebagai roadmap, tetapi tidak dapat dipilih dan tidak pernah ditebak dari Profil
           Trait.
@@ -26,28 +27,30 @@ export default async function ModulesPage() {
         {modules.map((module) => {
           const available = isPubliclyAvailableModule(module);
           return (
-            <li className="rounded-2xl border border-[var(--line)] bg-white p-6" key={module.key}>
+            <li className="border-line rounded-md border bg-white/90 p-6" key={module.key}>
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <span className="rounded-full bg-violet-100 px-3 py-1 text-xs font-semibold text-violet-900">
-                  Evidence {module.evidenceTier.replace("_", " ")}
-                </span>
-                <span className="text-xs font-semibold text-[var(--muted)]">
+                <Badge tone="lens">Evidence {module.evidenceTier.replace("_", " ")}</Badge>
+                <span className="text-ink-muted text-xs font-semibold">
                   {available ? "Tersedia" : "Belum tersedia"}
                 </span>
               </div>
               <h2 className="mt-5 text-2xl font-semibold">{module.publicName}</h2>
-              <p className="mt-3 leading-7 text-[var(--muted)]">{module.description}</p>
+              <p className="text-ink-muted mt-3 leading-7">{module.description}</p>
               {!available && module.availabilityReason ? (
-                <p className="mt-4 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm leading-6 text-amber-950">
+                <p className="border-aperture/50 bg-aperture-soft/70 text-ink mt-4 rounded-md border p-4 text-sm leading-6">
                   {module.availabilityReason}
                 </p>
               ) : null}
-              <Link
-                className="focus-ring mt-5 inline-flex min-h-11 items-center rounded-xl border border-[var(--line)] px-4 font-semibold hover:border-violet-300 hover:text-violet-700"
-                href={`/modules/${module.key}`}
-              >
-                Lihat detail
-              </Link>
+              {available ? (
+                <Link
+                  className="focus-ring border-line text-ink hover:border-lens hover:text-lens mt-5 inline-flex min-h-11 items-center rounded-md border px-4 font-semibold transition-colors duration-150 ease-out"
+                  href={`/modules/${module.key}`}
+                >
+                  Lihat detail
+                </Link>
+              ) : (
+                <p className="text-ink-muted mt-5 text-sm font-semibold">Detail belum tersedia</p>
+              )}
             </li>
           );
         })}

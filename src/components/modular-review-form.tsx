@@ -12,6 +12,7 @@ import {
 } from "@/lib/assessment/client";
 import type { AssessmentEstimate } from "@/lib/assessment/estimate";
 import { loadAssessmentSelection } from "@/lib/assessment/selection-storage";
+import { Button } from "@/components/ui/button";
 
 export function ModularReviewForm() {
   const router = useRouter();
@@ -51,53 +52,60 @@ export function ModularReviewForm() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <p className="text-sm font-semibold text-violet-700">Tinjau dan consent</p>
-      <h1 className="mt-3 text-4xl font-semibold tracking-tight">Siap memulai eksplorasi?</h1>
-      <p className="mt-4 leading-7 text-[var(--muted)]">
+      <p className="text-lens text-sm font-semibold">Tinjau dan consent</p>
+      <h1 className="font-display mt-3 text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
+        Siap memulai eksplorasi?
+      </h1>
+      <p className="text-ink-muted mt-4 leading-7">
         Pastikan lensa dan kedalaman sesuai waktu yang kamu punya. Blueprint akan dikunci saat sesi
         dimulai agar urutan dan versi item tidak berubah.
       </p>
 
       {estimate ? (
-        <div className="mt-8 overflow-hidden rounded-2xl border border-[var(--line)] bg-white">
-          <div className="grid gap-5 border-b border-[var(--line)] p-6 sm:grid-cols-3">
+        <div className="border-line shadow-surface mt-8 overflow-hidden rounded-xl border bg-white/90">
+          <div className="border-line grid gap-5 border-b p-6 sm:grid-cols-3">
             <div>
-              <p className="text-sm text-[var(--muted)]">Mode</p>
+              <p className="text-ink-muted text-sm">Mode</p>
               <p className="mt-1 text-lg font-semibold">{estimate.publicMode}</p>
             </div>
             <div>
-              <p className="text-sm text-[var(--muted)]">Jumlah</p>
-              <p className="mt-1 text-lg font-semibold">{estimate.itemCount} item</p>
+              <p className="text-ink-muted text-sm">Jumlah</p>
+              <p className="mt-1 text-lg font-semibold tabular-nums">{estimate.itemCount} item</p>
             </div>
             <div>
-              <p className="text-sm text-[var(--muted)]">Durasi</p>
-              <p className="mt-1 text-lg font-semibold">± {estimate.estimatedMinutes} menit</p>
+              <p className="text-ink-muted text-sm">Durasi</p>
+              <p className="mt-1 text-lg font-semibold tabular-nums">
+                ± {estimate.estimatedMinutes} menit
+              </p>
             </div>
           </div>
           <div className="p-6">
             <h2 className="font-semibold">Lensa dipilih</h2>
             <ul className="mt-3 flex flex-wrap gap-2">
               {modules.map((module) => (
-                <li className="rounded-full bg-violet-100 px-3 py-1.5 text-sm" key={module.key}>
+                <li
+                  className="border-lens-soft bg-lens-soft text-lens-strong rounded-sm border px-3 py-1.5 text-sm"
+                  key={module.key}
+                >
                   {module.publicName}
                 </li>
               ))}
             </ul>
-            <p className="mt-5 text-sm leading-6 text-[var(--muted)]">{estimate.disclaimer}</p>
+            <p className="text-ink-muted mt-5 text-sm leading-6">{estimate.disclaimer}</p>
           </div>
         </div>
       ) : null}
 
-      <div className="mt-8 space-y-3 rounded-2xl bg-violet-50 p-5 text-sm leading-6">
+      <div className="border-aperture-soft bg-aperture-soft mt-8 space-y-3 rounded-lg border p-5 text-sm leading-6">
         <p>Jawaban dipakai hanya untuk scoring dan refleksi dari lensa yang dipilih.</p>
         <p>Skor primer dihitung di server. Correlation tidak mengubah skor module.</p>
         <p>Hasil private sampai kamu membuat link berbagi.</p>
         <p>Kamu dapat menghapus hasil dan jawaban terkait.</p>
       </div>
-      <label className="mt-5 flex items-start gap-3 rounded-2xl border border-[var(--line)] bg-white p-5 text-sm leading-6">
+      <label className="border-line mt-5 flex items-start gap-3 rounded-lg border bg-white/90 p-5 text-sm leading-6">
         <input
           checked={consent}
-          className="mt-1 h-5 w-5 accent-violet-700"
+          className="accent-lens mt-1 h-5 w-5"
           onChange={(event) => setConsent(event.target.checked)}
           type="checkbox"
         />
@@ -105,25 +113,20 @@ export function ModularReviewForm() {
         diagnosis atau penilaian mutlak.
       </label>
       {error ? (
-        <p className="mt-4 text-sm text-red-800" role="alert">
+        <p className="text-danger mt-4 text-sm" role="alert">
           {error}
         </p>
       ) : null}
       <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
         <Link
-          className="focus-ring min-h-12 rounded-xl border border-[var(--line)] bg-white px-5 py-3 text-center font-semibold"
+          className="focus-ring border-line text-ink hover:bg-mist inline-flex min-h-12 items-center justify-center rounded-sm border bg-white px-5 py-3 text-center font-semibold transition-colors duration-150 ease-out"
           href="/start/modules"
         >
           Ubah pilihan
         </Link>
-        <button
-          className="focus-ring min-h-12 rounded-xl bg-[var(--foreground)] px-6 font-semibold text-white disabled:opacity-50"
-          disabled={!estimate || !consent || pending}
-          onClick={start}
-          type="button"
-        >
+        <Button disabled={!estimate || !consent || pending} onClick={start} type="button">
           {pending ? "Menyusun blueprint…" : "Mulai assessment"}
-        </button>
+        </Button>
       </div>
     </div>
   );

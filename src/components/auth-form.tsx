@@ -4,6 +4,8 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 
+import { Button } from "@/components/ui/button";
+import { Input, Label } from "@/components/ui/input";
 import { AuthApiError, postAuthenticatedMutation } from "@/lib/auth/client";
 
 type AuthFormProps = {
@@ -23,22 +25,18 @@ export function AuthForm({ mode }: AuthFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
   const [registrationAccepted, setRegistrationAccepted] = useState(false);
-
   const isLogin = mode === "login";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
     setIsPending(true);
-
     const formData = new FormData(event.currentTarget);
-    const email = String(formData.get("email") ?? "");
-    const password = String(formData.get("password") ?? "");
 
     try {
       await postAuthenticatedMutation(isLogin ? "/api/auth/login" : "/api/auth/register", {
-        email,
-        password,
+        email: String(formData.get("email") ?? ""),
+        password: String(formData.get("password") ?? ""),
       });
       if (isLogin) {
         router.push("/dashboard");
@@ -56,13 +54,14 @@ export function AuthForm({ mode }: AuthFormProps) {
 
   if (registrationAccepted) {
     return (
-      <div className="rounded-2xl border border-emerald-200 bg-emerald-50 p-6" role="status">
-        <h2 className="text-lg font-semibold text-emerald-950">Pendaftaran diterima</h2>
-        <p className="mt-2 leading-7 text-emerald-900">
+      <div className="border-success/30 bg-aperture-soft/70 rounded-md border p-5" role="status">
+        <p className="text-success text-sm font-semibold tracking-wide uppercase">Berhasil</p>
+        <h2 className="mt-2 text-xl font-semibold">Pendaftaran diterima</h2>
+        <p className="text-ink-muted mt-2 leading-7">
           Jika email belum terdaftar, akun sudah dibuat. Masuk untuk melanjutkan.
         </p>
         <Link
-          className="focus-ring mt-5 inline-flex rounded-xl bg-[var(--foreground)] px-5 py-3 font-semibold text-white"
+          className="focus-ring text-lens mt-5 inline-flex min-h-11 items-center font-semibold hover:underline"
           href="/login"
         >
           Masuk sekarang
@@ -74,12 +73,9 @@ export function AuthForm({ mode }: AuthFormProps) {
   return (
     <form className="space-y-5" onSubmit={handleSubmit}>
       <div>
-        <label className="block text-sm font-semibold" htmlFor={`${mode}-email`}>
-          Email
-        </label>
-        <input
+        <Label htmlFor={`${mode}-email`}>Email</Label>
+        <Input
           autoComplete="email"
-          className="focus-ring mt-2 min-h-12 w-full rounded-xl border border-[var(--line)] bg-white px-4 text-base shadow-sm transition outline-none hover:border-violet-300"
           id={`${mode}-email`}
           inputMode="email"
           maxLength={320}
@@ -89,13 +85,10 @@ export function AuthForm({ mode }: AuthFormProps) {
         />
       </div>
       <div>
-        <label className="block text-sm font-semibold" htmlFor={`${mode}-password`}>
-          Password
-        </label>
-        <input
+        <Label htmlFor={`${mode}-password`}>Password</Label>
+        <Input
           aria-describedby={`${mode}-password-help`}
           autoComplete={isLogin ? "current-password" : "new-password"}
-          className="focus-ring mt-2 min-h-12 w-full rounded-xl border border-[var(--line)] bg-white px-4 text-base shadow-sm transition outline-none hover:border-violet-300"
           id={`${mode}-password`}
           maxLength={128}
           minLength={12}
@@ -103,27 +96,21 @@ export function AuthForm({ mode }: AuthFormProps) {
           required
           type="password"
         />
-        <p className="mt-2 text-sm text-[var(--muted)]" id={`${mode}-password-help`}>
+        <p className="text-ink-muted mt-2 text-sm" id={`${mode}-password-help`}>
           Minimal 12 karakter.
         </p>
       </div>
-
       {error ? (
         <p
-          className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-900"
+          className="border-danger/30 bg-danger-soft text-danger rounded-md border px-4 py-3 text-sm"
           role="alert"
         >
           {error}
         </p>
       ) : null}
-
-      <button
-        className="focus-ring min-h-12 w-full rounded-xl bg-[var(--foreground)] px-5 py-3 font-semibold text-white transition hover:bg-violet-700 disabled:cursor-not-allowed disabled:opacity-60"
-        disabled={isPending}
-        type="submit"
-      >
+      <Button aria-busy={isPending} className="w-full" disabled={isPending} type="submit">
         {isPending ? "Memproses…" : isLogin ? "Masuk" : "Buat akun"}
-      </button>
+      </Button>
     </form>
   );
 }

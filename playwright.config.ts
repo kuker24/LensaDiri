@@ -44,6 +44,7 @@ export default defineConfig({
       AUTH_SESSION_SECRET: "e2e-auth-session-secret-at-least-32-characters",
       CSRF_SECRET: "e2e-csrf-secret-at-least-32-characters",
       DATABASE_URL: testDatabaseUrl,
+      E2E_TEST_ROUTES: "1",
       NEXT_PUBLIC_APP_URL: "http://127.0.0.1:3000",
       RATE_LIMIT_SECRET: "e2e-rate-limit-secret-at-least-32-characters",
       RECOVERY_TEST_TRANSPORT: "1",
@@ -52,7 +53,7 @@ export default defineConfig({
       VERCEL: "1",
     },
     url: "http://127.0.0.1:3000",
-    reuseExistingServer: !process.env.CI,
+    reuseExistingServer: false,
     timeout: 120_000,
   },
 });
