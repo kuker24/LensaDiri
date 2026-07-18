@@ -11,6 +11,7 @@ Engineering baseline mengikuti WCAG 2.2 AA sebagai target desain. Dokumen ini bu
 - Target sentuh utama minimum 44 CSS pixel.
 - Status save, error, progress, dan completion diumumkan melalui semantic role atau `aria-live`.
 - Progress tidak bergantung pada warna saja dan memiliki label teks.
+- Kontras warna memenuhi batas minimum WCAG AA: teks normal minimum 4.5:1, teks besar/bold minimum 3:1, dan elemen non-teks/focus ring minimum 3:1. Token khusus `--color-aperture-on-dark` (#f39257) digunakan untuk latar gelap (`bg-lens-strong`) dan `--color-warning` digelapkan ke `#91621e` untuk latar canvas.
 - Form memakai label programmatic, error spesifik, serta tidak menghapus input pengguna saat gagal.
 - Result chart memiliki nama aksesibel dan nilai teks.
 - Diagnostics private tidak masuk shared DTO.

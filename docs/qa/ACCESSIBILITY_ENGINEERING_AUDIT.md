@@ -21,6 +21,7 @@ Audit ini engineering-level mengikuti WCAG 2.2 AA sebagai target desain. Bukan s
 - Tidak ada horizontal overflow pada viewport desktop dan mobile.
 - `prefers-reduced-motion` dihormati; motion dekoratif bukan satu-satunya pembawa state.
 - Warna bukan satu-satunya pembawa makna.
+- Kontras warna memenuhi batas minimum WCAG AA: teks normal minimum 4.5:1, teks besar minimum 3:1, dan elemen non-teks/focus ring minimum 3:1. Token khusus seperti `--color-aperture-on-dark` (#f39257) digunakan untuk latar gelap dan `--color-warning` digelapkan ke `#91621e` pada latar canvas.
 - Copy tidak mengklaim diagnosis atau kepastian identitas.
 
 ## Evidence
