@@ -142,10 +142,13 @@ export function ModularStartForm() {
 
   if (loading) {
     return (
-      <div className="mx-auto max-w-3xl space-y-4 py-16" aria-label="Memuat katalog">
-        <Skeleton className="h-8 w-64" />
-        <Skeleton className="h-36 rounded-lg" />
-        <Skeleton className="h-36 rounded-lg" />
+      <div className="mx-auto max-w-3xl space-y-4 py-16" role="status">
+        <span className="sr-only">Memuat katalog assessment…</span>
+        <div aria-hidden="true" className="space-y-4">
+          <Skeleton className="h-8 w-64" />
+          <Skeleton className="h-36 rounded-lg" />
+          <Skeleton className="h-36 rounded-lg" />
+        </div>
       </div>
     );
   }

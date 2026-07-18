@@ -1,7 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 import {
   completeAssessment,
@@ -26,14 +26,16 @@ const labels = ["Sangat tidak sesuai", "Tidak sesuai", "Netral", "Sesuai", "Sang
 function LikertSelector({
   answer,
   disabled,
+  labelId,
   onAnswer,
 }: {
   answer: number | null;
   disabled: boolean;
+  labelId: string;
   onAnswer: (value: number) => void;
 }) {
   return (
-    <fieldset className="mt-8 grid gap-2.5">
+    <fieldset aria-labelledby={labelId} className="mt-8 grid gap-2.5">
       <legend className="sr-only">Pilih tingkat kesesuaian</legend>
       {labels.map((label, itemIndex) => {
         const value = itemIndex + 1;
@@ -70,6 +72,7 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [startedAt, setStartedAt] = useState(() => Date.now());
+  const questionHeadingRef = useRef<HTMLHeadingElement>(null);
   const question = questions[index];
   const answeredCount = questions.filter((item) => item.answer !== null).length;
 
@@ -88,7 +91,10 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
         itemIndex === index ? { ...item, answer: value } : item,
       );
       setQuestions(next);
-      if (index < next.length - 1) setIndex(index + 1);
+      if (index < next.length - 1) {
+        setIndex(index + 1);
+        requestAnimationFrame(() => questionHeadingRef.current?.focus());
+      }
       setStartedAt(Date.now());
     } catch {
       setError("Jawaban clarifier belum tersimpan. Coba lagi.");
@@ -137,10 +143,20 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
           <p className="text-lens text-sm font-semibold capitalize">
             {question.moduleKey.replaceAll("_", " ")}
           </p>
-          <h2 className="font-display mt-3 text-2xl leading-tight font-semibold sm:text-3xl">
+          <h2
+            className="font-display mt-3 text-2xl leading-tight font-semibold outline-none sm:text-3xl"
+            id="clarifier-question"
+            ref={questionHeadingRef}
+            tabIndex={-1}
+          >
             {question.text}
           </h2>
-          <LikertSelector answer={question.answer} disabled={pending} onAnswer={answer} />
+          <LikertSelector
+            answer={question.answer}
+            disabled={pending}
+            labelId="clarifier-question"
+            onAnswer={answer}
+          />
           {error ? (
             <p className="text-danger mt-4 text-sm" role="alert">
               {error}
@@ -195,6 +211,8 @@ export function TestRunner({ token }: { token: string }) {
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [pending, setPending] = useState(false);
   const [startedAt, setStartedAt] = useState(() => Date.now());
+  const questionHeadingRef = useRef<HTMLHeadingElement>(null);
+  const pausedHeadingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
     getAssessmentSession(token)
@@ -246,7 +264,10 @@ export function TestRunner({ token }: { token: string }) {
         answeredCount: questions.filter((item) => item.answer !== null).length,
         questions,
       });
-      if (index < questions.length - 1) setIndex(index + 1);
+      if (index < questions.length - 1) {
+        setIndex(index + 1);
+        requestAnimationFrame(() => questionHeadingRef.current?.focus());
+      }
       setSaveStatus("saved");
       setStartedAt(Date.now());
     } catch {
@@ -268,6 +289,7 @@ export function TestRunner({ token }: { token: string }) {
       } else {
         await pauseAssessment(token);
         setSession({ ...session, status: "paused" });
+        requestAnimationFrame(() => pausedHeadingRef.current?.focus());
       }
     } catch {
       setError("Status sesi belum dapat diubah. Coba lagi.");
@@ -346,7 +368,13 @@ export function TestRunner({ token }: { token: string }) {
         ) : null}
         {session.status === "paused" ? (
           <div className="border-lens-soft bg-lens-soft mt-8 rounded-lg border p-6 text-center">
-            <h1 className="font-display text-ink text-xl font-semibold">Sesi dijeda</h1>
+            <h1
+              className="font-display text-ink text-xl font-semibold outline-none"
+              ref={pausedHeadingRef}
+              tabIndex={-1}
+            >
+              Sesi dijeda
+            </h1>
             <p className="text-ink-muted mt-2 text-sm leading-6">
               Progres tersimpan. Lanjutkan saat kamu siap.
             </p>
@@ -361,10 +389,20 @@ export function TestRunner({ token }: { token: string }) {
                 {(question.moduleKey ?? "").replaceAll("_", " ")}
               </p>
             ) : null}
-            <h1 className="font-display mt-3 text-2xl leading-tight font-semibold sm:text-3xl">
+            <h1
+              className="font-display mt-3 text-2xl leading-tight font-semibold outline-none sm:text-3xl"
+              id="assessment-question"
+              ref={questionHeadingRef}
+              tabIndex={-1}
+            >
               {question.text}
             </h1>
-            <LikertSelector answer={question.answer} disabled={pending} onAnswer={answer} />
+            <LikertSelector
+              answer={question.answer}
+              disabled={pending}
+              labelId="assessment-question"
+              onAnswer={answer}
+            />
             {error ? (
               <p className="text-danger mt-4 text-sm" role="alert">
                 {error}

@@ -20,12 +20,17 @@ test("modular selection estimates, starts, pauses, resumes, and completes", asyn
   await expect(page.getByText(/Bagian 1 dari 1/u)).toBeVisible();
 
   await page.getByRole("button", { name: "Jeda sesi" }).click();
-  await expect(page.getByRole("heading", { name: "Sesi dijeda" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Sesi dijeda" })).toBeFocused();
   await page.getByRole("button", { name: "Lanjutkan sesi" }).click();
   await expect(page.getByRole("button", { name: "Jeda sesi" })).toBeVisible();
 
   for (let index = 0; index < 32; index += 1) {
+    const questionHeading = page.getByRole("heading", { level: 1 });
+    const promptId = await questionHeading.getAttribute("id");
+    expect(promptId).toBeTruthy();
+    await expect(page.locator("fieldset")).toHaveAttribute("aria-labelledby", promptId!);
     await page.getByRole("button", { name: /4 Sesuai/u }).click();
+    if (index < 31) await expect(page.getByRole("heading", { level: 1 })).toBeFocused();
   }
   await expect(page.getByRole("button", { name: "Lihat hasil" })).toBeVisible();
   await page.getByRole("button", { name: "Lihat hasil" }).click();
