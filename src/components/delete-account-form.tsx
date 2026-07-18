@@ -71,7 +71,7 @@ export function DeleteAccountForm() {
 
       {error ? (
         <p
-          className="border-danger-soft text-danger rounded-md border bg-white px-4 py-3 text-sm"
+          className="border-danger-soft text-danger rounded-md border bg-white/90 px-4 py-3 text-sm"
           role="alert"
         >
           {error}
@@ -79,7 +79,7 @@ export function DeleteAccountForm() {
       ) : null}
 
       <button
-        className="focus-ring bg-danger text-canvas hover:bg-danger/90 min-h-12 rounded-sm px-5 py-3 font-semibold transition-colors duration-150 ease-out disabled:cursor-not-allowed disabled:opacity-50"
+        className="focus-ring bg-danger text-canvas hover:bg-danger/90 min-h-12 rounded-md px-5 py-3 font-semibold transition-colors duration-150 ease-out disabled:cursor-not-allowed disabled:opacity-50"
         disabled={confirmation !== "HAPUS AKUN" || isPending}
         type="submit"
       >

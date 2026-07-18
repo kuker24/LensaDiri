@@ -23,9 +23,7 @@ export default async function DashboardPrivacyPage() {
         Kembali ke dashboard
       </Link>
       <header className="mt-6 max-w-3xl">
-        <h1 className="font-display text-3xl font-semibold tracking-tight sm:text-4xl">
-          Pusat privasi
-        </h1>
+        <h1 className="text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">Pusat privasi</h1>
         <p className="text-ink-muted mt-4 max-w-2xl leading-7">
           Consent dicatat sebagai ledger append-only. Keputusan terbaru berlaku, sedangkan riwayat
           lama tetap tersedia untuk audit internal tanpa diekspos ke browser.
@@ -33,13 +31,13 @@ export default async function DashboardPrivacyPage() {
       </header>
 
       <section className="mt-10 max-w-4xl" aria-labelledby="consent-heading">
-        <h2 className="font-display text-2xl font-semibold" id="consent-heading">
+        <h2 className="text-2xl font-semibold" id="consent-heading">
           Consent dan tujuan pemrosesan
         </h2>
         <div className="mt-5 space-y-4">
           {policies.map((policy) => (
             <article
-              className="border-line rounded-lg border bg-white p-6"
+              className="border-line rounded-md border bg-white/90 p-6"
               key={`${policy.consentType}-${policy.version}`}
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -87,10 +85,10 @@ export default async function DashboardPrivacyPage() {
       </section>
 
       <section
-        className="border-lens-soft bg-lens-soft/40 mt-10 max-w-4xl rounded-lg border p-6"
+        className="border-lens/15 bg-lens-soft/55 mt-10 max-w-4xl rounded-md border p-6"
         aria-labelledby="retention-heading"
       >
-        <h2 className="font-display text-xl font-semibold" id="retention-heading">
+        <h2 className="text-xl font-semibold" id="retention-heading">
           Retention cleanup
         </h2>
         <p className="text-ink-muted mt-3 leading-7">
@@ -100,10 +98,10 @@ export default async function DashboardPrivacyPage() {
       </section>
 
       <section
-        className="border-danger-soft bg-danger-soft mt-10 max-w-4xl rounded-lg border p-6 sm:p-8"
+        className="border-danger/30 bg-danger-soft mt-10 max-w-4xl rounded-md border p-6 sm:p-8"
         aria-labelledby="delete-account-title"
       >
-        <h2 className="font-display text-danger text-2xl font-semibold" id="delete-account-title">
+        <h2 className="text-danger text-2xl font-semibold" id="delete-account-title">
           Hapus akun permanen
         </h2>
         <p className="text-ink mt-3 max-w-3xl leading-7">

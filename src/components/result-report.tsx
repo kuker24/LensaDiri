@@ -116,7 +116,7 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
 
   return (
     <div>
-      <div className="lens-glow bg-lens-strong text-canvas relative overflow-hidden rounded-lg p-7 sm:p-10">
+      <div className="lens-glow bg-lens-strong text-canvas shadow-surface relative overflow-hidden rounded-xl p-7 sm:p-10">
         <p className="text-aperture-on-dark text-sm font-semibold">Hasil modularmu</p>
         <h1 className="font-display mt-3 text-3xl font-semibold tracking-tight sm:text-5xl">
           {result.modules.length} lensa reflektif
@@ -143,7 +143,7 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
       </nav>
 
       <section
-        className="border-line mt-6 rounded-md border bg-white p-5"
+        className="border-line mt-6 rounded-lg border bg-white/90 p-5"
         aria-labelledby="result-meta-heading"
       >
         <h2 className="text-ink-muted text-sm font-semibold" id="result-meta-heading">
@@ -181,7 +181,7 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
       </section>
 
       <section
-        className="border-line bg-aperture-soft text-ink mt-6 rounded-md border p-5"
+        className="border-aperture-soft bg-aperture-soft text-ink mt-6 rounded-lg border p-5"
         aria-labelledby="quality-heading"
       >
         <h2 className="font-display text-xl font-semibold" id="quality-heading">
@@ -206,7 +206,7 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
           return (
             <section
               aria-labelledby={`module-${module.moduleKey}`}
-              className="border-line rounded-lg border bg-white p-6"
+              className="border-line rounded-xl border bg-white/90 p-6 shadow-[0_1px_2px_rgb(23_24_44_/_0.04)]"
               key={module.moduleKey}
             >
               <div className="flex flex-wrap items-baseline justify-between gap-3">
@@ -249,11 +249,11 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
                 </span>
               </div>
               <div className="mt-6 grid gap-5 md:grid-cols-2">
-                <article className="border-line bg-lens-soft/40 rounded-md border p-5">
+                <article className="border-line bg-lens-soft/40 rounded-lg border p-5">
                   <h3 className="font-semibold">Strengths yang mungkin terasa</h3>
                   <ReflectionList items={reflection.strengths} />
                 </article>
-                <article className="border-line bg-mist rounded-md border p-5">
+                <article className="border-line bg-mist rounded-lg border p-5">
                   <h3 className="font-semibold">Blind spots untuk diperiksa</h3>
                   <ReflectionList items={reflection.blindSpots} />
                 </article>
@@ -316,7 +316,7 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
             ["Relasi", integrated.relationships],
             ["Saat stres", integrated.stress],
           ].map(([title, text]) => (
-            <article className="border-line rounded-md border bg-white p-5" key={title}>
+            <article className="border-line rounded-lg border bg-white/90 p-5" key={title}>
               <h3 className="font-semibold">{title}</h3>
               <p className="text-ink-muted mt-2 text-sm leading-6">{text}</p>
             </article>
@@ -343,7 +343,7 @@ export function ResultReport({ result }: { result: ResultView }) {
 
   return (
     <div>
-      <div className="lens-glow bg-lens-strong text-canvas relative overflow-hidden rounded-lg p-7 sm:p-10">
+      <div className="lens-glow bg-lens-strong text-canvas shadow-surface relative overflow-hidden rounded-xl p-7 sm:p-10">
         <p className="text-aperture-on-dark text-sm font-semibold">Profil reflektifmu</p>
         <h1 className="font-display mt-3 text-3xl font-semibold tracking-tight sm:text-5xl">
           {result.summary.archetype}

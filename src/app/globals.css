@@ -1,36 +1,30 @@
 @import "tailwindcss";
 
-/*
-  Design tokens for "Quiet Editorial Observatory" — see docs/design/UI_FINAL_DIRECTION.md.
-  Roles, not raw palette: canvas/ink/lens/aperture/mist/line + semantic state colors.
-*/
 @theme {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: var(--font-fraunces), Georgia, serif;
+  --font-display:
+    var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
 
-  --color-canvas: #faf8f4;
-  --color-ink: #181511;
-  --color-ink-muted: #5b564c;
-  --color-lens: #2b4a43;
-  --color-lens-strong: #1c332e;
-  --color-lens-soft: #e2ece9;
-  --color-aperture: #c4703f;
-  --color-aperture-soft: #f3e3d6;
-  --color-mist: #efebe3;
-  --color-line: #ded7c9;
-  --color-success: #3f6b4e;
-  --color-warning: #91621e;
-  --color-danger: #a6392f;
-  --color-danger-soft: #f6e4e1;
-  --color-aperture-on-dark: #f39257;
+  --color-canvas: #f7f8fc;
+  --color-ink: #17182c;
+  --color-ink-muted: #62647a;
+  --color-lens: #6558d9;
+  --color-lens-strong: #4c3ec2;
+  --color-lens-soft: #ece9ff;
+  --color-aperture: #8be0d0;
+  --color-aperture-soft: #e3f8f4;
+  --color-mist: #f1f2f8;
+  --color-line: #dfe1ec;
+  --color-success: #126857;
+  --color-warning: #8a5a12;
+  --color-danger: #a33545;
+  --color-danger-soft: #fff0f2;
+  --color-aperture-on-dark: #8be0d0;
 
-  --radius-sm: 0.375rem;
-  --radius-md: 0.625rem;
-  --radius-lg: 1rem;
-
-  --shadow-surface: 0 12px 40px -12px rgb(24 21 17 / 0.16);
-
-  /* Override Tailwind's built-in ease-out/ease-in-out values (used via ease-out / ease-in-out utilities) */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1.5rem;
+  --shadow-surface: 0 24px 80px rgb(44 38 104 / 0.12);
   --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
 }
@@ -39,7 +33,7 @@
   --background: var(--color-canvas);
   --foreground: var(--color-ink);
   --muted: var(--color-ink-muted);
-  --surface: var(--color-mist);
+  --surface: rgb(255 255 255 / 0.82);
   --surface-strong: #ffffff;
   --line: var(--color-line);
   --brand: var(--color-lens);
@@ -47,6 +41,7 @@
   --brand-soft: var(--color-lens-soft);
   --aqua: var(--color-aperture);
   --shadow: var(--shadow-surface);
+  --blur-glass: 18px;
 }
 
 * {
@@ -60,7 +55,9 @@ html {
 body {
   min-height: 100vh;
   margin: 0;
-  background: var(--background);
+  background:
+    radial-gradient(circle at 15% 0%, rgb(139 224 208 / 0.22), transparent 30rem),
+    radial-gradient(circle at 85% 10%, rgb(101 88 217 / 0.2), transparent 34rem), var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
   font-feature-settings: "cv11";
@@ -78,38 +75,11 @@ a {
 }
 
 ::selection {
-  background: var(--color-lens-soft);
+  background: rgb(101 88 217 / 0.2);
 }
 
 .tabular-nums {
   font-variant-numeric: tabular-nums;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  html {
-    scroll-behavior: auto;
-  }
-
-  *,
-  *::before,
-  *::after {
-    scroll-behavior: auto !important;
-  }
-
-  .active\:scale-\[0\.97\]:active {
-    transform: none !important;
-  }
-
-  dialog[open],
-  dialog[open]::backdrop {
-    animation-name: none;
-  }
-
-  .toast-motion {
-    transform: none;
-    transition-duration: 150ms;
-    transition-property: opacity;
-  }
 }
 
 .container-shell {
@@ -123,19 +93,21 @@ a {
 }
 
 .surface-panel {
-  border: 1px solid var(--color-line);
-  background: var(--color-mist);
-  border-radius: var(--radius-md);
+  border: 1px solid rgb(23 24 44 / 0.1);
+  border-radius: var(--radius-lg);
+  background: var(--surface);
+  backdrop-filter: blur(var(--blur-glass));
 }
 
 .lens-glow {
-  background: radial-gradient(circle at 30% 20%, rgb(196 112 63 / 0.08), transparent 60%);
+  background:
+    radial-gradient(circle at 10% 0%, rgb(139 224 208 / 0.24), transparent 17rem),
+    radial-gradient(circle at 100% 100%, rgb(101 88 217 / 0.18), transparent 22rem), var(--surface);
 }
 
 .focus-ring:focus-visible {
-  outline: 2px solid var(--color-canvas);
-  outline-offset: 2px;
-  box-shadow: 0 0 0 4px var(--color-lens);
+  outline: 3px solid rgb(101 88 217 / 0.45);
+  outline-offset: 3px;
 }
 
 .toast-motion {
@@ -152,21 +124,20 @@ a {
 }
 
 dialog[open] {
-  animation: dialog-in var(--duration-slow, 200ms) var(--ease-out);
+  animation: dialog-in 200ms var(--ease-out);
 }
 
 dialog[open]::backdrop {
-  animation: backdrop-in var(--duration-slow, 200ms) var(--ease-out);
+  animation: backdrop-in 200ms var(--ease-out);
 }
 
 @keyframes dialog-in {
   from {
     opacity: 0;
-    transform: scale(0.98);
   }
+
   to {
     opacity: 1;
-    transform: scale(1);
   }
 }
 
@@ -174,20 +145,28 @@ dialog[open]::backdrop {
   from {
     opacity: 0;
   }
+
   to {
     opacity: 1;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  dialog[open],
-  dialog[open]::backdrop {
-    animation: none;
+  html {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 
   .toast-motion {
     transform: none;
-    transition-duration: 150ms;
     transition-property: opacity;
   }
 }

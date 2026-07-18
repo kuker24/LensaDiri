@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Fraunces, Inter } from "next/font/google";
+import { Inter } from "next/font/google";
 import type { ReactNode } from "react";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
@@ -11,13 +11,6 @@ const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
-});
-
-const fraunces = Fraunces({
-  subsets: ["latin"],
-  variable: "--font-fraunces",
-  display: "swap",
-  weight: ["500", "600"],
 });
 
 export const metadata: Metadata = {
@@ -52,16 +45,12 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   colorScheme: "light",
-  themeColor: "#faf8f4",
+  themeColor: "#f7f8fc",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html
-      data-scroll-behavior="smooth"
-      lang="id"
-      className={`${inter.variable} ${fraunces.variable}`}
-    >
+    <html data-scroll-behavior="smooth" lang="id" className={inter.variable}>
       <body>
         <a
           className="focus-ring text-ink sr-only z-50 rounded-md bg-white px-4 py-3 focus:not-sr-only focus:fixed focus:top-4 focus:left-4"

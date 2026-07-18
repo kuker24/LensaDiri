@@ -36,7 +36,7 @@ export function ResultFeedbackForm({ token }: { token: string }) {
     );
   return (
     <form
-      className="border-line shadow-surface mt-8 rounded-lg border bg-white p-6"
+      className="border-line shadow-surface mt-8 rounded-xl border bg-white/90 p-6"
       onSubmit={submit}
     >
       <h2 className="font-display text-ink text-xl font-semibold">Apakah hasil ini membantu?</h2>

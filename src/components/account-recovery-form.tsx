@@ -105,10 +105,10 @@ export function AccountRecoveryForm({ mode, token = "" }: { mode: RecoveryMode; 
 
   if (success) {
     return (
-      <div className="border-success rounded-md border bg-white p-6" role="status">
+      <div className="border-success rounded-md border bg-white/90 p-6" role="status">
         <p className="text-success font-semibold">{selected.success}</p>
         <Link
-          className="focus-ring bg-lens text-canvas hover:bg-lens-strong mt-5 inline-flex min-h-12 items-center justify-center rounded-sm px-5 py-3 font-semibold transition-colors duration-150 ease-out"
+          className="focus-ring bg-lens text-canvas hover:bg-lens-strong mt-5 inline-flex min-h-12 items-center justify-center rounded-md px-5 py-3 font-semibold transition-colors duration-150 ease-out"
           href="/login"
         >
           Kembali ke login
@@ -152,7 +152,10 @@ export function AccountRecoveryForm({ mode, token = "" }: { mode: RecoveryMode; 
         </div>
       ) : null}
       {selected.field === "token" && !fragmentToken ? (
-        <p className="border-aperture text-ink-muted rounded-md border bg-white p-4" role="alert">
+        <p
+          className="border-aperture text-ink-muted rounded-md border bg-white/90 p-4"
+          role="alert"
+        >
           Link tidak memuat token.
         </p>
       ) : null}

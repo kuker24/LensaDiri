@@ -5,11 +5,11 @@ export default function AboutPage() {
   return (
     <main className="container-shell py-12 sm:py-18">
       <article className="max-w-4xl">
-        <h1 className="mt-2 tracking-tight">
+        <h1 className="mt-2 tracking-[-0.035em]">
           <span className="text-lens mb-2 block text-sm font-semibold tracking-wider uppercase">
             Tentang LensaDiri
           </span>
-          <span className="font-display text-ink block text-4xl font-semibold sm:text-5xl">
+          <span className="text-ink block text-4xl font-semibold sm:text-5xl">
             Refleksi berlapis tanpa label mutlak
           </span>
         </h1>
@@ -19,15 +19,15 @@ export default function AboutPage() {
           mengubah skor tersebut.
         </p>
         <div className="mt-10 grid gap-5 md:grid-cols-2">
-          <section className="border-line shadow-surface rounded-md border bg-white p-6">
-            <h2 className="font-display text-ink text-xl font-semibold">Yang kami lakukan</h2>
+          <section className="border-line rounded-md border bg-white/90 p-6">
+            <h2 className="text-ink text-xl font-semibold">Yang kami lakukan</h2>
             <p className="text-ink-muted mt-3 leading-7">
               Menyediakan assessment reflektif, confidence, quality notice, clarifier, dan kontrol
               data private.
             </p>
           </section>
-          <section className="border-line shadow-surface rounded-md border bg-white p-6">
-            <h2 className="font-display text-ink text-xl font-semibold">Yang tidak kami klaim</h2>
+          <section className="border-line rounded-md border bg-white/90 p-6">
+            <h2 className="text-ink text-xl font-semibold">Yang tidak kami klaim</h2>
             <p className="text-ink-muted mt-3 leading-7">
               LensaDiri bukan diagnosis, bukan pengganti profesional, dan belum mengklaim validasi
               psikometrik formal.

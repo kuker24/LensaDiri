@@ -48,7 +48,7 @@ export default function StartPage() {
       <div className="mx-auto mt-5 grid max-w-4xl gap-5 md:grid-cols-2">
         {modes.map((mode) => (
           <article
-            className="border-line shadow-surface rounded-lg border bg-white p-7"
+            className="border-line shadow-surface rounded-xl border bg-white/90 p-7"
             key={mode.key}
           >
             <h2 className="font-display text-2xl font-semibold">{mode.name}</h2>

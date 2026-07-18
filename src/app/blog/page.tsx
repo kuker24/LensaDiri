@@ -24,7 +24,7 @@ export default function BlogPage() {
     <main className="container-shell py-12 sm:py-18">
       <header className="max-w-3xl">
         <p className="text-lens text-sm font-semibold">Blog dan edukasi</p>
-        <h1 className="font-display mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">
+        <h1 className="mt-2 text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
           Membaca hasil dengan lebih hati-hati
         </h1>
         <p className="text-ink-muted mt-5 leading-7">
@@ -33,11 +33,8 @@ export default function BlogPage() {
       </header>
       <ul className="mt-10 grid gap-5 md:grid-cols-3">
         {articles.map((article) => (
-          <li
-            className="border-line shadow-surface rounded-md border bg-white p-6"
-            key={article.title}
-          >
-            <h2 className="font-display text-ink text-xl font-semibold">{article.title}</h2>
+          <li className="border-line rounded-md border bg-white/90 p-6" key={article.title}>
+            <h2 className="text-ink text-xl font-semibold">{article.title}</h2>
             <p className="text-ink-muted mt-3 leading-7">{article.summary}</p>
             <Link
               className="focus-ring text-lens mt-5 inline-flex min-h-11 items-center rounded font-semibold hover:underline"

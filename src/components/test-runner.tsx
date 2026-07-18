@@ -123,7 +123,7 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
   return (
     <section className="container-shell py-10 sm:py-16">
       <div className="mx-auto max-w-3xl">
-        <div className="border-line bg-aperture-soft text-ink rounded-md border p-5">
+        <div className="border-aperture-soft bg-aperture-soft text-ink rounded-lg border p-5">
           <h1 className="font-display text-xl font-semibold">
             Perjelas pola yang masih berdekatan
           </h1>
@@ -348,7 +348,7 @@ export function TestRunner({ token }: { token: string }) {
           value={answeredCount}
         />
         {modular && question.segmentIndex ? (
-          <div className="border-line mt-4 flex flex-wrap items-center justify-between gap-3 rounded-md border bg-white/70 px-4 py-3 text-sm">
+          <div className="border-line mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-white/70 px-4 py-3 text-sm">
             <span className="tabular-nums">
               Bagian {question.segmentIndex} dari {session.segmentCount ?? 1} · {segmentAnswered}/
               {segmentQuestions.length} terjawab
@@ -367,7 +367,7 @@ export function TestRunner({ token }: { token: string }) {
           </div>
         ) : null}
         {session.status === "paused" ? (
-          <div className="border-lens-soft bg-lens-soft mt-8 rounded-lg border p-6 text-center">
+          <div className="border-lens-soft bg-lens-soft mt-8 rounded-xl border p-6 text-center">
             <h1
               className="font-display text-ink text-xl font-semibold outline-none"
               ref={pausedHeadingRef}
@@ -383,7 +383,7 @@ export function TestRunner({ token }: { token: string }) {
             </Button>
           </div>
         ) : (
-          <article className="border-line shadow-surface mt-8 rounded-lg border bg-white p-6 sm:p-10">
+          <article className="border-line shadow-surface mt-8 rounded-xl border bg-white/90 p-6 sm:p-10">
             {modular ? (
               <p className="text-lens text-sm font-semibold capitalize">
                 {(question.moduleKey ?? "").replaceAll("_", " ")}

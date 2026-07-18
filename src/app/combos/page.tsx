@@ -13,7 +13,7 @@ export default async function CombosPage() {
     <main className="container-shell py-12 sm:py-18">
       <header className="max-w-3xl">
         <p className="text-lens text-sm font-semibold">Preset terkurasi</p>
-        <h1 className="font-display mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">
+        <h1 className="mt-2 text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
           Gabungkan lensa tanpa mencampur skor
         </h1>
         <p className="text-ink-muted mt-5 leading-7">
@@ -23,13 +23,13 @@ export default async function CombosPage() {
       </header>
 
       {combos.length === 0 ? (
-        <p className="border-line text-ink-muted mt-10 rounded-lg border bg-white p-6">
+        <p className="border-line text-ink-muted mt-10 rounded-md border bg-white/90 p-6">
           Belum ada preset yang memenuhi publication gate.
         </p>
       ) : (
         <ul className="mt-10 grid gap-5 md:grid-cols-2">
           {combos.map((combo) => (
-            <li className="border-line rounded-lg border bg-white p-6" key={combo.key}>
+            <li className="border-line rounded-md border bg-white/90 p-6" key={combo.key}>
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <span className="text-lens text-sm font-semibold">
                   {combo.isFullSpectrum ? "Full Spectrum" : "Curated combo"}
@@ -38,7 +38,7 @@ export default async function CombosPage() {
                   Rekomendasi {getPublicModeName(combo.recommendedMode)}
                 </span>
               </div>
-              <h2 className="font-display mt-4 text-2xl font-semibold">{combo.publicName}</h2>
+              <h2 className="mt-4 text-2xl font-semibold">{combo.publicName}</h2>
               <p className="text-ink-muted mt-3 leading-7">{combo.description}</p>
               <ul
                 className="mt-5 flex flex-wrap gap-2"
@@ -46,7 +46,7 @@ export default async function CombosPage() {
               >
                 {combo.moduleKeys.map((key) => (
                   <li
-                    className="border-lens-soft bg-lens-soft text-lens-strong rounded-sm border px-3 py-1 text-sm"
+                    className="border-lens-soft bg-lens-soft text-lens-strong rounded-md border px-3 py-1 text-sm"
                     key={key}
                   >
                     {names.get(key) ?? key.replaceAll("_", " ")}
@@ -54,7 +54,7 @@ export default async function CombosPage() {
                 ))}
               </ul>
               <Link
-                className="focus-ring bg-lens text-canvas hover:bg-lens-strong mt-6 inline-flex min-h-12 items-center rounded-sm px-5 font-semibold transition-colors duration-150 ease-out"
+                className="focus-ring bg-lens text-canvas hover:bg-lens-strong mt-6 inline-flex min-h-12 items-center rounded-md px-5 font-semibold transition-colors duration-150 ease-out"
                 href="/start/modules"
               >
                 Pilih preset

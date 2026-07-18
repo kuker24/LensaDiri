@@ -53,7 +53,7 @@ export function ModularReviewForm() {
   return (
     <div className="mx-auto max-w-3xl">
       <p className="text-lens text-sm font-semibold">Tinjau dan consent</p>
-      <h1 className="font-display mt-3 text-4xl font-semibold tracking-tight">
+      <h1 className="font-display mt-3 text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
         Siap memulai eksplorasi?
       </h1>
       <p className="text-ink-muted mt-4 leading-7">
@@ -62,7 +62,7 @@ export function ModularReviewForm() {
       </p>
 
       {estimate ? (
-        <div className="border-line mt-8 overflow-hidden rounded-lg border bg-white">
+        <div className="border-line shadow-surface mt-8 overflow-hidden rounded-xl border bg-white/90">
           <div className="border-line grid gap-5 border-b p-6 sm:grid-cols-3">
             <div>
               <p className="text-ink-muted text-sm">Mode</p>
@@ -96,13 +96,13 @@ export function ModularReviewForm() {
         </div>
       ) : null}
 
-      <div className="border-line bg-lens-soft/40 mt-8 space-y-3 rounded-md border p-5 text-sm leading-6">
+      <div className="border-aperture-soft bg-aperture-soft mt-8 space-y-3 rounded-lg border p-5 text-sm leading-6">
         <p>Jawaban dipakai hanya untuk scoring dan refleksi dari lensa yang dipilih.</p>
         <p>Skor primer dihitung di server. Correlation tidak mengubah skor module.</p>
         <p>Hasil private sampai kamu membuat link berbagi.</p>
         <p>Kamu dapat menghapus hasil dan jawaban terkait.</p>
       </div>
-      <label className="border-line mt-5 flex items-start gap-3 rounded-md border bg-white p-5 text-sm leading-6">
+      <label className="border-line mt-5 flex items-start gap-3 rounded-lg border bg-white/90 p-5 text-sm leading-6">
         <input
           checked={consent}
           className="accent-lens mt-1 h-5 w-5"

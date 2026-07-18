@@ -4,9 +4,9 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 
-import { AuthApiError, postAuthenticatedMutation } from "@/lib/auth/client";
 import { Button } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
+import { AuthApiError, postAuthenticatedMutation } from "@/lib/auth/client";
 
 type AuthFormProps = {
   mode: "login" | "register";
@@ -25,22 +25,18 @@ export function AuthForm({ mode }: AuthFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
   const [registrationAccepted, setRegistrationAccepted] = useState(false);
-
   const isLogin = mode === "login";
 
   async function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     setError(null);
     setIsPending(true);
-
     const formData = new FormData(event.currentTarget);
-    const email = String(formData.get("email") ?? "");
-    const password = String(formData.get("password") ?? "");
 
     try {
       await postAuthenticatedMutation(isLogin ? "/api/auth/login" : "/api/auth/register", {
-        email,
-        password,
+        email: String(formData.get("email") ?? ""),
+        password: String(formData.get("password") ?? ""),
       });
       if (isLogin) {
         router.push("/dashboard");
@@ -58,13 +54,14 @@ export function AuthForm({ mode }: AuthFormProps) {
 
   if (registrationAccepted) {
     return (
-      <div className="border-success rounded-md border bg-white p-6" role="status">
-        <h2 className="font-display text-success text-lg font-semibold">Pendaftaran diterima</h2>
+      <div className="border-success/30 bg-aperture-soft/70 rounded-md border p-5" role="status">
+        <p className="text-success text-sm font-semibold tracking-wide uppercase">Berhasil</p>
+        <h2 className="mt-2 text-xl font-semibold">Pendaftaran diterima</h2>
         <p className="text-ink-muted mt-2 leading-7">
           Jika email belum terdaftar, akun sudah dibuat. Masuk untuk melanjutkan.
         </p>
         <Link
-          className="focus-ring bg-lens text-canvas hover:bg-lens-strong mt-5 inline-flex min-h-12 items-center justify-center rounded-sm px-5 py-3 font-semibold transition-colors duration-150 ease-out"
+          className="focus-ring text-lens mt-5 inline-flex min-h-11 items-center font-semibold hover:underline"
           href="/login"
         >
           Masuk sekarang
@@ -103,17 +100,15 @@ export function AuthForm({ mode }: AuthFormProps) {
           Minimal 12 karakter.
         </p>
       </div>
-
       {error ? (
         <p
-          className="border-danger-soft bg-danger-soft text-danger rounded-md border px-4 py-3 text-sm"
+          className="border-danger/30 bg-danger-soft text-danger rounded-md border px-4 py-3 text-sm"
           role="alert"
         >
           {error}
         </p>
       ) : null}
-
-      <Button className="w-full" disabled={isPending} type="submit">
+      <Button aria-busy={isPending} className="w-full" disabled={isPending} type="submit">
         {isPending ? "Memproses…" : isLogin ? "Masuk" : "Buat akun"}
       </Button>
     </form>

@@ -56,7 +56,7 @@ export function ResultControls({ token }: { token: string }) {
 
   return (
     <section
-      className="border-line mt-10 rounded-lg border bg-white p-6"
+      className="border-line mt-10 rounded-xl border bg-white/90 p-6 shadow-[0_1px_2px_rgb(23_24_44_/_0.04)]"
       aria-labelledby="result-controls-title"
     >
       <h2 className="font-display text-xl font-semibold" id="result-controls-title">

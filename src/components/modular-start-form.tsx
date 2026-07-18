@@ -157,7 +157,7 @@ export function ModularStartForm() {
     <div className="mx-auto max-w-5xl">
       <div className="max-w-3xl">
         <p className="text-lens text-sm font-semibold">Assessment modular</p>
-        <h1 className="font-display mt-3 text-4xl font-semibold tracking-tight sm:text-5xl">
+        <h1 className="font-display mt-3 text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
           Pilih lensa yang ingin kamu pahami.
         </h1>
         <p className="text-ink-muted mt-5 max-w-2xl text-lg leading-8">
@@ -193,7 +193,7 @@ export function ModularStartForm() {
             const selected = selectedKeys.includes(module.key);
             return (
               <label
-                className={`focus-within:ring-lens-soft flex cursor-pointer gap-4 rounded-md border bg-white p-5 transition-colors duration-150 ease-out focus-within:ring-3 ${selected ? "border-lens bg-lens-soft/60" : "border-line hover:border-lens/50"}`}
+                className={`focus-within:ring-lens-soft flex cursor-pointer gap-4 rounded-lg border bg-white/90 p-5 shadow-[0_1px_2px_rgb(23_24_44_/_0.04)] transition-[border-color,background-color] duration-150 ease-out focus-within:ring-3 ${selected ? "border-lens bg-lens-soft/60" : "border-line hover:border-lens/50"}`}
                 key={module.key}
               >
                 <input
@@ -226,7 +226,7 @@ export function ModularStartForm() {
             {combos.map((combo) => (
               <button
                 aria-pressed={presetKey === combo.key}
-                className="focus-ring border-line hover:border-lens/50 aria-pressed:border-lens aria-pressed:bg-lens-soft min-w-[min(100%,18rem)] flex-1 rounded-md border bg-white p-5 text-left transition-colors duration-150 ease-out"
+                className="focus-ring border-line hover:border-lens/50 aria-pressed:border-lens aria-pressed:bg-lens-soft min-w-[min(100%,18rem)] flex-1 rounded-lg border bg-white/90 p-5 text-left shadow-[0_1px_2px_rgb(23_24_44_/_0.04)] transition-[border-color,background-color] duration-150 ease-out"
                 key={combo.key}
                 onClick={() => selectPreset(combo)}
                 type="button"
@@ -249,7 +249,7 @@ export function ModularStartForm() {
           {modes.map((profile) => (
             <button
               aria-pressed={mode === profile.internalMode}
-              className="focus-ring border-line hover:border-lens/50 aria-pressed:border-lens aria-pressed:bg-lens-soft rounded-md border bg-white p-5 text-left transition-colors duration-150 ease-out disabled:cursor-not-allowed disabled:opacity-50"
+              className="focus-ring border-line hover:border-lens/50 aria-pressed:border-lens aria-pressed:bg-lens-soft rounded-lg border bg-white/90 p-5 text-left shadow-[0_1px_2px_rgb(23_24_44_/_0.04)] transition-[border-color,background-color] duration-150 ease-out disabled:cursor-not-allowed disabled:opacity-50"
               disabled={!profile.isSelectable}
               key={profile.internalMode}
               onClick={() => setMode(profile.internalMode)}
@@ -286,7 +286,7 @@ export function ModularStartForm() {
         </label>
       ) : null}
 
-      <aside className="lens-glow bg-lens-strong text-canvas relative mt-10 overflow-hidden rounded-lg p-6 sm:flex sm:items-center sm:justify-between sm:gap-8">
+      <aside className="lens-glow bg-lens-strong text-canvas shadow-surface relative mt-10 overflow-hidden rounded-xl p-6 sm:flex sm:items-center sm:justify-between sm:gap-8">
         <div aria-live="polite">
           <p className="text-aperture-on-dark font-semibold">Estimasi dari server</p>
           {estimating ? (

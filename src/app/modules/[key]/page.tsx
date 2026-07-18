@@ -23,20 +23,20 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
       <Link className="focus-ring text-lens rounded-md text-sm font-semibold" href="/modules">
         Kembali ke katalog
       </Link>
-      <article className="border-line mt-6 max-w-4xl rounded-lg border bg-white p-7 sm:p-10">
+      <article className="border-line mt-6 max-w-4xl rounded-md border bg-white/90 p-7 sm:p-10">
         <div className="flex flex-wrap gap-3 text-sm">
           <Badge tone="lens">Evidence {catalogModule.evidenceTier.replace("_", " ")}</Badge>
           <Badge tone="neutral">
             {available ? "Release-ready" : catalogModule.releaseDisposition?.replaceAll("_", " ")}
           </Badge>
         </div>
-        <h1 className="font-display mt-5 text-4xl font-semibold tracking-tight sm:text-5xl">
+        <h1 className="mt-5 text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
           {catalogModule.publicName}
         </h1>
         <p className="text-ink-muted mt-5 max-w-3xl leading-7">{catalogModule.description}</p>
 
         <section className="mt-8" aria-labelledby="depth-heading">
-          <h2 className="font-display text-2xl font-semibold" id="depth-heading">
+          <h2 className="text-2xl font-semibold" id="depth-heading">
             Coverage per mode
           </h2>
           <dl className="mt-4 grid gap-3 sm:grid-cols-3">
@@ -66,13 +66,13 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
 
         {available ? (
           <Link
-            className="focus-ring bg-lens text-canvas hover:bg-lens-strong mt-8 inline-flex min-h-12 items-center rounded-sm px-5 font-semibold transition-colors duration-150 ease-out"
+            className="focus-ring bg-lens text-canvas hover:bg-lens-strong mt-8 inline-flex min-h-12 items-center rounded-md px-5 font-semibold transition-colors duration-150 ease-out"
             href="/start/modules"
           >
             Pilih modul ini
           </Link>
         ) : (
-          <div className="border-aperture-soft bg-aperture-soft text-ink mt-8 rounded-md border p-5">
+          <div className="border-aperture/50 bg-aperture-soft/70 text-ink mt-8 rounded-md border p-5">
             <h2 className="font-semibold">Belum dapat dipilih</h2>
             <p className="mt-2 text-sm leading-6">
               {catalogModule.availabilityReason ?? "Modul masih berada dalam review."}

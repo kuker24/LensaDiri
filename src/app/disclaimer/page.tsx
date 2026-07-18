@@ -9,7 +9,7 @@ export default function DisclaimerPage() {
   return (
     <article className="prose-shell py-16 lg:py-24">
       <p className="text-lens text-sm font-semibold tracking-[0.14em] uppercase">Disclaimer</p>
-      <h1 className="font-display mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
+      <h1 className="mt-4 text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
         Alat refleksi diri, bukan diagnosis atau keputusan profesional.
       </h1>
       <div className="border-line bg-aperture-soft text-ink mt-10 space-y-7 rounded-md border p-7 sm:p-10">

@@ -29,7 +29,7 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
   if (result.kind === "legacy") {
     return (
       <div>
-        <header className="lens-glow bg-lens-strong text-canvas relative overflow-hidden rounded-lg p-7 sm:p-10">
+        <header className="lens-glow bg-lens-strong text-canvas shadow-surface relative overflow-hidden rounded-xl p-7 sm:p-10">
           <p className="text-aperture-on-dark text-sm font-semibold">
             Ringkasan hasil yang dibagikan
           </p>
@@ -45,7 +45,7 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
           <div className="mt-5 space-y-5">
             {result.scores.map((score) => (
               <article
-                className="border-line rounded-md border bg-white p-5"
+                className="border-line rounded-lg border bg-white/90 p-5"
                 key={score.constructKey}
               >
                 <div className="flex justify-between gap-4">
@@ -63,7 +63,7 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
           </div>
         </section>
         <section className="mt-8 grid gap-5 md:grid-cols-2">
-          <article className="border-line rounded-lg border bg-white p-6">
+          <article className="border-line rounded-xl border bg-white/90 p-6 shadow-[0_1px_2px_rgb(23_24_44_/_0.04)]">
             <h2 className="font-display text-xl font-semibold">Pola yang dibagikan</h2>
             <ul className="text-ink-muted mt-4 space-y-3 leading-7">
               {result.strengths.map((item) => (
@@ -71,7 +71,7 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
               ))}
             </ul>
           </article>
-          <article className="border-line rounded-lg border bg-white p-6">
+          <article className="border-line rounded-xl border bg-white/90 p-6 shadow-[0_1px_2px_rgb(23_24_44_/_0.04)]">
             <h2 className="font-display text-xl font-semibold">Arah pengembangan</h2>
             <ul className="text-ink-muted mt-4 space-y-3 leading-7">
               {result.growthFocus.map((item) => (
@@ -86,7 +86,7 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
 
   return (
     <div>
-      <header className="lens-glow bg-lens-strong text-canvas relative overflow-hidden rounded-lg p-7 sm:p-10">
+      <header className="lens-glow bg-lens-strong text-canvas shadow-surface relative overflow-hidden rounded-xl p-7 sm:p-10">
         <p className="text-aperture-on-dark text-sm font-semibold">
           Ringkasan hasil yang dibagikan
         </p>
@@ -99,7 +99,7 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
         {result.modules.map((module) => (
           <section
             aria-labelledby={`shared-module-${module.key}`}
-            className="border-line rounded-lg border bg-white p-6"
+            className="border-line rounded-xl border bg-white/90 p-6 shadow-[0_1px_2px_rgb(23_24_44_/_0.04)]"
             key={module.key}
           >
             <div className="flex flex-wrap items-baseline justify-between gap-3">
@@ -142,7 +142,7 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
           <div className="mt-5 grid gap-4 md:grid-cols-2">
             {result.correlations.map((correlation) => (
               <article
-                className="border-line bg-lens-soft/40 rounded-md border p-5"
+                className="border-line bg-lens-soft/40 rounded-lg border p-5"
                 key={`${correlation.kind}-${correlation.narrativeKey}`}
               >
                 <h3 className="font-semibold">

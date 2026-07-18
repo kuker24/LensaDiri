@@ -29,7 +29,7 @@ export default function MethodPage() {
     <section className="container-shell py-16 lg:py-24">
       <div className="max-w-3xl">
         <p className="text-lens text-sm font-semibold tracking-[0.14em] uppercase">Metode</p>
-        <h1 className="font-display mt-4 text-4xl font-semibold tracking-tight sm:text-5xl">
+        <h1 className="mt-4 text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
           Jujur tentang apa yang diukur dan apa yang tidak.
         </h1>
         <p className="text-ink-muted mt-6 text-lg leading-8">
@@ -40,22 +40,19 @@ export default function MethodPage() {
 
       <div className="mt-12 grid gap-5 lg:grid-cols-3">
         {tiers.map((item) => (
-          <article
-            className="border-line shadow-surface rounded-md border bg-white p-7"
-            key={item.tier}
-          >
+          <article className="border-line rounded-md border bg-white/90 p-7" key={item.tier}>
             <div className="mb-4">
               <EvidenceBadge tier={item.tier} />
             </div>
-            <h2 className="font-display mt-6 text-xl font-semibold">{item.title}</h2>
+            <h2 className="mt-6 text-xl font-semibold">{item.title}</h2>
             <p className="text-ink-muted mt-3 leading-7">{item.body}</p>
           </article>
         ))}
       </div>
 
       <div className="mt-12 grid gap-6 lg:grid-cols-2">
-        <article className="border-line shadow-surface rounded-md border bg-white p-7">
-          <h2 className="font-display text-ink text-2xl font-semibold">Aturan scoring</h2>
+        <article className="border-line rounded-md border bg-white/90 p-7">
+          <h2 className="text-ink text-2xl font-semibold">Aturan scoring</h2>
           <ul className="text-ink-muted mt-5 space-y-3 leading-7">
             <li>Client hanya mengirim jawaban mentah, bukan skor final.</li>
             <li>Reverse coding dan normalisasi memakai fungsi deterministik.</li>
@@ -63,8 +60,8 @@ export default function MethodPage() {
             <li>AI hanya boleh menjelaskan skor yang sudah ada, bukan menghitungnya.</li>
           </ul>
         </article>
-        <article className="border-line shadow-surface rounded-md border bg-white p-7">
-          <h2 className="font-display text-ink text-2xl font-semibold">Batasan penting</h2>
+        <article className="border-line rounded-md border bg-white/90 p-7">
+          <h2 className="text-ink text-2xl font-semibold">Batasan penting</h2>
           <ul className="text-ink-muted mt-5 space-y-3 leading-7">
             <li>Hasil tidak boleh diposisikan sebagai diagnosis klinis.</li>
             <li>Hasil tidak boleh menjadi satu-satunya dasar rekrutmen atau pendidikan.</li>
