@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
+import { DashboardOpenButton } from "@/components/dashboard-open-button";
 import { getCurrentSession } from "@/server/current-session";
 import { listAccountActiveSessions } from "@/server/repositories/dashboard";
 import { Button } from "@/components/ui/button";
@@ -52,9 +53,7 @@ export default async function DashboardSessionsPage() {
                   Segmen {active.currentSegmentIndex} dari {active.segmentCount}
                 </p>
               </div>
-              <Link href={`/test/${active.id}`}>
-                <Button>Lanjutkan</Button>
-              </Link>
+              <DashboardOpenButton id={active.id} kind="session" />
             </li>
           ))}
         </ul>

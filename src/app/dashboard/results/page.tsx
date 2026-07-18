@@ -1,6 +1,7 @@
 import { redirect } from "next/navigation";
 import Link from "next/link";
 
+import { DashboardOpenButton } from "@/components/dashboard-open-button";
 import { getCurrentSession } from "@/server/current-session";
 import { listAccountDashboardResults } from "@/server/repositories/dashboard";
 import { Button } from "@/components/ui/button";
@@ -51,9 +52,7 @@ export default async function DashboardResultsPage() {
                   Scoring Version: {res.scoringVersion} · Share token aktif: {res.activeShareCount}
                 </p>
               </div>
-              <Link href={`/result/${res.id}`}>
-                <Button>Buka Hasil</Button>
-              </Link>
+              <DashboardOpenButton id={res.id} kind="result" />
             </li>
           ))}
         </ul>

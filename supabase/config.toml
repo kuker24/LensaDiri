@@ -24,6 +24,7 @@ sql_paths = [
   "./seed/20260715_independent_core_modules.sql",
   "./seed/20260716_trait_profile_modular.sql",
   "./seed/20260716_release_catalog.sql",
+  "./seed/20260726_deferred_modules_item_banks.sql",
 ]
 
 # LensaDiri uses internal, server-side authentication. Supabase Auth is not an
