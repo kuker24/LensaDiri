@@ -5,7 +5,7 @@ import { getPublicModeName, isPubliclyAvailableModule } from "@/lib/assessment/c
 import { getCatalogModuleByKey } from "@/server/repositories/catalog";
 import { Badge } from "@/components/ui/badge";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export default async function ModuleDetailPage({ params }: { params: Promise<{ key: string }> }) {
   const { key } = await params;

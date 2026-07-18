@@ -4,7 +4,7 @@ import { isPubliclyAvailableModule } from "@/lib/assessment/catalog";
 import { listCatalogModules } from "@/server/repositories/catalog";
 import { Badge } from "@/components/ui/badge";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export default async function ModulesPage() {
   const modules = await listCatalogModules({ includeUnavailable: true });

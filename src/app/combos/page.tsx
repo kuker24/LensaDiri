@@ -3,7 +3,7 @@ import Link from "next/link";
 import { getPublicModeName } from "@/lib/assessment/catalog";
 import { listCatalogModules, listComboPresets } from "@/server/repositories/catalog";
 
-export const dynamic = "force-dynamic";
+export const revalidate = 300;
 
 export default async function CombosPage() {
   const [combos, modules] = await Promise.all([listComboPresets(), listCatalogModules()]);
