@@ -20,11 +20,20 @@ function PrivateResultLoader({ token }: { token: string }) {
 
   if (failed)
     return (
-      <p className="text-danger py-20 text-center font-medium" role="alert">
-        Hasil tidak ditemukan atau sudah dihapus.
-      </p>
+      <div className="py-20 text-center" role="alert">
+        <h1 className="font-display text-danger text-2xl font-semibold">Hasil tidak ditemukan</h1>
+        <p className="text-ink-muted mt-3">
+          Hasil mungkin sudah dihapus atau tautannya tidak valid.
+        </p>
+      </div>
     );
-  if (!result) return <p className="text-ink-muted py-20 text-center">Memuat hasil…</p>;
+  if (!result)
+    return (
+      <div className="py-20 text-center" role="status">
+        <h1 className="font-display text-2xl font-semibold">Memuat hasil pribadi</h1>
+        <p className="text-ink-muted mt-3">Menyiapkan ringkasan reflektifmu…</p>
+      </div>
+    );
   return <ResultReport result={result} />;
 }
 
@@ -40,11 +49,20 @@ function SharedResultLoader({ token }: { token: string }) {
 
   if (failed)
     return (
-      <p className="text-danger py-20 text-center font-medium" role="alert">
-        Hasil tidak ditemukan, kedaluwarsa, atau sudah dicabut.
-      </p>
+      <div className="py-20 text-center" role="alert">
+        <h1 className="font-display text-danger text-2xl font-semibold">Hasil tidak ditemukan</h1>
+        <p className="text-ink-muted mt-3">
+          Tautan mungkin kedaluwarsa, sudah dicabut, atau tidak valid.
+        </p>
+      </div>
     );
-  if (!result) return <p className="text-ink-muted py-20 text-center">Memuat hasil…</p>;
+  if (!result)
+    return (
+      <div className="py-20 text-center" role="status">
+        <h1 className="font-display text-2xl font-semibold">Memuat hasil yang dibagikan</h1>
+        <p className="text-ink-muted mt-3">Menyiapkan tampilan aman tanpa diagnostik pribadi…</p>
+      </div>
+    );
   return <SharedResultReport result={result} />;
 }
 

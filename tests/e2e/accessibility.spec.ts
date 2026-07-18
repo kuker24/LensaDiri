@@ -75,6 +75,16 @@ test("authentication controls have programmatic labels", async ({ page }) => {
   await expect(page.getByRole("button", { name: "Masuk", exact: true })).toBeEnabled();
 });
 
+test("result loading and failure states keep a single page heading", async ({ page }) => {
+  for (const route of ["/result/not-a-real-token", "/shared/not-a-real-token"]) {
+    await page.goto(route);
+    const heading = page.getByRole("heading", { level: 1 });
+    await expect(heading).toHaveText("Hasil tidak ditemukan");
+    await expect(heading).toHaveCount(1);
+    await expect(heading.locator("..")).toHaveAttribute("role", "alert");
+  }
+});
+
 test.describe("Dialog primitive", () => {
   test("manages focus, Escape, close controls, and unique IDs", async ({ page }) => {
     await page.goto("/test-dialog");
