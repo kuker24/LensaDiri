@@ -35,19 +35,31 @@ export async function POST(request: Request): Promise<NextResponse> {
     return NextResponse.json(apiFailure(parsed.reason), { headers: noStoreHeaders, status: 400 });
   }
 
+  let limited: Awaited<ReturnType<typeof consumeRateLimit>>;
   try {
-    const limited = await consumeRateLimit(
+    limited = await consumeRateLimit(
       getRequestRateLimitIdentity(request),
       assessmentRateLimitPolicies.estimate,
       environment.rateLimitSecret,
     );
-    if (!limited.allowed) {
-      return NextResponse.json(apiFailure("rate_limited"), {
-        headers: { ...noStoreHeaders, "Retry-After": String(limited.retryAfterSeconds) },
-        status: 429,
-      });
-    }
+  } catch {
+    return NextResponse.json(
+      {
+        success: false,
+        error: { code: "service_temporarily_busy" },
+        message: "Sistem sedang sibuk. Coba lagi beberapa saat.",
+      },
+      { headers: noStoreHeaders, status: 503 },
+    );
+  }
+  if (!limited.allowed) {
+    return NextResponse.json(apiFailure("rate_limited"), {
+      headers: { ...noStoreHeaders, "Retry-After": String(limited.retryAfterSeconds) },
+      status: 429,
+    });
+  }
 
+  try {
     const [modules, combos, modeProfiles, modularEnabled, precisionEnabled, complexEnabled] =
       await Promise.all([
         listCatalogModules(),

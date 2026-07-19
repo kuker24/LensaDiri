@@ -8,10 +8,10 @@ test("modular selection estimates, starts, pauses, resumes, and completes", asyn
   await expect(page.getByText("Estimasi dari server")).toBeVisible();
   await expect(page.getByText(/item · sekitar/u)).toBeVisible();
 
-  await page.getByRole("checkbox", { name: /16-Type Jungian-inspired/u }).check();
+  await page.getByRole("checkbox", { name: /RIASEC/u }).check();
   await page.getByRole("checkbox", { name: /Profil Trait/u }).uncheck();
   await page.getByRole("button", { name: /Quick/u }).click();
-  await expect(page.getByText(/32 item · sekitar/u)).toBeVisible();
+  await expect(page.getByText(/24 item · sekitar/u)).toBeVisible();
   await page.getByRole("button", { name: "Tinjau pilihan" }).click();
   await expect(page).toHaveURL(/\/start\/review$/u);
   await page.getByRole("checkbox").check();
@@ -24,18 +24,18 @@ test("modular selection estimates, starts, pauses, resumes, and completes", asyn
   await page.getByRole("button", { name: "Lanjutkan sesi" }).click();
   await expect(page.getByRole("button", { name: "Jeda sesi" })).toBeVisible();
 
-  for (let index = 0; index < 32; index += 1) {
+  for (let index = 0; index < 24; index += 1) {
     const questionHeading = page.getByRole("heading", { level: 1 });
     const promptId = await questionHeading.getAttribute("id");
     expect(promptId).toBeTruthy();
     await expect(page.locator("fieldset")).toHaveAttribute("aria-labelledby", promptId!);
     await page.getByRole("button", { name: /4 Sesuai/u }).click();
-    if (index < 31) await expect(page.getByRole("heading", { level: 1 })).toBeFocused();
+    if (index < 23) await expect(page.getByRole("heading", { level: 1 })).toBeFocused();
   }
   await expect(page.getByRole("button", { name: "Lihat hasil" })).toBeVisible();
   await page.getByRole("button", { name: "Lihat hasil" }).click();
   await expect(page).toHaveURL(/\/result\//u);
-  await expect(page.getByRole("heading", { name: "16-Type" })).toBeVisible();
+  await expect(page.getByRole("heading", { name: "RIASEC" })).toBeVisible();
   await expect(page.getByText(/Confidence keseluruhan/u)).toBeVisible();
   // §17.2: session meta with mode, selected lenses, completion date, scoring versions.
   const sessionMeta = page.getByRole("region", { name: "Ringkasan sesi" });
@@ -43,7 +43,7 @@ test("modular selection estimates, starts, pauses, resumes, and completes", asyn
   await expect(sessionMeta.getByRole("term").filter({ hasText: "Mode" })).toBeVisible();
   await expect(sessionMeta.getByText("Quick", { exact: true })).toBeVisible();
   await expect(page.getByText(/Versi scoring/u)).toBeVisible();
-  await expect(page.getByText(/type16-score-1/u)).toBeVisible();
+  await expect(page.getByText(/riasec-score-1/u)).toBeVisible();
 });
 
 test("guarded lenses enforce age and acknowledgment before Psychosophy completion", async ({
@@ -56,6 +56,8 @@ test("guarded lenses enforce age and acknowledgment before Psychosophy completio
   await expect(page.getByRole("alert").filter({ hasText: /batas usia/u })).toBeVisible();
 
   await page.getByRole("spinbutton", { name: /Usia/u }).fill("18");
+  await expect(page.getByText(/24 item · sekitar/u)).toBeVisible();
+
   await page.getByRole("checkbox", { name: /Refleksi Attachment/u }).uncheck();
   await page.getByRole("checkbox", { name: /Psychosophy Eksperimental/u }).check();
   await page.getByRole("button", { name: /Quick/u }).click();

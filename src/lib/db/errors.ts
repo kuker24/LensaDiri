@@ -24,7 +24,7 @@ export function mapDatabaseError(error: unknown): DatabaseError {
   if (code === "23503") {
     return new DatabaseError("foreign_key");
   }
-  if (code?.startsWith("08") || code === "57P01") {
+  if (code?.startsWith("08") || code === "57P01" || code === "57014" || code === "55P03") {
     return new DatabaseError("unavailable");
   }
 
