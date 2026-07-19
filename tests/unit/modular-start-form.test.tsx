@@ -64,6 +64,21 @@ const modules: AssessmentModuleDefinition[] = [
     status: "published",
     version: "1",
   },
+  {
+    category: "career",
+    defaultOrder: 50,
+    description: "RIASEC",
+    evidenceTier: "B",
+    isExperimental: false,
+    isSelectable: true,
+    key: "riasec",
+    minimumAge: 15,
+    modeQuota: { deep: 50, quick: 20, standard: 35 },
+    publicName: "RIASEC",
+    releaseDisposition: "RELEASE_READY",
+    status: "published",
+    version: "1.0.0",
+  },
 ];
 
 function estimate(itemCount: number): AssessmentEstimate {

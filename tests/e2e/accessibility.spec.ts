@@ -94,14 +94,20 @@ test("authentication controls have labels and mobile-safe font size", async ({ p
   }
 });
 
-test("module catalog disables unavailable detail navigation", async ({ page }) => {
+test("module catalog exposes all ten release-ready lenses with detail navigation", async ({
+  page,
+}) => {
   await page.goto("/modules");
-  const unavailableCard = page.locator("li", { hasText: "RIASEC" });
-  await expect(unavailableCard.getByText("Detail belum tersedia")).toBeVisible();
-  await expect(unavailableCard.getByRole("link", { name: "Lihat detail" })).toHaveCount(0);
+  const cards = page.getByRole("listitem");
+  await expect(cards).toHaveCount(10);
+  await expect(page.getByText("Belum tersedia")).toHaveCount(0);
+  await expect(page.getByText("Detail belum tersedia")).toHaveCount(0);
 
   const availableCard = page.locator("li", { hasText: "16-Type Jungian-inspired" });
   await expect(availableCard.getByRole("link", { name: "Lihat detail" })).toBeVisible();
+
+  const riasecCard = page.locator("li", { hasText: "Minat Karier RIASEC" });
+  await expect(riasecCard.getByRole("link", { name: "Lihat detail" })).toBeVisible();
 });
 
 test("module detail preserves valid selection and invalid query falls back", async ({ page }) => {
@@ -110,6 +116,13 @@ test("module detail preserves valid selection and invalid query falls back", asy
   await expect(chooseModule).toHaveAttribute("href", "/start/modules?module=type_16");
   await chooseModule.click();
   await expect(page.getByRole("checkbox", { name: /16-Type Jungian-inspired/u })).toBeChecked();
+
+  await page.goto("/modules/socionics_communication");
+  await page.getByRole("link", { name: "Pilih modul ini" }).click();
+  await expect(page.getByRole("checkbox", { name: /Komunikasi Socionics/u })).toBeChecked();
+  await expect(
+    page.getByText("Aku memahami lensa eksperimental yang dipilih belum memiliki validasi formal"),
+  ).toBeVisible();
 
   await page.goto("/start/modules?module=not-in-catalog");
   await expect(page.getByRole("checkbox", { name: /Profil Trait/u })).toBeChecked();

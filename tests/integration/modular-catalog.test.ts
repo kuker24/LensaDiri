@@ -23,10 +23,10 @@ describe("modular catalog PostgreSQL boundary", () => {
         (select count(*)::integer from public.combo_presets) as presets,
         (select count(*)::integer from public.modules where is_selectable) as selectable
     `;
-    expect(counts).toEqual({ modules: 10, modes: 3, presets: 6, selectable: 4 });
+    expect(counts).toEqual({ modules: 10, modes: 3, presets: 6, selectable: 10 });
 
     const modules = await listCatalogModules();
-    expect(modules).toHaveLength(4);
+    expect(modules).toHaveLength(10);
     expect(modules).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -43,13 +43,22 @@ describe("modular catalog PostgreSQL boundary", () => {
         }),
         expect.objectContaining({ key: "enneagram", version: "1.0.0" }),
         expect.objectContaining({ key: "temperament", version: "1.0.0" }),
+        expect.objectContaining({ key: "three_center", version: "1.0.0" }),
+        expect.objectContaining({ key: "instinct", version: "1.0.0" }),
+        expect.objectContaining({ key: "socionics_communication", version: "1.0.0" }),
+        expect.objectContaining({ key: "riasec", version: "1.0.0" }),
+        expect.objectContaining({ key: "attachment", version: "1.0.0" }),
+        expect.objectContaining({ key: "psychosophy", version: "1.0.0" }),
       ]),
     );
     await expect(getCatalogModuleByKey("type_16")).resolves.toMatchObject({
       key: "type_16",
       version: "1.0.0",
     });
-    await expect(getCatalogModuleByKey("riasec")).resolves.toBeNull();
+    await expect(getCatalogModuleByKey("riasec")).resolves.toMatchObject({
+      key: "riasec",
+      version: "1.0.0",
+    });
   });
 
   it("maps Quick/Normal/Complex and keeps incomplete presets hidden", async () => {
@@ -61,11 +70,9 @@ describe("modular catalog PostgreSQL boundary", () => {
     await expect(listComboPresets()).resolves.toEqual(
       expect.arrayContaining([
         expect.objectContaining({ key: "core_personality", status: "published" }),
-        expect.objectContaining({ key: "deep_self_discovery", status: "published" }),
-        expect.objectContaining({ key: "full_spectrum", status: "published" }),
       ]),
     );
-    await expect(listComboPresets()).resolves.toHaveLength(3);
+    await expect(listComboPresets()).resolves.toHaveLength(4);
     await expect(listComboPresets({ includeUnavailable: true })).resolves.toHaveLength(6);
   });
 

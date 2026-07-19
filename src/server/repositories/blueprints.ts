@@ -104,7 +104,14 @@ export async function loadComposerCandidates(
         and modules.is_selectable
         and modules.status in ('active', 'pilot', 'published', 'experimental')
         and questions.status in ('active', 'pilot', 'published', 'experimental')
-        and questions.review_status = 'approved'
+        and (
+          questions.review_status = 'approved'
+          or (
+            module_versions.status in ('pilot', 'experimental')
+            and module_versions.config_json @> '{"guardedBeta":true}'::jsonb
+            and questions.review_status = 'draft'
+          )
+        )
       order by modules.default_order, questions.item_code
     `;
     return rows.map((row) => ({

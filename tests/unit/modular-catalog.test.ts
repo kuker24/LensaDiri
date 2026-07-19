@@ -72,13 +72,14 @@ const modules: readonly AssessmentModuleDefinition[] = [
     description: "Not ready",
     evidenceTier: "B",
     isExperimental: false,
-    isSelectable: false,
+    isSelectable: true,
     key: "riasec",
     minimumAge: 15,
     modeQuota: { deep: 50, quick: 20, standard: 35 },
     publicName: "RIASEC",
-    status: "draft",
-    version: null,
+    releaseDisposition: "RELEASE_READY",
+    status: "published",
+    version: "1.0.0",
   },
 ];
 
@@ -195,6 +196,21 @@ describe("modular assessment catalog", () => {
     expect(
       validateAssessmentSelection(
         {
+          age: null,
+          experimentalAcknowledged: false,
+          mode: "quick",
+          moduleKeys: ["type_16"],
+          presetKey: null,
+          selectionType: "single",
+        },
+        modules,
+        presets,
+      ),
+    ).toEqual({ code: "age_restricted", valid: false });
+
+    expect(
+      validateAssessmentSelection(
+        {
           age: 17,
           experimentalAcknowledged: true,
           mode: "quick",
@@ -235,7 +251,7 @@ describe("modular assessment catalog", () => {
         modules,
         presets,
       ),
-    ).toEqual({ code: "module_unavailable", valid: false });
+    ).toMatchObject({ valid: true });
   });
 });
 
@@ -265,6 +281,49 @@ describe("assessment estimate", () => {
       }),
       success: true,
     });
+  });
+
+  it("does not inflate a small single-module bank above its authored quota", () => {
+    const result = estimateAssessment(
+      {
+        age: 20,
+        experimentalAcknowledged: true,
+        mode: "quick",
+        moduleKeys: ["psychosophy"],
+        presetKey: null,
+        selectionType: "single",
+      },
+      modules,
+      presets,
+      modeProfiles,
+    );
+
+    expect(result).toMatchObject({
+      estimate: { itemCount: 20, moduleAllocation: [{ itemCount: 20, moduleKey: "psychosophy" }] },
+      success: true,
+    });
+  });
+
+  it("returns a domain error when minimum coverage exceeds the selected mode", () => {
+    const result = estimateAssessment(
+      {
+        age: 18,
+        experimentalAcknowledged: false,
+        mode: "standard",
+        moduleKeys: ["trait_profile", "type_16", "enneagram"],
+        presetKey: null,
+        selectionType: "custom_combo",
+      },
+      modules,
+      presets,
+      modeProfiles,
+      {
+        minimumCoverage: { enneagram: 40, trait_profile: 30, type_16: 30 },
+        provisionalPrecisionEnabled: false,
+      },
+    );
+
+    expect(result).toEqual({ code: "coverage_unavailable", success: false });
   });
 
   it("clamps combo estimates and allocates deterministically", () => {

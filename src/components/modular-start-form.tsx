@@ -33,6 +33,7 @@ const tierLabels: Record<string, string> = {
 
 const errorLabels: Record<string, string> = {
   age_restricted: "Pilihan ini memiliki batas usia yang belum terpenuhi.",
+  coverage_unavailable: "Kombinasi ini membutuhkan coverage di atas kapasitas mode terpilih.",
   experimental_acknowledgment_required: "Konfirmasi lensa eksperimental sebelum melanjutkan.",
   feature_unavailable: "Assessment modular belum tersedia untuk publik.",
   invalid_module_count: "Pilih satu lensa atau beberapa lensa untuk combo.",
@@ -191,7 +192,7 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
             <p className="text-ink-muted mt-2">Pilih satu atau buat combo sendiri.</p>
           </div>
           <label className="flex items-center gap-3 text-sm font-medium">
-            Usia <span className="sr-only">opsional</span>
+            Usia <span className="sr-only">wajib</span>
             <Input
               className="w-24"
               inputMode="numeric"
@@ -202,6 +203,7 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
                 setAge(event.target.value ? Number(event.target.value) : null);
               }}
               placeholder="13+"
+              required
               type="number"
               value={age ?? ""}
             />
@@ -225,9 +227,16 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
                   <span className="flex flex-wrap items-center gap-2">
                     <span className="text-lg font-semibold">{module.publicName}</span>
                     <Badge tone="lens">{tierLabels[module.evidenceTier]}</Badge>
+                    {module.status === "pilot" ? <Badge tone="aperture">Beta</Badge> : null}
+                    {module.status === "experimental" ? (
+                      <Badge tone="warning">Eksperimental</Badge>
+                    ) : null}
                   </span>
                   <span className="text-ink-muted mt-2 block text-sm leading-6">
                     {module.description}
+                  </span>
+                  <span className="text-ink-muted mt-2 block text-xs font-semibold">
+                    Usia minimum {module.minimumAge}
                   </span>
                 </span>
               </label>
@@ -307,7 +316,8 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
             }}
             type="checkbox"
           />
-          Aku memahami lensa eksperimental belum memiliki validasi formal dan hanya untuk refleksi.
+          Aku memahami lensa eksperimental yang dipilih belum memiliki validasi formal, bukan
+          instrumen resmi, dan hanya digunakan untuk refleksi.
         </label>
       ) : null}
 

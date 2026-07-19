@@ -26,9 +26,24 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
       <article className="border-line mt-6 max-w-4xl rounded-md border bg-white/90 p-7 sm:p-10">
         <div className="flex flex-wrap gap-3 text-sm">
           <Badge tone="lens">Evidence {catalogModule.evidenceTier.replace("_", " ")}</Badge>
-          <Badge tone="neutral">
-            {available ? "Release-ready" : catalogModule.releaseDisposition?.replaceAll("_", " ")}
+          <Badge
+            tone={
+              catalogModule.status === "experimental"
+                ? "warning"
+                : catalogModule.status === "pilot"
+                  ? "aperture"
+                  : "neutral"
+            }
+          >
+            {available
+              ? catalogModule.status === "experimental"
+                ? "Eksperimental"
+                : catalogModule.status === "pilot"
+                  ? "Beta terbatas"
+                  : "Release-ready"
+              : catalogModule.releaseDisposition?.replaceAll("_", " ")}
           </Badge>
+          <Badge tone="neutral">Usia minimum {catalogModule.minimumAge}</Badge>
         </div>
         <h1 className="mt-5 text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
           {catalogModule.publicName}
