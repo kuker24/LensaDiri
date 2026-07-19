@@ -1,12 +1,14 @@
 import "server-only";
 
+import crypto from "node:crypto";
+
 import { normalizeEmail } from "@/lib/auth/email";
 import { hashPassword, verifyDummyPassword, verifyPassword } from "@/lib/auth/password";
 import { SESSION_DURATION_MS } from "@/lib/auth/session";
 import { hashOpaqueToken, generateOpaqueToken } from "@/lib/security/tokens";
 import { createAuditLog } from "@/server/repositories/audit-logs";
 import {
-  createAccount,
+  createAccountWithAudit,
   findAccountByIdForAuthentication,
   findAccountForAuthentication,
   hardDeleteAccountBySessionHash,
@@ -60,25 +62,38 @@ async function issueSession(
   return { expiresAt, token };
 }
 
-export async function registerAccount(input: {
-  email: string;
-  password: string;
-}): Promise<{ created: boolean }> {
+export async function registerAccount(
+  input: {
+    email: string;
+    password: string;
+  },
+  correlationId = crypto.randomUUID(),
+): Promise<{ created: boolean }> {
   const emailNormalized = normalizeEmail(input.email);
-  const passwordHash = await hashPassword(input.password);
+
+  const startHash = process.hrtime.bigint();
+  let passwordHash: string;
+  try {
+    passwordHash = await hashPassword(input.password);
+  } catch (error) {
+    const endHash = process.hrtime.bigint();
+    console.warn(
+      `[TELEMETRY] cid=${correlationId} op=register_password_hash duration_ms=${(Number(endHash - startHash) / 1_000_000).toFixed(2)} status=error`,
+    );
+    throw error;
+  }
+  const endHash = process.hrtime.bigint();
+  console.info(
+    `[TELEMETRY] cid=${correlationId} op=register_password_hash duration_ms=${(Number(endHash - startHash) / 1_000_000).toFixed(2)} status=success`,
+  );
 
   try {
-    const account = await createAccount({
+    await createAccountWithAudit({
+      auditMetadata: { outcome: "created" },
+      correlationId,
       email: emailNormalized,
       emailNormalized,
       passwordHash,
-    });
-    await createAuditLog({
-      action: "account_registered",
-      actorAccountId: account.id,
-      entityId: account.id,
-      entityType: "account",
-      metadata: { outcome: "created" },
     });
     return { created: true };
   } catch (error) {
@@ -88,6 +103,7 @@ export async function registerAccount(input: {
       "kind" in error &&
       error.kind === "conflict"
     ) {
+      console.info(`[TELEMETRY] cid=${correlationId} op=register_account_insert status=conflict`);
       return { created: false };
     }
     throw error;
