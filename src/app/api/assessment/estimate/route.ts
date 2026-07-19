@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import crypto from "node:crypto";
 
 import { DatabaseTimeoutError, withDeadline } from "@/lib/async/with-deadline";
 import { estimateAssessment } from "@/lib/assessment/estimate";
@@ -19,22 +20,12 @@ import { assessmentRateLimitPolicies, consumeRateLimit } from "@/server/services
 
 export const runtime = "nodejs";
 
-/**
- * Wall-clock deadline for the estimate context-loading phase
- * (catalog modules + combos + mode profiles + feature flags + composer candidates).
- * Supabase Free Tier may stall connection acquisition when the pool is
- * exhausted; this deadline guarantees a 503 response within ~5 s instead
- * of hanging until the Vercel Hobby timeout (10 s) or beyond.
- */
 const ESTIMATE_DB_DEADLINE_MS = 5_000;
 
-/**
- * Loads all static catalog data and composer candidates needed for
- * the estimate computation. The entire scope is wrapped in a single
- * deadline so that a stalled DB connection or slow query always fails
- * fast instead of hanging the request indefinitely.
- */
-async function loadEstimateContext(moduleKeys: readonly string[]): Promise<{
+async function loadEstimateContext(
+  moduleKeys: readonly string[],
+  correlationId: string,
+): Promise<{
   candidates: ReturnType<typeof loadComposerCandidates> extends Promise<infer T> ? T : never;
   combos: ReturnType<typeof listComboPresets> extends Promise<infer T> ? T : never;
   complexEnabled: boolean;
@@ -43,6 +34,7 @@ async function loadEstimateContext(moduleKeys: readonly string[]): Promise<{
   modules: ReturnType<typeof listCatalogModules> extends Promise<infer T> ? T : never;
   precisionEnabled: boolean;
 }> {
+  const startCatalog = process.hrtime.bigint();
   const [modules, combos, modeProfiles, modularEnabled, precisionEnabled, complexEnabled] =
     await Promise.all([
       listCatalogModules(),
@@ -52,7 +44,20 @@ async function loadEstimateContext(moduleKeys: readonly string[]): Promise<{
       isFeatureEnabled("FEATURE_PROVISIONAL_PRECISION"),
       isFeatureEnabled("FEATURE_COMPLEX_MODE"),
     ]);
+  const endCatalog = process.hrtime.bigint();
+  const catalogDurationMs = Number(endCatalog - startCatalog) / 1_000_000;
+  console.log(
+    `[TELEMETRY] cid=${correlationId} op=estimate_catalog_queries duration_ms=${catalogDurationMs.toFixed(2)} status=success`,
+  );
+
+  const startCandidates = process.hrtime.bigint();
   const candidates = await loadComposerCandidates(moduleKeys);
+  const endCandidates = process.hrtime.bigint();
+  const candidatesDurationMs = Number(endCandidates - startCandidates) / 1_000_000;
+  console.log(
+    `[TELEMETRY] cid=${correlationId} op=estimate_composer_candidates duration_ms=${candidatesDurationMs.toFixed(2)} status=success`,
+  );
+
   return {
     candidates,
     combos,
@@ -65,7 +70,9 @@ async function loadEstimateContext(moduleKeys: readonly string[]): Promise<{
 }
 
 export async function POST(request: Request): Promise<NextResponse> {
+  const correlationId = crypto.randomUUID();
   const environment = getServerEnvironment();
+
   if (
     !isValidCsrfMutation(
       request,
@@ -76,11 +83,13 @@ export async function POST(request: Request): Promise<NextResponse> {
   ) {
     return NextResponse.json(apiFailure("csrf_invalid"), { headers: noStoreHeaders, status: 403 });
   }
+
   const parsed = await parseJsonRequest(request, estimateAssessmentSchema);
   if (!parsed.success) {
     return NextResponse.json(apiFailure(parsed.reason), { headers: noStoreHeaders, status: 400 });
   }
 
+  const startRateLimit = process.hrtime.bigint();
   let limited: Awaited<ReturnType<typeof consumeRateLimit>>;
   try {
     limited = await consumeRateLimit(
@@ -88,7 +97,18 @@ export async function POST(request: Request): Promise<NextResponse> {
       assessmentRateLimitPolicies.estimate,
       environment.rateLimitSecret,
     );
-  } catch {
+    const endRateLimit = process.hrtime.bigint();
+    const rateLimitDurationMs = Number(endRateLimit - startRateLimit) / 1_000_000;
+    console.log(
+      `[TELEMETRY] cid=${correlationId} op=estimate_rate_limit duration_ms=${rateLimitDurationMs.toFixed(2)} status=success`,
+    );
+  } catch (error) {
+    const endRateLimit = process.hrtime.bigint();
+    const rateLimitDurationMs = Number(endRateLimit - startRateLimit) / 1_000_000;
+    const safeError = error instanceof Error ? error.name : "unknown_error";
+    console.log(
+      `[TELEMETRY] cid=${correlationId} op=estimate_rate_limit duration_ms=${rateLimitDurationMs.toFixed(2)} status=failure error=${safeError}`,
+    );
     return NextResponse.json(
       {
         success: false,
@@ -98,6 +118,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       { headers: noStoreHeaders, status: 503 },
     );
   }
+
   if (!limited.allowed) {
     return NextResponse.json(apiFailure("rate_limited"), {
       headers: { ...noStoreHeaders, "Retry-After": String(limited.retryAfterSeconds) },
@@ -105,9 +126,10 @@ export async function POST(request: Request): Promise<NextResponse> {
     });
   }
 
+  const startTotal = process.hrtime.bigint();
   try {
     const context = await withDeadline(
-      loadEstimateContext(parsed.data.moduleKeys),
+      loadEstimateContext(parsed.data.moduleKeys, correlationId),
       ESTIMATE_DB_DEADLINE_MS,
     );
 
@@ -134,10 +156,23 @@ export async function POST(request: Request): Promise<NextResponse> {
       },
     );
 
+    const endTotal = process.hrtime.bigint();
+    const computationDurationMs = Number(endTotal - startTotal) / 1_000_000;
+    console.log(
+      `[TELEMETRY] cid=${correlationId} op=estimate_computation duration_ms=${computationDurationMs.toFixed(2)} status=success`,
+    );
+
     return result.success
       ? NextResponse.json(apiSuccess(result.estimate), { headers: noStoreHeaders, status: 200 })
       : NextResponse.json(apiFailure(result.code), { headers: noStoreHeaders, status: 422 });
   } catch (error) {
+    const endTotal = process.hrtime.bigint();
+    const computationDurationMs = Number(endTotal - startTotal) / 1_000_000;
+    const safeError = error instanceof DatabaseTimeoutError ? "database_timeout" : "database_error";
+    console.log(
+      `[TELEMETRY] cid=${correlationId} op=estimate_computation duration_ms=${computationDurationMs.toFixed(2)} status=failure error=${safeError}`,
+    );
+
     if (error instanceof DatabaseTimeoutError) {
       return NextResponse.json(
         {
@@ -148,6 +183,7 @@ export async function POST(request: Request): Promise<NextResponse> {
         { headers: noStoreHeaders, status: 503 },
       );
     }
+
     return NextResponse.json(apiFailure("service_unavailable"), {
       headers: noStoreHeaders,
       status: getDatabaseFailureStatus(error),
