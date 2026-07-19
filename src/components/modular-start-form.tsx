@@ -41,8 +41,10 @@ const errorLabels: Record<string, string> = {
   module_unavailable: "Salah satu lensa belum tersedia.",
   preset_mismatch: "Isi preset tidak sesuai katalog terbaru.",
   preset_unavailable: "Preset ini belum tersedia.",
+  rate_limit_unavailable: "Permintaan belum dapat diproses. Coba lagi beberapa saat.",
   request_failed: "Estimasi belum dapat dihitung. Coba lagi.",
   selection_type_mismatch: "Pilihan lensa dan jenis eksplorasi tidak cocok.",
+  service_temporarily_busy: "Sistem sedang sibuk. Coba lagi beberapa saat.",
 };
 
 function publicError(error: unknown): string {

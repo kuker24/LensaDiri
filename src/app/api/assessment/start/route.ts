@@ -29,18 +29,30 @@ export async function POST(request: Request): Promise<NextResponse> {
   if (!parsed.success)
     return NextResponse.json(apiFailure(parsed.reason), { headers: noStoreHeaders, status: 400 });
 
+  let limited: Awaited<ReturnType<typeof consumeRateLimit>>;
   try {
-    const limited = await consumeRateLimit(
+    limited = await consumeRateLimit(
       getRequestRateLimitIdentity(request),
       assessmentRateLimitPolicies.start,
       environment.rateLimitSecret,
     );
-    if (!limited.allowed)
-      return NextResponse.json(apiFailure("rate_limited"), {
-        headers: { ...noStoreHeaders, "Retry-After": String(limited.retryAfterSeconds) },
-        status: 429,
-      });
+  } catch {
+    return NextResponse.json(
+      {
+        success: false,
+        error: { code: "rate_limit_unavailable" },
+        message: "Permintaan belum dapat diproses. Coba lagi beberapa saat.",
+      },
+      { headers: noStoreHeaders, status: 503 },
+    );
+  }
+  if (!limited.allowed)
+    return NextResponse.json(apiFailure("rate_limited"), {
+      headers: { ...noStoreHeaders, "Retry-After": String(limited.retryAfterSeconds) },
+      status: 429,
+    });
 
+  try {
     const token = generateOpaqueToken();
     const account = await getCurrentSession();
     const startRequest =
