@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 
-import { getServerEnvironment } from "@/lib/db/env";
+import { DatabaseTimeoutError, withDeadline } from "@/lib/async/with-deadline";
 import { estimateAssessment } from "@/lib/assessment/estimate";
+import { getServerEnvironment } from "@/lib/db/env";
 import { isValidCsrfMutation } from "@/lib/security/csrf";
 import { parseJsonRequest } from "@/lib/security/http";
 import { getRequestRateLimitIdentity } from "@/lib/security/rate-limit";
@@ -17,6 +18,51 @@ import {
 import { assessmentRateLimitPolicies, consumeRateLimit } from "@/server/services/rate-limiter";
 
 export const runtime = "nodejs";
+
+/**
+ * Wall-clock deadline for the estimate context-loading phase
+ * (catalog modules + combos + mode profiles + feature flags + composer candidates).
+ * Supabase Free Tier may stall connection acquisition when the pool is
+ * exhausted; this deadline guarantees a 503 response within ~5 s instead
+ * of hanging until the Vercel Hobby timeout (10 s) or beyond.
+ */
+const ESTIMATE_DB_DEADLINE_MS = 5_000;
+
+/**
+ * Loads all static catalog data and composer candidates needed for
+ * the estimate computation. The entire scope is wrapped in a single
+ * deadline so that a stalled DB connection or slow query always fails
+ * fast instead of hanging the request indefinitely.
+ */
+async function loadEstimateContext(moduleKeys: readonly string[]): Promise<{
+  candidates: ReturnType<typeof loadComposerCandidates> extends Promise<infer T> ? T : never;
+  combos: ReturnType<typeof listComboPresets> extends Promise<infer T> ? T : never;
+  complexEnabled: boolean;
+  modeProfiles: ReturnType<typeof listAssessmentModeProfiles> extends Promise<infer T> ? T : never;
+  modularEnabled: boolean;
+  modules: ReturnType<typeof listCatalogModules> extends Promise<infer T> ? T : never;
+  precisionEnabled: boolean;
+}> {
+  const [modules, combos, modeProfiles, modularEnabled, precisionEnabled, complexEnabled] =
+    await Promise.all([
+      listCatalogModules(),
+      listComboPresets(),
+      listAssessmentModeProfiles(),
+      isFeatureEnabled("FEATURE_MODULAR_COMPOSER"),
+      isFeatureEnabled("FEATURE_PROVISIONAL_PRECISION"),
+      isFeatureEnabled("FEATURE_COMPLEX_MODE"),
+    ]);
+  const candidates = await loadComposerCandidates(moduleKeys);
+  return {
+    candidates,
+    combos,
+    complexEnabled,
+    modeProfiles,
+    modularEnabled,
+    modules,
+    precisionEnabled,
+  };
+}
 
 export async function POST(request: Request): Promise<NextResponse> {
   const environment = getServerEnvironment();
@@ -60,34 +106,48 @@ export async function POST(request: Request): Promise<NextResponse> {
   }
 
   try {
-    const [modules, combos, modeProfiles, modularEnabled, precisionEnabled, complexEnabled] =
-      await Promise.all([
-        listCatalogModules(),
-        listComboPresets(),
-        listAssessmentModeProfiles(),
-        isFeatureEnabled("FEATURE_MODULAR_COMPOSER"),
-        isFeatureEnabled("FEATURE_PROVISIONAL_PRECISION"),
-        isFeatureEnabled("FEATURE_COMPLEX_MODE"),
-      ]);
-    if (!modularEnabled) {
+    const context = await withDeadline(
+      loadEstimateContext(parsed.data.moduleKeys),
+      ESTIMATE_DB_DEADLINE_MS,
+    );
+
+    if (!context.modularEnabled) {
       return NextResponse.json(apiFailure("feature_unavailable"), {
         headers: noStoreHeaders,
         status: 404,
       });
     }
-    const selectableModes = modeProfiles.map((profile) =>
-      profile.internalMode === "deep" ? { ...profile, isSelectable: complexEnabled } : profile,
+
+    const selectableModes = context.modeProfiles.map((profile) =>
+      profile.internalMode === "deep"
+        ? { ...profile, isSelectable: context.complexEnabled }
+        : profile,
     );
-    const candidates = await loadComposerCandidates(parsed.data.moduleKeys);
-    const result = estimateAssessment(parsed.data, modules, combos, selectableModes, {
-      minimumCoverage: getMinimumModuleCoverage(candidates),
-      provisionalPrecisionEnabled: precisionEnabled,
-    });
+    const result = estimateAssessment(
+      parsed.data,
+      context.modules,
+      context.combos,
+      selectableModes,
+      {
+        minimumCoverage: getMinimumModuleCoverage(context.candidates),
+        provisionalPrecisionEnabled: context.precisionEnabled,
+      },
+    );
 
     return result.success
       ? NextResponse.json(apiSuccess(result.estimate), { headers: noStoreHeaders, status: 200 })
       : NextResponse.json(apiFailure(result.code), { headers: noStoreHeaders, status: 422 });
   } catch (error) {
+    if (error instanceof DatabaseTimeoutError) {
+      return NextResponse.json(
+        {
+          success: false,
+          error: { code: "service_temporarily_busy" },
+          message: "Sistem sedang sibuk. Coba lagi beberapa saat.",
+        },
+        { headers: noStoreHeaders, status: 503 },
+      );
+    }
     return NextResponse.json(apiFailure("service_unavailable"), {
       headers: noStoreHeaders,
       status: getDatabaseFailureStatus(error),

@@ -182,6 +182,11 @@ export async function persistModularSession(input: {
 }): Promise<{ blueprintId: string; sessionId: string }> {
   return runDatabaseOperation(() =>
     withTransaction(async (sql) => {
+      // Apply strict local timeouts to prevent late commits in high-load scenarios.
+      // Database rollback is guaranteed by PostgreSQL if either statement or lock timeout is hit.
+      await sql`set local statement_timeout = 2000`;
+      await sql`set local lock_timeout = 1000`;
+
       const hash = blueprintHash(input.blueprint);
       const [blueprintRow] = await sql<{ id: string }[]>`
         insert into public.assessment_blueprints (

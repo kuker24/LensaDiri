@@ -170,6 +170,11 @@ export async function createAssessmentSession(input: {
 }): Promise<{ id: string }> {
   return runDatabaseOperation(() =>
     withTransaction(async (sql) => {
+      // Keep session creation atomic and bounded. PostgreSQL rolls back the
+      // transaction if either limit is reached before the route can time out.
+      await sql`set local statement_timeout = 2000`;
+      await sql`set local lock_timeout = 1000`;
+
       const [version] = await sql<{ id: string }[]>`
         select module_versions.id
         from public.module_versions

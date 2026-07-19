@@ -33,6 +33,7 @@ const tierLabels: Record<string, string> = {
 
 const errorLabels: Record<string, string> = {
   age_restricted: "Pilihan ini memiliki batas usia yang belum terpenuhi.",
+  assessment_service_busy: "Permintaan belum dapat diproses. Coba lagi beberapa saat.",
   coverage_unavailable: "Kombinasi ini membutuhkan coverage di atas kapasitas mode terpilih.",
   experimental_acknowledgment_required: "Konfirmasi lensa eksperimental sebelum melanjutkan.",
   feature_unavailable: "Assessment modular belum tersedia untuk publik.",
