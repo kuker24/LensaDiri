@@ -29,9 +29,16 @@ describe("Rate limit lock contention local database integration", () => {
     const keyHash = hashOpaqueToken(`${routeKey}:${identity}`, limitSecret);
     const windowStart = new Date("2026-07-28T12:00:00.000Z");
 
-    // 2. Open a separate transaction to hold a lock on that row
+    // 2. Open a separate transaction and wait until it explicitly confirms the row lock.
+    let confirmLockAcquired!: () => void;
+    let releaseLock!: () => void;
+    const lockAcquired = new Promise<void>((resolve) => {
+      confirmLockAcquired = resolve;
+    });
+    const lockReleased = new Promise<void>((resolve) => {
+      releaseLock = resolve;
+    });
     const lockTx = sql.begin(async (tx) => {
-      // Lock the row exclusively
       await tx`
         select id from public.rate_limits
         where key_hash = ${keyHash}
@@ -39,12 +46,10 @@ describe("Rate limit lock contention local database integration", () => {
           and window_start = ${windowStart}
         for update
       `;
-      // Sleep inside the transaction to simulate a stalled transaction (hold lock for 4 seconds)
-      await tx`select pg_sleep(4)`;
+      confirmLockAcquired();
+      await lockReleased;
     });
-
-    // Wait briefly to ensure lockTx has established the lock
-    await new Promise((resolve) => setTimeout(resolve, 300));
+    await lockAcquired;
 
     const startTime = Date.now();
 
@@ -54,12 +59,12 @@ describe("Rate limit lock contention local database integration", () => {
       await consumeRateLimit(identity, policy, limitSecret, now);
     } catch (err) {
       caughtError = err;
+    } finally {
+      releaseLock();
+      await lockTx;
     }
 
     const duration = Date.now() - startTime;
-
-    // Clean up: wait for the locking transaction to complete
-    await lockTx.catch(() => {});
 
     // 4. Assertions
     expect(caughtError).toBeInstanceOf(DatabaseError);
