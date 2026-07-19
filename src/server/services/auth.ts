@@ -115,12 +115,46 @@ export async function loginAccount(input: {
   fingerprint: ClientFingerprint;
   password: string;
   secrets: { authSessionSecret: string; tokenHashPepper: string };
+  correlationId?: string;
 }): Promise<CreatedSession | null> {
+  const correlationId = input.correlationId ?? crypto.randomUUID();
+  const startRateLimit = process.hrtime.bigint();
+  const rateLimitResult = await consumeRateLimit(
+    `${input.fingerprint.ip}:${normalizeEmail(input.email)}`,
+    authRateLimitPolicies.login,
+    input.secrets.rateLimitSecret,
+  );
+  const endRateLimit = process.hrtime.bigint();
+  console.info(
+    `[TELEMETRY] cid=${correlationId} op=login_rate_limit duration_ms=${((Number(endRateLimit - startRateLimit) / 1_000_000)).toFixed(2)} status=${rateLimitResult.allowed ? "success" : "rate_limited"}`,
+  );
+  if (!rateLimitResult.allowed) {
+    await createAuditLog({
+      action: "account_login_failed",
+      actorAccountId: null,
+      entityId: null,
+      entityType: "system",
+      metadata: { reason: "rate_limited" },
+    });
+    return null;
+  }
+
+  const startAccountRead = process.hrtime.bigint();
   const emailNormalized = normalizeEmail(input.email);
   const account = await findAccountForAuthentication(emailNormalized);
+  const endAccountRead = process.hrtime.bigint();
+  console.info(
+    `[TELEMETRY] cid=${correlationId} op=login_account_read duration_ms=${((Number(endAccountRead - startAccountRead) / 1_000_000)).toFixed(2)} status=${account ? "found" : "not_found"}`,
+  );
+
+  const startPasswordVerify = process.hrtime.bigint();
   const passwordMatches = account
     ? await verifyPassword(account.passwordHash, input.password)
     : await verifyDummyPassword(input.password).then(() => false);
+  const endPasswordVerify = process.hrtime.bigint();
+  console.info(
+    `[TELEMETRY] cid=${correlationId} op=login_password_verify duration_ms=${((Number(endPasswordVerify - startPasswordVerify) / 1_000_000)).toFixed(2)} status=${passwordMatches ? "match" : "mismatch"}`,
+  );
 
   if (!account || !passwordMatches || account.status !== "active") {
     await createAuditLog({
@@ -133,7 +167,14 @@ export async function loginAccount(input: {
     return null;
   }
 
+  const startSessionWrite = process.hrtime.bigint();
   const session = await issueSession(account.id, input.fingerprint, input.secrets);
+  const endSessionWrite = process.hrtime.bigint();
+  console.info(
+    `[TELEMETRY] cid=${correlationId} op=login_session_write duration_ms=${((Number(endSessionWrite - startSessionWrite) / 1_000_000)).toFixed(2)} status=success`,
+  );
+
+  const startAuditWrite = process.hrtime.bigint();
   await createAuditLog({
     action: "account_login_succeeded",
     actorAccountId: account.id,
@@ -141,6 +182,11 @@ export async function loginAccount(input: {
     entityType: "account",
     metadata: { outcome: "authenticated" },
   });
+  const endAuditWrite = process.hrtime.bigint();
+  console.info(
+    `[TELEMETRY] cid=${correlationId} op=login_audit_write duration_ms=${((Number(endAuditWrite - startAuditWrite) / 1_000_000)).toFixed(2)} status=success`,
+  );
+
   return session;
 }
 

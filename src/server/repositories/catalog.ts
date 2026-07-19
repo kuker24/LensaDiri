@@ -232,4 +232,19 @@ export async function isFeatureEnabled(key: string): Promise<boolean> {
   });
 }
 
+export async function isFeatureEnabledBatch(
+  keys: readonly string[],
+): Promise<Readonly<Record<string, boolean>>> {
+  return runDatabaseOperation(async () => {
+    const sql = getDatabase();
+    const rows = await sql<{ key: string; enabled: boolean }[]>`
+      select key, enabled from public.feature_flags where key = any(${keys}::text[])
+    `;
+    const result: Record<string, boolean> = {};
+    for (const key of keys) result[key] = false;
+    for (const row of rows) result[row.key] = row.enabled;
+    return result;
+  });
+}
+
 export const catalogVisibleStatuses = visibleStatuses;

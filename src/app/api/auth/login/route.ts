@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import crypto from "node:crypto";
 
 import { createSessionCookie } from "@/lib/auth/session";
 import { normalizeEmail } from "@/lib/auth/email";
@@ -9,7 +10,6 @@ import { parseJsonRequest } from "@/lib/security/http";
 import { loginRequestSchema } from "@/lib/validation/auth";
 import { apiFailure, apiSuccess, getDatabaseFailureStatus, noStoreHeaders } from "@/server/http";
 import { loginAccount } from "@/server/services/auth";
-import { authRateLimitPolicies, consumeRateLimit } from "@/server/services/rate-limiter";
 
 export const runtime = "nodejs";
 
@@ -32,19 +32,7 @@ export async function POST(request: Request): Promise<NextResponse> {
   }
 
   try {
-    const identity = `${getRequestRateLimitIdentity(request)}:${normalizeEmail(parsed.data.email)}`;
-    const limited = await consumeRateLimit(
-      identity,
-      authRateLimitPolicies.login,
-      environment.rateLimitSecret,
-    );
-    if (!limited.allowed) {
-      return NextResponse.json(apiFailure("rate_limited"), {
-        headers: { ...noStoreHeaders, "Retry-After": limited.retryAfterSeconds.toString() },
-        status: 429,
-      });
-    }
-
+    const correlationId = crypto.randomUUID();
     const session = await loginAccount({
       email: parsed.data.email,
       fingerprint: {
@@ -53,6 +41,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       },
       password: parsed.data.password,
       secrets: environment,
+      correlationId,
     });
     if (!session) {
       return NextResponse.json(apiFailure("invalid_credentials"), {
