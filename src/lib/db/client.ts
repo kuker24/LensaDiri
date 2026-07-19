@@ -20,13 +20,14 @@ export function getDatabase(): Sql {
 
   const environment = getServerEnvironment();
   const client = postgres(environment.databaseUrl, {
-    connect_timeout: 10,
-    idle_timeout: 20,
+    // Fail before the bounded assessment/session route paths exhaust their wall-clock deadlines.
+    connect_timeout: 3,
+    idle_timeout: 15,
     max: environment.isProduction ? 1 : 10,
-    // Connection parameters sent as startup options every PostgreSQL session.
+    // Connection parameters sent as startup options for every session.
     connection: {
-      lock_timeout: 5000,
-      statement_timeout: 10000,
+      lock_timeout: 3000,
+      statement_timeout: 5000,
     },
     // Supabase transaction pooler does not support named prepared statements.
     prepare: false,

@@ -59,15 +59,39 @@ import { POST as estimatePost } from "@/app/api/assessment/estimate/route";
 import { POST as startPost } from "@/app/api/assessment/start/route";
 
 describe("withDeadline helper", () => {
-  it("resolves normal operation within deadline", async () => {
+  it("resolves normal operation within deadline and clears its timer", async () => {
+    vi.useFakeTimers();
     const operation = Promise.resolve("success");
     const result = await withDeadline(operation, 100);
     expect(result).toBe("success");
+    expect(vi.getTimerCount()).toBe(0);
+    vi.useRealTimers();
   });
 
   it("rejects with DatabaseTimeoutError when operation exceeds deadline", async () => {
-    const operation = new Promise((resolve) => setTimeout(() => resolve("late"), 200));
-    await expect(withDeadline(operation, 50)).rejects.toThrow(DatabaseTimeoutError);
+    vi.useFakeTimers();
+    const operation = new Promise<string>(() => undefined);
+    const result = withDeadline(operation, 50);
+    const rejection = expect(result).rejects.toThrow(DatabaseTimeoutError);
+    await vi.advanceTimersByTimeAsync(50);
+    await rejection;
+    vi.useRealTimers();
+  });
+
+  it("safely consumes a late underlying rejection after the deadline", async () => {
+    vi.useFakeTimers();
+    let rejectUnderlying!: (error: Error) => void;
+    const operation = new Promise<string>((_resolve, reject) => {
+      rejectUnderlying = reject;
+    });
+    const result = withDeadline(operation, 50);
+    const rejection = expect(result).rejects.toThrow(DatabaseTimeoutError);
+
+    await vi.advanceTimersByTimeAsync(50);
+    await rejection;
+    rejectUnderlying(new Error("late private database error"));
+    await Promise.resolve();
+    vi.useRealTimers();
   });
 });
 
