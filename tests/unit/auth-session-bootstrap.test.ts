@@ -115,6 +115,8 @@ describe("GET /api/auth/session - Anonymous CSRF/Session bootstrap & auth token 
     expect(mocks.getActiveSession).toHaveBeenCalledWith(
       validToken,
       "test-pepper-at-least-32-chars-long",
+      expect.any(Date),
+      expect.any(String),
     );
   });
 

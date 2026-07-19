@@ -1,3 +1,5 @@
+import crypto from "node:crypto";
+
 import { NextResponse } from "next/server";
 
 import { DatabaseTimeoutError, withDeadline } from "@/lib/async/with-deadline";
@@ -27,6 +29,8 @@ export async function GET(request: Request): Promise<NextResponse> {
   const environment = getServerEnvironment();
 
   try {
+    const correlationId = crypto.randomUUID();
+
     const existingNonce = getCookieValue(
       request.headers.get("cookie"),
       getCsrfCookieName(environment.isProduction),
@@ -79,7 +83,7 @@ export async function GET(request: Request): Promise<NextResponse> {
     }
 
     const session = await withDeadline(
-      getActiveSession(token, environment.tokenHashPepper),
+      getActiveSession(token, environment.tokenHashPepper, new Date(), correlationId),
       SESSION_DB_DEADLINE_MS,
     );
 
