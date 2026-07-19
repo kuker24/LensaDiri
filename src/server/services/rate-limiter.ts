@@ -1,8 +1,31 @@
 import "server-only";
 
+import { DatabaseError } from "@/lib/db/errors";
 import { hashOpaqueToken } from "@/lib/security/tokens";
 import { getFixedWindow, isRateLimitAllowed, type RateLimitRoute } from "@/lib/security/rate-limit";
 import { incrementRateLimit } from "@/server/repositories/rate-limits";
+
+// Wall-clock deadline for the full rate-limit round trip (connection acquisition
+// plus the transaction-local statement/lock timeout). Guarantees callers never
+// hang waiting on DB contention, independent of how long acquiring a pooled
+// connection itself takes.
+const RATE_LIMIT_DEADLINE_MS = 2_000;
+
+function withDeadline<T>(operation: Promise<T>, deadlineMs: number): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const timer = setTimeout(() => reject(new DatabaseError("unavailable")), deadlineMs);
+    operation.then(
+      (value) => {
+        clearTimeout(timer);
+        resolve(value);
+      },
+      (error: unknown) => {
+        clearTimeout(timer);
+        reject(error);
+      },
+    );
+  });
+}
 
 export type RateLimitPolicy = {
   limit: number;
@@ -55,11 +78,14 @@ export async function consumeRateLimit(
 ): Promise<{ allowed: boolean; retryAfterSeconds: number }> {
   const window = getFixedWindow(policy.windowMs, now);
   const keyHash = hashOpaqueToken(`${policy.routeKey}:${identity}`, secret);
-  const count = await incrementRateLimit({
-    keyHash,
-    routeKey: policy.routeKey,
-    windowStart: window.windowStart,
-  });
+  const count = await withDeadline(
+    incrementRateLimit({
+      keyHash,
+      routeKey: policy.routeKey,
+      windowStart: window.windowStart,
+    }),
+    RATE_LIMIT_DEADLINE_MS,
+  );
 
   return {
     allowed: isRateLimitAllowed(count, policy.limit),
