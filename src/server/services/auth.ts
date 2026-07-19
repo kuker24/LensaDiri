@@ -5,9 +5,7 @@ import crypto from "node:crypto";
 import { normalizeEmail } from "@/lib/auth/email";
 import { hashPassword, verifyDummyPassword, verifyPassword } from "@/lib/auth/password";
 import { SESSION_DURATION_MS } from "@/lib/auth/session";
-import { hashOpaqueToken, generateOpaqueToken } from "@/lib/security/tokens";
-import { getRequestRateLimitIdentity } from "@/lib/security/rate-limit";
-import { apiFailure } from "@/server/http";
+import { hashOpaqueToken } from "@/lib/security/tokens";
 import { createAuditLog } from "@/server/repositories/audit-logs";
 import {
   createAccountWithAudit,
@@ -17,7 +15,7 @@ import {
   type AccountAuthenticationRecord,
 } from "@/server/repositories/accounts";
 import {
-  createAccountSession,
+  createLoginSessionWithAudit,
   findAndTouchActiveSession,
   findSessionByTokenHash,
   revokeAccountSession,
@@ -39,35 +37,12 @@ export type DeleteAccountResult = "deleted" | "invalid_credentials" | "invalid_s
 
 export type LoginAccountResult =
   | { success: true; data: CreatedSession }
-  | { success: false; error: { code: "rate_limited"; retryAfterSeconds: number } }
-  | { success: false; error: { code: "invalid_credentials" } };
-
-function hashFingerprint(value: string, authSessionSecret: string): string | null {
-  return value ? hashOpaqueToken(value, authSessionSecret) : null;
-}
+  | { success: false; error: { code: "rate_limited"; retryAfterSeconds: number; status: 429 } }
+  | { success: false; error: { code: "invalid_credentials"; status: 401 } }
+  | { success: false; error: { code: "service_unavailable"; status: 503 } };
 
 function toSessionHash(token: string, tokenHashPepper: string): string {
   return hashOpaqueToken(token, tokenHashPepper);
-}
-
-async function issueSession(
-  accountId: string,
-  fingerprint: ClientFingerprint,
-  secrets: { authSessionSecret: string; tokenHashPepper: string },
-  now = new Date(),
-): Promise<CreatedSession> {
-  const token = generateOpaqueToken();
-  const expiresAt = new Date(now.getTime() + SESSION_DURATION_MS);
-
-  await createAccountSession({
-    accountId,
-    expiresAt,
-    ipHash: hashFingerprint(fingerprint.ip, secrets.authSessionSecret),
-    sessionTokenHash: toSessionHash(token, secrets.tokenHashPepper),
-    userAgentHash: hashFingerprint(fingerprint.userAgent, secrets.authSessionSecret),
-  });
-
-  return { expiresAt, token };
 }
 
 export async function registerAccount(
@@ -127,11 +102,24 @@ export async function loginAccount(input: {
 }): Promise<LoginAccountResult> {
   const correlationId = input.correlationId ?? crypto.randomUUID();
   const startRateLimit = process.hrtime.bigint();
-  const rateLimitResult = await consumeRateLimit(
-    `${input.fingerprint.ip}:${normalizeEmail(input.email)}`,
-    authRateLimitPolicies.login,
-    input.secrets.rateLimitSecret,
-  );
+  let rateLimitResult;
+  try {
+    rateLimitResult = await consumeRateLimit(
+      `${input.fingerprint.ip}:${normalizeEmail(input.email)}`,
+      authRateLimitPolicies.login,
+      input.secrets.rateLimitSecret,
+    );
+  } catch {
+    const endRateLimit = process.hrtime.bigint();
+    const rateLimitDurationMs = Number(endRateLimit - startRateLimit) / 1_000_000;
+    console.log(
+      `[TELEMETRY] cid=${correlationId} op=login_rate_limit duration_ms=${rateLimitDurationMs.toFixed(2)} status=failure error=rate_limiter_unavailable`,
+    );
+    return {
+      success: false,
+      error: { code: "service_unavailable", status: 503 },
+    };
+  }
   const endRateLimit = process.hrtime.bigint();
   console.info(
     `[TELEMETRY] cid=${correlationId} op=login_rate_limit duration_ms=${(Number(endRateLimit - startRateLimit) / 1_000_000).toFixed(2)} status=${rateLimitResult.allowed ? "success" : "rate_limited"}`,
@@ -139,7 +127,11 @@ export async function loginAccount(input: {
   if (!rateLimitResult.allowed) {
     return {
       success: false,
-      error: { code: "rate_limited", retryAfterSeconds: rateLimitResult.retryAfterSeconds },
+      error: {
+        code: "rate_limited",
+        retryAfterSeconds: rateLimitResult.retryAfterSeconds,
+        status: 429,
+      },
     };
   }
 
@@ -170,34 +162,36 @@ export async function loginAccount(input: {
     });
     return {
       success: false,
-      error: { code: "invalid_credentials" },
+      error: { code: "invalid_credentials", status: 401 },
     };
   }
 
-  const startSessionWrite = process.hrtime.bigint();
-  const session = await issueSession(account.id, input.fingerprint, input.secrets);
-  const endSessionWrite = process.hrtime.bigint();
-  console.info(
-    `[TELEMETRY] cid=${correlationId} op=login_session_write duration_ms=${(Number(endSessionWrite - startSessionWrite) / 1_000_000).toFixed(2)} status=success`,
-  );
+  try {
+    const startSessionWrite = process.hrtime.bigint();
+    const expiresAt = new Date(Date.now() + SESSION_DURATION_MS);
+    const session = await createLoginSessionWithAudit({
+      accountId: account.id,
+      correlationId,
+      expiresAt,
+      fingerprint: input.fingerprint,
+      secrets: input.secrets,
+    });
+    const endSessionWrite = process.hrtime.bigint();
+    console.info(
+      `[TELEMETRY] cid=${correlationId} op=login_session_write duration_ms=${(Number(endSessionWrite - startSessionWrite) / 1_000_000).toFixed(2)} status=success`,
+    );
 
-  const startAuditWrite = process.hrtime.bigint();
-  await createAuditLog({
-    action: "account_login_succeeded",
-    actorAccountId: account.id,
-    entityId: account.id,
-    entityType: "account",
-    metadata: { outcome: "authenticated" },
-  });
-  const endAuditWrite = process.hrtime.bigint();
-  console.info(
-    `[TELEMETRY] cid=${correlationId} op=login_audit_write duration_ms=${(Number(endAuditWrite - startAuditWrite) / 1_000_000).toFixed(2)} status=success`,
-  );
-
-  return {
-    success: true,
-    data: session,
-  };
+    return {
+      success: true,
+      data: session,
+    };
+  } catch (rawError) {
+    console.error(`[ERROR] cid=${correlationId} op=login_transaction error=${rawError}`);
+    return {
+      success: false,
+      error: { code: "service_unavailable", status: 503 },
+    };
+  }
 }
 
 export async function getActiveSession(

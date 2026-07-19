@@ -41,12 +41,20 @@ const mockListCatalogModules = vi.fn();
 const mockListComboPresets = vi.fn();
 const mockListAssessmentModeProfiles = vi.fn();
 const mockIsFeatureEnabled = vi.fn();
+const mockIsFeatureEnabledBatch = vi.fn();
 
 vi.mock("@/server/repositories/catalog", () => ({
   isFeatureEnabled: (...args: unknown[]) => mockIsFeatureEnabled(...args),
   listAssessmentModeProfiles: () => mockListAssessmentModeProfiles(),
   listCatalogModules: () => mockListCatalogModules(),
   listComboPresets: () => mockListComboPresets(),
+}));
+
+vi.mock("@/server/repositories/catalog-cache", () => ({
+  isFeatureEnabledBatch: (...args: unknown[]) => mockIsFeatureEnabledBatch(...args),
+  listAssessmentModeProfilesFromCache: () => mockListAssessmentModeProfiles(),
+  listCatalogModulesFromCache: () => mockListCatalogModules(),
+  listComboPresetsFromCache: () => mockListComboPresets(),
 }));
 
 vi.mock("@/server/repositories/blueprints", () => ({
@@ -99,6 +107,11 @@ describe("Estimate Route - Database query timeout reliability", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
     mockIsFeatureEnabled.mockResolvedValue(true);
+    mockIsFeatureEnabledBatch.mockResolvedValue({
+      FEATURE_MODULAR_COMPOSER: true,
+      FEATURE_PROVISIONAL_PRECISION: true,
+      FEATURE_COMPLEX_MODE: true,
+    });
     mockListCatalogModules.mockResolvedValue([]);
     mockListComboPresets.mockResolvedValue([]);
     mockListAssessmentModeProfiles.mockResolvedValue([]);

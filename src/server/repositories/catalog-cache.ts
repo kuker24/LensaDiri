@@ -9,7 +9,6 @@ import type {
 } from "@/lib/assessment/catalog";
 import {
   getCatalogModuleByKey,
-  isFeatureEnabledBatch,
   listAssessmentModeProfiles,
   listCatalogModules,
   listComboPresets,
@@ -75,4 +74,4 @@ export function listComboPresetsFromCache(
   return listComboPresetsCached(options.includeUnavailable ?? false);
 }
 
-export { isFeatureEnabledBatch };
+export { isFeatureEnabledBatch } from "./catalog";

@@ -62,11 +62,11 @@ async function loadEstimateContext(
   return {
     candidates,
     combos,
-    complexEnabled: featureFlags["FEATURE_COMPLEX_MODE"],
+    complexEnabled: featureFlags["FEATURE_COMPLEX_MODE"] ?? false,
     modeProfiles,
-    modularEnabled: featureFlags["FEATURE_MODULAR_COMPOSER"],
+    modularEnabled: featureFlags["FEATURE_MODULAR_COMPOSER"] ?? false,
     modules,
-    precisionEnabled: featureFlags["FEATURE_PROVISIONAL_PRECISION"],
+    precisionEnabled: featureFlags["FEATURE_PROVISIONAL_PRECISION"] ?? false,
   };
 }
 

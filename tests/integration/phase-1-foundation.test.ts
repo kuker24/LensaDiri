@@ -111,17 +111,22 @@ describe("Phase 1 trusted database boundary", () => {
     const password = "integration password 123";
     const secrets = {
       authSessionSecret: process.env.AUTH_SESSION_SECRET!,
+      rateLimitSecret: process.env.RATE_LIMIT_SECRET!,
       tokenHashPepper: process.env.TOKEN_HASH_PEPPER!,
     };
 
     await registerAccount({ email, password });
     const account = await findAccountForAuthentication(email);
-    const session = await loginAccount({
+    const loginResult = await loginAccount({
       email,
       fingerprint: { ip: "127.0.0.1", userAgent: "vitest" },
       password,
       secrets,
     });
+    if (!loginResult.success) {
+      throw new Error(`Login failed: ${JSON.stringify(loginResult)}`);
+    }
+    const session = loginResult.data;
     expect(account).not.toBeNull();
     expect(session).not.toBeNull();
 
@@ -176,6 +181,7 @@ describe("Phase 1 trusted database boundary", () => {
     const fingerprint = { ip: "127.0.0.1", userAgent: "vitest" };
     const secrets = {
       authSessionSecret: process.env.AUTH_SESSION_SECRET!,
+      rateLimitSecret: process.env.RATE_LIMIT_SECRET!,
       tokenHashPepper: process.env.TOKEN_HASH_PEPPER!,
     };
 
@@ -187,11 +193,24 @@ describe("Phase 1 trusted database boundary", () => {
       password: "wrong integration password",
       secrets,
     });
-    const session = await loginAccount({ email, fingerprint, password, secrets });
+    const loginResult = await loginAccount({
+      email,
+      fingerprint,
+      password,
+      secrets,
+    });
 
+    if (!loginResult.success) {
+      throw new Error(`Login failed: ${JSON.stringify(loginResult)}`);
+    }
+
+    const session = loginResult.data;
     expect(firstRegistration).toEqual({ created: true });
     expect(duplicateRegistration).toEqual({ created: false });
-    expect(invalidLogin).toBeNull();
+    expect(invalidLogin).toEqual({
+      success: false,
+      error: expect.objectContaining({ code: "invalid_credentials" }),
+    });
     expect(session).not.toBeNull();
 
     const active = await getActiveSession(session!.token, secrets.tokenHashPepper);

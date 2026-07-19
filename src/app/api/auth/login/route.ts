@@ -2,7 +2,6 @@ import { NextResponse } from "next/server";
 import crypto from "node:crypto";
 
 import { createSessionCookie } from "@/lib/auth/session";
-import { normalizeEmail } from "@/lib/auth/email";
 import { getServerEnvironment } from "@/lib/db/env";
 import { isValidCsrfMutation } from "@/lib/security/csrf";
 import { getRequestRateLimitIdentity } from "@/lib/security/rate-limit";
@@ -33,7 +32,7 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   try {
     const correlationId = crypto.randomUUID();
-    const result = await loginAccount({
+    const loginResult = await loginAccount({
       email: parsed.data.email,
       fingerprint: {
         ip: getRequestRateLimitIdentity(request),
@@ -48,24 +47,24 @@ export async function POST(request: Request): Promise<NextResponse> {
       correlationId,
     });
 
-    if (!result.success) {
-      if (result.error.code === "rate_limited") {
+    if (!loginResult.success) {
+      if (loginResult.error.code === "rate_limited") {
         return NextResponse.json(apiFailure("rate_limited"), {
           headers: {
             ...noStoreHeaders,
-            RetryAfter: String(result.error.retryAfterSeconds),
+            "Retry-After": String(loginResult.error.retryAfterSeconds),
           },
           status: 429,
         });
       } else {
-        return NextResponse.json(apiFailure(result.error.code), {
+        return NextResponse.json(apiFailure(loginResult.error.code), {
           headers: noStoreHeaders,
-          status: 401,
+          status: loginResult.error.status,
         });
       }
     }
 
-    const session = result.data;
+    const session = loginResult.data;
     const response = NextResponse.json(apiSuccess({ status: "authenticated" }), {
       headers: noStoreHeaders,
       status: 200,
