@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
+import crypto from "node:crypto";
 
+import { DatabaseTimeoutError, withDeadline } from "@/lib/async/with-deadline";
 import { getServerEnvironment } from "@/lib/db/env";
 import { getRequestRateLimitIdentity } from "@/lib/security/rate-limit";
 import { isValidCsrfMutation } from "@/lib/security/csrf";
@@ -11,7 +13,10 @@ import { authRateLimitPolicies, consumeRateLimit } from "@/server/services/rate-
 
 export const runtime = "nodejs";
 
+const REGISTER_DB_DEADLINE_MS = 5_000;
+
 export async function POST(request: Request): Promise<NextResponse> {
+  const correlationId = crypto.randomUUID();
   const environment = getServerEnvironment();
   if (
     !isValidCsrfMutation(
@@ -31,15 +36,31 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   try {
     const requestIdentity = getRequestRateLimitIdentity(request);
-    const limited = await consumeRateLimit(
-      process.env.NODE_ENV !== "production" &&
-        process.env.RECOVERY_TEST_TRANSPORT === "1" &&
-        process.env.TEST_DATABASE_URL
-        ? `${requestIdentity}:${parsed.data.email.toLowerCase()}`
-        : requestIdentity,
-      authRateLimitPolicies.register,
-      environment.rateLimitSecret,
-    );
+
+    const startRateLimit = process.hrtime.bigint();
+    let limited: Awaited<ReturnType<typeof consumeRateLimit>>;
+    try {
+      limited = await consumeRateLimit(
+        process.env.NODE_ENV !== "production" &&
+          process.env.RECOVERY_TEST_TRANSPORT === "1" &&
+          process.env.TEST_DATABASE_URL
+          ? `${requestIdentity}:${parsed.data.email.toLowerCase()}`
+          : requestIdentity,
+        authRateLimitPolicies.register,
+        environment.rateLimitSecret,
+      );
+      const endRateLimit = process.hrtime.bigint();
+      console.info(
+        `[TELEMETRY] cid=${correlationId} op=register_rate_limit duration_ms=${(Number(endRateLimit - startRateLimit) / 1_000_000).toFixed(2)} status=success`,
+      );
+    } catch (error) {
+      const endRateLimit = process.hrtime.bigint();
+      console.warn(
+        `[TELEMETRY] cid=${correlationId} op=register_rate_limit duration_ms=${(Number(endRateLimit - startRateLimit) / 1_000_000).toFixed(2)} status=error`,
+      );
+      throw error;
+    }
+
     if (!limited.allowed) {
       return NextResponse.json(apiFailure("rate_limited"), {
         headers: { ...noStoreHeaders, "Retry-After": limited.retryAfterSeconds.toString() },
@@ -47,16 +68,26 @@ export async function POST(request: Request): Promise<NextResponse> {
       });
     }
 
-    await registerAccount(parsed.data);
+    const startRegister = process.hrtime.bigint();
+    await withDeadline(registerAccount(parsed.data, correlationId), REGISTER_DB_DEADLINE_MS);
+    const endRegister = process.hrtime.bigint();
+    console.info(
+      `[TELEMETRY] cid=${correlationId} op=register_auth_service duration_ms=${(Number(endRegister - startRegister) / 1_000_000).toFixed(2)} status=success`,
+    );
+
     // Same response for new and duplicate emails prevents account enumeration.
     return NextResponse.json(apiSuccess({ status: "registration_accepted" }), {
       headers: noStoreHeaders,
       status: 202,
     });
   } catch (error) {
+    const isTimeout = error instanceof DatabaseTimeoutError;
+    console.warn(
+      `[TELEMETRY] cid=${correlationId} op=register_auth_error message=${isTimeout ? "deadline_exceeded" : "database_error"}`,
+    );
     return NextResponse.json(apiFailure("service_unavailable"), {
       headers: noStoreHeaders,
-      status: getDatabaseFailureStatus(error),
+      status: isTimeout ? 503 : getDatabaseFailureStatus(error),
     });
   }
 }
