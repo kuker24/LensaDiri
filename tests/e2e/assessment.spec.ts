@@ -56,6 +56,8 @@ test("guarded lenses enforce age and acknowledgment before Psychosophy completio
   await expect(page.getByRole("alert").filter({ hasText: /batas usia/u })).toBeVisible();
 
   await page.getByRole("spinbutton", { name: /Usia/u }).fill("18");
+  await expect(page.getByText(/24 item · sekitar/u)).toBeVisible();
+
   await page.getByRole("checkbox", { name: /Refleksi Attachment/u }).uncheck();
   await page.getByRole("checkbox", { name: /Psychosophy Eksperimental/u }).check();
   await page.getByRole("button", { name: /Quick/u }).click();
