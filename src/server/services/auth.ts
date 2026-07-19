@@ -16,9 +16,9 @@ import {
 } from "@/server/repositories/accounts";
 import {
   createAccountSession,
+  findAndTouchActiveSession,
   findSessionByTokenHash,
   revokeAccountSession,
-  touchAccountSession,
   type ActiveSessionRecord,
 } from "@/server/repositories/sessions";
 
@@ -148,19 +148,9 @@ export async function getActiveSession(
   token: string,
   tokenHashPepper: string,
   now = new Date(),
+  correlationId?: string,
 ): Promise<ActiveSessionRecord | null> {
-  const session = await findSessionByTokenHash(toSessionHash(token, tokenHashPepper));
-  if (
-    !session ||
-    session.accountStatus !== "active" ||
-    session.revokedAt !== null ||
-    session.expiresAt <= now
-  ) {
-    return null;
-  }
-
-  await touchAccountSession(toSessionHash(token, tokenHashPepper), now);
-  return session;
+  return findAndTouchActiveSession(toSessionHash(token, tokenHashPepper), now, correlationId);
 }
 
 export async function logoutAccount(
