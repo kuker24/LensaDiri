@@ -23,6 +23,11 @@ export function getDatabase(): Sql {
     connect_timeout: 10,
     idle_timeout: 20,
     max: environment.isProduction ? 1 : 10,
+    // Connection parameters sent as startup options every PostgreSQL session.
+    connection: {
+      lock_timeout: 5000,
+      statement_timeout: 10000,
+    },
     // Supabase transaction pooler does not support named prepared statements.
     prepare: false,
     ssl:

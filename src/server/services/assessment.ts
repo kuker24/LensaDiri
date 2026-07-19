@@ -5,6 +5,7 @@ import { estimateAssessment } from "@/lib/assessment/estimate";
 import { getServerEnvironment } from "@/lib/db/env";
 import { hashOpaqueToken } from "@/lib/security/tokens";
 import { opaqueTokenSchema } from "@/lib/validation/assessment";
+import { DatabaseTimeoutError } from "@/lib/async/with-deadline";
 import {
   composeFromDatabase,
   getMinimumModuleCoverage,
@@ -82,6 +83,8 @@ export async function startAssessment(input: {
     return { code: "feature_unavailable", success: false };
   }
 
+  const readStartTime = Date.now();
+
   const [modules, combos, modeProfiles, complexEnabled] = await Promise.all([
     listCatalogModules(),
     listComboPresets(),
@@ -92,6 +95,13 @@ export async function startAssessment(input: {
     profile.internalMode === "deep" ? { ...profile, isSelectable: complexEnabled } : profile,
   );
   const candidates = await loadComposerCandidates(input.request.selection.moduleKeys);
+
+  // If reading database metadata took more than 5 seconds, abort before beginning
+  // any write transaction. This prevents late commits near the route deadline.
+  if (Date.now() - readStartTime > 5_000) {
+    throw new DatabaseTimeoutError("Database read operations took too long.");
+  }
+
   const estimate = estimateAssessment(input.request.selection, modules, combos, availableModes, {
     minimumCoverage: getMinimumModuleCoverage(candidates),
     provisionalPrecisionEnabled: false,
