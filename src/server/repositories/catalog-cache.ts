@@ -9,6 +9,7 @@ import type {
 } from "@/lib/assessment/catalog";
 import {
   getCatalogModuleByKey,
+  isFeatureEnabledBatch,
   listAssessmentModeProfiles,
   listCatalogModules,
   listComboPresets,
@@ -73,3 +74,5 @@ export function listComboPresetsFromCache(
 ): Promise<ComboPresetDefinition[]> {
   return listComboPresetsCached(options.includeUnavailable ?? false);
 }
+
+export { isFeatureEnabledBatch };

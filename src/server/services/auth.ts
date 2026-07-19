@@ -6,6 +6,8 @@ import { normalizeEmail } from "@/lib/auth/email";
 import { hashPassword, verifyDummyPassword, verifyPassword } from "@/lib/auth/password";
 import { SESSION_DURATION_MS } from "@/lib/auth/session";
 import { hashOpaqueToken, generateOpaqueToken } from "@/lib/security/tokens";
+import { getRequestRateLimitIdentity } from "@/lib/security/rate-limit";
+import { apiFailure } from "@/server/http";
 import { createAuditLog } from "@/server/repositories/audit-logs";
 import {
   createAccountWithAudit,
@@ -21,6 +23,7 @@ import {
   revokeAccountSession,
   type ActiveSessionRecord,
 } from "@/server/repositories/sessions";
+import { consumeRateLimit, authRateLimitPolicies } from "@/server/services/rate-limiter";
 
 export type ClientFingerprint = {
   ip: string;
@@ -33,6 +36,11 @@ export type CreatedSession = {
 };
 
 export type DeleteAccountResult = "deleted" | "invalid_credentials" | "invalid_session";
+
+export type LoginAccountResult =
+  | { success: true; data: CreatedSession }
+  | { success: false; error: { code: "rate_limited"; retryAfterSeconds: number } }
+  | { success: false; error: { code: "invalid_credentials" } };
 
 function hashFingerprint(value: string, authSessionSecret: string): string | null {
   return value ? hashOpaqueToken(value, authSessionSecret) : null;
@@ -114,9 +122,9 @@ export async function loginAccount(input: {
   email: string;
   fingerprint: ClientFingerprint;
   password: string;
-  secrets: { authSessionSecret: string; tokenHashPepper: string };
+  secrets: { authSessionSecret: string; tokenHashPepper: string; rateLimitSecret: string };
   correlationId?: string;
-}): Promise<CreatedSession | null> {
+}): Promise<LoginAccountResult> {
   const correlationId = input.correlationId ?? crypto.randomUUID();
   const startRateLimit = process.hrtime.bigint();
   const rateLimitResult = await consumeRateLimit(
@@ -126,17 +134,13 @@ export async function loginAccount(input: {
   );
   const endRateLimit = process.hrtime.bigint();
   console.info(
-    `[TELEMETRY] cid=${correlationId} op=login_rate_limit duration_ms=${((Number(endRateLimit - startRateLimit) / 1_000_000)).toFixed(2)} status=${rateLimitResult.allowed ? "success" : "rate_limited"}`,
+    `[TELEMETRY] cid=${correlationId} op=login_rate_limit duration_ms=${(Number(endRateLimit - startRateLimit) / 1_000_000).toFixed(2)} status=${rateLimitResult.allowed ? "success" : "rate_limited"}`,
   );
   if (!rateLimitResult.allowed) {
-    await createAuditLog({
-      action: "account_login_failed",
-      actorAccountId: null,
-      entityId: null,
-      entityType: "system",
-      metadata: { reason: "rate_limited" },
-    });
-    return null;
+    return {
+      success: false,
+      error: { code: "rate_limited", retryAfterSeconds: rateLimitResult.retryAfterSeconds },
+    };
   }
 
   const startAccountRead = process.hrtime.bigint();
@@ -144,7 +148,7 @@ export async function loginAccount(input: {
   const account = await findAccountForAuthentication(emailNormalized);
   const endAccountRead = process.hrtime.bigint();
   console.info(
-    `[TELEMETRY] cid=${correlationId} op=login_account_read duration_ms=${((Number(endAccountRead - startAccountRead) / 1_000_000)).toFixed(2)} status=${account ? "found" : "not_found"}`,
+    `[TELEMETRY] cid=${correlationId} op=login_account_read duration_ms=${(Number(endAccountRead - startAccountRead) / 1_000_000).toFixed(2)} status=${account ? "found" : "not_found"}`,
   );
 
   const startPasswordVerify = process.hrtime.bigint();
@@ -153,7 +157,7 @@ export async function loginAccount(input: {
     : await verifyDummyPassword(input.password).then(() => false);
   const endPasswordVerify = process.hrtime.bigint();
   console.info(
-    `[TELEMETRY] cid=${correlationId} op=login_password_verify duration_ms=${((Number(endPasswordVerify - startPasswordVerify) / 1_000_000)).toFixed(2)} status=${passwordMatches ? "match" : "mismatch"}`,
+    `[TELEMETRY] cid=${correlationId} op=login_password_verify duration_ms=${(Number(endPasswordVerify - startPasswordVerify) / 1_000_000).toFixed(2)} status=${passwordMatches ? "match" : "mismatch"}`,
   );
 
   if (!account || !passwordMatches || account.status !== "active") {
@@ -164,14 +168,17 @@ export async function loginAccount(input: {
       entityType: "system",
       metadata: { reason: "invalid_credentials" },
     });
-    return null;
+    return {
+      success: false,
+      error: { code: "invalid_credentials" },
+    };
   }
 
   const startSessionWrite = process.hrtime.bigint();
   const session = await issueSession(account.id, input.fingerprint, input.secrets);
   const endSessionWrite = process.hrtime.bigint();
   console.info(
-    `[TELEMETRY] cid=${correlationId} op=login_session_write duration_ms=${((Number(endSessionWrite - startSessionWrite) / 1_000_000)).toFixed(2)} status=success`,
+    `[TELEMETRY] cid=${correlationId} op=login_session_write duration_ms=${(Number(endSessionWrite - startSessionWrite) / 1_000_000).toFixed(2)} status=success`,
   );
 
   const startAuditWrite = process.hrtime.bigint();
@@ -184,10 +191,13 @@ export async function loginAccount(input: {
   });
   const endAuditWrite = process.hrtime.bigint();
   console.info(
-    `[TELEMETRY] cid=${correlationId} op=login_audit_write duration_ms=${((Number(endAuditWrite - startAuditWrite) / 1_000_000)).toFixed(2)} status=success`,
+    `[TELEMETRY] cid=${correlationId} op=login_audit_write duration_ms=${(Number(endAuditWrite - startAuditWrite) / 1_000_000).toFixed(2)} status=success`,
   );
 
-  return session;
+  return {
+    success: true,
+    data: session,
+  };
 }
 
 export async function getActiveSession(

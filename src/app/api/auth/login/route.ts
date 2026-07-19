@@ -33,23 +33,39 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   try {
     const correlationId = crypto.randomUUID();
-    const session = await loginAccount({
+    const result = await loginAccount({
       email: parsed.data.email,
       fingerprint: {
         ip: getRequestRateLimitIdentity(request),
         userAgent: request.headers.get("user-agent") ?? "",
       },
       password: parsed.data.password,
-      secrets: environment,
+      secrets: {
+        authSessionSecret: environment.authSessionSecret,
+        tokenHashPepper: environment.tokenHashPepper,
+        rateLimitSecret: environment.rateLimitSecret,
+      },
       correlationId,
     });
-    if (!session) {
-      return NextResponse.json(apiFailure("invalid_credentials"), {
-        headers: noStoreHeaders,
-        status: 401,
-      });
+
+    if (!result.success) {
+      if (result.error.code === "rate_limited") {
+        return NextResponse.json(apiFailure("rate_limited"), {
+          headers: {
+            ...noStoreHeaders,
+            RetryAfter: String(result.error.retryAfterSeconds),
+          },
+          status: 429,
+        });
+      } else {
+        return NextResponse.json(apiFailure(result.error.code), {
+          headers: noStoreHeaders,
+          status: 401,
+        });
+      }
     }
 
+    const session = result.data;
     const response = NextResponse.json(apiSuccess({ status: "authenticated" }), {
       headers: noStoreHeaders,
       status: 200,
