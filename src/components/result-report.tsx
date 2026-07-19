@@ -11,6 +11,13 @@ const labels: Record<string, string> = {
   type_16: "16-Type",
   trait_profile: "Profil Trait",
   enneagram: "Enneagram",
+  three_center: "Pola Tiga Pusat",
+  temperament: "Temperamen",
+  instinct: "Lensa Varian Instingtual",
+  socionics_communication: "Komunikasi Socionics",
+  riasec: "Minat Karier RIASEC",
+  attachment: "Refleksi Attachment",
+  psychosophy: "Psychosophy",
   pattern_1: "Pola 1",
   pattern_2: "Pola 2",
   pattern_3: "Pola 3",
@@ -20,7 +27,27 @@ const labels: Record<string, string> = {
   pattern_7: "Pola 7",
   pattern_8: "Pola 8",
   pattern_9: "Pola 9",
-  temperament: "Temperament",
+  realistic: "Realistic",
+  investigative: "Investigative",
+  artistic: "Artistic",
+  social: "Social",
+  enterprising: "Enterprising",
+  conventional: "Conventional",
+  secure: "Secure",
+  anxious: "Anxious",
+  avoidant: "Avoidant",
+  fearful: "Fearful",
+  emotion: "Emotion",
+  will: "Will",
+  logic: "Logic",
+  physics: "Physics",
+  information_processing: "Pemrosesan Informasi",
+  interaction_style: "Gaya Interaksi",
+  head: "Pikiran (Head)",
+  heart: "Hati (Heart)",
+  gut: "Perut (Gut)",
+  self_preservation: "Self-Preservation",
+  one_to_one: "One-to-One",
   intuition: "Pola dan kemungkinan",
   feeling: "Pertimbangan manusia",
   judging: "Struktur keputusan",
@@ -85,6 +112,7 @@ function alternateCandidate(ambiguity: Readonly<Record<string, unknown>>): strin
     optionalString(ambiguity.alternateType) ??
     optionalString(ambiguity.alternatePattern) ??
     optionalString(ambiguity.alternateTemperament) ??
+    optionalString(ambiguity.alternateVariant) ??
     optionalString(ambiguity.alternate)
   );
 }
@@ -92,6 +120,14 @@ function alternateCandidate(ambiguity: Readonly<Record<string, unknown>>): strin
 /** Limitation note (§17.1): module-owned disclaimer, versioned per engine. */
 function limitationNote(summary: Readonly<Record<string, unknown>>): string | null {
   return optionalString(summary.disclaimer);
+}
+
+function ambiguityNote(ambiguity: Readonly<Record<string, unknown>>): string {
+  const level = typeof ambiguity.level === "number" ? ambiguity.level : null;
+  if (level !== null) {
+    return `Ambiguitas pola ${Math.round(level * 100)}%. Angka ini menunjukkan kedekatan skor atau batas interpretasi, bukan ketidakpastian identitas yang dapat diukur secara mutlak.`;
+  }
+  return "Lensa ini dibaca sebagai spektrum beberapa dimensi. Tidak ada satu label kandidat yang dianggap pasti.";
 }
 
 function ReflectionList({ items }: { items: readonly string[] }) {
@@ -113,6 +149,9 @@ const reportAnchors = [
 
 function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "modular" }> }) {
   const integrated = buildIntegratedReflection(result.modules);
+  const hasEvidenceOrientedModule = result.modules.some(
+    (module) => module.evidenceTier !== "EXPERIMENTAL" && module.evidenceTier !== "C",
+  );
 
   return (
     <div>
@@ -124,7 +163,9 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
         <p className="text-canvas/85 mt-5 max-w-2xl leading-7">{result.summary.disclaimer}</p>
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <span className="text-canvas rounded-sm bg-white/10 px-3 py-1.5 text-sm font-semibold tabular-nums">
-            Confidence keseluruhan {Math.round(result.quality.confidence * 100)}%
+            {hasEvidenceOrientedModule
+              ? `Confidence keseluruhan ${Math.round(result.quality.confidence * 100)}%`
+              : "Confidence evidence-oriented tidak dihitung"}
           </span>
           <span className="text-canvas/70 text-sm">Skor primer server-side · private</span>
         </div>
@@ -267,7 +308,12 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
                   beberapa dimensi dekat batas, jadi baca hasil ini sebagai kecenderungan, bukan
                   label pasti.
                 </p>
-              ) : null}
+              ) : (
+                <p className="border-aperture-soft bg-aperture-soft text-ink mt-4 rounded-md border px-4 py-3 text-sm leading-6">
+                  <span className="font-semibold">Catatan ambiguitas:</span>{" "}
+                  {ambiguityNote(module.ambiguity)}
+                </p>
+              )}
               {limitation ? (
                 <p className="text-ink-muted mt-4 text-xs leading-6">
                   <span className="font-semibold">Catatan keterbatasan:</span> {limitation}

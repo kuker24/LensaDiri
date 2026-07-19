@@ -41,7 +41,12 @@ export default async function CombosPage() {
                   {combo.isFullSpectrum ? "Full Spectrum" : "Curated combo"}
                 </span>
                 <span className="text-ink-muted text-xs font-semibold">
-                  Rekomendasi {getPublicModeName(combo.recommendedMode)}
+                  {combo.status === "experimental"
+                    ? "Eksperimental"
+                    : combo.status === "pilot"
+                      ? "Beta"
+                      : "Terkurasi"}{" "}
+                  · Rekomendasi {getPublicModeName(combo.recommendedMode)}
                 </span>
               </div>
               <h2 className="mt-4 text-2xl font-semibold">{combo.publicName}</h2>

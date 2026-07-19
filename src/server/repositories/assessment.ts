@@ -652,10 +652,18 @@ async function completeModularAssessmentInTransaction(
     const [capacity] = await sql<{ count: number }[]>`
       select count(*)::integer as count
       from public.questions
-      where module_version_id = ${expected.moduleVersionId}
-        and clarifier_enabled
-        and status in ('active', 'pilot', 'published', 'experimental')
-        and review_status = 'approved'
+      inner join public.module_versions on module_versions.id = questions.module_version_id
+      where questions.module_version_id = ${expected.moduleVersionId}
+        and questions.clarifier_enabled
+        and questions.status in ('active', 'pilot', 'published', 'experimental')
+        and (
+          questions.review_status = 'approved'
+          or (
+            module_versions.status in ('pilot', 'experimental')
+            and module_versions.config_json @> '{"guardedBeta":true}'::jsonb
+            and questions.review_status = 'draft'
+          )
+        )
         and not exists (
           select 1 from public.assessment_blueprint_items
           where assessment_blueprint_items.blueprint_id = ${session.blueprint_id}
@@ -726,7 +734,7 @@ async function completeModularAssessmentInTransaction(
     B: 0.85,
     B_EXPERIMENTAL: 0.65,
     C: 0,
-    EXPERIMENTAL: 0.5,
+    EXPERIMENTAL: 0,
   };
   const weightedModules = moduleResults
     .map(({ result }) => ({ result, weight: evidenceWeights[result.evidenceTier] }))
@@ -959,10 +967,18 @@ export async function startClarifier(
         from public.questions
         inner join public.question_dimensions
           on question_dimensions.id = questions.dimension_id
+        inner join public.module_versions on module_versions.id = questions.module_version_id
         where questions.module_version_id = ${clarifier.module_version_id}
           and questions.clarifier_enabled
           and questions.status in ('active', 'pilot', 'published', 'experimental')
-          and questions.review_status = 'approved'
+          and (
+            questions.review_status = 'approved'
+            or (
+              module_versions.status in ('pilot', 'experimental')
+              and module_versions.config_json @> '{"guardedBeta":true}'::jsonb
+              and questions.review_status = 'draft'
+            )
+          )
           and not exists (
             select 1 from public.assessment_blueprint_items
             where assessment_blueprint_items.blueprint_id = ${session.blueprint_id}

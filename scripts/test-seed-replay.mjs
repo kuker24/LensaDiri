@@ -6,7 +6,7 @@ import { spawnSync } from "node:child_process";
 const projectRoot = resolve(import.meta.dirname, "..");
 const databaseContainer = "supabase_db_lensa-diri";
 const supabaseConfigPath = resolve(projectRoot, "supabase/config.toml");
-const expectedCanonicalHash = "b5baf175d1eea4478d7acffe9d4cb00976e95a9510afda2d52d736e693b5c501";
+const expectedCanonicalHash = "45275f2a39fc284e8cb716c4b7c84b332fbcc3d150ce0fa83a0b040ec6739212";
 const expectedCanonicalCounts = {
   modules: 10,
   module_versions: 11,
@@ -15,7 +15,7 @@ const expectedCanonicalCounts = {
   translations: 405,
   mappings: 405,
   combo_presets: 6,
-  combo_mappings: 19,
+  combo_mappings: 27,
 };
 const seedPaths = [
   ...readFileSync(supabaseConfigPath, "utf8").matchAll(/"\.\/seed\/([^"\n]+\.sql)"/gu),

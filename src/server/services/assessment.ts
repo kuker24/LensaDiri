@@ -41,6 +41,7 @@ export type StartAssessmentResult =
   | Readonly<{
       code:
         | "age_restricted"
+        | "coverage_unavailable"
         | "experimental_acknowledgment_required"
         | "feature_unavailable"
         | "invalid_module_count"

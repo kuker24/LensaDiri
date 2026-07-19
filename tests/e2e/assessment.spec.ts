@@ -46,6 +46,41 @@ test("modular selection estimates, starts, pauses, resumes, and completes", asyn
   await expect(page.getByText(/type16-score-1/u)).toBeVisible();
 });
 
+test("guarded lenses enforce age and acknowledgment before Psychosophy completion", async ({
+  page,
+}) => {
+  await page.goto("/start/modules");
+  await page.getByRole("checkbox", { name: /Profil Trait/u }).uncheck();
+  await page.getByRole("checkbox", { name: /Refleksi Attachment/u }).check();
+  await page.getByRole("spinbutton", { name: /Usia/u }).fill("17");
+  await expect(page.getByRole("alert").filter({ hasText: /batas usia/u })).toBeVisible();
+
+  await page.getByRole("spinbutton", { name: /Usia/u }).fill("18");
+  await page.getByRole("checkbox", { name: /Refleksi Attachment/u }).uncheck();
+  await page.getByRole("checkbox", { name: /Psychosophy Eksperimental/u }).check();
+  await page.getByRole("button", { name: /Quick/u }).click();
+  await expect(
+    page.getByRole("alert").filter({ hasText: /Konfirmasi lensa eksperimental/u }),
+  ).toBeVisible();
+  await page.getByRole("checkbox", { name: /Aku memahami lensa eksperimental/u }).check();
+  await expect(page.getByText(/12 item · sekitar/u)).toBeVisible();
+
+  await page.getByRole("button", { name: "Tinjau pilihan" }).click();
+  await page.getByRole("checkbox", { name: /setuju jawabanku diproses/u }).check();
+  await page.getByRole("button", { name: "Mulai assessment" }).click();
+  await expect(page).toHaveURL(/\/test\//u);
+
+  for (let index = 0; index < 12; index += 1) {
+    await page.getByRole("button", { name: /4 Sesuai/u }).click();
+  }
+  await page.getByRole("button", { name: "Lihat hasil" }).click();
+  await expect(page).toHaveURL(/\/result\//u);
+  await expect(page.getByRole("heading", { name: "Psychosophy" })).toBeVisible();
+  await expect(page.getByText("Confidence evidence-oriented tidak dihitung")).toBeVisible();
+  await expect(page.getByText(/Catatan ambiguitas/u)).toBeVisible();
+  await expect(page.getByText(/hanya untuk refleksi eksploratif/u)).toBeVisible();
+});
+
 test("Quick assessment autosaves, resumes, completes, shares, exports, revokes, and deletes", async ({
   page,
 }) => {

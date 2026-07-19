@@ -33,33 +33,36 @@ select ok(not has_table_privilege('authenticated', 'public.content_publication_e
 
 select is(
   (select count(*)::integer from public.modules where release_disposition = 'DEFERRED_WITH_REASON'),
-  6,
-  'six modules are explicitly deferred'
-);
-select is(
-  (select count(*)::integer from public.modules where release_disposition = 'DEFERRED_WITH_REASON' and is_selectable),
   0,
-  'deferred modules are not selectable'
+  'no modules remain explicitly deferred after release'
 );
 select is(
   (select count(*)::integer from public.modules where release_disposition = 'RELEASE_READY' and is_selectable),
-  4,
-  'four independently scored modules are release-ready and selectable'
+  10,
+  'all ten independently scored modules are release-ready and selectable'
 );
 select is(
-  (select count(*)::integer from public.combo_presets where status = 'published'),
-  3,
-  'three curated presets are published'
+  (select count(*)::integer from public.modules where is_experimental and is_selectable),
+  2,
+  'psychosophy and socionics_communication remain selectable but flagged experimental'
 );
 select is(
   (
     select count(*)::integer
-    from public.combo_preset_modules
-    join public.combo_presets on combo_presets.id = combo_preset_modules.combo_preset_id
-    where combo_presets.key = 'full_spectrum' and combo_preset_modules.required
+    from public.combo_presets
+    where status in ('pilot', 'published', 'experimental')
   ),
   4,
-  'Full Spectrum contains every currently release-ready module'
+  'four curated presets fit currently available public mode coverage'
+);
+select is(
+  (
+    select count(*)::integer
+    from public.combo_presets
+    where key in ('deep_self_discovery', 'full_spectrum') and status = 'draft'
+  ),
+  2,
+  'over-budget Deep Self-Discovery and Full Spectrum remain unavailable'
 );
 select is(
   (select max_items_per_segment::integer from public.assessment_mode_profiles where mode = 'deep'),

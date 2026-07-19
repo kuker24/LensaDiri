@@ -31,7 +31,13 @@ export default async function ModulesPage() {
               <div className="flex flex-wrap items-center justify-between gap-3">
                 <Badge tone="lens">Evidence {module.evidenceTier.replace("_", " ")}</Badge>
                 <span className="text-ink-muted text-xs font-semibold">
-                  {available ? "Tersedia" : "Belum tersedia"}
+                  {available
+                    ? module.status === "experimental"
+                      ? "Eksperimental"
+                      : module.status === "pilot"
+                        ? "Beta"
+                        : "Tersedia"
+                    : "Belum tersedia"}
                 </span>
               </div>
               <h2 className="mt-5 text-2xl font-semibold">{module.publicName}</h2>

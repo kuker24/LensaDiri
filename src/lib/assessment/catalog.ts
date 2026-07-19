@@ -150,7 +150,10 @@ export function validateAssessmentSelection(
     (module): module is AssessmentModuleDefinition => module !== undefined,
   );
 
-  if (selectedModules.some((module) => input.age !== null && input.age < module.minimumAge)) {
+  if (
+    input.age === null ||
+    selectedModules.some((module) => input.age !== null && input.age < module.minimumAge)
+  ) {
     return { code: "age_restricted", valid: false };
   }
   if (selectedModules.some((module) => module.isExperimental) && !input.experimentalAcknowledged) {

@@ -4,38 +4,50 @@ Gate aktivasi modular LensaDiri. Migration schema readiness ada di `PRD_V2_MIGRA
 
 ## Posture saat ini
 
-- Base modular schema sampai `202607200001`: applied ke production.
-- Quality-model provenance migration `202607200002`: pending production approval, belum diterapkan.
-- `feature_flags` production memiliki zero enabled rows. Tidak ada aktivasi modular.
-- Legacy Quick 40/Standard 60 tetap baseline produksi.
-- Modular seed: not applied.
-- Modular feature flags: OFF.
+- Base modular schema dan quality-model provenance sampai `202607200002`: applied ke production pada activation task sebelumnya.
+- Canonical modular content 10 modul sudah ada di production, tetapi hanya empat modul awal yang selectable.
+- `FEATURE_MODULAR_COMPOSER` production aktif. `FEATURE_COMPLEX_MODE`, `FEATURE_PROVISIONAL_PRECISION`, dan `FEATURE_AI_NARRATIVE` tetap OFF.
+- Legacy Quick 40/Standard 60 tetap backward-compatible.
+- Branch `agent/complete-all-lenses-release-ready` hanya menyiapkan kandidat `202607270001`; task ini tidak menulis ke production.
 
 ## Release-ready modules
 
-| Module        | Key             | Status      | Selectable |
-| ------------- | --------------- | ----------- | ---------- |
-| Trait Profile | `trait_profile` | `active`    | ya         |
-| 16-Type       | `type_16`       | `published` | ya         |
-| Enneagram     | `enneagram`     | `published` | ya         |
-| Temperament   | `temperament`   | `published` | ya         |
+| Module        | Key                       | Status         | Selectable |
+| ------------- | ------------------------- | -------------- | ---------- |
+| Trait Profile | `trait_profile`           | `active`       | ya         |
+| 16-Type       | `type_16`                 | `published`    | ya         |
+| Enneagram     | `enneagram`               | `published`    | ya         |
+| Temperament   | `temperament`             | `published`    | ya         |
+| Three Center  | `three_center`            | `pilot`        | ya         |
+| Instinct      | `instinct`                | `pilot`        | ya         |
+| RIASEC        | `riasec`                  | `pilot`        | ya         |
+| Attachment    | `attachment`              | `pilot`        | ya         |
+| Socionics     | `socionics_communication` | `experimental` | ya         |
+| Psychosophy   | `psychosophy`             | `experimental` | ya         |
 
-## Deferred modules
+## Guarded beta and experimental rollout
 
-`attachment`, `instinct`, `riasec`, `socionics_communication`, `three_center` berstatus `draft`; `psychosophy` berstatus `experimental`. Semua `is_selectable=false`, dikecualikan dari Full Spectrum, estimate, dan komposisi. Tidak boleh diturunkan dari Big Five.
+Semua sepuluh modul kini `is_selectable=true` dengan status jujur per modul:
 
-Setiap modul sudah memiliki scoring engine independen (test-covered), draft item bank Bahasa Indonesia yang telah melewati audit bahasa awal non-klinis, dan draft translation rows. Status tetap deferred sampai review bahasa formal, validasi konstruk, review bias, dan pilot testing (n ≥ 50) selesai. Admin publication gate memblokir modul dengan `review_status = 'draft'` pada question atau translation mana pun.
+- Modul orisinal: `published` / `active`.
+- Modul baru: `pilot` (tiga pusat, instingtual variant, RIASEC, attachment) atau `experimental` (Socionics komunikasi, psychosophy).
+- Item dan terjemahan tetap `draft`. Akses beta ditandai eksplisit oleh `config_json.guardedBeta=true`, sehingga tidak memalsukan review formal.
+- Preset `deep_self_discovery` dan `full_spectrum` tetap disembunyikan (`draft`) karena target item melebihi kapasitas mode standard, atau mode Complex belum aktif. Custom combo tetap didukung.
 
-## Activation gate
+Setiap modul sudah memiliki scoring engine independen (test-covered) dan item bank Bahasa Indonesia yang telah melewati audit bahasa awal non-klinis. Modul eksperimental memicu consent checkbox khusus sebelum memulai sesi, dan Attachment memiliki filter usia minimum 18 tahun.
 
-Aktivasi modular pada production hanya boleh setelah seluruh kondisi berikut disetujui terpisah:
+## Activation status (production)
 
-1. Migration `202607200002` (quality-model provenance) diterapkan ke production melalui approval terpisah. Modular completion path membaca `assessment_blueprints.quality_model_version` untuk memilih faktor confidence versioned, sehingga migration ini wajib mendahului aktivasi flag manapun.
-2. Content publication modular dijalankan lewat migration additive, bukan seed. Termasuk `consent_policy_versions` dan `retention_policies` agar privacy dashboard tidak kosong.
-3. Preview atau staging database dan secret terisolasi tersedia.
-4. Monitoring provider dan rollback owner aktif.
-5. Feature flag `FEATURE_MODULAR_COMPOSER` dan `FEATURE_COMPLEX_MODE` di-set dengan compare-and-set dan alasan perubahan.
-6. Pilot internal sebelum public enable.
+Jalur guarded all-lenses production tetap PENDING migration additive `202607270001`. Migration ini belum diterapkan ke hosted database dan tidak mengubah feature flag. Aktivasi hanya boleh dilakukan setelah backup logical diverifikasi dan approval terpisah.
+
+Aktivasi enam lensa baru pada production hanya boleh setelah seluruh kondisi berikut disetujui terpisah:
+
+1. Backup logical schema, data, dan roles dibuat sebelum write serta manifest hash diverifikasi.
+2. Dry-run linked hanya menampilkan `202607270001_guarded_all_lenses_release.sql`.
+3. Postcheck memastikan 4 version `pilot`, 2 version `experimental`, 147 question/translation tetap `draft`, dan `guardedBeta=true` hanya pada enam version target.
+4. Preview atau staging terisolasi digunakan bila tersedia. Jika tidak, risiko single-project harus dicatat eksplisit.
+5. Monitoring provider dan rollback owner aktif.
+6. `FEATURE_AI_NARRATIVE` tetap OFF. Perubahan flag lain memerlukan approval terpisah.
 
 ## Verifikasi lokal sebelum activation
 

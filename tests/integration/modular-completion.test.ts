@@ -35,6 +35,7 @@ async function startAndAnswer(
   moduleKeys: readonly string[],
   valueFor: (index: number) => 1 | 2 | 3 | 4 | 5,
   mode: "quick" | "standard" = "quick",
+  experimentalAcknowledged = false,
 ) {
   const sessionHash = hashOpaqueToken(`modular-completion-${randomUUID()}`, pepper);
   await expect(
@@ -47,7 +48,7 @@ async function startAndAnswer(
         locale: "id",
         selection: {
           age: 18,
-          experimentalAcknowledged: false,
+          experimentalAcknowledged,
           mode,
           moduleKeys,
           presetKey: null,
@@ -184,6 +185,57 @@ describe("modular completion PostgreSQL lifecycle", () => {
       ).toBe("trait-profile-modular-1");
     }
   }, 120_000);
+
+  it("completes and safely shares all six guarded beta or experimental lenses", async () => {
+    const cases = [
+      { key: "three_center", experimental: false },
+      { key: "instinct", experimental: false },
+      { key: "socionics_communication", experimental: true },
+      { key: "riasec", experimental: false },
+      { key: "attachment", experimental: false },
+      { key: "psychosophy", experimental: true },
+    ] as const;
+
+    for (const testCase of cases) {
+      const sessionHash = await startAndAnswer(
+        [testCase.key],
+        (index) => ((index % 5) + 1) as 1 | 2 | 3 | 4 | 5,
+        "quick",
+        testCase.experimental,
+      );
+      const resultHash = hashOpaqueToken(`guarded-result-${testCase.key}-${randomUUID()}`, pepper);
+      const shareHash = hashOpaqueToken(`guarded-share-${testCase.key}-${randomUUID()}`, pepper);
+      await expect(
+        completeAssessment({ resultTokenHash: resultHash, sessionTokenHash: sessionHash }),
+      ).resolves.toEqual({ resultId: expect.any(String) });
+
+      const result = await getResultByHash(resultHash);
+      expect(result).toMatchObject({
+        kind: "modular",
+        modules: [expect.objectContaining({ moduleKey: testCase.key })],
+      });
+      if (result?.kind === "modular" && testCase.key === "psychosophy") {
+        expect(result.quality.confidence).toBe(0);
+      }
+
+      await expect(
+        createResultShare({
+          expiresAt: new Date(Date.now() + 60_000),
+          resultTokenHash: resultHash,
+          shareTokenHash: shareHash,
+        }),
+      ).resolves.toBe(true);
+      const shared = await getSharedResultByHash(shareHash);
+      expect(shared).toMatchObject({
+        kind: "modular",
+        modules: [expect.objectContaining({ key: testCase.key, scores: expect.any(Array) })],
+      });
+      const serialized = JSON.stringify(shared);
+      for (const prohibited of ["ambiguity", "confidence", "flags", "quality", "rawScore"]) {
+        expect(serialized).not.toContain(prohibited);
+      }
+    }
+  }, 180_000);
 
   it("rejects tampered immutable blueprint scoring provenance without partial result", async () => {
     const sql = getDatabase();

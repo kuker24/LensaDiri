@@ -37,9 +37,9 @@ afterAll(async () => {
   await closeDatabaseForTests();
 });
 
-async function runFullSpectrum(mode: AssessmentMode) {
-  const sessionTokenHash = hashOpaqueToken(`full-spectrum-${mode}-${randomUUID()}`, pepper);
-  const resultTokenHash = hashOpaqueToken(`full-spectrum-result-${mode}-${randomUUID()}`, pepper);
+async function runDeepCombo(mode: AssessmentMode) {
+  const sessionTokenHash = hashOpaqueToken(`deep-combo-${mode}-${randomUUID()}`, pepper);
+  const resultTokenHash = hashOpaqueToken(`deep-combo-result-${mode}-${randomUUID()}`, pepper);
 
   await expect(
     startAssessment({
@@ -54,8 +54,8 @@ async function runFullSpectrum(mode: AssessmentMode) {
           experimentalAcknowledged: false,
           mode,
           moduleKeys,
-          presetKey: "full_spectrum",
-          selectionType: "full_spectrum",
+          presetKey: null,
+          selectionType: "custom_combo",
         },
       },
       sessionTokenHash,
@@ -126,7 +126,7 @@ async function runFullSpectrum(mode: AssessmentMode) {
 
   const result = await getResultByHash(resultTokenHash);
   expect(result?.kind).toBe("modular");
-  if (result?.kind !== "modular") throw new Error("Expected a modular Full Spectrum result.");
+  if (result?.kind !== "modular") throw new Error("Expected a modular Deep Combo result.");
   expect(new Set(result.modules.map((module) => module.moduleKey))).toEqual(new Set(moduleKeys));
 
   const sql = getDatabase();
@@ -152,12 +152,12 @@ async function runFullSpectrum(mode: AssessmentMode) {
   });
 }
 
-describe("Full Spectrum PRD v2 lifecycle", () => {
-  it("completes Full Spectrum Normal atomically", async () => {
-    await runFullSpectrum("standard");
+describe("Deep Combo PRD v2 lifecycle", () => {
+  it("completes Deep Combo Normal atomically", async () => {
+    await runDeepCombo("standard");
   }, 180_000);
 
-  it("completes Full Spectrum Complex across pause, resume, and reload", async () => {
-    await runFullSpectrum("deep");
+  it("completes Deep Combo Complex across pause, resume, and reload", async () => {
+    await runDeepCombo("deep");
   }, 240_000);
 });

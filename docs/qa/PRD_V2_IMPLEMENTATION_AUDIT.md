@@ -3,8 +3,8 @@
 ## Audit gate
 
 - Canonical contract: `docs/product/PRD_FULL_LensaDiri.md` v2.0.
-- Working branch: `agent/prd-v2-full-functional-completion` (dibuat dari `origin/main` `923c20b`).
-- Production dikecualikan. Tidak ada hosted write, migration, deployment, feature change, merge, credential read, atau credential output.
+- Working branch: `agent/complete-all-lenses-release-ready` (dibuat dari `origin/main` `38c982f`).
+- Production dikecualikan. Tidak ada hosted write, linked migration, deployment, feature change, merge, credential read, atau credential output pada task branch ini.
 - Bukti verifikasi di dokumen ini berasal dari disposable local Supabase pada branch di atas, bukan snapshot PR lama.
 
 ## Current decision
@@ -15,20 +15,20 @@ Post-incident audit menyimpulkan tidak ada BLOCKER atau MAJOR pada security, dat
 
 **Status rilis:**
 
-- Engineering implementation: READY.
-- Production schema parity: PENDING `202607200002` (lihat `PRODUCTION_MIGRATION_MAP.md`, bagian "Pending candidate migration").
-- UI design readiness: READY.
-- Modular production activation: BLOCKED, menunggu penerapan migration `202607200002`, content publication modular, preview/staging terisolasi, monitoring, dan approval terpisah (lihat `MODULAR_RELEASE_READINESS.md`).
+- Engineering implementation: READY untuk 10 modul individual dan 4 preset yang fit coverage.
+- Production schema parity: PENDING kandidat additive `202607270001_guarded_all_lenses_release.sql`.
+- UI design readiness: READY untuk label Published/Beta/Experimental, age gate, acknowledgement, estimate, runner, dan report.
+- Production activation enam lensa baru: NOT RUN dan membutuhkan approval terpisah (lihat `MODULAR_RELEASE_READINESS.md`).
 
 ## Requirement matrix
 
 | Area                                        | PRD     | Status                 | Evidence dan boundary                                                                                                                                                                                                                                                                                        |
 | ------------------------------------------- | ------- | ---------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | Legacy Quick 40/Standard 60                 | §30     | `IMPLEMENTED`          | Unit, integration, pgTAP, dan browser regression lulus. Overlay legacy trait-derived diizinkan §30.3, berlabel legacy, hanya jalur `personality_results`.                                                                                                                                                    |
-| Empat modul release-ready                   | §10-11  | `FEATURE_FLAGGED`      | Trait Profile (`active`), 16-Type, Enneagram, Temperament (`published`) `is_selectable=true`. Engine independen `src/lib/scoring/modules/*.ts`.                                                                                                                                                              |
-| Enam modul deferred                         | §10.3   | `DEFERRED_WITH_REASON` | attachment/instinct/riasec/socionics/three_center `draft`, psychosophy `experimental`. Semua `is_selectable=false`, dikecualikan Full Spectrum.                                                                                                                                                              |
+| Empat modul baseline                        | §10-11  | `IMPLEMENTED`          | Trait Profile (`active`), 16-Type, Enneagram, Temperament (`published`) tetap selectable dan backward-compatible.                                                                                                                                                                                            |
+| Enam modul guarded                          | §10.3   | `FEATURE_FLAGGED`      | Three Center, Instinct, RIASEC, Attachment berstatus `pilot`; Socionics dan Psychosophy `experimental`. Semua punya engine/item bank independen. Item/translation tetap `draft`; version target memakai `guardedBeta=true`.                                                                                  |
 | Catalog/composer                            | §13     | `FEATURE_FLAGGED`      | Page/API gate default-off, immutable blueprint server-authoritative, provenance mismatch ditolak fail-closed sebelum komposisi.                                                                                                                                                                              |
-| Curated preset dan Full Spectrum            | §11     | `FEATURE_FLAGGED`      | 6 preset published. Full Spectrum hanya modul release-ready, butuh Complex, multi-segment. Browser proof desktop/mobile.                                                                                                                                                                                     |
+| Curated preset dan Full Spectrum            | §11     | `PARTIAL`              | 4 preset fit coverage tersedia. `deep_self_discovery` tetap draft sampai Complex aktif; `full_spectrum` tetap draft karena minimum coverage melampaui cap 120. Custom combo over-budget gagal dengan `coverage_unavailable`.                                                                                 |
 | Complex lifecycle                           | §12     | `FEATURE_FLAGGED`      | Pause, reload, resume, segment transition, atomic completion, report. `withTransaction` + `for update` + idempotent guard.                                                                                                                                                                                   |
 | Clarifier                                   | §12.4   | `FEATURE_FLAGGED`      | Trigger, autosave, revisi, reload, complete, skip, retry identity, supplemental tanpa duplikat, private-only diagnostics.                                                                                                                                                                                    |
 | Dashboard                                   | §19.5   | `IMPLEMENTED`          | Session/result account-scoped, opaque locator, resume, share/revoke/export/delete, ownership dan pagination.                                                                                                                                                                                                 |
@@ -55,19 +55,19 @@ Semua command memakai disposable local Supabase dan test-only values. Tidak ada 
 | `npm run format:check`           | PASS                                                                                                                   |
 | `npm run lint`                   | PASS                                                                                                                   |
 | `npm run typecheck`              | PASS                                                                                                                   |
-| `npm test`                       | PASS: 23 files, 109 tests                                                                                              |
+| `npm test`                       | PASS: 23 files, 111 tests                                                                                              |
 | `npm run build`                  | PASS dengan dummy test-only environment                                                                                |
 | `npm audit --audit-level=high`   | PASS: zero vulnerabilities                                                                                             |
 | `npm run db:reset`               | PASS terhadap disposable local Supabase                                                                                |
-| `npm run test:seed-replay`       | PASS: modules 10, module_versions 11, dimensions 49, questions/translations/mappings 405, presets 6, combo_mappings 19 |
-| Canonical seed SHA-256           | `b5baf175d1eea4478d7acffe9d4cb00976e95a9510afda2d52d736e693b5c501`                                                     |
+| `npm run test:seed-replay`       | PASS: modules 10, module_versions 11, dimensions 49, questions/translations/mappings 405, presets 6, combo_mappings 27 |
+| Canonical seed SHA-256           | `45275f2a39fc284e8cb716c4b7c84b332fbcc3d150ce0fa83a0b040ec6739212`                                                     |
 | `npm run test:seed-replay-drift` | PASS: drift ditolak dan dipulihkan                                                                                     |
-| `npm run test:integration`       | PASS: 8 files, 31 tests                                                                                                |
+| `npm run test:integration`       | PASS: 8 files, 32 tests                                                                                                |
 | `npm run test:db`                | PASS: 236 assertions, 4 files                                                                                          |
-| `npm run test:e2e`               | PASS: 56 tests, desktop Chromium dan Pixel 5 (flags ON di disposable local)                                            |
-| `npm run test:a11y`              | PASS: 42 tests                                                                                                         |
+| `npm run test:e2e`               | PASS: 58 tests, desktop Chromium dan Pixel 5 (flags ON di disposable local)                                            |
+| Accessibility subset             | PASS: 42 checks di dalam full Playwright suite                                                                         |
 
-Catatan flags: E2E dan a11y modular mengharuskan `FEATURE_MODULAR_COMPOSER` dan `FEATURE_COMPLEX_MODE` ON di database disposable, persis langkah CI (`.github/workflows/ci.yml`). Flags produksi tetap OFF.
+Catatan flags: E2E dan a11y modular mengaktifkan `FEATURE_MODULAR_COMPOSER` dan `FEATURE_COMPLEX_MODE` hanya pada database disposable, persis langkah CI (`.github/workflows/ci.yml`). Task branch ini tidak mengubah flag production.
 
 ## Security audit
 
@@ -112,9 +112,11 @@ Catatan flags: E2E dan a11y modular mengharuskan `FEATURE_MODULAR_COMPOSER` dan 
 
 - 3 artikel edukasi dengan slug allowlist, 404 untuk slug tidak dikenal. Semua link dari `/blog` mengarah ke `/blog/[slug]`.
 
-### Seed deferred modules
+### Guarded all-lenses release
 
-- `supabase/seed/20260726_deferred_modules_item_banks.sql`: draft item bank + translation rows untuk 6 modul. Semua `review_status = 'draft'`, `module_versions.status = 'draft'`, tidak memublikasikan modul. Gateway publikasi mengharuskan seluruh question dan translation `approved`.
+- `supabase/seed/20260726_deferred_modules_item_banks.sql`: item bank + translation rows untuk 6 modul, tetap `review_status = 'draft'`.
+- `supabase/seed/20260727_release_all_deferred_modules.sql`: local canonical beta state, 4 version pilot dan 2 experimental dengan `guardedBeta=true`.
+- `supabase/migrations/202607270001_guarded_all_lenses_release.sql`: kandidat additive production-like rollout, fail-closed pada partial canonical state, tanpa mengubah feature flags.
 
 ### Language review
 
@@ -139,7 +141,7 @@ Monitoring provider eksternal, staging terisolasi, restore drill, custom domain,
 
 ## Next order
 
-1. Jalankan seluruh gate lokal (format, lint, typecheck, unit, integration, db, seed-replay, E2E, a11y).
-2. Commit slice logis source, test, dan dokumentasi ke `agent/prd-v2-full-functional-completion`.
+1. Selesaikan final clean reset, E2E desktop/mobile, accessibility, audit, dan diff review.
+2. Commit slice logis ke `agent/complete-all-lenses-release-ready`.
 3. Push branch dan buat PR ke `main`.
-4. Berhenti. Biarkan production tidak tersentuh sampai approval terpisah.
+4. Berhenti. Biarkan production tidak tersentuh sampai approval activation terpisah.

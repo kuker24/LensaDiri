@@ -29,6 +29,7 @@ export type AssessmentEstimateResult =
   | Readonly<{
       code:
         | "age_restricted"
+        | "coverage_unavailable"
         | "experimental_acknowledgment_required"
         | "invalid_module_count"
         | "mode_unavailable"
@@ -105,10 +106,7 @@ function getTargetItemCount(
   profile: AssessmentModeProfile,
 ): number {
   if (modules.length === 1) {
-    return Math.max(
-      profile.singleModuleItems.min,
-      Math.min(profile.singleModuleItems.max, modules[0]!.modeQuota[input.mode]),
-    );
+    return Math.max(1, Math.min(profile.singleModuleItems.max, modules[0]!.modeQuota[input.mode]));
   }
 
   const requested = modules.reduce((sum, module) => sum + module.modeQuota[input.mode], 0);
@@ -155,12 +153,15 @@ export function estimateAssessment(
     (left, right) => left.defaultOrder - right.defaultOrder,
   );
   const itemCount = getTargetItemCount(input, modules, profile);
-  const moduleAllocation = distributeTarget(
-    modules,
-    input.mode,
-    itemCount,
-    options.minimumCoverage ?? {},
+  const minimumCoverage = options.minimumCoverage ?? {};
+  const minimumCoverageTotal = modules.reduce(
+    (sum, module) => sum + Math.max(1, minimumCoverage[module.key] ?? 1),
+    0,
   );
+  if (minimumCoverageTotal > itemCount) {
+    return { code: "coverage_unavailable", success: false };
+  }
+  const moduleAllocation = distributeTarget(modules, input.mode, itemCount, minimumCoverage);
   const estimatedMinutes = Math.max(1, Math.ceil((itemCount * profile.secondsPerItem) / 60));
 
   return {
