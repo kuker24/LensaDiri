@@ -100,9 +100,9 @@ a {
 }
 
 .lens-glow {
-  background:
+  background-image:
     radial-gradient(circle at 10% 0%, rgb(139 224 208 / 0.24), transparent 17rem),
-    radial-gradient(circle at 100% 100%, rgb(101 88 217 / 0.18), transparent 22rem), var(--surface);
+    radial-gradient(circle at 100% 100%, rgb(101 88 217 / 0.18), transparent 22rem);
 }
 
 .focus-ring:focus-visible {
