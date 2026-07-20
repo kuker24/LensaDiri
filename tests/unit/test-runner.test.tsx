@@ -1,4 +1,4 @@
-import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
+import { act, cleanup, fireEvent, render, screen, waitFor } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { MAX_RESPONSE_TIME_MS } from "@/components/assessment-response-timer";
@@ -122,5 +122,116 @@ describe("TestRunner response timing", () => {
     expect(mocks.saveClarifierAssessmentAnswer).toHaveBeenCalledWith(
       expect.objectContaining({ responseTimeMs: MAX_RESPONSE_TIME_MS }),
     );
+  });
+
+  test("menyimpan satu jawaban saat dua klik sinkron terjadi sebelum API merespons", async () => {
+    let resolveSave: (() => void) | undefined;
+    mocks.saveAnswer.mockImplementation(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveSave = resolve;
+        }),
+    );
+    mocks.getAssessmentSession.mockResolvedValue(assessmentSession);
+    render(<TestRunner token="assessment-token" />);
+
+    const answer = await screen.findByRole("button", { name: /3 Netral/u });
+    fireEvent.click(answer);
+    fireEvent.click(answer);
+
+    expect(mocks.saveAnswer).toHaveBeenCalledTimes(1);
+
+    await act(async () => resolveSave?.());
+    await waitFor(() => expect(mocks.saveAnswer).toHaveBeenCalledTimes(1));
+    expect(mocks.saveAnswer).toHaveBeenCalledWith(
+      expect.objectContaining({ questionId: assessmentSession.questions[0].id }),
+    );
+  });
+
+  test("menyimpan satu jawaban clarifier saat dua klik sinkron terjadi sebelum API merespons", async () => {
+    let resolveSave: (() => void) | undefined;
+    mocks.saveClarifierAssessmentAnswer.mockImplementation(
+      () =>
+        new Promise<void>((resolve) => {
+          resolveSave = resolve;
+        }),
+    );
+    mocks.getAssessmentSession.mockResolvedValue({
+      ...assessmentSession,
+      status: "clarifier_required",
+    });
+    mocks.startAssessmentClarifier.mockResolvedValue(clarifierSession);
+    render(<TestRunner token="assessment-token" />);
+
+    const answer = await screen.findByRole("button", { name: /3 Netral/u });
+    fireEvent.click(answer);
+    fireEvent.click(answer);
+
+    expect(mocks.saveClarifierAssessmentAnswer).toHaveBeenCalledTimes(1);
+
+    await act(async () => resolveSave?.());
+    await waitFor(() => expect(mocks.saveClarifierAssessmentAnswer).toHaveBeenCalledTimes(1));
+    expect(mocks.saveClarifierAssessmentAnswer).toHaveBeenCalledWith(
+      expect.objectContaining({ questionId: clarifierSession.questions[1].id }),
+    );
+  });
+
+  test("mengirim 24 questionId unik, memuat ulang 24/24, lalu membentuk hasil", async () => {
+    const sessionWith24Questions = {
+      ...assessmentSession,
+      questions: Array.from({ length: 24 }, (_, index) => ({
+        ...assessmentSession.questions[0],
+        id: `question-${index + 1}`,
+        order: index + 1,
+        text: `Pertanyaan assessment ${index + 1}`,
+      })),
+      totalCount: 24,
+    };
+    mocks.getAssessmentSession.mockResolvedValueOnce(sessionWith24Questions).mockResolvedValueOnce({
+      ...sessionWith24Questions,
+      answeredCount: 24,
+      questions: sessionWith24Questions.questions.map((question) => ({ ...question, answer: 3 })),
+    });
+    mocks.completeAssessment.mockResolvedValue({ kind: "result", resultToken: "result-token" });
+    render(<TestRunner token="assessment-token" />);
+
+    for (const [index] of sessionWith24Questions.questions.entries()) {
+      fireEvent.click(await screen.findByRole("button", { name: /3 Netral/u }));
+      if (index < sessionWith24Questions.questions.length - 1) {
+        await screen.findByRole("heading", {
+          name: sessionWith24Questions.questions[index + 1]!.text,
+        });
+      }
+    }
+
+    await waitFor(() => expect(mocks.saveAnswer).toHaveBeenCalledTimes(24));
+    await waitFor(() => expect(screen.getByText("24 tersimpan")).toBeInTheDocument());
+    expect(new Set(mocks.saveAnswer.mock.calls.map(([input]) => input.questionId)).size).toBe(24);
+
+    fireEvent.click(screen.getByRole("button", { name: "Lihat hasil" }));
+
+    await waitFor(() => expect(mocks.completeAssessment).toHaveBeenCalledTimes(1));
+    expect(mocks.getAssessmentSession).toHaveBeenCalledTimes(2);
+    expect(mocks.push).toHaveBeenCalledWith("/result/result-token");
+  });
+
+  test("memblokir completion saat sesi authoritative belum lengkap", async () => {
+    mocks.getAssessmentSession
+      .mockResolvedValueOnce({
+        ...assessmentSession,
+        answeredCount: 1,
+        questions: [{ ...assessmentSession.questions[0], answer: 3 }],
+      })
+      .mockResolvedValueOnce(assessmentSession);
+    render(<TestRunner token="assessment-token" />);
+
+    fireEvent.click(await screen.findByRole("button", { name: "Lihat hasil" }));
+
+    await screen.findByRole("alert");
+    expect(screen.getByRole("alert")).toHaveTextContent(
+      "Pastikan semua pertanyaan sudah tersimpan.",
+    );
+    expect(mocks.getAssessmentSession).toHaveBeenCalledTimes(2);
+    expect(mocks.completeAssessment).not.toHaveBeenCalled();
   });
 });

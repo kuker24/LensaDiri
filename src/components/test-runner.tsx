@@ -73,33 +73,36 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [startedAt, setStartedAt] = useState(() => Date.now());
+  const answerInFlightRef = useRef(false);
   const questionHeadingRef = useRef<HTMLHeadingElement>(null);
   const question = questions[index];
   const answeredCount = questions.filter((item) => item.answer !== null).length;
 
   async function answer(value: number) {
-    if (!question) return;
+    if (!question || answerInFlightRef.current) return;
+
+    answerInFlightRef.current = true;
+    const questionId = question.id;
+    const questionIndex = index;
+    const responseTimeMs = boundedResponseTimeMs(startedAt);
     setPending(true);
     setError(null);
     try {
-      await saveClarifierAssessmentAnswer({
-        questionId: question.id,
-        responseTimeMs: boundedResponseTimeMs(startedAt),
-        token,
-        value,
-      });
-      const next = questions.map((item, itemIndex) =>
-        itemIndex === index ? { ...item, answer: value } : item,
+      await saveClarifierAssessmentAnswer({ questionId, responseTimeMs, token, value });
+      setQuestions((current) =>
+        current.map((item, itemIndex) =>
+          itemIndex === questionIndex ? { ...item, answer: value } : item,
+        ),
       );
-      setQuestions(next);
-      if (index < next.length - 1) {
-        setIndex(index + 1);
+      if (questionIndex < questions.length - 1) {
+        setIndex(questionIndex + 1);
         requestAnimationFrame(() => questionHeadingRef.current?.focus());
       }
       setStartedAt(Date.now());
     } catch {
       setError("Jawaban clarifier belum tersimpan. Coba lagi.");
     } finally {
+      answerInFlightRef.current = false;
       setPending(false);
     }
   }
@@ -223,6 +226,7 @@ export function TestRunner({ token }: { token: string }) {
   const [saveStatus, setSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
   const [pending, setPending] = useState(false);
   const [startedAt, setStartedAt] = useState(() => Date.now());
+  const answerInFlightRef = useRef(false);
   const questionHeadingRef = useRef<HTMLHeadingElement>(null);
   const pausedHeadingRef = useRef<HTMLHeadingElement>(null);
 
@@ -256,28 +260,36 @@ export function TestRunner({ token }: { token: string }) {
   const segmentAnswered = segmentQuestions.filter((item) => item.answer !== null).length;
 
   async function answer(value: number) {
-    if (!session || !question || session.status !== "active") return;
+    if (!session || !question || session.status !== "active" || answerInFlightRef.current) return;
+
+    answerInFlightRef.current = true;
+    const questionId = question.id;
+    const questionIndex = index;
+    const responseTimeMs = boundedResponseTimeMs(startedAt);
     setPending(true);
     setSaveStatus("saving");
     setError(null);
     try {
       await saveAnswer({
         idempotencyKey: crypto.randomUUID(),
-        questionId: question.id,
-        responseTimeMs: boundedResponseTimeMs(startedAt),
+        questionId,
+        responseTimeMs,
         token,
         value,
       });
-      const questions = session.questions.map((item, itemIndex) =>
-        itemIndex === index ? { ...item, answer: value } : item,
-      );
-      setSession({
-        ...session,
-        answeredCount: questions.filter((item) => item.answer !== null).length,
-        questions,
+      setSession((current) => {
+        if (!current) return current;
+        const questions = current.questions.map((item, itemIndex) =>
+          itemIndex === questionIndex ? { ...item, answer: value } : item,
+        );
+        return {
+          ...current,
+          answeredCount: questions.filter((item) => item.answer !== null).length,
+          questions,
+        };
       });
-      if (index < questions.length - 1) {
-        setIndex(index + 1);
+      if (questionIndex < session.questions.length - 1) {
+        setIndex(questionIndex + 1);
         requestAnimationFrame(() => questionHeadingRef.current?.focus());
       }
       setSaveStatus("saved");
@@ -286,6 +298,7 @@ export function TestRunner({ token }: { token: string }) {
       setSaveStatus("idle");
       setError("Jawaban belum tersimpan. Coba lagi.");
     } finally {
+      answerInFlightRef.current = false;
       setPending(false);
     }
   }
@@ -316,6 +329,14 @@ export function TestRunner({ token }: { token: string }) {
     setPending(true);
     setError(null);
     try {
+      const authoritative = await getAssessmentSession(token);
+      setSession(authoritative);
+      if (authoritative.answeredCount !== authoritative.totalCount) {
+        setError("Pastikan semua pertanyaan sudah tersimpan.");
+        setPending(false);
+        return;
+      }
+
       const completed = await completeAssessment(token);
       if (completed.kind === "result") {
         router.push(`/result/${completed.resultToken}`);
