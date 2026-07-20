@@ -1,6 +1,7 @@
 import "server-only";
 
-import { getDatabase } from "@/lib/db/client";
+import { getDatabase, withTransaction } from "@/lib/db/client";
+import { generateOpaqueToken, hashOpaqueToken } from "@/lib/security/tokens";
 import { runDatabaseOperation } from "@/server/database";
 
 import type { AccountStatus } from "@/server/repositories/accounts";
@@ -113,6 +114,98 @@ export async function revokeAccountSession(
         and revoked_at is null
     `;
     return rows.count > 0;
+  });
+}
+
+export async function createLoginSessionWithAudit(input: {
+  accountId: string;
+  correlationId?: string;
+  expiresAt: Date;
+  fingerprint: { ip: string; userAgent: string };
+  secrets: { authSessionSecret: string; tokenHashPepper: string };
+}): Promise<{ expiresAt: Date; token: string }> {
+  return runDatabaseOperation(async () => {
+    return withTransaction(async (tx) => {
+      await tx`set local statement_timeout = 2000`;
+      await tx`set local lock_timeout = 1000`;
+
+      const token = generateOpaqueToken();
+      const sessionTokenHash = hashOpaqueToken(token, input.secrets.tokenHashPepper);
+      const ipHash = input.fingerprint.ip
+        ? hashOpaqueToken(input.fingerprint.ip, input.secrets.authSessionSecret)
+        : null;
+      const userAgentHash = input.fingerprint.userAgent
+        ? hashOpaqueToken(input.fingerprint.userAgent, input.secrets.authSessionSecret)
+        : null;
+
+      const startSessionInsert = process.hrtime.bigint();
+      let sessionRow;
+      try {
+        [sessionRow] = await tx<{ id: string; account_id: string; expires_at: Date }[]>`
+          insert into public.account_sessions (
+            account_id,
+            session_token_hash,
+            user_agent_hash,
+            ip_hash,
+            expires_at,
+            last_seen_at
+          )
+          values (
+            ${input.accountId},
+            ${sessionTokenHash},
+            ${userAgentHash},
+            ${ipHash},
+            ${input.expiresAt},
+            now()
+          )
+          returning id, account_id, expires_at
+        `;
+        const endSessionInsert = process.hrtime.bigint();
+        if (input.correlationId) {
+          console.info(
+            `[TELEMETRY] cid=${input.correlationId} op=login_session_insert duration_ms=${(Number(endSessionInsert - startSessionInsert) / 1_000_000).toFixed(2)} status=success`,
+          );
+        }
+      } catch (error) {
+        const endSessionInsert = process.hrtime.bigint();
+        if (input.correlationId) {
+          console.info(
+            `[TELEMETRY] cid=${input.correlationId} op=login_session_insert duration_ms=${(Number(endSessionInsert - startSessionInsert) / 1_000_000).toFixed(2)} status=error`,
+          );
+        }
+        throw error;
+      }
+
+      if (!sessionRow) {
+        throw new Error("Session insert returned no row.");
+      }
+
+      const startAuditInsert = process.hrtime.bigint();
+      try {
+        await tx`
+          insert into public.audit_logs (actor_account_id, action, entity_type, entity_id, metadata_json)
+          values (${input.accountId}, 'account_login_succeeded', 'account', ${input.accountId}, ${tx.json({ outcome: "authenticated" })})`;
+        const endAuditInsert = process.hrtime.bigint();
+        if (input.correlationId) {
+          console.info(
+            `[TELEMETRY] cid=${input.correlationId} op=login_audit_insert duration_ms=${(Number(endAuditInsert - startAuditInsert) / 1_000_000).toFixed(2)} status=success`,
+          );
+        }
+      } catch (error) {
+        const endAuditInsert = process.hrtime.bigint();
+        if (input.correlationId) {
+          console.info(
+            `[TELEMETRY] cid=${input.correlationId} op=login_audit_insert duration_ms=${(Number(endAuditInsert - startAuditInsert) / 1_000_000).toFixed(2)} status=error`,
+          );
+        }
+        throw error;
+      }
+
+      return {
+        expiresAt: sessionRow.expires_at,
+        token,
+      };
+    });
   });
 }
 

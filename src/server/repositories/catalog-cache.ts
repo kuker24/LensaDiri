@@ -73,3 +73,5 @@ export function listComboPresetsFromCache(
 ): Promise<ComboPresetDefinition[]> {
   return listComboPresetsCached(options.includeUnavailable ?? false);
 }
+
+export { isFeatureEnabledBatch } from "./catalog";

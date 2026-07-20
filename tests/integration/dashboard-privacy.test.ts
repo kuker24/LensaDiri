@@ -42,17 +42,22 @@ describe("dashboard and privacy account lifecycle", () => {
     const password = "integration password 123";
     const secrets = {
       authSessionSecret: process.env.AUTH_SESSION_SECRET!,
+      rateLimitSecret: process.env.RATE_LIMIT_SECRET!,
       tokenHashPepper: pepper,
     };
 
     await registerAccount({ email, password });
     const account = await findAccountForAuthentication(email);
-    const authSession = await loginAccount({
+    const loginResult = await loginAccount({
       email,
       fingerprint: { ip: "127.0.0.1", userAgent: "vitest-dashboard" },
       password,
       secrets,
     });
+    if (!loginResult.success) {
+      throw new Error(`Login failed: ${JSON.stringify(loginResult)}`);
+    }
+    const authSession = loginResult.data;
     expect(account).not.toBeNull();
     expect(authSession).not.toBeNull();
 

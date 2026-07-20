@@ -11,11 +11,11 @@ import { estimateAssessmentSchema } from "@/lib/validation/assessment";
 import { apiFailure, apiSuccess, getDatabaseFailureStatus, noStoreHeaders } from "@/server/http";
 import { getMinimumModuleCoverage, loadComposerCandidates } from "@/server/repositories/blueprints";
 import {
-  isFeatureEnabled,
-  listAssessmentModeProfiles,
-  listCatalogModules,
-  listComboPresets,
-} from "@/server/repositories/catalog";
+  isFeatureEnabledBatch,
+  listAssessmentModeProfilesFromCache,
+  listCatalogModulesFromCache,
+  listComboPresetsFromCache,
+} from "@/server/repositories/catalog-cache";
 import { assessmentRateLimitPolicies, consumeRateLimit } from "@/server/services/rate-limiter";
 
 export const runtime = "nodejs";
@@ -27,23 +27,24 @@ async function loadEstimateContext(
   correlationId: string,
 ): Promise<{
   candidates: ReturnType<typeof loadComposerCandidates> extends Promise<infer T> ? T : never;
-  combos: ReturnType<typeof listComboPresets> extends Promise<infer T> ? T : never;
+  combos: ReturnType<typeof listComboPresetsFromCache> extends Promise<infer T> ? T : never;
   complexEnabled: boolean;
-  modeProfiles: ReturnType<typeof listAssessmentModeProfiles> extends Promise<infer T> ? T : never;
+  modeProfiles: ReturnType<typeof listAssessmentModeProfilesFromCache> extends Promise<infer T>
+    ? T
+    : never;
   modularEnabled: boolean;
-  modules: ReturnType<typeof listCatalogModules> extends Promise<infer T> ? T : never;
+  modules: ReturnType<typeof listCatalogModulesFromCache> extends Promise<infer T> ? T : never;
   precisionEnabled: boolean;
 }> {
   const startCatalog = process.hrtime.bigint();
-  const [modules, combos, modeProfiles, modularEnabled, precisionEnabled, complexEnabled] =
-    await Promise.all([
-      listCatalogModules(),
-      listComboPresets(),
-      listAssessmentModeProfiles(),
-      isFeatureEnabled("FEATURE_MODULAR_COMPOSER"),
-      isFeatureEnabled("FEATURE_PROVISIONAL_PRECISION"),
-      isFeatureEnabled("FEATURE_COMPLEX_MODE"),
-    ]);
+  const modules = await listCatalogModulesFromCache();
+  const combos = await listComboPresetsFromCache();
+  const modeProfiles = await listAssessmentModeProfilesFromCache();
+  const featureFlags = await isFeatureEnabledBatch([
+    "FEATURE_MODULAR_COMPOSER",
+    "FEATURE_PROVISIONAL_PRECISION",
+    "FEATURE_COMPLEX_MODE",
+  ]);
   const endCatalog = process.hrtime.bigint();
   const catalogDurationMs = Number(endCatalog - startCatalog) / 1_000_000;
   console.log(
@@ -61,11 +62,11 @@ async function loadEstimateContext(
   return {
     candidates,
     combos,
-    complexEnabled,
+    complexEnabled: featureFlags["FEATURE_COMPLEX_MODE"] ?? false,
     modeProfiles,
-    modularEnabled,
+    modularEnabled: featureFlags["FEATURE_MODULAR_COMPOSER"] ?? false,
     modules,
-    precisionEnabled,
+    precisionEnabled: featureFlags["FEATURE_PROVISIONAL_PRECISION"] ?? false,
   };
 }
 
