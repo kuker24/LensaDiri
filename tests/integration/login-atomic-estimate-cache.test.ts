@@ -144,41 +144,67 @@ describe("login atomic session + audit lifecycle", () => {
     expect(firstRateLimited.error.status).toBe(429);
   }, 60_000);
 
-  it("rolls back session insert when audit insert fails inside transaction", async () => {
-    const sql = getDatabase();
+  it("rolls back session+audit when audit_logs lock times out", async () => {
+    // ponytail: lock-based rollback test uses shared pool (max=10 in test env).
+    // If pool max changes to 1 this test would deadlock; safe for production pools.
+    const suffix = randomUUID();
+    const email = `lock-rollback-${suffix}@example.test`;
+    const passwordHash = await hashPassword("lock test password");
+    const account = await createAccount({
+      email,
+      emailNormalized: email,
+      passwordHash,
+    });
+
     const secrets = {
       authSessionSecret: process.env.AUTH_SESSION_SECRET!,
       tokenHashPepper: process.env.TOKEN_HASH_PEPPER!,
     };
 
-    const fakeAccountId = randomUUID();
     const expiresAt = new Date(Date.now() + SESSION_DURATION_MS);
     const correlationId = randomUUID();
 
-    const sessionsBefore = await sql<{ count: number }[]>`
-      select count(*)::integer as count from public.account_sessions where account_id = ${fakeAccountId}`;
-    const auditsBefore = await sql<{ count: number }[]>`
+    const sql = getDatabase();
+
+    const sessionsBeforeRows = await sql<{ count: number }[]>`
+      select count(*)::integer as count from public.account_sessions where account_id = ${account.id}`;
+    const sessionsBefore = sessionsBeforeRows[0];
+
+    const auditsBeforeRows = await sql<{ count: number }[]>`
       select count(*)::integer as count from public.audit_logs
-      where entity_id = ${fakeAccountId} and action = 'account_login_succeeded'`;
+      where entity_id = ${account.id} and action = 'account_login_succeeded'`;
+    const auditsBefore = auditsBeforeRows[0];
 
-    await expect(
-      createLoginSessionWithAudit({
-        accountId: fakeAccountId,
-        correlationId,
-        expiresAt,
-        fingerprint: { ip: "127.0.0.1", userAgent: "vitest-rollback" },
-        secrets,
-      }),
-    ).rejects.toThrow();
+    // Lock audit_logs via a dedicated connection, then attempt login inside that lock.
+    // Session insert succeeds; audit insert blocks, times out (lock_timeout=1000),
+    // and the internal transaction rolls back.
+    const lockHeld = getDatabase().begin(async (tx) => {
+      await tx`LOCK TABLE public.audit_logs IN ACCESS EXCLUSIVE MODE`;
 
-    const sessionsAfter = await sql<{ count: number }[]>`
-      select count(*)::integer as count from public.account_sessions where account_id = ${fakeAccountId}`;
-    const auditsAfter = await sql<{ count: number }[]>`
+      await expect(
+        createLoginSessionWithAudit({
+          accountId: account.id,
+          correlationId,
+          expiresAt,
+          fingerprint: { ip: "127.0.0.1", userAgent: "vitest-lock-rollback" },
+          secrets,
+        }),
+      ).rejects.toThrow();
+    });
+
+    await lockHeld;
+
+    const sessionsAfterRows = await sql<{ count: number }[]>`
+      select count(*)::integer as count from public.account_sessions where account_id = ${account.id}`;
+    const sessionsAfter = sessionsAfterRows[0];
+
+    const auditsAfterRows = await sql<{ count: number }[]>`
       select count(*)::integer as count from public.audit_logs
-      where entity_id = ${fakeAccountId} and action = 'account_login_succeeded'`;
+      where entity_id = ${account.id} and action = 'account_login_succeeded'`;
+    const auditsAfter = auditsAfterRows[0];
 
-    expect(sessionsAfter[0]?.count).toBe(sessionsBefore[0]?.count ?? 0);
-    expect(auditsAfter[0]?.count).toBe(auditsBefore[0]?.count ?? 0);
+    expect(sessionsAfter?.count).toBe(sessionsBefore?.count);
+    expect(auditsAfter?.count).toBe(auditsBefore?.count);
   }, 15_000);
 });
 

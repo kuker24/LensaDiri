@@ -123,16 +123,14 @@ export async function createLoginSessionWithAudit(input: {
   expiresAt: Date;
   fingerprint: { ip: string; userAgent: string };
   secrets: { authSessionSecret: string; tokenHashPepper: string };
-  sessionTokenHash?: string;
 }): Promise<{ expiresAt: Date; token: string }> {
   return runDatabaseOperation(async () => {
     return withTransaction(async (tx) => {
       await tx`set local statement_timeout = 2000`;
       await tx`set local lock_timeout = 1000`;
 
-      const token = input.sessionTokenHash ? null : generateOpaqueToken();
-      const sessionTokenHash =
-        input.sessionTokenHash ?? hashOpaqueToken(token!, input.secrets.tokenHashPepper);
+      const token = generateOpaqueToken();
+      const sessionTokenHash = hashOpaqueToken(token, input.secrets.tokenHashPepper);
       const ipHash = input.fingerprint.ip
         ? hashOpaqueToken(input.fingerprint.ip, input.secrets.authSessionSecret)
         : null;
@@ -205,7 +203,7 @@ export async function createLoginSessionWithAudit(input: {
 
       return {
         expiresAt: sessionRow.expires_at,
-        token: token ?? sessionTokenHash,
+        token,
       };
     });
   });

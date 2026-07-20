@@ -185,8 +185,9 @@ export async function loginAccount(input: {
       success: true,
       data: session,
     };
-  } catch (rawError) {
-    console.error(`[ERROR] cid=${correlationId} op=login_transaction error=${rawError}`);
+  } catch (error) {
+    const safeError = error instanceof Error ? error.name : "unknown";
+    console.error(`[ERROR] cid=${correlationId} op=login_transaction error=${safeError}`);
     return {
       success: false,
       error: { code: "service_unavailable", status: 503 },
