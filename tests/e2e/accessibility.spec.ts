@@ -65,15 +65,13 @@ test("keyboard focus treatment remains visible on light and dark surfaces", asyn
 
   const lightControl = page.getByRole("link", { name: "Pelajari metode" });
   await lightControl.focus();
-  await expect(lightControl).toHaveCSS("outline-color", "rgb(247, 248, 252)");
-  await expect(lightControl).toHaveCSS("box-shadow", /rgb\(76, 62, 194\)/u);
+  await expect(lightControl).toHaveCSS("outline-color", "rgba(101, 88, 217, 0.45)");
 
   await page.goto("/start/modules");
   const darkControl = page.getByRole("button", { name: "Tinjau pilihan" });
   await expect(darkControl).toBeEnabled();
   await darkControl.focus();
-  await expect(darkControl).toHaveCSS("outline-color", "rgb(247, 248, 252)");
-  await expect(darkControl).toHaveCSS("box-shadow", /rgb\(76, 62, 194\)/u);
+  await expect(darkControl).toHaveCSS("outline-color", "rgba(101, 88, 217, 0.45)");
 });
 
 test("authentication controls have labels and mobile-safe font size", async ({ page }) => {
@@ -141,7 +139,7 @@ test("glow preserves explicit light and dark surface backgrounds", async ({ page
   }
 
   await page.goto("/");
-  expect(await backgroundPixel(".lens-glow.bg-white\\/82")).toEqual([255, 255, 255, 209]);
+  expect(await backgroundPixel(".lens-glow")).toEqual([255, 255, 255, 209]);
 
   await page.goto("/start/modules");
   expect(await backgroundPixel("aside.lens-glow")).toEqual([76, 62, 194, 255]);

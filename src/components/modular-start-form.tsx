@@ -324,7 +324,7 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
         </label>
       ) : null}
 
-      <aside className="lens-glow text-canvas shadow-surface relative mt-10 overflow-hidden rounded-xl bg-[#4c3ec2] p-6 sm:flex sm:items-center sm:justify-between sm:gap-8">
+      <aside className="lens-glow bg-lens-strong text-canvas shadow-surface relative mt-10 overflow-hidden rounded-xl p-6 sm:flex sm:items-center sm:justify-between sm:gap-8">
         <div aria-live="polite">
           <p className="text-aperture-on-dark font-semibold">Estimasi dari server</p>
           {estimating ? (
