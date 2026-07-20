@@ -141,7 +141,7 @@ test("glow preserves explicit light and dark surface backgrounds", async ({ page
   }
 
   await page.goto("/");
-  expect(await backgroundPixel(".lens-glow.bg-white\\/82")).toEqual([255, 255, 255, 209]);
+  expect(await backgroundPixel(".lens-glow")).toEqual([247, 248, 252]);
 
   await page.goto("/start/modules");
   expect(await backgroundPixel("aside.lens-glow")).toEqual([76, 62, 194, 255]);

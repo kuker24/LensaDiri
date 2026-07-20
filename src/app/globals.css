@@ -10,7 +10,6 @@
   --color-ink-muted: #62647a;
   --color-lens: #6558d9;
   --color-lens-strong: #4c3ec2;
-  --color-lens-focus: #4c3ec2;
   --color-lens-soft: #ece9ff;
   --color-aperture: #8be0d0;
   --color-aperture-soft: #e3f8f4;
@@ -101,15 +100,14 @@ a {
 }
 
 .lens-glow {
-  background-image:
+  background:
     radial-gradient(circle at 10% 0%, rgb(139 224 208 / 0.24), transparent 17rem),
-    radial-gradient(circle at 100% 100%, rgb(101 88 217 / 0.18), transparent 22rem);
+    radial-gradient(circle at 100% 100%, rgb(101 88 217 / 0.18), transparent 22rem), var(--surface);
 }
 
 .focus-ring:focus-visible {
-  outline: 3px solid var(--color-canvas);
-  outline-offset: 2px;
-  box-shadow: 0 0 0 8px var(--color-lens-focus);
+  outline: 3px solid rgb(101 88 217 / 0.45);
+  outline-offset: 3px;
 }
 
 .toast-motion {

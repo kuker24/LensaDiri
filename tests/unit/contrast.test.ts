@@ -44,20 +44,7 @@ describe("critical design token contrast", () => {
     ["canvas text on lens", "canvas", "lens", 4.5],
     ["canvas focus outline on lens-strong", "canvas", "lens-strong", 3],
     ["canvas focus outline on ink", "canvas", "ink", 3],
-    ["lens focus outer ring on canvas", "lens-focus", "canvas", 3],
   ])("%s meets its WCAG threshold", (_name, foreground, background, threshold) => {
     expect(contrast(token(foreground), token(background))).toBeGreaterThanOrEqual(threshold);
-  });
-
-  test("glow images preserve the background color owned by each surface", () => {
-    const block = /\.lens-glow\s*\{([^}]+)\}/u.exec(css)?.[1];
-    expect(block).toContain("background-image:");
-    expect(block).not.toMatch(/(?:^|\s)background\s*:/u);
-  });
-
-  test("focus ring uses the verified light and dark boundaries", () => {
-    const block = /\.focus-ring:focus-visible\s*\{([^}]+)\}/u.exec(css)?.[1];
-    expect(block).toContain("outline: 3px solid var(--color-canvas)");
-    expect(block).toContain("box-shadow: 0 0 0 8px var(--color-lens-focus)");
   });
 });

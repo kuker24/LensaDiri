@@ -82,7 +82,7 @@ export default function HomePage() {
           </p>
         </div>
 
-        <div className="lens-glow border-line relative overflow-hidden rounded-lg border bg-white/82 p-6 backdrop-blur-[18px] sm:p-8">
+        <div className="lens-glow border-line relative overflow-hidden rounded-lg border p-6 backdrop-blur-[18px] sm:p-8">
           <div className="relative">
             <p className="text-lens text-sm font-semibold tracking-[0.16em] uppercase">
               Contoh cara membaca hasil
