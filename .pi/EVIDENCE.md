@@ -1,73 +1,65 @@
 # Engineering Evidence
 
+> Refreshed 2026-07-22. Supersedes stale 64-test / `phase-1-foundation` checkpoint.
+
 ## Objective
 
-Reproducible release-candidate checkpoint for LensaDiri legacy compatibility, feature-flagged modular assessment, account-recovery foundation, privacy controls, additive migrations, and disposable-local verification.
+Reproducible checkpoint for LensaDiri: legacy compatibility, modular composer live in production, 10-lens engineering complete and local-verified, guarded 6-lens release candidate pending approval.
 
 ## Source checkpoint
 
-- Branch: `agent/phase-1-foundation`
-- Production URL: `https://lensadiri.vercel.app`
-- Pull request: `https://github.com/kuker24/LensaDiri/pull/3`
-- Production remains legacy Quick 40/Standard 60. Modular migrations, deployment, and feature activation have not occurred.
-- Candidate changes remain local until explicit commits and branch push complete.
+- Active branch: `agent/fix-answer-persistence-pr24`, HEAD `e54d3ce` (2026-07-20), origin-synced.
+- All-lenses branch: `agent/complete-all-lenses-release-ready` (from `origin/main` `38c982f`).
+- Production URL: `https://lensadiri.vercel.app`.
+- Merged history through PR #23. Prior PR #3 snapshot obsolete.
 
-Production identifiers, database URLs, access tokens, passwords, API keys, and secret values are intentionally excluded.
+Production identifiers, database URLs, tokens, passwords, keys, and secrets are intentionally excluded.
 
-## Implemented candidate scope
+## Production state
 
-- Legacy Quick 40/Standard 60 compatibility remains covered.
-- Modular catalog/composer is default-off and hidden when `FEATURE_MODULAR_COMPOSER=false`.
-- Complex and Full Spectrum are hidden when `FEATURE_COMPLEX_MODE=false`.
-- Catalog and preset pins reject unsupported scoring provenance before session composition.
-- Immutable blueprint, segmented lifecycle, Full Spectrum, Complex, clarifier, dashboard navigation, safe share/export/delete, and independent modular scoring are covered locally.
-- Recovery foundation uses hash-only single-use tokens, explicit delivery state, expiry, concurrent-consume safety, session revocation, generic responses, CSRF, rate limits, and forced RLS. Production email transport and login verification enforcement remain disabled pending provider/product approval.
-- Recovery bearer links use URL fragments rather than query strings. Test delivery remains non-production/disposable-only.
-- Assessment and clarifier progress expose accessible progressbar semantics.
-- Migration map records hosted history, pending checksums, dependencies, backfill, lock risk, compatibility, backup limitation, stop threshold, fix-forward, and postverify contract.
+- Modular schema + quality-model applied through migration `202607200002`.
+- `FEATURE_MODULAR_COMPOSER` ON; `FEATURE_COMPLEX_MODE`, `FEATURE_PROVISIONAL_PRECISION`, `FEATURE_AI_NARRATIVE` OFF.
+- 10 canonical modules present, all `is_selectable=true`, honest tiers (active/published/pilot/experimental).
+- Candidate migration `202607270001_guarded_all_lenses_release.sql` local-only, not applied to production.
 
-## Verification evidence
+## Verification evidence (all-lenses branch, disposable local Supabase)
 
-All commands below used disposable local Supabase and test-only values. No destructive or write command targeted production.
+| Gate                             | Result                                                                                                                 |
+| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
+| `npm run format:check`           | PASS                                                                                                                   |
+| `npm run lint`                   | PASS                                                                                                                   |
+| `npm run typecheck`              | PASS                                                                                                                   |
+| `npm test`                       | PASS: 23 files, 111 tests                                                                                              |
+| `npm run build`                  | PASS with dummy test-only environment                                                                                  |
+| `npm audit --audit-level=high`   | PASS: zero vulnerabilities                                                                                             |
+| `npm run db:reset`               | PASS against disposable local Supabase                                                                                 |
+| `npm run test:seed-replay`       | PASS: modules 10, module_versions 11, dimensions 49, questions/translations/mappings 405, presets 6, combo_mappings 27 |
+| Canonical seed SHA-256           | `45275f2a39fc284e8cb716c4b7c84b332fbcc3d150ce0fa83a0b040ec6739212`                                                     |
+| `npm run test:seed-replay-drift` | PASS: drift rejected and restored                                                                                     |
+| `npm run test:integration`       | PASS: 8 files, 32 tests                                                                                                |
+| `npm run test:db`                | PASS: 236 assertions, 4 files                                                                                          |
+| `npm run test:e2e`               | PASS: 58 tests, desktop Chromium + Pixel 5 (flags ON on disposable local only)                                        |
+| Accessibility subset             | PASS: 42 checks within full Playwright suite                                                                          |
+| GitHub Actions                   | Required green on pushed candidate SHA before merge                                                                   |
 
-| Check                          | Current result                                                                                                                |
-| ------------------------------ | ----------------------------------------------------------------------------------------------------------------------------- |
-| `npm run format:check`         | PASS.                                                                                                                         |
-| `npm run lint`                 | PASS.                                                                                                                         |
-| `npm run typecheck`            | PASS.                                                                                                                         |
-| `npm test`                     | PASS: 14 files, 64 tests.                                                                                                     |
-| `npm run build`                | PASS with complete dummy test-only environment.                                                                               |
-| `npm audit --audit-level=high` | PASS: zero vulnerabilities.                                                                                                   |
-| `npm run db:reset`             | PASS against disposable local Supabase.                                                                                       |
-| `npm run test:seed-replay`     | PASS: modules 10, module versions 13, dimensions 64, questions/translations/mappings 642, combo presets 6, combo mappings 25. |
-| Canonical seed SHA-256         | `c3d01263dc56ad7f6434fe7af99d1e6b934e82182aed2c6c2539d5818a4b69f0`.                                                           |
-| Seed drift gate                | PASS: intentional drift rejected, restored, replay passed.                                                                    |
-| Seed upgrade parity            | PASS: prior checkpoint identity matched canonical.                                                                            |
-| `npm run test:integration`     | PASS: 8 files, 46 tests.                                                                                                      |
-| `npm run test:db`              | PASS: 237 assertions.                                                                                                         |
-| `npm run test:e2e`             | PASS: 22 tests, 11 desktop Chromium and 11 Pixel 5.                                                                           |
-| Three clean-reset loops        | PASS: each reset, replay, drift, parity, integration 46, pgTAP 237, and E2E 22 with identical canonical hash.                 |
-| `git diff --check`             | PASS before documentation refresh.                                                                                            |
-| GitHub Actions                 | PENDING until candidate commits are pushed.                                                                                   |
+E2E/a11y modular runs enable `FEATURE_MODULAR_COMPOSER` and `FEATURE_COMPLEX_MODE` on disposable DB only, matching CI. No production flag change.
 
-Initial E2E loop attempts exposed shared test rate-limit state and missing autosave synchronization. Test-only rate-limit guards now require non-production, recovery test transport, and disposable `TEST_DATABASE_URL`. Browser tests now wait for persisted answer counts before completion. Three final loops passed without retry-only success.
+## Security posture
 
-## Production evidence
-
-Read-only checks only:
-
-- Vercel CLI authentication available and local project link present.
-- Public deployment and `/api/health` responded successfully.
-- Hosted Supabase project reported active healthy.
-- `supabase migration list` showed only versions `202607120001` through `202607130004` applied remotely.
-- Versions `202607130005` through `202607200001` remain local-only.
-- No hosted dry-run, backup/export, migration, seed, deploy, alias, environment, merge, or feature-flag action occurred.
+- Database, repository, service, scoring, transport remain server-only.
+- Cookie-auth mutations: exact same-origin CSRF + rate limit across mutation routes.
+- Password Argon2id; session/assessment/result/share/recovery tokens HMAC-hashed at rest.
+- Recovery tokens single-use, expiry, generic response, session revoke, concurrent-safe.
+- Sensitive tables forced RLS, zero browser policy, zero direct `anon`/`authenticated` privilege (pgTAP).
+- Public shared result allowlist explicit; private quality/confidence/clarifier/timing stay private.
+- IP/user-agent stored as HMAC fingerprint only; no server `console.*`, no raw answer logging.
+- Modular/Complex UI+API fail closed while flags OFF.
 
 ## Residual risks and deferred scope
 
-- GitHub Actions must pass on pushed candidate SHA before merge consideration.
-- Production migration requires separate approval, non-destructive dry-run, backup capability/limitation decision, and per-step postverify.
-- Provider email delivery and mandatory verification remain `BLOCKED_EXTERNAL`.
-- Formal psychometric validation, third-party WCAG certification, AI narrative, monitoring provider, restore drill, staging, custom domain, admin publication UI, retention automation, optional consent expansion, public catalog/legal/blog routes, and complete long-form growth report remain deferred or partial.
-- Feature flags remain OFF in production.
+- CI must pass on pushed candidate SHA before merge.
+- Production migration `202607270001` needs approval, non-destructive dry-run, backup decision, per-step postverify.
+- Provider email delivery + mandatory verification `BLOCKED_EXTERNAL`.
+- AI narrative, formal psychometric validation, third-party WCAG certification, monitoring provider, restore drill, isolated staging, custom domain, retention automation remain deferred or partial.
+- `FEATURE_COMPLEX_MODE`, `FEATURE_PROVISIONAL_PRECISION`, `FEATURE_AI_NARRATIVE` OFF in production.
 - Never run local reset, integration, pgTAP, seed, or E2E suites against production.
