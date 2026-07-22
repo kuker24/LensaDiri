@@ -1,6 +1,6 @@
 # Engineering Evidence
 
-> Refreshed 2026-07-22. Supersedes stale 64-test / `phase-1-foundation` checkpoint.
+> Refreshed 2026-07-22 (post PR #24 squash-merge). Supersedes stale 64-test / `phase-1-foundation` checkpoint.
 
 ## Objective
 
@@ -8,10 +8,11 @@ Reproducible checkpoint for LensaDiri: legacy compatibility, modular composer li
 
 ## Source checkpoint
 
-- Active branch: `agent/fix-answer-persistence-pr24`, HEAD `e54d3ce` (2026-07-20), origin-synced.
-- All-lenses branch: `agent/complete-all-lenses-release-ready` (from `origin/main` `38c982f`).
+- Active branch: `main`, HEAD `47b8303 Fix assessment answer persistence race (#24)`, origin-synced.
+- PR #24 squash-merged 2026-07-22: answer-persistence race fix + `sharp ^0.35.3` override (clears libvips CVE-2026-33327/33328/35590/35591). Both CI jobs green on merged SHA.
+- All-lenses branch: `agent/complete-all-lenses-release-ready` (from `origin/main` `38c982f`); not yet merged.
 - Production URL: `https://lensadiri.vercel.app`.
-- Merged history through PR #23. Prior PR #3 snapshot obsolete.
+- Merged history through PR #24. Prior PR #3 snapshot obsolete.
 
 Production identifiers, database URLs, tokens, passwords, keys, and secrets are intentionally excluded.
 
@@ -40,7 +41,8 @@ Production identifiers, database URLs, tokens, passwords, keys, and secrets are 
 | `npm run test:db`                | PASS: 236 assertions, 4 files                                                                                          |
 | `npm run test:e2e`               | PASS: 58 tests, desktop Chromium + Pixel 5 (flags ON on disposable local only)                                         |
 | Accessibility subset             | PASS: 42 checks within full Playwright suite                                                                           |
-| GitHub Actions                   | Required green on pushed candidate SHA before merge                                                                    |
+| GitHub Actions (PR #24 SHA)      | PASS: `Quality and build` + `Database and browser tests` green; PR squash-merged to `main` `47b8303`                   |
+| Post-merge `main` gates          | PASS: format, lint, typecheck, unit 28/134, build, `npm audit` 0 vulns, `git diff --check` clean                       |
 
 E2E/a11y modular runs enable `FEATURE_MODULAR_COMPOSER` and `FEATURE_COMPLEX_MODE` on disposable DB only, matching CI. No production flag change.
 

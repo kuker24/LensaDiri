@@ -1,6 +1,6 @@
 # Project Handoff
 
-> Refreshed 2026-07-22. Supersedes stale `phase-1-foundation`/PR #3 snapshot.
+> Refreshed 2026-07-22 (post PR #24 squash-merge). Supersedes stale `phase-1-foundation`/PR #3 snapshot.
 
 ## Current objective
 
@@ -10,9 +10,10 @@ Do not: apply candidate migration `202607270001` to production, activate `FEATUR
 
 ## Current git state
 
-- Active branch: `agent/fix-answer-persistence-pr24`, HEAD `e54d3ce fix: serialize assessment answer persistence` (2026-07-20), synced with origin.
-- Merged history through PR #23. Prior stale snapshot referenced `agent/phase-1-foundation` / PR #3 (obsolete).
-- All-lenses release work lives on `agent/complete-all-lenses-release-ready` (from `origin/main` `38c982f`).
+- Active branch: `main`, HEAD `47b8303 Fix assessment answer persistence race (#24)`, synced with origin.
+- PR #24 squash-merged 2026-07-22 (answer-persistence race fix + `sharp ^0.35.3` override clearing libvips CVEs). All CI green: `Quality and build` + `Database and browser tests`.
+- Merged history through PR #24. Prior stale snapshots referenced `agent/phase-1-foundation` / PR #3 (obsolete).
+- All-lenses release work lives on `agent/complete-all-lenses-release-ready` (from `origin/main` `38c982f`); not yet merged.
 
 ## Production state (per MODULAR_RELEASE_READINESS.md)
 
@@ -44,7 +45,7 @@ Do not: apply candidate migration `202607270001` to production, activate `FEATUR
 
 ## Remaining steps
 
-1. Land answer-persistence fix branch; keep origin sync.
+1. Answer-persistence fix landed on `main` via PR #24 (DONE).
 2. Push all-lenses branch, require both CI jobs green on pushed SHA: `Quality and build`, `Database and browser tests`.
 3. On approval: apply `202607270001` to production via migration-only workflow, then postverify.
 4. Activate guarded lenses only per product/release approval.
