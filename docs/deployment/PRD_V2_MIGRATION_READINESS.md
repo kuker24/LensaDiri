@@ -159,9 +159,9 @@ Seluruh invariant query harus menghasilkan zero rows. RLS query harus menunjukka
 
 ## External blockers dan release boundary
 
-- Staging Supabase project terisolasi: `BLOCKED_EXTERNAL`
+- Staging Supabase project terisolasi: drill 2026-07-23 dijalankan pada `lensadiri-staging` sekali-pakai (ap-southeast-1, seed sintetis) lalu dihapus; provisioning ulang diperlukan untuk drill berikutnya
 - Preview-scoped Vercel secrets: `BLOCKED_EXTERNAL` sampai resource dibuat
-- Hosted backup restore drill: `BLOCKED_EXTERNAL` tanpa non-production restore target
+- Hosted backup restore drill: migration parity, seed canonical `45275f2a…`, RLS/grant, immutability, dan backup→loss→restore mechanics terbukti pada staging (lihat `docs/operations/OPERATIONS_RUNBOOK.md`). Direct pg_dump/pg_restore tetap `BLOCKED_EXTERNAL` tanpa Docker/pg client lokal
 - Provider email dan mandatory verification: di luar release, recovery tetap dormant
 - Monitoring eksternal, formal WCAG, dan validasi psikometrik: di luar release aman
 

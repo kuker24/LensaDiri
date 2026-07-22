@@ -116,3 +116,22 @@ Approved PR merge deployed application code through the existing Vercel integrat
 | First provider-scheduled cron       | `PENDING_PROVIDER`; manual invocation verified, scheduled delivery not yet due  |
 
 Additive migration `202607280001` adds only a read-only `preview_expired_retention_data` function. The approved cleanup matched its dry-run exactly, then returned zero eligible rows. The idempotent function touches only eligible expired guest sessions and old rate-limit buckets; account-owned results are outside its delete scope. No feature flag changed. First provider-scheduled Vercel delivery remains pending.
+
+## Isolated staging + restore drill evidence
+
+Executed 2026-07-23 on a single-use hosted staging project (`lensadiri-staging`, `mpngwfivujypqkxolaxf`, ap-southeast-1), synthetic seed only, no production data. Project deleted after the drill. Production database, secrets, migrations, and feature flags were untouched.
+
+| Gate                        | Result                                                                                                             |
+| --------------------------- | ------------------------------------------------------------------------------------------------------------------ |
+| Staging provisioning        | PASS: `supabase projects create` free-tier, ACTIVE_HEALTHY                                                         |
+| Migration parity            | PASS: 15 migrations pushed to empty staging; `migration list` Local==Remote; re-dry-run up to date                 |
+| Seed canonical identity     | PASS: `sha256=45275f2a39fc284e8cb716c4b7c84b332fbcc3d150ce0fa83a0b040ec6739212`; counts match                      |
+| Seed idempotence            | PASS: second replay produced identical canonical hash                                                              |
+| Zero duplicates / flags OFF | PASS: zero canonical duplicates; zero enabled feature flags                                                        |
+| RLS forced + zero grants    | PASS: 4 release tables `relrowsecurity`/`relforcerowsecurity` true; no `anon`/`authenticated`/`PUBLIC` grants      |
+| Immutability guard          | PASS: DELETE on published content rejected ("published module content is immutable"); content intact               |
+| Backup → loss → restore     | PASS: scratch schema 405-row backup `sha256=41822e8c…` → truncate 0 → transactional restore → identical hash/count |
+| Integration/pgTAP/E2E       | PASS via CI-disposable merged-SHA `468f098` run `29952443369` (`Database and browser tests`)                       |
+| Teardown / rollback         | PASS: staging project deleted; production untouched                                                                |
+
+Direct hosted `pg_dump`/`pg_restore` remains `BLOCKED_EXTERNAL` here (no local Docker or pg client); logical backup/restore mechanics were proven through the project driver on a disposable scratch schema instead.

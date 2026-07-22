@@ -94,7 +94,21 @@ npm run test:db
 
 Setelah snapshot hosted direstore ke staging, jalankan post-migration queries dari `docs/deployment/PRD_V2_MIGRATION_READINESS.md`, lalu browser smoke tanpa production secrets.
 
-Hosted backup inspection dan restore drill saat ini `BLOCKED_EXTERNAL` karena staging project belum tersedia. Ini tidak boleh dipalsukan sebagai PASS.
+### Staging + restore drill 2026-07-23
+
+Drill terisolasi dijalankan pada hosted staging sekali-pakai (`lensadiri-staging`, ap-southeast-1), seed sintetis, tanpa data production, lalu project dihapus. Production tidak disentuh.
+
+- Migration parity: 15 migration (`202607120001`..`202607280001`) di-push ke staging kosong; `migration list --linked` menunjukkan Local==Remote seluruhnya; dry-run ulang melaporkan "Remote database is up to date".
+- Seed canonical: tujuh seed diterapkan; snapshot canonical `sha256=45275f2a39fc284e8cb716c4b7c84b332fbcc3d150ce0fa83a0b040ec6739212` cocok identitas reviewed; counts modules 10, module_versions 11, dimensions 49, questions/translations/mappings 405, presets 6, combo_mappings 27; zero duplikat; zero flag enabled.
+- Seed idempotence: replay kedua menghasilkan hash canonical yang sama persis.
+- RLS: `consent_policy_versions`, `retention_policies`, `content_publication_events`, `account_recovery_tokens` semuanya `relrowsecurity=true` dan `relforcerowsecurity=true`; grant `anon`/`authenticated`/`PUBLIC` nol.
+- Immutability: DELETE terhadap `question_translations` ditolak trigger "published module content is immutable"; content tetap utuh (hash tidak berubah).
+- Backup/restore mechanics: pada scratch schema `drill` (copy faithful 405 baris), backup 405 baris (`sha256=41822e8c...`) → truncate ke 0 → restore transaksional → hash dan jumlah baris identik (`RESTORE_VERIFIED`); scratch schema di-drop.
+- Integration, pgTAP, Playwright, dan accessibility tetap dibuktikan CI-disposable pada merged-SHA `468f098` run `29952443369` (`Database and browser tests` PASS); Docker lokal unavailable sehingga suite destructive tidak dijalankan terhadap hosted.
+
+Rollback drill: project staging bersifat sekali-pakai dan sudah dihapus (`supabase projects delete`); tidak ada perubahan pada production database, secret, atau migration. CLI local link tidak lagi menunjuk project mana pun setelah penghapusan.
+
+Hosted backup inspection langsung (pg_dump/pg_restore) tetap `BLOCKED_EXTERNAL` di environment ini karena tidak ada Docker/pg client lokal; provider scheduled backup dan restore-ke-staging berulang memerlukan re-provisioning staging saat dibutuhkan.
 
 ## Retention cleanup
 
