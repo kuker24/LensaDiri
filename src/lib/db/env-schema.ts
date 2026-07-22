@@ -4,6 +4,7 @@ const secretSchema = z.string().min(32);
 
 const rawServerEnvironmentSchema = z.object({
   AUTH_SESSION_SECRET: secretSchema,
+  CRON_SECRET: z.string().min(16).optional(),
   CSRF_SECRET: secretSchema,
   DATABASE_URL: z.string().url(),
   NEXT_PUBLIC_APP_URL: z.string().url(),
@@ -13,6 +14,7 @@ const rawServerEnvironmentSchema = z.object({
 
 export type ServerEnvironment = {
   authSessionSecret: string;
+  cronSecret: string | null;
   csrfSecret: string;
   databaseUrl: string;
   isProduction: boolean;
@@ -48,6 +50,7 @@ export function parseServerEnvironment(
 
   return {
     authSessionSecret: parsed.data.AUTH_SESSION_SECRET,
+    cronSecret: parsed.data.CRON_SECRET ?? null,
     csrfSecret: parsed.data.CSRF_SECRET,
     databaseUrl: parsed.data.DATABASE_URL,
     isProduction: nodeEnv === "production",

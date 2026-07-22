@@ -29,7 +29,7 @@
 - Keep Server Components default. Add Client Components only for required browser state or interaction.
 - Use `@/*` imports, strict TypeScript, and no `any`.
 - Import database, repository, and service modules only from server code. Preserve `server-only` guards and never import secret-dependent modules into client bundles.
-- Parse environment through `getServerEnvironment`; exact required names are `DATABASE_URL`, `NEXT_PUBLIC_APP_URL`, `AUTH_SESSION_SECRET`, `CSRF_SECRET`, `TOKEN_HASH_PEPPER`, and `RATE_LIMIT_SECRET`.
+- Parse environment through `getServerEnvironment`; exact required names are `DATABASE_URL`, `NEXT_PUBLIC_APP_URL`, `AUTH_SESSION_SECRET`, `CSRF_SECRET`, `TOKEN_HASH_PEPPER`, and `RATE_LIMIT_SECRET`. `CRON_SECRET` is optional; when set it authorizes the retention cron route via constant-time bearer comparison and the route fails closed when it is missing.
 - Keep `src/lib/scoring/likert.ts` and `src/lib/scoring/profile.ts` pure, deterministic, versioned, and unit-tested. Browser must never calculate primary score.
 - Treat current trait-derived 16-Type, motivation, and temperament output as legacy MVP interpretation only. Preserve old result reading, but do not use or expand it for new modular sessions.
 - New lenses require own versioned item bank, module-level scoring service, confidence, and result DTO. Correlation may combine completed module outputs only after independent primary scoring.

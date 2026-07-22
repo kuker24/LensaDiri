@@ -1,18 +1,18 @@
 # Project Handoff
 
-> Refreshed 2026-07-22 after observability production postcheck. Supersedes stale `phase-1-foundation`/PR #3 snapshot.
+> Refreshed 2026-07-22 after retention scheduler PR verification. Supersedes stale `phase-1-foundation`/PR #3 snapshot.
 
 ## Current objective
 
-Complete production-readiness tasks sequentially without unapproved production action. Current slice: structured safe observability, scheduled liveness, issue alert routing, and drill contract.
+Complete production-readiness tasks sequentially without unapproved production action. Current slice: retention scheduler (least-privilege cron route, idempotent cleanup, read-only dry-run, structured logs, issue alert routing, rollback).
 
 Do not: reapply or modify production migration `202607270001`, activate `FEATURE_COMPLEX_MODE`/`FEATURE_PROVISIONAL_PRECISION`/`FEATURE_AI_NARRATIVE`, run hosted dry-run/backup/seed/deploy/alias, change Vercel env, expose secrets, or merge without green CI.
 
 ## Current git state
 
-- Production base: `main` / `origin/main` at `b424395 feat(ops): add production liveness alerts (#25)`.
-- PR #25 merged 2026-07-22 after explicit approval: `https://github.com/kuker24/LensaDiri/pull/25`.
-- Active branch: `agent/observability-postcheck`; docs-only evidence follow-up pending PR.
+- Production base: `main` / `origin/main` at `95c61c7 docs(ops): record observability drill evidence (#27)`.
+- PR #25 and docs follow-up PR #27 merged 2026-07-22 after explicit approval.
+- Active branch: `agent/retention-scheduler`; PR #28 open, implementation SHA `ec273615ec24ac737908bb94a64f086e49ba8f2d`.
 - PR #24 squash-merged 2026-07-22 (answer-persistence race fix + `sharp ^0.35.3` override clearing libvips CVEs). All CI green: `Quality and build` + `Database and browser tests`.
 - Merged history through PR #24. Prior stale snapshots referenced `agent/phase-1-foundation` / PR #3 (obsolete).
 - All-lenses release work lives on `agent/complete-all-lenses-release-ready` (from `origin/main` `38c982f`); not yet merged.
@@ -62,9 +62,20 @@ Do not: reapply or modify production migration `202607270001`, activate `FEATURE
 - Local evidence: format, lint, typecheck, build, audit PASS; unit PASS 30 files/139 tests; read-only live health PASS. Docker daemon lokal unavailable.
 - Merged-SHA CI `29914521598` PASS: quality/build serta disposable database/browser tests. Vercel production status PASS pada `b424395`; read-only health PASS.
 - Manual healthy run `29915115034` PASS. Drill run `29915138990` failed intentionally, membuat tepat satu marked alert issue #26. Recovery run `29915169708` PASS dan menutup issue #26 otomatis.
-- Workflow state `active`, tetapi first `schedule` event belum dijalankan provider setelah dua interval observasi (`total_count=0`). Status `PENDING_PROVIDER`; GitHub schedule best-effort. Jangan klaim scheduled-run PASS sampai run URL tersedia.
+- Workflow state `active`; first provider-scheduled run `29920936659` PASS. GitHub schedule tetap best-effort.
 - Provider-level 5xx/latency/DB/flag alerts masih membutuhkan operator configuration dan approval.
 - Rollback: revert PR or disable workflow; no data rollback.
+
+## Retention scheduler slice
+
+- Added additive migration `202607280001_retention_cleanup_preview.sql`: read-only `preview_expired_retention_data(timestamptz)` counts eligible rows without deleting; security-definer, revoked from browser roles. pgTAP `retention_cleanup_preview.test.sql` proves dry-run counts, boundary safety, no deletion, idempotent cleanup, and account-session preservation.
+- Added `GET /api/cron/retention-cleanup`: `CRON_SECRET` bearer auth (constant-time, fail-closed when unset/wrong), `?dryRun=1` preview, deadline-bounded, structured `operational_event` with aggregate `retention_counts`. Reuses existing idempotent `cleanup_expired_retention_data`; account results untouched.
+- Added daily Vercel cron in `vercel.json` (`0 3 * * *`) and GitHub retention monitor workflow with marker-deduplicated issue alert + recovery close; `drill=true` intentionally fails.
+- `CRON_SECRET` is optional env (min 16 chars) in `env-schema`; set in Vercel + as GitHub secret before activation. Route fails closed if missing.
+- Local evidence: format, lint, typecheck, build, audit PASS; unit PASS 32 files/150 tests. PR CI run `29923303552` PASS, including disposable DB, integration, pgTAP, seed replay, Playwright, and accessibility. Duplicate run `29923298628` initially hit Docker Hub rate limiting plus a concurrent port collision; failed jobs reran successfully on identical HEAD.
+- PR #28 implementation checks are green at `ec273615ec24ac737908bb94a64f086e49ba8f2d`; docs-only evidence update follows that SHA.
+- Not yet production-verified: cron/workflow inactive until merge; `CRON_SECRET` must be provisioned in Vercel + GitHub; scheduled/drill evidence pending merge + provisioning.
+- Rollback: remove `crons` from `vercel.json` or disable in Vercel, and/or revert PR; migration is additive read-only, no data rollback.
 
 ## Release blockers
 

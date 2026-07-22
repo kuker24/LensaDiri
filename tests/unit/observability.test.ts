@@ -52,4 +52,25 @@ describe("operational logging", () => {
     expect(record).not.toHaveProperty("correlation_id");
     expect(record).toMatchObject({ error_code: "database_timeout", level: "error" });
   });
+
+  it("keeps only safe aggregate retention counts", () => {
+    const info = vi.spyOn(console, "info").mockImplementation(() => undefined);
+
+    logOperationalEvent({
+      operation: "retention_cleanup",
+      retentionCounts: {
+        guest_sessions: 4,
+        rate_limits: 0,
+        "bad key": 9,
+        negative: -1,
+        fractional: 1.5,
+      },
+      status: "success",
+    });
+
+    const record = JSON.parse(String(info.mock.calls[0]?.[0])) as {
+      retention_counts?: Record<string, number>;
+    };
+    expect(record.retention_counts).toEqual({ guest_sessions: 4, rate_limits: 0 });
+  });
 });
