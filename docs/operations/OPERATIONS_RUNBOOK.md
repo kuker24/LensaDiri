@@ -21,7 +21,7 @@ Preview database dan preview-scoped secret wajib diverifikasi sebelum Preview fu
 - `workflow_dispatch` dengan `drill=true` sengaja menggagalkan check untuk membuktikan jalur issue alert. Workflow baru tersedia untuk schedule/manual dispatch setelah file masuk default branch.
 - Vercel Hobby runtime log retention hanya satu jam menurut dokumentasi provider saat implementasi. Runtime log bukan audit log atau penyimpanan evidence jangka panjang.
 
-Status 2026-07-22: PR #25 merged pada `b424395`; merged-SHA CI dan Vercel deployment PASS. Manual healthy run PASS. Drill membuka tepat satu marked issue #26; recovery menutupnya otomatis. Workflow berstatus `active`, tetapi first provider `schedule` event masih `PENDING_PROVIDER` setelah dua interval observasi. Vercel error-anomaly destination belum dikonfigurasi. Jangan klaim scheduled-run atau provider-threshold PASS sebelum bukti run/configuration tersedia.
+Status 2026-07-22: PR #25 merged pada `b424395`; merged-SHA CI dan Vercel deployment PASS. Manual healthy run PASS. Drill membuka tepat satu marked issue #26; recovery menutupnya otomatis. First provider-scheduled run `29920936659` PASS. Vercel error-anomaly destination belum dikonfigurasi. Jangan klaim provider-threshold PASS sebelum bukti configuration tersedia.
 
 ### Operator checks
 
@@ -127,6 +127,8 @@ Audit security event mengikuti policy 365 hari terpisah dan belum dihapus oleh f
 ### Failure alerting
 
 `.github/workflows/retention-monitor.yml` menjalankan dry-run terjadwal memakai GitHub secret `CRON_SECRET`. Kegagalan membuka satu issue bertanda `[alert] Retention cleanup monitor failed`; recovery menutupnya. `workflow_dispatch` dengan `drill=true` sengaja gagal untuk memverifikasi alert routing. Workflow/cron baru aktif setelah file masuk default branch; jangan klaim scheduled PASS sebelum ada run URL.
+
+Status 2026-07-22: PR #28 merged sebagai `e5a37d1`; merged-SHA CI `29928134247` PASS. Migration `202607280001` applied dan `CRON_SECRET` tersedia pada Vercel Production serta GitHub Actions. Dry-run `29928883702` menghitung 2 guest session eligible dan 0 rate-limit; cleanup menghapus tepat jumlah tersebut; post-cleanup dry-run `29929102188` menghasilkan nol. Drill `29929143971` membuka tepat satu issue #29; recovery `29929191879` menutupnya otomatis. First provider-scheduled Vercel cron masih `PENDING_PROVIDER` sampai ada invocation evidence setelah jadwal 03:00 UTC.
 
 ### Rollback
 

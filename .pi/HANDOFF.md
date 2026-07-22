@@ -1,18 +1,18 @@
 # Project Handoff
 
-> Refreshed 2026-07-22 after retention scheduler PR verification. Supersedes stale `phase-1-foundation`/PR #3 snapshot.
+> Refreshed 2026-07-22 after retention scheduler production activation. Supersedes stale `phase-1-foundation`/PR #3 snapshot.
 
 ## Current objective
 
-Complete production-readiness tasks sequentially without unapproved production action. Current slice: retention scheduler (least-privilege cron route, idempotent cleanup, read-only dry-run, structured logs, issue alert routing, rollback).
+Complete production-readiness tasks sequentially without unapproved production action. Retention scheduler activation is complete; first provider-scheduled delivery remains pending evidence.
 
 Do not: reapply or modify production migration `202607270001`, activate `FEATURE_COMPLEX_MODE`/`FEATURE_PROVISIONAL_PRECISION`/`FEATURE_AI_NARRATIVE`, run hosted dry-run/backup/seed/deploy/alias, change Vercel env, expose secrets, or merge without green CI.
 
 ## Current git state
 
-- Production base: `main` / `origin/main` at `95c61c7 docs(ops): record observability drill evidence (#27)`.
-- PR #25 and docs follow-up PR #27 merged 2026-07-22 after explicit approval.
-- Active branch: `agent/retention-scheduler`; PR #28 open, implementation SHA `ec273615ec24ac737908bb94a64f086e49ba8f2d`.
+- Production base: `main` / `origin/main` at `e5a37d1 feat(ops): add production retention cleanup scheduler (#28)`.
+- PR #28 squash-merged and production-activated 2026-07-22 after explicit approval.
+- Active work: docs-only retention production evidence follow-up.
 - PR #24 squash-merged 2026-07-22 (answer-persistence race fix + `sharp ^0.35.3` override clearing libvips CVEs). All CI green: `Quality and build` + `Database and browser tests`.
 - Merged history through PR #24. Prior stale snapshots referenced `agent/phase-1-foundation` / PR #3 (obsolete).
 - All-lenses release work lives on `agent/complete-all-lenses-release-ready` (from `origin/main` `38c982f`); not yet merged.
@@ -73,8 +73,11 @@ Do not: reapply or modify production migration `202607270001`, activate `FEATURE
 - Added daily Vercel cron in `vercel.json` (`0 3 * * *`) and GitHub retention monitor workflow with marker-deduplicated issue alert + recovery close; `drill=true` intentionally fails.
 - `CRON_SECRET` is optional env (min 16 chars) in `env-schema`; set in Vercel + as GitHub secret before activation. Route fails closed if missing.
 - Local evidence: format, lint, typecheck, build, audit PASS; unit PASS 32 files/150 tests. PR CI run `29923303552` PASS, including disposable DB, integration, pgTAP, seed replay, Playwright, and accessibility. Duplicate run `29923298628` initially hit Docker Hub rate limiting plus a concurrent port collision; failed jobs reran successfully on identical HEAD.
-- PR #28 implementation checks are green at `ec273615ec24ac737908bb94a64f086e49ba8f2d`; docs-only evidence update follows that SHA.
-- Not yet production-verified: cron/workflow inactive until merge; `CRON_SECRET` must be provisioned in Vercel + GitHub; scheduled/drill evidence pending merge + provisioning.
+- PR #28 merged as `e5a37d1`; merged-SHA CI `29928134247` PASS. Production deployment `dpl_AqZzDCuwuBkwXG8ZWhJhtVXStr1P` Ready on the stable alias.
+- Migration `202607280001` APPLIED. `CRON_SECRET` provisioned as Vercel Production sensitive env and GitHub Actions secret. Unauthenticated production request returned 401.
+- Dry-run `29928883702` found 2 eligible guest sessions and 0 rate-limit rows. Approved cleanup deleted exactly those counts; post-cleanup dry-run `29929102188` returned zero for both.
+- Alert drill `29929143971` failed intentionally and created exactly one marked issue #29. Recovery `29929191879` PASS and auto-closed issue #29.
+- Vercel cron is deployed at `0 3 * * *` UTC. First provider-scheduled delivery remains `PENDING_PROVIDER`; manual cleanup and monitor paths are verified.
 - Rollback: remove `crons` from `vercel.json` or disable in Vercel, and/or revert PR; migration is additive read-only, no data rollback.
 
 ## Release blockers
