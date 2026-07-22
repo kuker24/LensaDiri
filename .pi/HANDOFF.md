@@ -18,9 +18,9 @@ Do not: apply candidate migration `202607270001` to production, activate `FEATUR
 ## Production state (per MODULAR_RELEASE_READINESS.md)
 
 - URL `https://lensadiri.vercel.app`, Supabase hosted Singapore.
-- Modular schema + quality-model applied through migration `202607200002`.
+- Modular schema + quality-model + guarded all-lenses rollout applied through migration `202607270001` (linked migration list, 2026-07-22).
 - `FEATURE_MODULAR_COMPOSER` = ON. `FEATURE_COMPLEX_MODE`, `FEATURE_PROVISIONAL_PRECISION`, `FEATURE_AI_NARRATIVE` = OFF.
-- 10 canonical modules present, all `is_selectable=true` with honest per-module tiers.
+- 10 canonical modules present and all selectable in production (confirmed via public `/modules/<key>` CTAs and `/combos` presets); honest per-module tiers.
 - Legacy Quick 40/Standard 60 remains backward-compatible baseline.
 
 ## Module tiers (10 lenses)
@@ -41,20 +41,19 @@ Do not: apply candidate migration `202607270001` to production, activate `FEATUR
 - Confidence model versioned `module-quality-2` (skipped optional, clarifier completion, item quality weight, mode depth).
 - Recovery foundation implemented but dormant; live email + mandatory verification `BLOCKED_EXTERNAL`.
 - Admin `/admin/*` read-only fail-closed guard; dashboard sub-routes; result/test sub-routes with opaque token; blog with slug allowlist.
-- Candidate migration `202607270001_guarded_all_lenses_release.sql` (additive, fail-closed, no flag changes) — PENDING production.
+- Migration `202607270001_guarded_all_lenses_release.sql` (additive, fail-closed, no flag changes) — APPLIED to production (confirmed via `supabase migration list --linked`, 2026-07-22). All 10 modules selectable.
 
 ## Remaining steps
 
 1. Answer-persistence fix landed on `main` via PR #24 (DONE).
-2. Push all-lenses branch, require both CI jobs green on pushed SHA: `Quality and build`, `Database and browser tests`.
-3. On approval: apply `202607270001` to production via migration-only workflow, then postverify.
-4. Activate guarded lenses only per product/release approval.
-5. Stop after CI evidence unless production approval is explicit.
+2. Guarded all-lenses rollout (`202607270001`) merged via PR #15 and applied to production (DONE); all 10 modules selectable.
+3. Run read-only production content-table postcheck: six modules selectable with correct `pilot`/`experimental` status, items/translations stay `draft`, `guardedBeta=true` only on six target versions.
+4. Complex mode / provisional precision / AI narrative activation only per product/release approval.
+5. Stop after evidence unless production approval is explicit.
 
 ## Release blockers
 
-- CI green on pushed candidate SHA before merge.
-- Production migration `202607270001` needs approval + non-destructive dry-run + backup decision + per-step postverify.
+- Production content-table postcheck for the six guarded lenses still recommended (this audit confirmed selectability via public pages only).
 - `FEATURE_COMPLEX_MODE` and Full Spectrum activation deferred; `full_spectrum`/`deep_self_discovery` presets stay draft.
 - Provider email + mandatory verification `BLOCKED_EXTERNAL`.
 - AI narrative deferred (flag OFF). Formal psychometric validation and third-party WCAG certification deferred — do not claim either.

@@ -11,7 +11,7 @@ Production project identifiers, database URLs, passwords, API keys, and connecti
 
 ## Applied migration mapping
 
-Verified after the approved production migration on 2026-07-20 with `supabase migration list`. Production contains versions `202607120001` through `202607200002`. Repository on branch `agent/complete-all-lenses-release-ready` additionally contains pending candidate `202607270001`, which has not been applied to production. Local and hosted migration history agree only through `202607200002`.
+Verified with `supabase migration list --linked` on 2026-07-22. Production contains versions `202607120001` through `202607270001`; local and hosted migration history agree through `202607270001`. An earlier revision of this document described `202607270001` as pending on `202607200002`; that statement is superseded by the current linked migration list, which shows `202607270001` present on both Local and Remote.
 
 | Version        | Repository source                                                    | SHA-256                                                            | Production status | Purpose                                                                             |
 | -------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------ | ----------------- | ----------------------------------------------------------------------------------- |
@@ -28,22 +28,22 @@ Verified after the approved production migration on 2026-07-20 with `supabase mi
 | `202607160003` | `supabase/migrations/202607160003_dashboard_audit_extension.sql`     | `f6e167e4ffc264e563c3bacfbd7097cb888fa41658932e45133acc68e6b73980` | Applied           | Canonical audit constraint normalization                                            |
 | `202607200001` | `supabase/migrations/202607200001_account_recovery_foundation.sql`   | `bd2060b4b1c5457e24eee5bb77edc44ffc3a9677b293885ebb6a59211436400d` | Applied           | Dormant account recovery foundation                                                 |
 | `202607200002` | `supabase/migrations/202607200002_quality_model_version.sql`         | `73f84030fbbdbdbfda60bc14e240689acb7d497530d8589893697a14d7775eef` | Applied           | Versioned quality-model provenance on `assessment_blueprints`                       |
+| `202607270001` | `supabase/migrations/202607270001_guarded_all_lenses_release.sql`    | `dc3736fbd39d14f687520a4530e5477b8d1a2d2ec6ca70dd32731d8d647725f4` | Applied           | Promote 6 deferred modules to selectable guarded beta/experimental                  |
 
-Production checkpoint after migration: 13 migrations, 60 active legacy questions, 40 Quick questions, `FEATURE_MODULAR_COMPOSER` enabled, and all checked tables use forced RLS. No modular six guarded content rollout occurred.
+Production checkpoint: 14 migrations applied through `202607270001`, `FEATURE_MODULAR_COMPOSER` enabled, all checked tables forced RLS, legacy Quick 40/Standard 60 intact. The guarded six-lens rollout (`202607270001`) is now applied; all 10 modules are selectable in production.
 
-## Pending candidate migration
+## Applied guarded-lens migration
 
 | Version        | Repository source                                                 | SHA-256                                                            | Production status | Purpose                                                            |
 | -------------- | ----------------------------------------------------------------- | ------------------------------------------------------------------ | ----------------- | ------------------------------------------------------------------ |
-| `202607270001` | `supabase/migrations/202607270001_guarded_all_lenses_release.sql` | `dc3736fbd39d14f687520a4530e5477b8d1a2d2ec6ca70dd32731d8d647725f4` | Pending           | Promote 6 deferred modules to selectable guarded beta/experimental |
+| `202607270001` | `supabase/migrations/202607270001_guarded_all_lenses_release.sql` | `dc3736fbd39d14f687520a4530e5477b8d1a2d2ec6ca70dd32731d8d647725f4` | Applied           | Promote 6 deferred modules to selectable guarded beta/experimental |
 
 Details:
 
-- Dependency: requires `202607200002` and preexisting modular content seeded.
-- Effect: Promotes Three Center, Instinct, RIASEC, and Attachment to pilot selectable status, and Socionics and Psychosophy to experimental selectable status, using `guardedBeta=true` config flags.
-- Checkpoint target: counts modular mappings remain 27 presets 6, questions/translations 405.
-- Activation ordering: this migration must be applied to production through a separate approved migration window before modular users can select these six lenses.
-- Current production risk: none. Production remains on `202607200002` and does not see or allow selection of the six deferred modules.
+- Dependency: required `202607200002` and preexisting modular content seeded.
+- Effect: Promoted Three Center, Instinct, RIASEC, and Attachment to pilot selectable status, and Socionics and Psychosophy to experimental selectable status, using `guardedBeta=true` config flags.
+- Merged to `main` via PR #15 (merge `9ff30cf`, 2026-07-19) and applied to production (confirmed in linked migration list, 2026-07-22).
+- Open read-only postcheck against production content tables remains recommended: confirm the six modules are selectable with correct `pilot`/`experimental` status, items/translations stay `review_status='draft'`, and `guardedBeta=true` only on the six target versions. This audit verified selectability via public pages, not direct content-table queries.
 
 ### Postcheck for a future approved apply
 
@@ -62,7 +62,7 @@ A future approved migration window must verify:
 - Items and translations remain `draft` review status (no formal review bypassed);
 - Legacy Quick 40 and Standard 60 session and result readers still pass smoke checks.
 
-This migration has not been applied to production. Do not describe local and hosted migration history as fully matching until `202607270001` is applied to production through a separate approved migration window.
+This migration is applied to production; the linked migration list on 2026-07-22 shows `202607270001` on both Local and Remote. The postcheck query above remains valid as a read-only verification to run directly against production content tables.
 
 ## Applied additive chain
 
@@ -134,6 +134,6 @@ Never run reset, integration, pgTAP, seed replay/drift/parity, or E2E against ho
 
 ## Release boundary
 
-Approved migration and modular content activation through `202607200002` completed in the prior production activation task. Production currently has `FEATURE_MODULAR_COMPOSER` ON, while Complex, provisional precision, and AI narrative remain OFF. Recovery remains dormant until provider email and mandatory verification are approved.
+Approved migration and modular content activation through `202607270001` are completed in production. Production currently has `FEATURE_MODULAR_COMPOSER` ON, all 10 modules selectable (six under guarded beta/experimental), while Complex, provisional precision, and AI narrative remain OFF. Recovery remains dormant until provider email and mandatory verification are approved.
 
-Branch `agent/complete-all-lenses-release-ready` adds candidate migration `202607270001`. This task has not applied it to production. Production remains at `202607200002` until a separate approved migration window applies the guarded six-lens rollout.
+The guarded six-lens rollout (`202607270001`) reached `main` via PR #15 and is applied to production. Remaining production actions (Complex mode, provisional precision, AI narrative, provider email, mandatory verification) still require separate approved windows.

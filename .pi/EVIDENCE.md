@@ -18,10 +18,10 @@ Production identifiers, database URLs, tokens, passwords, keys, and secrets are 
 
 ## Production state
 
-- Modular schema + quality-model applied through migration `202607200002`.
-- `FEATURE_MODULAR_COMPOSER` ON; `FEATURE_COMPLEX_MODE`, `FEATURE_PROVISIONAL_PRECISION`, `FEATURE_AI_NARRATIVE` OFF.
-- 10 canonical modules present, all `is_selectable=true`, honest tiers (active/published/pilot/experimental).
-- Candidate migration `202607270001_guarded_all_lenses_release.sql` local-only, not applied to production.
+- Modular schema + quality-model + guarded all-lenses rollout applied through migration `202607270001`.
+- `FEATURE_MODULAR_COMPOSER` ON; `FEATURE_COMPLEX_MODE`, `FEATURE_PROVISIONAL_PRECISION`, `FEATURE_AI_NARRATIVE` OFF (per last checkpoint; flag table not re-queried this read-only audit).
+- 10 canonical modules present, all selectable in production, honest tiers (active/published/pilot/experimental).
+- Migration `202607270001_guarded_all_lenses_release.sql` applied to production (linked migration list shows it on Local+Remote, 2026-07-22); all 10 modules selectable, confirmed via public `/modules/<key>` CTAs and `/combos` presets.
 
 ## Verification evidence (all-lenses branch, disposable local Supabase)
 
@@ -59,8 +59,7 @@ E2E/a11y modular runs enable `FEATURE_MODULAR_COMPOSER` and `FEATURE_COMPLEX_MOD
 
 ## Residual risks and deferred scope
 
-- CI must pass on pushed candidate SHA before merge.
-- Production migration `202607270001` needs approval, non-destructive dry-run, backup decision, per-step postverify.
+- Migration `202607270001` already applied to production; a read-only content-table postcheck (selectability, `pilot`/`experimental` status, `draft` items/translations, `guardedBeta` scope) is still recommended and was not run in this audit.
 - Provider email delivery + mandatory verification `BLOCKED_EXTERNAL`.
 - AI narrative, formal psychometric validation, third-party WCAG certification, monitoring provider, restore drill, isolated staging, custom domain, retention automation remain deferred or partial.
 - `FEATURE_COMPLEX_MODE`, `FEATURE_PROVISIONAL_PRECISION`, `FEATURE_AI_NARRATIVE` OFF in production.

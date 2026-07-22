@@ -15,10 +15,12 @@ Post-incident audit menyimpulkan tidak ada BLOCKER atau MAJOR pada security, dat
 
 **Status rilis:**
 
+> Reconciliation note (2026-07-22): baris "Production schema parity: PENDING" dan "Production activation enam lensa baru: NOT RUN" di bawah adalah status pada waktu audit branch ini dan kini **superseded**. `supabase migration list --linked` (2026-07-22) menunjukkan `202607270001` sudah applied ke production, dan halaman publik menampilkan kesepuluh modul selectable. Lihat `docs/deployment/MODULAR_RELEASE_READINESS.md` dan `docs/deployment/PRODUCTION_MIGRATION_MAP.md` untuk status terkini.
+
 - Engineering implementation: READY untuk 10 modul individual dan 4 preset yang fit coverage.
-- Production schema parity: PENDING kandidat additive `202607270001_guarded_all_lenses_release.sql`.
+- Production schema parity: PENDING kandidat additive `202607270001_guarded_all_lenses_release.sql`. _(Superseded — sudah applied, lihat catatan di atas.)_
 - UI design readiness: READY untuk label Published/Beta/Experimental, age gate, acknowledgement, estimate, runner, dan report.
-- Production activation enam lensa baru: NOT RUN dan membutuhkan approval terpisah (lihat `MODULAR_RELEASE_READINESS.md`).
+- Production activation enam lensa baru: NOT RUN dan membutuhkan approval terpisah (lihat `MODULAR_RELEASE_READINESS.md`). _(Superseded — activation sudah dilakukan via `202607270001`.)_
 
 ## Requirement matrix
 

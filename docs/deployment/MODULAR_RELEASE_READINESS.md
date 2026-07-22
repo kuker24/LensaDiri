@@ -4,11 +4,14 @@ Gate aktivasi modular LensaDiri. Migration schema readiness ada di `PRD_V2_MIGRA
 
 ## Posture saat ini
 
+> Direkonsiliasi 2026-07-22 dari bukti aktual read-only: `supabase migration list --linked` dan halaman publik production. Bukti mengoreksi klaim lama "hanya empat modul selectable" dan "`202607270001` pending".
+
 - Base modular schema dan quality-model provenance sampai `202607200002`: applied ke production pada activation task sebelumnya.
-- Canonical modular content 10 modul sudah ada di production, tetapi hanya empat modul awal yang selectable.
-- `FEATURE_MODULAR_COMPOSER` production aktif. `FEATURE_COMPLEX_MODE`, `FEATURE_PROVISIONAL_PRECISION`, dan `FEATURE_AI_NARRATIVE` tetap OFF.
+- Migration `202607270001_guarded_all_lenses_release.sql` **sudah applied ke production**. `supabase migration list --linked` (2026-07-22) menampilkan versi ini pada kolom Remote, sejajar dengan Local.
+- Canonical modular content 10 modul ada di production dan **kesepuluhnya selectable**. Halaman publik `/modules/<key>` untuk seluruh modul (termasuk `socionics_communication` dan `psychosophy` experimental) merender CTA `Pilih modul ini` → `/start/modules?module=<key>`, dan `/combos` menyajikan preset Beta serta Eksperimental.
+- `FEATURE_MODULAR_COMPOSER` production aktif. `FEATURE_COMPLEX_MODE`, `FEATURE_PROVISIONAL_PRECISION`, dan `FEATURE_AI_NARRATIVE` tetap OFF menurut checkpoint terakhir; flag table tidak di-query ulang pada audit read-only ini.
 - Legacy Quick 40/Standard 60 tetap backward-compatible.
-- Branch `agent/complete-all-lenses-release-ready` hanya menyiapkan kandidat `202607270001`; task ini tidak menulis ke production.
+- Migration `202607270001` sudah masuk `main` melalui PR #15 (merge `9ff30cf`, 2026-07-19). Branch `agent/complete-all-lenses-release-ready` bukan lagi satu-satunya pemilik kandidat ini.
 
 ## Release-ready modules
 
@@ -38,9 +41,9 @@ Setiap modul sudah memiliki scoring engine independen (test-covered) dan item ba
 
 ## Activation status (production)
 
-Jalur guarded all-lenses production tetap PENDING migration additive `202607270001`. Migration ini belum diterapkan ke hosted database dan tidak mengubah feature flag. Aktivasi hanya boleh dilakukan setelah backup logical diverifikasi dan approval terpisah.
+Jalur guarded all-lenses **sudah aktif di production**. Migration `202607270001_guarded_all_lenses_release.sql` telah applied (terlihat pada kolom Remote `supabase migration list --linked`, 2026-07-22) dan mempromosikan enam lensa deferred ke status selectable guarded tanpa mengubah feature flag. Selectability terkonfirmasi dari halaman publik production.
 
-Aktivasi enam lensa baru pada production hanya boleh setelah seluruh kondisi berikut disetujui terpisah:
+Karena aktivasi enam lensa sudah terjadi, kondisi di bawah adalah **catatan historis kriteria yang berlaku sebelum apply** dan referensi untuk activation guarded berikutnya:
 
 1. Backup logical schema, data, dan roles dibuat sebelum write serta manifest hash diverifikasi.
 2. Dry-run linked hanya menampilkan `202607270001_guarded_all_lenses_release.sql`.
@@ -48,6 +51,8 @@ Aktivasi enam lensa baru pada production hanya boleh setelah seluruh kondisi ber
 4. Preview atau staging terisolasi digunakan bila tersedia. Jika tidak, risiko single-project harus dicatat eksplisit.
 5. Monitoring provider dan rollback owner aktif.
 6. `FEATURE_AI_NARRATIVE` tetap OFF. Perubahan flag lain memerlukan approval terpisah.
+
+Verifikasi read-only pasca-apply yang masih terbuka: konfirmasi langsung di database production bahwa item/translation enam modul tetap `review_status='draft'`, `guardedBeta=true` hanya pada enam version target, dan seluruh feature flag lain tetap sesuai checkpoint. Audit ini hanya menyentuh migration list dan halaman publik, bukan tabel konten.
 
 ## Verifikasi lokal sebelum activation
 
