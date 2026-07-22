@@ -3,6 +3,7 @@ import "server-only";
 import { getDatabase, withTransaction } from "@/lib/db/client";
 import { generateOpaqueToken, hashOpaqueToken } from "@/lib/security/tokens";
 import { runDatabaseOperation } from "@/server/database";
+import { elapsedMilliseconds, logOperationalEvent } from "@/server/observability";
 
 import type { AccountStatus } from "@/server/repositories/accounts";
 
@@ -83,9 +84,12 @@ export async function findSessionByTokenHash(
     `;
 
     if (correlationId) {
-      console.info(
-        `[TELEMETRY] cid=${correlationId} op=session_read duration_ms=${(Number(process.hrtime.bigint() - startedAt) / 1_000_000).toFixed(2)} status=success`,
-      );
+      logOperationalEvent({
+        correlationId,
+        durationMs: elapsedMilliseconds(startedAt),
+        operation: "session_read",
+        status: "success",
+      });
     }
 
     return session
@@ -160,18 +164,22 @@ export async function createLoginSessionWithAudit(input: {
           )
           returning id, account_id, expires_at
         `;
-        const endSessionInsert = process.hrtime.bigint();
         if (input.correlationId) {
-          console.info(
-            `[TELEMETRY] cid=${input.correlationId} op=login_session_insert duration_ms=${(Number(endSessionInsert - startSessionInsert) / 1_000_000).toFixed(2)} status=success`,
-          );
+          logOperationalEvent({
+            correlationId: input.correlationId,
+            durationMs: elapsedMilliseconds(startSessionInsert),
+            operation: "login_session_insert",
+            status: "success",
+          });
         }
       } catch (error) {
-        const endSessionInsert = process.hrtime.bigint();
         if (input.correlationId) {
-          console.info(
-            `[TELEMETRY] cid=${input.correlationId} op=login_session_insert duration_ms=${(Number(endSessionInsert - startSessionInsert) / 1_000_000).toFixed(2)} status=error`,
-          );
+          logOperationalEvent({
+            correlationId: input.correlationId,
+            durationMs: elapsedMilliseconds(startSessionInsert),
+            operation: "login_session_insert",
+            status: "error",
+          });
         }
         throw error;
       }
@@ -185,18 +193,22 @@ export async function createLoginSessionWithAudit(input: {
         await tx`
           insert into public.audit_logs (actor_account_id, action, entity_type, entity_id, metadata_json)
           values (${input.accountId}, 'account_login_succeeded', 'account', ${input.accountId}, ${tx.json({ outcome: "authenticated" })})`;
-        const endAuditInsert = process.hrtime.bigint();
         if (input.correlationId) {
-          console.info(
-            `[TELEMETRY] cid=${input.correlationId} op=login_audit_insert duration_ms=${(Number(endAuditInsert - startAuditInsert) / 1_000_000).toFixed(2)} status=success`,
-          );
+          logOperationalEvent({
+            correlationId: input.correlationId,
+            durationMs: elapsedMilliseconds(startAuditInsert),
+            operation: "login_audit_insert",
+            status: "success",
+          });
         }
       } catch (error) {
-        const endAuditInsert = process.hrtime.bigint();
         if (input.correlationId) {
-          console.info(
-            `[TELEMETRY] cid=${input.correlationId} op=login_audit_insert duration_ms=${(Number(endAuditInsert - startAuditInsert) / 1_000_000).toFixed(2)} status=error`,
-          );
+          logOperationalEvent({
+            correlationId: input.correlationId,
+            durationMs: elapsedMilliseconds(startAuditInsert),
+            operation: "login_audit_insert",
+            status: "error",
+          });
         }
         throw error;
       }
@@ -227,9 +239,13 @@ export async function touchAccountSession(
         and (last_seen_at is null or last_seen_at < ${staleBefore})
     `;
     if (correlationId) {
-      console.info(
-        `[TELEMETRY] cid=${correlationId} op=session_touch duration_ms=${(Number(process.hrtime.bigint() - startedAt) / 1_000_000).toFixed(2)} status=success wrote=${result.count > 0}`,
-      );
+      logOperationalEvent({
+        correlationId,
+        durationMs: elapsedMilliseconds(startedAt),
+        operation: "session_touch",
+        status: "success",
+        wrote: result.count > 0,
+      });
     }
   });
 }
@@ -244,9 +260,12 @@ export async function findAndTouchActiveSession(
     const poolStartedAt = process.hrtime.bigint();
     const sql = await database.reserve();
     if (correlationId) {
-      console.info(
-        `[TELEMETRY] cid=${correlationId} op=pool_wait duration_ms=${(Number(process.hrtime.bigint() - poolStartedAt) / 1_000_000).toFixed(2)} status=success`,
-      );
+      logOperationalEvent({
+        correlationId,
+        durationMs: elapsedMilliseconds(poolStartedAt),
+        operation: "pool_wait",
+        status: "success",
+      });
     }
 
     try {
@@ -274,9 +293,12 @@ export async function findAndTouchActiveSession(
         limit 1
       `;
       if (correlationId) {
-        console.info(
-          `[TELEMETRY] cid=${correlationId} op=session_read duration_ms=${(Number(process.hrtime.bigint() - readStartedAt) / 1_000_000).toFixed(2)} status=success`,
-        );
+        logOperationalEvent({
+          correlationId,
+          durationMs: elapsedMilliseconds(readStartedAt),
+          operation: "session_read",
+          status: "success",
+        });
       }
 
       if (
@@ -300,9 +322,13 @@ export async function findAndTouchActiveSession(
             and (last_seen_at is null or last_seen_at < ${staleBefore})
         `;
         if (correlationId) {
-          console.info(
-            `[TELEMETRY] cid=${correlationId} op=session_touch duration_ms=${(Number(process.hrtime.bigint() - touchStartedAt) / 1_000_000).toFixed(2)} status=success wrote=${result.count > 0}`,
-          );
+          logOperationalEvent({
+            correlationId,
+            durationMs: elapsedMilliseconds(touchStartedAt),
+            operation: "session_touch",
+            status: "success",
+            wrote: result.count > 0,
+          });
         }
       }
 

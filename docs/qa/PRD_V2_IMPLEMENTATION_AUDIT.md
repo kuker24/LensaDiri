@@ -79,7 +79,7 @@ Catatan flags: E2E dan a11y modular mengaktifkan `FEATURE_MODULAR_COMPOSER` dan 
 - Recovery token single-use, expiry, generic response, session revoke setelah reset, concurrent-consume safe.
 - Tabel sensitif forced RLS, zero browser policy, zero privilege langsung `anon`/`authenticated` (pgTAP).
 - Public shared result allowlist eksplisit. Private quality, confidence, clarifier, timing tetap private.
-- Metadata IP dan user agent hanya disimpan sebagai HMAC fingerprint. Tidak ada `console.*` server, tidak ada raw answer logging.
+- Metadata IP dan user agent hanya disimpan sebagai HMAC fingerprint. Server menulis structured operational events melalui satu allowlisted logger; tidak ada raw answer, token, email, IP, user-agent, request body, atau private result logging.
 - Modular/Complex UI dan API fail closed selama flags OFF.
 
 ## Perubahan branch ini
@@ -139,7 +139,7 @@ Catatan flags: E2E dan a11y modular mengaktifkan `FEATURE_MODULAR_COMPOSER` dan 
 
 ## Residual scope jujur
 
-Monitoring provider eksternal, staging terisolasi, restore drill, custom domain, live email, formal psychometric validation, dan sertifikasi WCAG pihak ketiga tetap partial, blocked external, atau deferred. Hal ini tidak boleh dideskripsikan sebagai implemented dan tidak mengizinkan bypass migration, CI, privacy, scientific, atau feature-flag gate.
+Scheduled liveness workflow, structured operational events, dan issue-based alert routing sudah tersedia pada task branch observability. Aktivasi schedule, alert drill, owner acknowledgement, Vercel/Supabase threshold configuration, staging terisolasi, restore drill, custom domain, live email, formal psychometric validation, dan sertifikasi WCAG pihak ketiga tetap partial, blocked external, atau deferred. Hal ini tidak boleh dideskripsikan sebagai production-verified sebelum bukti masing-masing tersedia dan tidak mengizinkan bypass migration, CI, privacy, scientific, atau feature-flag gate.
 
 ## Next order
 

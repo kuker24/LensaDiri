@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import crypto from "node:crypto";
 
 import type { z } from "zod";
 
@@ -11,6 +12,7 @@ import { generateOpaqueToken, hashOpaqueToken } from "@/lib/security/tokens";
 import { startAssessmentSchema } from "@/lib/validation/assessment";
 import { apiFailure, apiSuccess, getDatabaseFailureStatus, noStoreHeaders } from "@/server/http";
 import { getCurrentSession } from "@/server/current-session";
+import { elapsedMilliseconds, logOperationalEvent } from "@/server/observability";
 import { startAssessment } from "@/server/services/assessment";
 import { assessmentRateLimitPolicies, consumeRateLimit } from "@/server/services/rate-limiter";
 
@@ -92,6 +94,8 @@ export async function POST(request: Request): Promise<NextResponse> {
   const parsed = await parseJsonRequest(request, startAssessmentSchema);
   if (!parsed.success)
     return NextResponse.json(apiFailure(parsed.reason), { headers: noStoreHeaders, status: 400 });
+  const correlationId = crypto.randomUUID();
+  const startedAt = process.hrtime.bigint();
 
   let limited: Awaited<ReturnType<typeof consumeRateLimit>>;
   try {
@@ -101,6 +105,13 @@ export async function POST(request: Request): Promise<NextResponse> {
       environment.rateLimitSecret,
     );
   } catch {
+    logOperationalEvent({
+      correlationId,
+      durationMs: elapsedMilliseconds(startedAt),
+      errorCode: "rate_limit_unavailable",
+      operation: "assessment_start",
+      status: "failure",
+    });
     return NextResponse.json(
       {
         success: false,
@@ -110,11 +121,18 @@ export async function POST(request: Request): Promise<NextResponse> {
       { headers: noStoreHeaders, status: 503 },
     );
   }
-  if (!limited.allowed)
+  if (!limited.allowed) {
+    logOperationalEvent({
+      correlationId,
+      durationMs: elapsedMilliseconds(startedAt),
+      operation: "assessment_start",
+      status: "rate_limited",
+    });
     return NextResponse.json(apiFailure("rate_limited"), {
       headers: { ...noStoreHeaders, "Retry-After": String(limited.retryAfterSeconds) },
       status: 429,
     });
+  }
 
   try {
     const token = generateOpaqueToken();
@@ -122,6 +140,12 @@ export async function POST(request: Request): Promise<NextResponse> {
       runStartFlow(parsed.data, environment, token),
       START_DB_DEADLINE_MS,
     );
+    logOperationalEvent({
+      correlationId,
+      durationMs: elapsedMilliseconds(startedAt),
+      operation: "assessment_start",
+      status: result.success ? "success" : "rejected",
+    });
     return result.success
       ? NextResponse.json(apiSuccess({ flow: result.flow, token }), {
           headers: noStoreHeaders,
@@ -132,6 +156,13 @@ export async function POST(request: Request): Promise<NextResponse> {
           status: 422,
         });
   } catch (error) {
+    logOperationalEvent({
+      correlationId,
+      durationMs: elapsedMilliseconds(startedAt),
+      errorCode: error instanceof DatabaseTimeoutError ? "database_timeout" : "database_error",
+      operation: "assessment_start",
+      status: "failure",
+    });
     if (error instanceof DatabaseTimeoutError) {
       return NextResponse.json(
         {

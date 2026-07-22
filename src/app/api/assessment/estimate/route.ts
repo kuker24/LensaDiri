@@ -9,6 +9,7 @@ import { parseJsonRequest } from "@/lib/security/http";
 import { getRequestRateLimitIdentity } from "@/lib/security/rate-limit";
 import { estimateAssessmentSchema } from "@/lib/validation/assessment";
 import { apiFailure, apiSuccess, getDatabaseFailureStatus, noStoreHeaders } from "@/server/http";
+import { elapsedMilliseconds, logOperationalEvent } from "@/server/observability";
 import { getMinimumModuleCoverage, loadComposerCandidates } from "@/server/repositories/blueprints";
 import {
   isFeatureEnabledBatch,
@@ -45,19 +46,21 @@ async function loadEstimateContext(
     "FEATURE_PROVISIONAL_PRECISION",
     "FEATURE_COMPLEX_MODE",
   ]);
-  const endCatalog = process.hrtime.bigint();
-  const catalogDurationMs = Number(endCatalog - startCatalog) / 1_000_000;
-  console.log(
-    `[TELEMETRY] cid=${correlationId} op=estimate_catalog_queries duration_ms=${catalogDurationMs.toFixed(2)} status=success`,
-  );
+  logOperationalEvent({
+    correlationId,
+    durationMs: elapsedMilliseconds(startCatalog),
+    operation: "estimate_catalog_queries",
+    status: "success",
+  });
 
   const startCandidates = process.hrtime.bigint();
   const candidates = await loadComposerCandidates(moduleKeys);
-  const endCandidates = process.hrtime.bigint();
-  const candidatesDurationMs = Number(endCandidates - startCandidates) / 1_000_000;
-  console.log(
-    `[TELEMETRY] cid=${correlationId} op=estimate_composer_candidates duration_ms=${candidatesDurationMs.toFixed(2)} status=success`,
-  );
+  logOperationalEvent({
+    correlationId,
+    durationMs: elapsedMilliseconds(startCandidates),
+    operation: "estimate_composer_candidates",
+    status: "success",
+  });
 
   return {
     candidates,
@@ -98,18 +101,20 @@ export async function POST(request: Request): Promise<NextResponse> {
       assessmentRateLimitPolicies.estimate,
       environment.rateLimitSecret,
     );
-    const endRateLimit = process.hrtime.bigint();
-    const rateLimitDurationMs = Number(endRateLimit - startRateLimit) / 1_000_000;
-    console.log(
-      `[TELEMETRY] cid=${correlationId} op=estimate_rate_limit duration_ms=${rateLimitDurationMs.toFixed(2)} status=success`,
-    );
-  } catch (error) {
-    const endRateLimit = process.hrtime.bigint();
-    const rateLimitDurationMs = Number(endRateLimit - startRateLimit) / 1_000_000;
-    const safeError = error instanceof Error ? error.name : "unknown_error";
-    console.log(
-      `[TELEMETRY] cid=${correlationId} op=estimate_rate_limit duration_ms=${rateLimitDurationMs.toFixed(2)} status=failure error=${safeError}`,
-    );
+    logOperationalEvent({
+      correlationId,
+      durationMs: elapsedMilliseconds(startRateLimit),
+      operation: "estimate_rate_limit",
+      status: limited.allowed ? "success" : "rate_limited",
+    });
+  } catch {
+    logOperationalEvent({
+      correlationId,
+      durationMs: elapsedMilliseconds(startRateLimit),
+      errorCode: "rate_limiter_error",
+      operation: "estimate_rate_limit",
+      status: "failure",
+    });
     return NextResponse.json(
       {
         success: false,
@@ -157,22 +162,25 @@ export async function POST(request: Request): Promise<NextResponse> {
       },
     );
 
-    const endTotal = process.hrtime.bigint();
-    const computationDurationMs = Number(endTotal - startTotal) / 1_000_000;
-    console.log(
-      `[TELEMETRY] cid=${correlationId} op=estimate_computation duration_ms=${computationDurationMs.toFixed(2)} status=success`,
-    );
+    logOperationalEvent({
+      correlationId,
+      durationMs: elapsedMilliseconds(startTotal),
+      operation: "estimate_computation",
+      status: "success",
+    });
 
     return result.success
       ? NextResponse.json(apiSuccess(result.estimate), { headers: noStoreHeaders, status: 200 })
       : NextResponse.json(apiFailure(result.code), { headers: noStoreHeaders, status: 422 });
   } catch (error) {
-    const endTotal = process.hrtime.bigint();
-    const computationDurationMs = Number(endTotal - startTotal) / 1_000_000;
     const safeError = error instanceof DatabaseTimeoutError ? "database_timeout" : "database_error";
-    console.log(
-      `[TELEMETRY] cid=${correlationId} op=estimate_computation duration_ms=${computationDurationMs.toFixed(2)} status=failure error=${safeError}`,
-    );
+    logOperationalEvent({
+      correlationId,
+      durationMs: elapsedMilliseconds(startTotal),
+      errorCode: safeError,
+      operation: "estimate_computation",
+      status: "failure",
+    });
 
     if (error instanceof DatabaseTimeoutError) {
       return NextResponse.json(

@@ -13,6 +13,26 @@ Preview database dan preview-scoped secret wajib diverifikasi sebelum Preview fu
 
 ## Monitoring minimum
 
+### Implementasi repository
+
+- `src/server/observability.ts` menulis satu JSON object per event ke runtime log. Schema hanya mengizinkan operation, status, durasi, correlation ID acak, error code terkontrol, environment, deployment SHA, dan timestamp. Raw answer, token, email, account ID, IP, user-agent, request body, serta private result tidak diterima oleh API logger.
+- Assessment start, answer save, completion, estimate, register boundary, dan session DB phases memakai event tersebut. Filter awal: `type=operational_event`, lalu `operation`, `status`, atau `correlation_id`. Auth phase telemetry lama tetap safe tetapi belum seluruhnya bermigrasi ke schema JSON; jangan memakai query JSON sebagai satu-satunya sumber metrik auth.
+- `.github/workflows/production-liveness.yml` meminta schedule `GET /api/health` setiap lima menit dari GitHub-hosted runner. GitHub schedule bersifat best-effort dan dapat terlambat atau terlewat saat load tinggi; ini bukan jaminan detection time lima menit. Failure membuka satu issue bertanda internal `[alert] Production liveness monitor failed`; failure berikutnya menambah komentar; recovery menutup issue bertanda sama.
+- `workflow_dispatch` dengan `drill=true` sengaja menggagalkan check untuk membuktikan jalur issue alert. Workflow baru tersedia untuk schedule/manual dispatch setelah file masuk default branch.
+- Vercel Hobby runtime log retention hanya satu jam menurut dokumentasi provider saat implementasi. Runtime log bukan audit log atau penyimpanan evidence jangka panjang.
+
+Status task branch: implementation dan local checks siap; schedule belum aktif, alert delivery drill belum PASS, Vercel error-anomaly destination belum dikonfigurasi. Jangan klaim monitoring production lengkap sebelum PR merged, satu scheduled run PASS, drill membuka issue, recovery menutup issue, dan owner mengonfirmasi destination.
+
+### Operator checks
+
+```bash
+npm run monitor:health
+gh workflow run production-liveness.yml -f drill=true
+gh run watch
+```
+
+Drill hanya setelah workflow ada di default branch. Expected evidence: failed workflow URL, deduplicated alert issue URL, subsequent healthy run, issue auto-closed, owner, timestamp UTC. Jangan memasukkan payload pengguna atau credential ke issue.
+
 Pantau per environment:
 
 - availability `/api/health`, latency p50/p95/p99, dan error rate 4xx/5xx
@@ -30,6 +50,8 @@ Alert awal:
 - p95 answer save di atas 1.5 detik selama 10 menit
 - unexpected production feature flag change
 - backup job gagal atau restore verification melewati jadwal
+
+Scheduled liveness saat ini hanya membuktikan availability dan alert routing. Threshold 5xx, operation failure ratio, p95, database saturation, feature-flag drift, serta backup/restore memerlukan Vercel/Supabase alert configuration dan explicit operator approval. Gunakan default Vercel error-anomaly alert sebagai lapisan tambahan; jangan menganggapnya setara threshold deterministik di atas.
 
 ## Incident severity
 
@@ -96,3 +118,11 @@ Function hanya membersihkan guest session kedaluwarsa dan rate-limit bucket lama
 - Vercel dan CI memakai Node.js 22.x
 - production seed dan seluruh feature flag modular tetap OFF untuk release aman
 - deployment production sehat sebelumnya tercatat sebagai target rollback aplikasi
+
+## Observability rollback
+
+Tidak ada migration atau data rollback untuk fondasi ini.
+
+1. Jika monitor salah positif, nonaktifkan `.github/workflows/production-liveness.yml` atau revert commit workflow; tutup issue setelah penyebab tercatat.
+2. Jika structured logging menyebabkan regresi aplikasi, promote deployment sehat sebelumnya atau revert PR. Event logging tidak boleh mengubah response atau transaction outcome.
+3. Jangan menghapus audit log, application data, atau production table untuk rollback observability.

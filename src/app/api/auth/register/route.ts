@@ -8,6 +8,7 @@ import { isValidCsrfMutation } from "@/lib/security/csrf";
 import { parseJsonRequest } from "@/lib/security/http";
 import { registerRequestSchema } from "@/lib/validation/auth";
 import { apiFailure, apiSuccess, getDatabaseFailureStatus, noStoreHeaders } from "@/server/http";
+import { elapsedMilliseconds, logOperationalEvent } from "@/server/observability";
 import { registerAccount } from "@/server/services/auth";
 import { authRateLimitPolicies, consumeRateLimit } from "@/server/services/rate-limiter";
 
@@ -49,15 +50,19 @@ export async function POST(request: Request): Promise<NextResponse> {
         authRateLimitPolicies.register,
         environment.rateLimitSecret,
       );
-      const endRateLimit = process.hrtime.bigint();
-      console.info(
-        `[TELEMETRY] cid=${correlationId} op=register_rate_limit duration_ms=${(Number(endRateLimit - startRateLimit) / 1_000_000).toFixed(2)} status=success`,
-      );
+      logOperationalEvent({
+        correlationId,
+        durationMs: elapsedMilliseconds(startRateLimit),
+        operation: "register_rate_limit",
+        status: limited.allowed ? "success" : "rate_limited",
+      });
     } catch (error) {
-      const endRateLimit = process.hrtime.bigint();
-      console.warn(
-        `[TELEMETRY] cid=${correlationId} op=register_rate_limit duration_ms=${(Number(endRateLimit - startRateLimit) / 1_000_000).toFixed(2)} status=error`,
-      );
+      logOperationalEvent({
+        correlationId,
+        durationMs: elapsedMilliseconds(startRateLimit),
+        operation: "register_rate_limit",
+        status: "error",
+      });
       throw error;
     }
 
@@ -70,10 +75,12 @@ export async function POST(request: Request): Promise<NextResponse> {
 
     const startRegister = process.hrtime.bigint();
     await withDeadline(registerAccount(parsed.data, correlationId), REGISTER_DB_DEADLINE_MS);
-    const endRegister = process.hrtime.bigint();
-    console.info(
-      `[TELEMETRY] cid=${correlationId} op=register_auth_service duration_ms=${(Number(endRegister - startRegister) / 1_000_000).toFixed(2)} status=success`,
-    );
+    logOperationalEvent({
+      correlationId,
+      durationMs: elapsedMilliseconds(startRegister),
+      operation: "register_auth_service",
+      status: "success",
+    });
 
     // Same response for new and duplicate emails prevents account enumeration.
     return NextResponse.json(apiSuccess({ status: "registration_accepted" }), {
@@ -82,9 +89,12 @@ export async function POST(request: Request): Promise<NextResponse> {
     });
   } catch (error) {
     const isTimeout = error instanceof DatabaseTimeoutError;
-    console.warn(
-      `[TELEMETRY] cid=${correlationId} op=register_auth_error message=${isTimeout ? "deadline_exceeded" : "database_error"}`,
-    );
+    logOperationalEvent({
+      correlationId,
+      errorCode: isTimeout ? "deadline_exceeded" : "database_error",
+      operation: "register_auth_service",
+      status: "failure",
+    });
     return NextResponse.json(apiFailure("service_unavailable"), {
       headers: noStoreHeaders,
       status: isTimeout ? 503 : getDatabaseFailureStatus(error),
