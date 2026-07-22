@@ -23,8 +23,11 @@ export type OperationalEvent = {
     | "pool_wait"
     | "register_auth_service"
     | "register_rate_limit"
+    | "retention_cleanup"
+    | "retention_preview"
     | "session_read"
     | "session_touch";
+  retentionCounts?: Readonly<Record<string, number>>;
   status:
     | "conflict"
     | "error"
@@ -60,6 +63,23 @@ export function elapsedMilliseconds(startedAt: bigint): number {
   return Number((Number(process.hrtime.bigint() - startedAt) / 1_000_000).toFixed(2));
 }
 
+// Aggregate deletion/eligibility counts only. Keys are fixed resource labels and
+// values are non-negative integers; no user data can flow through this field.
+function safeRetentionCounts(
+  counts: Readonly<Record<string, number>> | undefined,
+): Record<string, number> | undefined {
+  if (!counts) {
+    return undefined;
+  }
+  const safe: Record<string, number> = {};
+  for (const [key, value] of Object.entries(counts)) {
+    if (/^[a-z][a-z0-9_]{1,39}$/.test(key) && Number.isInteger(value) && value >= 0) {
+      safe[key] = value;
+    }
+  }
+  return Object.keys(safe).length > 0 ? safe : undefined;
+}
+
 export function logOperationalEvent(event: OperationalEvent): void {
   const failure = event.status === "error" || event.status === "failure";
   const record = {
@@ -73,6 +93,7 @@ export function logOperationalEvent(event: OperationalEvent): void {
     error_code: event.errorCode,
     level: failure ? "error" : "info",
     operation: event.operation,
+    retention_counts: safeRetentionCounts(event.retentionCounts),
     schema_version: 1,
     status: event.status,
     timestamp: new Date().toISOString(),

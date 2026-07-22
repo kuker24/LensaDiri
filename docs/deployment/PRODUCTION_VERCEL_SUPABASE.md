@@ -29,6 +29,8 @@ TOKEN_HASH_PEPPER
 RATE_LIMIT_SECRET
 ```
 
+Optional: set `CRON_SECRET` (at least 16 characters, distinct from other secrets) to authorize the daily retention cleanup cron at `/api/cron/retention-cleanup`. Vercel sends it automatically as the `Authorization: Bearer` header for scheduled invocations. Without it the route fails closed. Add the same value as a GitHub Actions secret named `CRON_SECRET` so the retention monitor dry-run can verify eligibility.
+
 Rules:
 
 - `NEXT_PUBLIC_APP_URL` is the stable origin for its scope, such as the production alias or stable branch Preview alias; no path, query, or trailing configuration data.

@@ -98,13 +98,43 @@ Hosted backup inspection dan restore drill saat ini `BLOCKED_EXTERNAL` karena st
 
 ## Retention cleanup
 
-Jalankan dari trusted scheduled job, bukan browser:
+### Scheduler
 
-```sql
-select * from public.cleanup_expired_retention_data(now());
+- Daily Vercel Cron memanggil `GET /api/cron/retention-cleanup` (`vercel.json`, `0 3 * * *` UTC). Vercel Hobby membatasi cron sekali per hari dan dapat menembak kapan pun dalam jam terjadwal; delivery best-effort tanpa retry.
+- Route memerlukan header `Authorization: Bearer <CRON_SECRET>` (constant-time compare, fail-closed). Tanpa `CRON_SECRET` terkonfigurasi atau token salah, route mengembalikan 401 dan tidak melakukan apa pun. `CRON_SECRET` diset di Vercel sebagai environment variable, minimal 16 karakter, berbeda dari secret lain, tidak pernah dicetak.
+- Cleanup memanggil `cleanup_expired_retention_data(now())` yang idempotent: hanya menghapus guest session kedaluwarsa dan rate-limit bucket lebih tua dari 90 hari. Result akun tetap user-controlled dan tidak pernah disentuh. Duplicate atau missed run aman karena delete-where-eligible.
+- Setiap invocation menulis satu `operational_event` (`operation=retention_cleanup`, `retention_counts` aggregate non-PII).
+
+### Dry run
+
+Verifikasi eligibility tanpa menghapus data:
+
+```bash
+CRON_SECRET=<secret> npm run monitor:retention -- --url https://lensadiri.vercel.app
 ```
 
-Function hanya membersihkan guest session kedaluwarsa dan rate-limit bucket lama. Result akun tetap user-controlled. Audit security event mengikuti policy terpisah dan belum dihapus oleh function ini.
+Ini memanggil `GET /api/cron/retention-cleanup?dryRun=1`, yang menjalankan `preview_expired_retention_data(now())` read-only dan mengembalikan jumlah baris yang akan dihapus. Fungsi preview additive, security-definer, dan direvoke dari browser roles.
+
+Trusted manual SQL (server/editor tepercaya, bukan browser):
+
+```sql
+select * from public.preview_expired_retention_data(now()); -- read-only
+select * from public.cleanup_expired_retention_data(now());  -- deletes eligible only
+```
+
+Audit security event mengikuti policy 365 hari terpisah dan belum dihapus oleh function ini; rekonsiliasi audit retention adalah task terpisah.
+
+### Failure alerting
+
+`.github/workflows/retention-monitor.yml` menjalankan dry-run terjadwal memakai GitHub secret `CRON_SECRET`. Kegagalan membuka satu issue bertanda `[alert] Retention cleanup monitor failed`; recovery menutupnya. `workflow_dispatch` dengan `drill=true` sengaja gagal untuk memverifikasi alert routing. Workflow/cron baru aktif setelah file masuk default branch; jangan klaim scheduled PASS sebelum ada run URL.
+
+### Rollback
+
+Tidak ada data rollback. Migration `202607280001` additive dan hanya menambah fungsi read-only.
+
+1. Untuk menghentikan cleanup terjadwal: hapus blok `crons` dari `vercel.json` dan redeploy, atau Disable Cron Jobs di Vercel; atau revert PR.
+2. Untuk false alert retention monitor: nonaktifkan/revert `.github/workflows/retention-monitor.yml`, tutup issue setelah penyebab tercatat.
+3. Jangan menghapus fungsi cleanup, audit log, atau data untuk rollback. Gunakan fix-forward.
 
 ## Release checklist
 

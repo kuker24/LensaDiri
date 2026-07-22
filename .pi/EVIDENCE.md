@@ -89,3 +89,19 @@ E2E/a11y modular runs enable `FEATURE_MODULAR_COMPOSER` and `FEATURE_COMPLEX_MOD
 | First provider-scheduled run        | `PENDING_PROVIDER`: zero schedule events after two intervals                |
 
 Approved PR merge deployed application code through the existing Vercel integration. No database, migration, feature flag, secret, or provider setting changed. Rollback is workflow disable/revert plus application deployment revert if needed; no data rollback.
+
+## Retention scheduler task evidence
+
+| Gate                                | Result                                                                                              |
+| ----------------------------------- | --------------------------------------------------------------------------------------------------- |
+| `npm run format:check`              | PASS                                                                                                |
+| `npm run lint`                      | PASS                                                                                                |
+| `npm run typecheck`                 | PASS                                                                                                |
+| `npm test`                          | PASS: 32 files, 150 tests                                                                           |
+| `npm run build`                     | PASS; `/api/cron/retention-cleanup` present in route manifest                                       |
+| `npm audit --audit-level=high`      | PASS: zero vulnerabilities                                                                          |
+| Disposable DB/integration/pgTAP/E2E | DEFERRED to PR CI: Docker unavailable locally; new pgTAP written but unrun locally, MUST pass in CI |
+| Cron activation + `CRON_SECRET`     | PENDING merge and Vercel/GitHub secret provisioning                                                 |
+| Retention monitor drill             | PENDING merge and explicit production-operations approval                                           |
+
+Additive migration `202607280001` adds only a read-only `preview_expired_retention_data` function. The idempotent `cleanup_expired_retention_data` deletes only already-eligible expired guest sessions and old rate-limit buckets; account-owned results are never touched. No production database, migration, deployment, feature flag, secret, or provider setting was changed on this branch.

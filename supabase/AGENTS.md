@@ -24,6 +24,7 @@ All auth and MVP assessment tables are sensitive. RLS is enabled and forced with
 - Add modular schema through additive, backward-compatible migrations; deploy compatible read paths before write cutover, backfill separately/resumably, gate new writes behind feature flags, and use fix-forward instead of rewriting applied migrations.
 - Keep production migration-only. Never run reset, destructive integration, pgTAP, or E2E against hosted production.
 - Do not place raw answers, private results, passwords, tokens, IP addresses, or user-agent strings in `audit_logs.metadata_json`.
+- `cleanup_expired_retention_data(timestamptz)` deletes only expired guest sessions and rate-limit buckets older than 90 days; it is idempotent and never touches account-owned results. `preview_expired_retention_data(timestamptz)` (migration `202607280001`) is its read-only dry-run companion that only counts eligible rows. Both are security-definer and revoked from `anon`/`authenticated`.
 
 ## Verification
 

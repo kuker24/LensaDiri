@@ -4,7 +4,7 @@
 
 ## Current objective
 
-Complete production-readiness tasks sequentially without unapproved production action. Current slice: structured safe observability, scheduled liveness, issue alert routing, and drill contract.
+Complete production-readiness tasks sequentially without unapproved production action. Current slice: retention scheduler (least-privilege cron route, idempotent cleanup, read-only dry-run, structured logs, issue alert routing, rollback).
 
 Do not: reapply or modify production migration `202607270001`, activate `FEATURE_COMPLEX_MODE`/`FEATURE_PROVISIONAL_PRECISION`/`FEATURE_AI_NARRATIVE`, run hosted dry-run/backup/seed/deploy/alias, change Vercel env, expose secrets, or merge without green CI.
 
@@ -65,6 +65,16 @@ Do not: reapply or modify production migration `202607270001`, activate `FEATURE
 - Workflow state `active`, tetapi first `schedule` event belum dijalankan provider setelah dua interval observasi (`total_count=0`). Status `PENDING_PROVIDER`; GitHub schedule best-effort. Jangan klaim scheduled-run PASS sampai run URL tersedia.
 - Provider-level 5xx/latency/DB/flag alerts masih membutuhkan operator configuration dan approval.
 - Rollback: revert PR or disable workflow; no data rollback.
+
+## Retention scheduler slice
+
+- Added additive migration `202607280001_retention_cleanup_preview.sql`: read-only `preview_expired_retention_data(timestamptz)` counts eligible rows without deleting; security-definer, revoked from browser roles. pgTAP `retention_cleanup_preview.test.sql` proves dry-run counts, boundary safety, no deletion, idempotent cleanup, and account-session preservation.
+- Added `GET /api/cron/retention-cleanup`: `CRON_SECRET` bearer auth (constant-time, fail-closed when unset/wrong), `?dryRun=1` preview, deadline-bounded, structured `operational_event` with aggregate `retention_counts`. Reuses existing idempotent `cleanup_expired_retention_data`; account results untouched.
+- Added daily Vercel cron in `vercel.json` (`0 3 * * *`) and GitHub retention monitor workflow with marker-deduplicated issue alert + recovery close; `drill=true` intentionally fails.
+- `CRON_SECRET` is optional env (min 16 chars) in `env-schema`; set in Vercel + as GitHub secret before activation. Route fails closed if missing.
+- Local evidence: format, lint, typecheck, build, audit PASS; unit PASS 32 files/150 tests. Docker unavailable locally, so integration/pgTAP/E2E deferred to PR CI; new pgTAP `retention_cleanup_preview.test.sql` written but unrun locally and MUST pass in CI.
+- Not yet production-verified: cron/workflow inactive until merge; `CRON_SECRET` must be provisioned in Vercel + GitHub; scheduled/drill evidence pending merge + provisioning.
+- Rollback: remove `crons` from `vercel.json` or disable in Vercel, and/or revert PR; migration is additive read-only, no data rollback.
 
 ## Release blockers
 
