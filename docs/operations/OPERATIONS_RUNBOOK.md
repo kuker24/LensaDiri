@@ -21,7 +21,7 @@ Preview database dan preview-scoped secret wajib diverifikasi sebelum Preview fu
 - `workflow_dispatch` dengan `drill=true` sengaja menggagalkan check untuk membuktikan jalur issue alert. Workflow baru tersedia untuk schedule/manual dispatch setelah file masuk default branch.
 - Vercel Hobby runtime log retention hanya satu jam menurut dokumentasi provider saat implementasi. Runtime log bukan audit log atau penyimpanan evidence jangka panjang.
 
-Status task branch: implementation dan local checks siap; schedule belum aktif, alert delivery drill belum PASS, Vercel error-anomaly destination belum dikonfigurasi. Jangan klaim monitoring production lengkap sebelum PR merged, satu scheduled run PASS, drill membuka issue, recovery menutup issue, dan owner mengonfirmasi destination.
+Status 2026-07-22: PR #25 merged pada `b424395`; merged-SHA CI dan Vercel deployment PASS. Manual healthy run PASS. Drill membuka tepat satu marked issue #26; recovery menutupnya otomatis. Workflow berstatus `active`, tetapi first provider `schedule` event masih `PENDING_PROVIDER` setelah dua interval observasi. Vercel error-anomaly destination belum dikonfigurasi. Jangan klaim scheduled-run atau provider-threshold PASS sebelum bukti run/configuration tersedia.
 
 ### Operator checks
 
