@@ -1,6 +1,6 @@
 # Engineering Evidence
 
-> Refreshed 2026-07-22 for observability task branch. Supersedes stale 64-test / `phase-1-foundation` checkpoint.
+> Refreshed 2026-07-22 after observability production postcheck. Supersedes stale 64-test / `phase-1-foundation` checkpoint.
 
 ## Objective
 
@@ -8,8 +8,8 @@ Reproducible checkpoint for LensaDiri: legacy compatibility, modular composer li
 
 ## Source checkpoint
 
-- Base checkpoint: `main` / `origin/main` `90acf1b docs(release): record production postcheck evidence`.
-- Task branch: `agent/observability-alerting`; implementation commit `43fa049`, PR #25 open.
+- Production checkpoint: `main` / `origin/main` `b424395 feat(ops): add production liveness alerts (#25)`.
+- PR #25 merged 2026-07-22 after explicit approval.
 - PR #24 squash-merged 2026-07-22: answer-persistence race fix + `sharp ^0.35.3` override (clears libvips CVE-2026-33327/33328/35590/35591). Both CI jobs green on merged SHA.
 - All-lenses branch: `agent/complete-all-lenses-release-ready` (from `origin/main` `38c982f`); not yet merged.
 - Production URL: `https://lensadiri.vercel.app`.
@@ -80,7 +80,12 @@ E2E/a11y modular runs enable `FEATURE_MODULAR_COMPOSER` and `FEATURE_COMPLEX_MOD
 | `npm audit --audit-level=high`      | PASS: zero vulnerabilities                                                  |
 | Disposable DB/integration/pgTAP/E2E | PASS in PR CI runs `29913149675`, `29913194014`; Docker unavailable locally |
 | Vercel Preview                      | PASS for PR #25                                                             |
-| Scheduled GitHub run                | PENDING merge to default branch                                             |
-| Alert drill + recovery close        | PENDING merge and explicit production-operations approval                   |
+| Merged-SHA CI                       | PASS: `29914521598`                                                         |
+| Vercel production deployment        | PASS on `b424395`; read-only health PASS                                    |
+| Manual healthy monitor              | PASS: `29915115034`                                                         |
+| Alert drill                         | PASS: expected failure `29915138990`; exactly one issue #26                 |
+| Recovery                            | PASS: `29915169708`; issue #26 auto-closed                                  |
+| Workflow state                      | `active`                                                                    |
+| First provider-scheduled run        | `PENDING_PROVIDER`: zero schedule events after two intervals                |
 
-Production state was not changed. No database, migration, deployment, feature flag, secret, or provider setting was touched. Rollback is workflow disable/revert plus application deployment revert if needed; no data rollback.
+Approved PR merge deployed application code through the existing Vercel integration. No database, migration, feature flag, secret, or provider setting changed. Rollback is workflow disable/revert plus application deployment revert if needed; no data rollback.
