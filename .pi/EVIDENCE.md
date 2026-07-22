@@ -1,6 +1,6 @@
 # Engineering Evidence
 
-> Refreshed 2026-07-22 (post PR #24 squash-merge). Supersedes stale 64-test / `phase-1-foundation` checkpoint.
+> Refreshed 2026-07-22 for observability task branch. Supersedes stale 64-test / `phase-1-foundation` checkpoint.
 
 ## Objective
 
@@ -8,7 +8,8 @@ Reproducible checkpoint for LensaDiri: legacy compatibility, modular composer li
 
 ## Source checkpoint
 
-- Active branch: `main`, HEAD `47b8303 Fix assessment answer persistence race (#24)`, origin-synced.
+- Base checkpoint: `main` / `origin/main` `90acf1b docs(release): record production postcheck evidence`.
+- Task branch: `agent/observability-alerting`; commit/PR pending.
 - PR #24 squash-merged 2026-07-22: answer-persistence race fix + `sharp ^0.35.3` override (clears libvips CVE-2026-33327/33328/35590/35591). Both CI jobs green on merged SHA.
 - All-lenses branch: `agent/complete-all-lenses-release-ready` (from `origin/main` `38c982f`); not yet merged.
 - Production URL: `https://lensadiri.vercel.app`.
@@ -54,7 +55,7 @@ E2E/a11y modular runs enable `FEATURE_MODULAR_COMPOSER` and `FEATURE_COMPLEX_MOD
 - Recovery tokens single-use, expiry, generic response, session revoke, concurrent-safe.
 - Sensitive tables forced RLS, zero browser policy, zero direct `anon`/`authenticated` privilege (pgTAP).
 - Public shared result allowlist explicit; private quality/confidence/clarifier/timing stay private.
-- IP/user-agent stored as HMAC fingerprint only; no server `console.*`, no raw answer logging.
+- IP/user-agent stored as HMAC fingerprint only. Server operational logs use an explicit field allowlist; no raw answer, token, email, account ID, IP, user-agent, request body, or private result logging.
 - Modular/Complex UI+API fail closed while flags OFF.
 
 ## Residual risks and deferred scope
@@ -64,3 +65,21 @@ E2E/a11y modular runs enable `FEATURE_MODULAR_COMPOSER` and `FEATURE_COMPLEX_MOD
 - AI narrative, formal psychometric validation, third-party WCAG certification, monitoring provider, restore drill, isolated staging, custom domain, retention automation remain deferred or partial.
 - `FEATURE_COMPLEX_MODE`, `FEATURE_PROVISIONAL_PRECISION`, `FEATURE_AI_NARRATIVE` OFF in production.
 - Never run local reset, integration, pgTAP, seed, or E2E suites against production.
+
+## Observability task evidence
+
+| Gate                                | Result                                                        |
+| ----------------------------------- | ------------------------------------------------------------- |
+| `npm run lint`                      | PASS                                                          |
+| `npm run typecheck`                 | PASS                                                          |
+| `npm test`                          | PASS: 30 files, 139 tests                                     |
+| Targeted observability unit         | PASS: 2 tests                                                 |
+| `npm run monitor:health`            | PASS against production liveness; read-only GET only          |
+| Forced local monitor failure        | PASS: non-zero exit with redacted target/error only           |
+| `npm run build`                     | PASS                                                          |
+| `npm audit --audit-level=high`      | PASS: zero vulnerabilities                                    |
+| Disposable DB/integration/pgTAP/E2E | BLOCKED locally: Docker daemon unavailable; required in PR CI |
+| Scheduled GitHub run                | PENDING merge to default branch                               |
+| Alert drill + recovery close        | PENDING merge and explicit production-operations approval     |
+
+Production state was not changed. No database, migration, deployment, feature flag, secret, or provider setting was touched. Rollback is workflow disable/revert plus application deployment revert if needed; no data rollback.

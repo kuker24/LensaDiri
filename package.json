@@ -26,7 +26,8 @@
     "test:e2e": "playwright test",
     "test:a11y": "playwright test tests/e2e/accessibility.spec.ts",
     "check": "npm run lint && npm run typecheck && npm run test && npm run build",
-    "smoke:production:readonly": "node scripts/production-smoke-readonly.mjs"
+    "smoke:production:readonly": "node scripts/production-smoke-readonly.mjs",
+    "monitor:health": "node scripts/monitor-health.mjs"
   },
   "dependencies": {
     "argon2": "^0.44.0",

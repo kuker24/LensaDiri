@@ -1,0 +1,63 @@
+name: Production liveness
+
+on:
+  schedule:
+    - cron: "*/5 * * * *"
+  workflow_dispatch:
+    inputs:
+      drill:
+        description: Intentionally fail to verify alert delivery
+        required: true
+        default: false
+        type: boolean
+
+permissions:
+  contents: read
+
+concurrency:
+  group: production-liveness
+  cancel-in-progress: false
+
+jobs:
+  monitor:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      issues: write
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check liveness
+        id: monitor
+        continue-on-error: true
+        run: node scripts/monitor-health.mjs ${{ inputs.drill && '--drill' || '' }}
+
+      - name: Open or resolve alert
+        env:
+          GH_TOKEN: ${{ github.token }}
+          MONITOR_OUTCOME: ${{ steps.monitor.outcome }}
+          REPOSITORY: ${{ github.repository }}
+          RUN_URL: https://github.com/${{ github.repository }}/actions/runs/${{ github.run_id }}
+        run: |
+          title="[alert] Production liveness monitor failed"
+          marker="<!-- lensadiri-production-liveness -->"
+          issues="$(gh issue list --repo "$REPOSITORY" --state open --limit 100 --json number,title,body)"
+          issue_number="$(jq -r --arg title "$title" --arg marker "$marker" '[.[] | select(.title == $title and (.body | contains($marker)))][0].number // empty' <<<"$issues")"
+          if [ "$MONITOR_OUTCOME" = "failure" ]; then
+            body="$marker
+
+          Liveness check failed. Run: $RUN_URL"
+            if [ -n "$issue_number" ]; then
+              gh issue comment "$issue_number" --repo "$REPOSITORY" --body "$body"
+            else
+              gh issue create --repo "$REPOSITORY" --title "$title" --body "$body"
+            fi
+          elif [ -n "$issue_number" ]; then
+            gh issue close "$issue_number" --repo "$REPOSITORY" --comment "Liveness recovered. Run: $RUN_URL"
+          fi
+
+      - name: Fail unhealthy run
+        if: steps.monitor.outcome == 'failure'
+        run: exit 1

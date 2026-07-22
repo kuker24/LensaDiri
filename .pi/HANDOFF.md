@@ -1,16 +1,17 @@
 # Project Handoff
 
-> Refreshed 2026-07-22 (post PR #24 squash-merge). Supersedes stale `phase-1-foundation`/PR #3 snapshot.
+> Refreshed 2026-07-22 for observability task branch. Supersedes stale `phase-1-foundation`/PR #3 snapshot.
 
 ## Current objective
 
-Ship remaining modular lenses safely without unapproved production action. Engineering for all 10 lenses is complete and local-verified on `agent/complete-all-lenses-release-ready`. Production activation of the 6 guarded lenses needs separate approval.
+Complete production-readiness tasks sequentially without unapproved production action. Current slice: structured safe observability, scheduled liveness, issue alert routing, and drill contract.
 
-Do not: apply candidate migration `202607270001` to production, activate `FEATURE_COMPLEX_MODE`/`FEATURE_PROVISIONAL_PRECISION`/`FEATURE_AI_NARRATIVE`, run hosted dry-run/backup/seed/deploy/alias, change Vercel env, expose secrets, or merge without green CI.
+Do not: reapply or modify production migration `202607270001`, activate `FEATURE_COMPLEX_MODE`/`FEATURE_PROVISIONAL_PRECISION`/`FEATURE_AI_NARRATIVE`, run hosted dry-run/backup/seed/deploy/alias, change Vercel env, expose secrets, or merge without green CI.
 
 ## Current git state
 
-- Active branch: `main`, HEAD `47b8303 Fix assessment answer persistence race (#24)`, synced with origin.
+- Base: `main` / `origin/main` at `90acf1b docs(release): record production postcheck evidence`.
+- Active branch: `agent/observability-alerting`; uncommitted implementation pending full gates, commit, push, and PR.
 - PR #24 squash-merged 2026-07-22 (answer-persistence race fix + `sharp ^0.35.3` override clearing libvips CVEs). All CI green: `Quality and build` + `Database and browser tests`.
 - Merged history through PR #24. Prior stale snapshots referenced `agent/phase-1-foundation` / PR #3 (obsolete).
 - All-lenses release work lives on `agent/complete-all-lenses-release-ready` (from `origin/main` `38c982f`); not yet merged.
@@ -51,12 +52,23 @@ Do not: apply candidate migration `202607270001` to production, activate `FEATUR
 4. Complex mode / provisional precision / AI narrative activation only per product/release approval.
 5. Stop after evidence unless production approval is explicit.
 
+## Observability slice
+
+- Added one server-only allowlisted JSON logger. Auth/session/estimate plus assessment start, answer save, and completion emit operation/status/duration without raw user data.
+- Added `npm run monitor:health`: read-only exact-payload check for `/api/health`.
+- Added scheduled/manual GitHub workflow. Failure deduplicates into one alert issue; recovery closes it. `drill=true` intentionally fails.
+- No dependency, migration, database write, feature-flag change, Vercel configuration, deployment, or production mutation.
+- Local evidence: format, lint, typecheck, build, audit PASS; unit PASS 30 files/139 tests; read-only live health PASS. Docker daemon unavailable, jadi integration/pgTAP/E2E lokal blocked dan wajib dibuktikan PR CI.
+- Not yet production-verified: workflow inactive until merge to default branch; alert drill and recovery evidence absent; provider-level 5xx/latency/DB/flag alerts require operator configuration and approval.
+- Rollback: revert PR or disable workflow; no data rollback.
+
 ## Release blockers
 
 - Production content-table postcheck for the six guarded lenses still recommended (this audit confirmed selectability via public pages only).
 - `FEATURE_COMPLEX_MODE` and Full Spectrum activation deferred; `full_spectrum`/`deep_self_discovery` presets stay draft.
 - Provider email + mandatory verification `BLOCKED_EXTERNAL`.
 - AI narrative deferred (flag OFF). Formal psychometric validation and third-party WCAG certification deferred — do not claim either.
+- Observability completion requires merged workflow, scheduled PASS, alert drill issue + recovery close, named owner, and approved Vercel/Supabase destinations. Merge may deploy production; explicit approval required.
 
 ## Resume rules
 
