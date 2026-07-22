@@ -77,8 +77,12 @@ select is(
 );
 
 -- Dry-run must not delete anything: both rows remain after two invocations.
-perform public.preview_expired_retention_data(now());
-perform public.preview_expired_retention_data(now());
+do $$
+begin
+  perform public.preview_expired_retention_data(now());
+  perform public.preview_expired_retention_data(now());
+end;
+$$;
 select is(
   (select count(*)::integer from public.test_sessions where id in (
     '00000000-0000-0000-0000-0000000000b1',
