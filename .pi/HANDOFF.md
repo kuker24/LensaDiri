@@ -47,7 +47,7 @@ Do not: apply candidate migration `202607270001` to production, activate `FEATUR
 
 1. Answer-persistence fix landed on `main` via PR #24 (DONE).
 2. Guarded all-lenses rollout (`202607270001`) merged via PR #15 and applied to production (DONE); all 10 modules selectable.
-3. Run read-only production content-table postcheck: six modules selectable with correct `pilot`/`experimental` status, items/translations stay `draft`, `guardedBeta=true` only on six target versions.
+3. Read-only production postcheck done (2026-07-22, SHA `51dc4e0`): 10 modules selectable, 4 pilot + 2 experimental, presets match readiness, Complex/precision OFF via API-derived signals. Still open (needs credentials/approval): direct `review_status='draft'` count for 147 items+translations, `config_json.guardedBeta` scope, and `FEATURE_AI_NARRATIVE` row. See `docs/deployment/MODULAR_RELEASE_READINESS.md` postcheck table.
 4. Complex mode / provisional precision / AI narrative activation only per product/release approval.
 5. Stop after evidence unless production approval is explicit.
 
