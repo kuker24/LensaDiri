@@ -1,6 +1,6 @@
 # Engineering Evidence
 
-> Refreshed 2026-07-22 after retention scheduler PR verification. Supersedes stale 64-test / `phase-1-foundation` checkpoint.
+> Refreshed 2026-07-22 after retention scheduler production activation. Supersedes stale 64-test / `phase-1-foundation` checkpoint.
 
 ## Objective
 
@@ -8,8 +8,8 @@ Reproducible checkpoint for LensaDiri: legacy compatibility, modular composer li
 
 ## Source checkpoint
 
-- Production checkpoint: `main` / `origin/main` `95c61c7 docs(ops): record observability drill evidence (#27)`.
-- PR #25 and docs follow-up PR #27 merged 2026-07-22 after explicit approval.
+- Production checkpoint: `main` / `origin/main` `e5a37d1 feat(ops): add production retention cleanup scheduler (#28)`.
+- PR #28 merged and production-activated 2026-07-22 after explicit approval.
 - PR #24 squash-merged 2026-07-22: answer-persistence race fix + `sharp ^0.35.3` override (clears libvips CVE-2026-33327/33328/35590/35591). Both CI jobs green on merged SHA.
 - All-lenses branch: `agent/complete-all-lenses-release-ready` (from `origin/main` `38c982f`); not yet merged.
 - Production URL: `https://lensadiri.vercel.app`.
@@ -103,7 +103,16 @@ Approved PR merge deployed application code through the existing Vercel integrat
 | Disposable DB/integration/pgTAP/E2E | PASS in PR CI run `29923303552`                                                 |
 | Duplicate CI rerun                  | PASS: `29923298628`; initial attempt hit Docker Hub rate limit + port collision |
 | PR #28 implementation SHA           | `ec273615ec24ac737908bb94a64f086e49ba8f2d`; implementation checks green         |
-| Cron activation + `CRON_SECRET`     | PENDING merge and Vercel/GitHub secret provisioning                             |
-| Retention monitor drill             | PENDING merge and explicit production-operations approval                       |
+| Merged-SHA CI                       | PASS: `29928134247`                                                             |
+| Production deployment               | PASS: `dpl_AqZzDCuwuBkwXG8ZWhJhtVXStr1P`; stable alias healthy                  |
+| Migration `202607280001`            | APPLIED; subsequent linked dry-run reports remote up to date                    |
+| `CRON_SECRET`                       | Provisioned as Vercel Production sensitive env + GitHub Actions secret          |
+| Fail-closed auth                    | PASS: unauthenticated production dry-run returned HTTP 401                      |
+| Pre-cleanup dry-run                 | PASS: `29928883702`; eligible guest sessions 2, rate limits 0                   |
+| Production cleanup                  | PASS: deleted guest sessions 2, rate limits 0                                   |
+| Post-cleanup dry-run                | PASS: `29929102188`; eligible counts both 0                                     |
+| Retention monitor drill             | PASS: expected failure `29929143971`; exactly one marked issue #29              |
+| Recovery                            | PASS: `29929191879`; issue #29 auto-closed                                      |
+| First provider-scheduled cron       | `PENDING_PROVIDER`; manual invocation verified, scheduled delivery not yet due  |
 
-Additive migration `202607280001` adds only a read-only `preview_expired_retention_data` function. The idempotent `cleanup_expired_retention_data` deletes only already-eligible expired guest sessions and old rate-limit buckets; account-owned results are never touched. No production database, migration, deployment, feature flag, secret, or provider setting was changed on this branch.
+Additive migration `202607280001` adds only a read-only `preview_expired_retention_data` function. The approved cleanup matched its dry-run exactly, then returned zero eligible rows. The idempotent function touches only eligible expired guest sessions and old rate-limit buckets; account-owned results are outside its delete scope. No feature flag changed. First provider-scheduled Vercel delivery remains pending.
