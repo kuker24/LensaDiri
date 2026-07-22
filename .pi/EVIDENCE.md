@@ -1,6 +1,6 @@
 # Engineering Evidence
 
-> Refreshed 2026-07-22 after observability production postcheck. Supersedes stale 64-test / `phase-1-foundation` checkpoint.
+> Refreshed 2026-07-22 after retention scheduler PR verification. Supersedes stale 64-test / `phase-1-foundation` checkpoint.
 
 ## Objective
 
@@ -8,8 +8,8 @@ Reproducible checkpoint for LensaDiri: legacy compatibility, modular composer li
 
 ## Source checkpoint
 
-- Production checkpoint: `main` / `origin/main` `b424395 feat(ops): add production liveness alerts (#25)`.
-- PR #25 merged 2026-07-22 after explicit approval.
+- Production checkpoint: `main` / `origin/main` `95c61c7 docs(ops): record observability drill evidence (#27)`.
+- PR #25 and docs follow-up PR #27 merged 2026-07-22 after explicit approval.
 - PR #24 squash-merged 2026-07-22: answer-persistence race fix + `sharp ^0.35.3` override (clears libvips CVE-2026-33327/33328/35590/35591). Both CI jobs green on merged SHA.
 - All-lenses branch: `agent/complete-all-lenses-release-ready` (from `origin/main` `38c982f`); not yet merged.
 - Production URL: `https://lensadiri.vercel.app`.
@@ -86,22 +86,24 @@ E2E/a11y modular runs enable `FEATURE_MODULAR_COMPOSER` and `FEATURE_COMPLEX_MOD
 | Alert drill                         | PASS: expected failure `29915138990`; exactly one issue #26                 |
 | Recovery                            | PASS: `29915169708`; issue #26 auto-closed                                  |
 | Workflow state                      | `active`                                                                    |
-| First provider-scheduled run        | `PENDING_PROVIDER`: zero schedule events after two intervals                |
+| First provider-scheduled run        | PASS: `29920936659`                                                         |
 
 Approved PR merge deployed application code through the existing Vercel integration. No database, migration, feature flag, secret, or provider setting changed. Rollback is workflow disable/revert plus application deployment revert if needed; no data rollback.
 
 ## Retention scheduler task evidence
 
-| Gate                                | Result                                                                                              |
-| ----------------------------------- | --------------------------------------------------------------------------------------------------- |
-| `npm run format:check`              | PASS                                                                                                |
-| `npm run lint`                      | PASS                                                                                                |
-| `npm run typecheck`                 | PASS                                                                                                |
-| `npm test`                          | PASS: 32 files, 150 tests                                                                           |
-| `npm run build`                     | PASS; `/api/cron/retention-cleanup` present in route manifest                                       |
-| `npm audit --audit-level=high`      | PASS: zero vulnerabilities                                                                          |
-| Disposable DB/integration/pgTAP/E2E | DEFERRED to PR CI: Docker unavailable locally; new pgTAP written but unrun locally, MUST pass in CI |
-| Cron activation + `CRON_SECRET`     | PENDING merge and Vercel/GitHub secret provisioning                                                 |
-| Retention monitor drill             | PENDING merge and explicit production-operations approval                                           |
+| Gate                                | Result                                                                          |
+| ----------------------------------- | ------------------------------------------------------------------------------- |
+| `npm run format:check`              | PASS                                                                            |
+| `npm run lint`                      | PASS                                                                            |
+| `npm run typecheck`                 | PASS                                                                            |
+| `npm test`                          | PASS: 32 files, 150 tests                                                       |
+| `npm run build`                     | PASS; `/api/cron/retention-cleanup` present in route manifest                   |
+| `npm audit --audit-level=high`      | PASS: zero vulnerabilities                                                      |
+| Disposable DB/integration/pgTAP/E2E | PASS in PR CI run `29923303552`                                                 |
+| Duplicate CI rerun                  | PASS: `29923298628`; initial attempt hit Docker Hub rate limit + port collision |
+| PR #28 implementation SHA           | `ec273615ec24ac737908bb94a64f086e49ba8f2d`; implementation checks green         |
+| Cron activation + `CRON_SECRET`     | PENDING merge and Vercel/GitHub secret provisioning                             |
+| Retention monitor drill             | PENDING merge and explicit production-operations approval                       |
 
 Additive migration `202607280001` adds only a read-only `preview_expired_retention_data` function. The idempotent `cleanup_expired_retention_data` deletes only already-eligible expired guest sessions and old rate-limit buckets; account-owned results are never touched. No production database, migration, deployment, feature flag, secret, or provider setting was changed on this branch.
