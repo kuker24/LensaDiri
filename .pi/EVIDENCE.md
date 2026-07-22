@@ -9,7 +9,7 @@ Reproducible checkpoint for LensaDiri: legacy compatibility, modular composer li
 ## Source checkpoint
 
 - Base checkpoint: `main` / `origin/main` `90acf1b docs(release): record production postcheck evidence`.
-- Task branch: `agent/observability-alerting`; commit/PR pending.
+- Task branch: `agent/observability-alerting`; implementation commit `43fa049`, PR #25 open.
 - PR #24 squash-merged 2026-07-22: answer-persistence race fix + `sharp ^0.35.3` override (clears libvips CVE-2026-33327/33328/35590/35591). Both CI jobs green on merged SHA.
 - All-lenses branch: `agent/complete-all-lenses-release-ready` (from `origin/main` `38c982f`); not yet merged.
 - Production URL: `https://lensadiri.vercel.app`.
@@ -68,18 +68,19 @@ E2E/a11y modular runs enable `FEATURE_MODULAR_COMPOSER` and `FEATURE_COMPLEX_MOD
 
 ## Observability task evidence
 
-| Gate                                | Result                                                        |
-| ----------------------------------- | ------------------------------------------------------------- |
-| `npm run lint`                      | PASS                                                          |
-| `npm run typecheck`                 | PASS                                                          |
-| `npm test`                          | PASS: 30 files, 139 tests                                     |
-| Targeted observability unit         | PASS: 2 tests                                                 |
-| `npm run monitor:health`            | PASS against production liveness; read-only GET only          |
-| Forced local monitor failure        | PASS: non-zero exit with redacted target/error only           |
-| `npm run build`                     | PASS                                                          |
-| `npm audit --audit-level=high`      | PASS: zero vulnerabilities                                    |
-| Disposable DB/integration/pgTAP/E2E | BLOCKED locally: Docker daemon unavailable; required in PR CI |
-| Scheduled GitHub run                | PENDING merge to default branch                               |
-| Alert drill + recovery close        | PENDING merge and explicit production-operations approval     |
+| Gate                                | Result                                                                      |
+| ----------------------------------- | --------------------------------------------------------------------------- |
+| `npm run lint`                      | PASS                                                                        |
+| `npm run typecheck`                 | PASS                                                                        |
+| `npm test`                          | PASS: 30 files, 139 tests                                                   |
+| Targeted observability unit         | PASS: 2 tests                                                               |
+| `npm run monitor:health`            | PASS against production liveness; read-only GET only                        |
+| Forced local monitor failure        | PASS: non-zero exit with redacted target/error only                         |
+| `npm run build`                     | PASS                                                                        |
+| `npm audit --audit-level=high`      | PASS: zero vulnerabilities                                                  |
+| Disposable DB/integration/pgTAP/E2E | PASS in PR CI runs `29913149675`, `29913194014`; Docker unavailable locally |
+| Vercel Preview                      | PASS for PR #25                                                             |
+| Scheduled GitHub run                | PENDING merge to default branch                                             |
+| Alert drill + recovery close        | PENDING merge and explicit production-operations approval                   |
 
 Production state was not changed. No database, migration, deployment, feature flag, secret, or provider setting was touched. Rollback is workflow disable/revert plus application deployment revert if needed; no data rollback.

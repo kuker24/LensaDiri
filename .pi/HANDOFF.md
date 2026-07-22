@@ -11,7 +11,7 @@ Do not: reapply or modify production migration `202607270001`, activate `FEATURE
 ## Current git state
 
 - Base: `main` / `origin/main` at `90acf1b docs(release): record production postcheck evidence`.
-- Active branch: `agent/observability-alerting`; uncommitted implementation pending full gates, commit, push, and PR.
+- Active branch: `agent/observability-alerting`; commit `43fa049 feat(ops): add production liveness alerts`, pushed. PR #25 open: `https://github.com/kuker24/LensaDiri/pull/25`.
 - PR #24 squash-merged 2026-07-22 (answer-persistence race fix + `sharp ^0.35.3` override clearing libvips CVEs). All CI green: `Quality and build` + `Database and browser tests`.
 - Merged history through PR #24. Prior stale snapshots referenced `agent/phase-1-foundation` / PR #3 (obsolete).
 - All-lenses release work lives on `agent/complete-all-lenses-release-ready` (from `origin/main` `38c982f`); not yet merged.
@@ -58,7 +58,8 @@ Do not: reapply or modify production migration `202607270001`, activate `FEATURE
 - Added `npm run monitor:health`: read-only exact-payload check for `/api/health`.
 - Added scheduled/manual GitHub workflow. Failure deduplicates into one alert issue; recovery closes it. `drill=true` intentionally fails.
 - No dependency, migration, database write, feature-flag change, Vercel configuration, deployment, or production mutation.
-- Local evidence: format, lint, typecheck, build, audit PASS; unit PASS 30 files/139 tests; read-only live health PASS. Docker daemon unavailable, jadi integration/pgTAP/E2E lokal blocked dan wajib dibuktikan PR CI.
+- Local evidence: format, lint, typecheck, build, audit PASS; unit PASS 30 files/139 tests; read-only live health PASS. Docker daemon lokal unavailable.
+- PR CI PASS pada runs `29913149675` dan `29913194014`: Quality/build serta disposable database/browser tests hijau. Vercel Preview PASS. Duplicate CI terjadi karena push dan PR trigger; keduanya hijau.
 - Not yet production-verified: workflow inactive until merge to default branch; alert drill and recovery evidence absent; provider-level 5xx/latency/DB/flag alerts require operator configuration and approval.
 - Rollback: revert PR or disable workflow; no data rollback.
 
