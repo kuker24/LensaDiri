@@ -35,12 +35,12 @@ Production identifiers, database URLs, tokens, passwords, keys, and secrets are 
 | `npm run db:reset`               | PASS against disposable local Supabase                                                                                 |
 | `npm run test:seed-replay`       | PASS: modules 10, module_versions 11, dimensions 49, questions/translations/mappings 405, presets 6, combo_mappings 27 |
 | Canonical seed SHA-256           | `45275f2a39fc284e8cb716c4b7c84b332fbcc3d150ce0fa83a0b040ec6739212`                                                     |
-| `npm run test:seed-replay-drift` | PASS: drift rejected and restored                                                                                     |
+| `npm run test:seed-replay-drift` | PASS: drift rejected and restored                                                                                      |
 | `npm run test:integration`       | PASS: 8 files, 32 tests                                                                                                |
 | `npm run test:db`                | PASS: 236 assertions, 4 files                                                                                          |
-| `npm run test:e2e`               | PASS: 58 tests, desktop Chromium + Pixel 5 (flags ON on disposable local only)                                        |
-| Accessibility subset             | PASS: 42 checks within full Playwright suite                                                                          |
-| GitHub Actions                   | Required green on pushed candidate SHA before merge                                                                   |
+| `npm run test:e2e`               | PASS: 58 tests, desktop Chromium + Pixel 5 (flags ON on disposable local only)                                         |
+| Accessibility subset             | PASS: 42 checks within full Playwright suite                                                                           |
+| GitHub Actions                   | Required green on pushed candidate SHA before merge                                                                    |
 
 E2E/a11y modular runs enable `FEATURE_MODULAR_COMPOSER` and `FEATURE_COMPLEX_MODE` on disposable DB only, matching CI. No production flag change.
 

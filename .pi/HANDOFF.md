@@ -24,12 +24,12 @@ Do not: apply candidate migration `202607270001` to production, activate `FEATUR
 
 ## Module tiers (10 lenses)
 
-| Tier           | Modules                                          |
-| -------------- | ------------------------------------------------ |
-| `active`       | Trait Profile                                    |
-| `published`    | 16-Type, Enneagram, Temperament                  |
-| `pilot`        | Three Center, Instinct, RIASEC, Attachment       |
-| `experimental` | Socionics, Psychosophy                           |
+| Tier           | Modules                                    |
+| -------------- | ------------------------------------------ |
+| `active`       | Trait Profile                              |
+| `published`    | 16-Type, Enneagram, Temperament            |
+| `pilot`        | Three Center, Instinct, RIASEC, Attachment |
+| `experimental` | Socionics, Psychosophy                     |
 
 ## Completed engineering scope
 
