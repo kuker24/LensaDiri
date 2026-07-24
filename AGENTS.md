@@ -19,7 +19,7 @@ LensaDiri adalah platform eksplorasi kepribadian modular, privacy-first, dan mob
 
 ## Technology
 
-- Next.js 16.2.10 App Router dan React 19.2.7.
+- Next.js 16.2.11 App Router dan React 19.2.7.
 - TypeScript strict, Tailwind CSS 4, ESLint, dan Prettier.
 - Zod 4 untuk validasi environment dan request boundary.
 - `postgres` sebagai driver PostgreSQL server-only, `argon2` untuk password hashing, dan `server-only` sebagai import guard.
