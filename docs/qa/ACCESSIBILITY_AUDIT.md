@@ -68,4 +68,12 @@ CI menjalankan command setelah database disposable di-reset dan feature fixture 
 - Cognitive walkthrough bersama pengguna neurodiverse: `BLOCKED_EXTERNAL`
 - Bahasa Indonesia oleh accessibility reviewer: `BLOCKED_EXTERNAL`
 
+### Operator checklist (when auditor available)
+
+1. Keyboard-only pass: landing → start → login/register → (fixture) runner → result → dashboard.
+2. One SR pass (NVDA or VoiceOver): focus order, live regions (autosave/errors), Likert `aria-pressed`, progressbar names.
+3. Mobile Pixel-class: 44px targets, no horizontal overflow, 16px inputs (no iOS zoom).
+4. Contrast spot-check on dark aperture tokens + warning text against real device brightness.
+5. Record findings in a dated note under `docs/qa/`; do **not** claim WCAG certification from this checklist alone.
+
 Manual review tersebut wajib sebelum klaim konformitas formal, tetapi tidak mengubah contract route, DTO, keyboard, privacy, dan state yang sudah distabilkan untuk tahap desain.

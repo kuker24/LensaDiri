@@ -134,6 +134,6 @@ Never run reset, integration, pgTAP, seed replay/drift/parity, or E2E against ho
 
 ## Release boundary
 
-Approved migration and modular content activation through `202607270001` are completed in production. Production currently has `FEATURE_MODULAR_COMPOSER` ON, all 10 modules selectable (six under guarded beta/experimental), while Complex, provisional precision, and AI narrative remain OFF. Recovery Resend transport and `FEATURE_REQUIRE_EMAIL_VERIFICATION` remain unset/OFF until explicit production approval; foundation migration `202607200001` stays applied and dormant without provider secrets.
+Approved migration and modular content activation through `202607270001` are completed in production; audit retention migration `202607290001` also applied. Production currently has `FEATURE_MODULAR_COMPOSER` ON, all 10 modules selectable (six under guarded beta/experimental), while Complex, provisional precision, and AI narrative remain OFF. Recovery Resend transport and `FEATURE_REQUIRE_EMAIL_VERIFICATION` remain unset/OFF until explicit production approval; foundation migration `202607200001` stays applied and dormant without provider secrets. Residual gate matrix: `docs/deployment/RELEASE_CLOSURE_GATES.md`. Operator SQL: `docs/deployment/PRODUCTION_POSTCHECK_SQL.md`.
 
 The guarded six-lens rollout (`202607270001`) reached `main` via PR #15 and is applied to production. Remaining production actions (Complex mode, provisional precision, AI narrative, provider email, mandatory verification) still require separate approved windows.
