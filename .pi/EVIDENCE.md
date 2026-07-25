@@ -1,89 +1,59 @@
 # Engineering Evidence
 
-> Refreshed 2026-07-26 after `main` `3eb53bc` (#36). Supersedes retention-era checkpoint at `e5a37d1`.
+> Refreshed 2026-07-26 after Complex activation + #38.
 
-## Objective
+## Checkpoint
 
-Reproducible checkpoint: hobby production baseline + modular guarded composer live; recovery delivery dormant; Complex/precision/AI OFF; residual gates external or approval-bound.
+- `main` @ `f501630` (#38 modules deep overlay).
+- Prior docs freeze `11661c9` (#37).
 
-## Source checkpoint
+## Production activation evidence (2026-07-26)
 
-- Production checkpoint: `main` / `origin/main` `3eb53bc feat(admin): DB-backed read-only catalog, feedback, and audit views (#36)`.
-- Prior: #35 Resend recovery transport (`c6e5d04`), #34 audit retention 365d (`fd54ff6`), #33/#32 deps, #31 staging restore docs, #30 retention evidence, #28 retention scheduler.
-- Production URL: `https://lensadiri.vercel.app`.
-- Production identifiers, database URLs, tokens, passwords, keys, and secrets are intentionally excluded.
+### Direct DB postcheck (linked `supabase db query --linked`, read-only then approved writes)
 
-## Production state
+| Check                                               | Result                                                        |
+| --------------------------------------------------- | ------------------------------------------------------------- |
+| Migration list Local==Remote through `202607290001` | MATCH                                                         |
+| Flags pre-activation                                | composer true; complex/precision/AI false                     |
+| Flags post-activation                               | composer true; **complex true**; **precision true**; AI false |
+| Modules selectable                                  | 10                                                            |
+| guardedBeta=true versions                           | exactly 6 deferred lenses                                     |
+| Draft questions (six modules)                       | 147 (21+18+36+32+16+24)                                       |
+| Draft translations (six modules)                    | 147 (same per-module)                                         |
+| Total draft rows                                    | 294                                                           |
+| Combos                                              | deep_self_discovery **pilot**; full_spectrum **draft**        |
+| Admin/super_admin accounts                          | 0 rows                                                        |
 
-- Migrations through `202607290001` applied (Local==Remote at last linked list).
-- `FEATURE_MODULAR_COMPOSER` ON; `FEATURE_COMPLEX_MODE`, `FEATURE_PROVISIONAL_PRECISION`, `FEATURE_AI_NARRATIVE` OFF (flag table not re-queried in every audit; API-derived signals match last postcheck).
-- 10 modules selectable; deep/full_spectrum presets hidden (draft).
-- Recovery: foundation + Resend code path live; no production secrets; verification flag OFF.
-- Admin: DB-backed read-only (#36); guest unauthenticated redirect.
+### Writes (product approval “Approve all”)
 
-## Post-#36 smoke (read-only)
+1. `set_feature_flag_state('FEATURE_COMPLEX_MODE', false, true, null, …)`
+2. `set_feature_flag_state('FEATURE_PROVISIONAL_PRECISION', false, true, null, …)`
+3. `combo_presets.deep_self_discovery` status `draft` → `pilot` + publication event (not formal `published`; required module versions still pilot)
 
-| Check                | Result                                          |
-| -------------------- | ----------------------------------------------- |
-| `GET /api/health`    | `200` `{"status":"ok"}`                         |
-| `GET /admin` (guest) | `307` fail-closed redirect                      |
-| Retention unauth     | `401`                                           |
-| Merged-SHA CI #36    | Quality + Database/browser PASS (`30177789771`) |
+### HTTP smoke post-#38 deploy
 
-## Local / CI evidence (candidate era)
+| Endpoint                   | Result                                                            |
+| -------------------------- | ----------------------------------------------------------------- |
+| `GET /api/health`          | `200` `{"status":"ok"}`                                           |
+| `GET /api/modules` modes   | quick/standard/deep **all selectable**; precision bands present   |
+| `GET /api/modules` modules | 10                                                                |
+| `GET /api/combos`          | 5 presets including `deep_self_discovery` pilot; no full_spectrum |
 
-Canonical seed SHA-256: `45275f2a39fc284e8cb716c4b7c84b332fbcc3d150ce0fa83a0b040ec6739212`.
+### Code fix #38
 
-| Gate                                    | Result                                                         |
-| --------------------------------------- | -------------------------------------------------------------- |
-| format / lint / typecheck / build       | PASS on recent PRs                                             |
-| unit (admin #36 local)                  | PASS: 157 tests at PR evidence                                 |
-| `npm audit --audit-level=high`          | PASS: zero high+                                               |
-| seed-replay / drift                     | PASS in CI disposable                                          |
-| integration / pgTAP / Playwright / a11y | PASS in CI disposable (Complex flags ON only on disposable DB) |
+`/api/modules` previously ignored `FEATURE_COMPLEX_MODE` and returned seed `deep.is_selectable=false`. Now overlays deep selectability from the flag (parity with estimate/start). CI Quality + Database/browser PASS; Vercel production Ready.
 
-E2E/a11y modular runs enable `FEATURE_MODULAR_COMPOSER` and `FEATURE_COMPLEX_MODE` on disposable DB only, matching CI. No production flag change.
+## Explicit non-runs
 
-## Security posture
+- Resend Preview/prod: **no** `RESEND_API_KEY` / `EMAIL_FROM` in Vercel env list.
+- Mandatory verification: flag not set.
+- Full Spectrum publish: capacity gate + experimental modules.
+- Formal item transitions to approved: not run (would fake review).
+- Psychometric studies / manual NVDA: external.
+- AI narrative: left OFF.
 
-- Server-only DB, scoring, transport; CSRF + rate limit on cookie mutations.
-- Argon2id passwords; session/assessment/result/share/recovery tokens HMAC-hashed at rest.
-- Recovery: single-use, expiry, generic response, session revoke, concurrent-safe; transport fail-closed without secrets.
-- Forced RLS, zero browser policy, zero direct `anon`/`authenticated` privilege (pgTAP).
-- Public share allowlist; private quality/confidence/clarifier/timing stay private.
-- Operational logs field-allowlisted; no raw answer, token, email, IP, UA, body, private result.
-- Admin DTO: no result_id/token/email; audit metadata allowlist `outcome`/`source`/`reason`; limit 50.
+## Prior evidence (still valid)
 
-## Retention + observability (prior evidence)
-
-- Retention: migration `202607280001` + cron route + monitor drill; audit roll-off `202607290001` (365d).
-- First provider-scheduled retention cron at 03:00 UTC may remain `PENDING_PROVIDER` until observed; manual path verified.
-- Health monitor workflow active; alert issue routing proven on drills.
-
-## Isolated staging + restore drill (2026-07-23)
-
-Single-use hosted staging (`lensadiri-staging`), synthetic seed only, project deleted after drill. Production untouched.
-
-| Gate                                     | Result                                         |
-| ---------------------------------------- | ---------------------------------------------- |
-| Migration parity                         | PASS Local==Remote                             |
-| Canonical seed hash                      | PASS pinned SHA                                |
-| Seed idempotence / flags OFF             | PASS                                           |
-| RLS forced + zero grants                 | PASS                                           |
-| Immutability guard                       | PASS                                           |
-| Backup → loss → restore (scratch schema) | PASS                                           |
-| Direct `pg_dump`/`pg_restore`            | `BLOCKED_EXTERNAL` (no local Docker/pg client) |
-
-Details: `docs/operations/OPERATIONS_RUNBOOK.md`, `docs/operations/BACKUP_RESTORE_RUNBOOK.md`.
-
-## Residual / deferred (do not claim done)
-
-- Resend Preview → prod delivery → mandatory verification (credentials + approval).
-- Complex mode, provisional precision, AI narrative flags.
-- Formal six-module item review / publish; Deep/Full Spectrum preset publish.
-- Psychometric validation; third-party WCAG certification; manual SR audits.
-- Direct SQL postcheck for draft counts / guardedBeta / AI flag row (operator only).
-- Provider PITR / physical backup inspection; custom domain; isolated long-lived staging.
-
-Operator SQL pack: `docs/deployment/PRODUCTION_POSTCHECK_SQL.md`.
-Gate matrix: `docs/deployment/RELEASE_CLOSURE_GATES.md`.
+- Staging restore drill 2026-07-23 (torn down): see older sections in git history / ops runbook.
+- Retention + audit 365d + observability monitors: prior PRs #28–#34.
+- Canonical seed SHA-256: `45275f2a39fc284e8cb716c4b7c84b332fbcc3d150ce0fa83a0b040ec6739212`.

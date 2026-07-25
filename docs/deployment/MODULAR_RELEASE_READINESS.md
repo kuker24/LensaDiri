@@ -9,7 +9,7 @@ Gate aktivasi modular LensaDiri. Migration schema readiness ada di `PRD_V2_MIGRA
 - Base modular schema dan quality-model provenance sampai `202607200002`: applied ke production pada activation task sebelumnya.
 - Migration `202607270001_guarded_all_lenses_release.sql` **sudah applied ke production**. `supabase migration list --linked` (2026-07-22) menampilkan versi ini pada kolom Remote, sejajar dengan Local.
 - Canonical modular content 10 modul ada di production dan **kesepuluhnya selectable**. Halaman publik `/modules/<key>` untuk seluruh modul (termasuk `socionics_communication` dan `psychosophy` experimental) merender CTA `Pilih modul ini` → `/start/modules?module=<key>`, dan `/combos` menyajikan preset Beta serta Eksperimental.
-- `FEATURE_MODULAR_COMPOSER` production aktif. `FEATURE_COMPLEX_MODE`, `FEATURE_PROVISIONAL_PRECISION`, dan `FEATURE_AI_NARRATIVE` tetap OFF menurut checkpoint terakhir; flag table tidak di-query ulang pada audit read-only ini.
+- `FEATURE_MODULAR_COMPOSER`, `FEATURE_COMPLEX_MODE`, dan `FEATURE_PROVISIONAL_PRECISION` production **ON** (2026-07-26 linked flag postcheck). `FEATURE_AI_NARRATIVE` **OFF**.
 - Legacy Quick 40/Standard 60 tetap backward-compatible.
 - Migration `202607270001` sudah masuk `main` melalui PR #15 (merge `9ff30cf`, 2026-07-19). Branch `agent/complete-all-lenses-release-ready` bukan lagi satu-satunya pemilik kandidat ini.
 
@@ -35,7 +35,7 @@ Semua sepuluh modul kini `is_selectable=true` dengan status jujur per modul:
 - Modul orisinal: `published` / `active`.
 - Modul baru: `pilot` (tiga pusat, instingtual variant, RIASEC, attachment) atau `experimental` (Socionics komunikasi, psychosophy).
 - Item dan terjemahan tetap `draft`. Akses beta ditandai eksplisit oleh `config_json.guardedBeta=true`, sehingga tidak memalsukan review formal.
-- Preset `deep_self_discovery` dan `full_spectrum` tetap disembunyikan (`draft`) karena target item melebihi kapasitas mode standard, atau mode Complex belum aktif. Custom combo tetap didukung.
+- Preset `deep_self_discovery` dipromosikan ke **pilot** (2026-07-26) di bawah Complex; item bank enam lensa tetap draft/guardedBeta. `full_spectrum` tetap **draft** (coverage di atas cap Complex). Custom combo tetap didukung.
 
 Setiap modul sudah memiliki scoring engine independen (test-covered) dan item bank Bahasa Indonesia yang telah melewati audit bahasa awal non-klinis. Modul eksperimental memicu consent checkbox khusus sebelum memulai sesi, dan Attachment memiliki filter usia minimum 18 tahun.
 
@@ -56,18 +56,19 @@ Karena aktivasi enam lensa sudah terjadi, kondisi di bawah adalah **catatan hist
 
 Metode: `supabase migration list --linked` plus production HTTP surfaces (`/api/modules`, `/api/combos`, `/api/assessment/estimate`, halaman publik). `psql`, Docker `db dump`, dan koneksi pooler tidak digunakan; kredensial database tidak disentuh. Batasan: query langsung ke tabel `questions`/`translations` untuk hitungan `review_status='draft'` dan `config_json.guardedBeta` per-version **belum** diverifikasi langsung karena tidak ada jalur read-only ke tabel konten tanpa kredensial. Item di bawah diverifikasi via kontrak API yang membaca production DB pada trusted server boundary.
 
-| Target                          | Ekspektasi                                         | Hasil aktual (bukti)                                                                                                                                                                            | Status     |
-| ------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
-| Migration `202607270001`        | Applied di production                              | Ada pada kolom Remote `migration list --linked`                                                                                                                                                 | MATCH      |
-| 10 modul selectable             | Semua `is_selectable=true`, `RELEASE_READY`        | `/api/modules` = 10 modul, semua `isSelectable=true`, `releaseDisposition=RELEASE_READY`                                                                                                        | MATCH      |
-| 4 modul pilot                   | three_center, instinct, riasec, attachment         | `/api/modules` status `pilot` untuk keempatnya                                                                                                                                                  | MATCH      |
-| 2 modul experimental            | socionics_communication, psychosophy               | `/api/modules` status `experimental`, `isExperimental=true`                                                                                                                                     | MATCH      |
-| Age gate                        | attachment/psychosophy 18, enneagram/pilot lain 15 | `/api/modules` `minimumAge`: attachment 18, psychosophy 18, three_center/instinct/riasec/enneagram 15                                                                                           | MATCH      |
-| Preset visible                  | 4 preset fit-coverage, deep/full_spectrum hidden   | `/api/combos` = core_personality (published), motivation_instinct (pilot), career_learning (pilot), communication_relationship (experimental); deep_self_discovery & full_spectrum tidak tampil | MATCH      |
-| `FEATURE_MODULAR_COMPOSER`      | ON                                                 | estimate `standard` sukses (`itemCount 60`, `precision:null`); modular flow aktif                                                                                                               | MATCH      |
-| `FEATURE_COMPLEX_MODE`          | OFF                                                | `/api/modules` mode `deep` `isSelectable=false`; estimate `mode:deep` → `mode_unavailable` (flag-derived)                                                                                       | MATCH      |
-| `FEATURE_PROVISIONAL_PRECISION` | OFF                                                | estimate `standard` mengembalikan `precision:null` (aktif hanya jika flag ON)                                                                                                                   | MATCH      |
-| `FEATURE_AI_NARRATIVE`          | OFF                                                | Tidak ada jalur publik; mempertahankan checkpoint. Tidak di-verifikasi ulang pada audit ini                                                                                                     | UNVERIFIED |
+| Target                          | Ekspektasi                                         | Hasil aktual (bukti)                                                                                  | Status |
+| ------------------------------- | -------------------------------------------------- | ----------------------------------------------------------------------------------------------------- | ------ |
+| Migration `202607270001`        | Applied di production                              | Ada pada kolom Remote `migration list --linked`                                                       | MATCH  |
+| 10 modul selectable             | Semua `is_selectable=true`, `RELEASE_READY`        | `/api/modules` = 10 modul, semua `isSelectable=true`, `releaseDisposition=RELEASE_READY`              | MATCH  |
+| 4 modul pilot                   | three_center, instinct, riasec, attachment         | `/api/modules` status `pilot` untuk keempatnya                                                        | MATCH  |
+| 2 modul experimental            | socionics_communication, psychosophy               | `/api/modules` status `experimental`, `isExperimental=true`                                           | MATCH  |
+| Age gate                        | attachment/psychosophy 18, enneagram/pilot lain 15 | `/api/modules` `minimumAge`: attachment 18, psychosophy 18, three_center/instinct/riasec/enneagram 15 | MATCH  |
+| Preset visible                  | 5 public; full_spectrum hidden                     | 2026-07-26: + `deep_self_discovery` pilot; full_spectrum draft                                        | MATCH  |
+| `FEATURE_MODULAR_COMPOSER`      | ON                                                 | modular flow aktif                                                                                    | MATCH  |
+| `FEATURE_COMPLEX_MODE`          | ON (2026-07-26)                                    | linked flags + `/api/modules` deep `isSelectable=true` after #38                                      | MATCH  |
+| `FEATURE_PROVISIONAL_PRECISION` | ON (2026-07-26)                                    | mode profiles expose precision bands; flag row true                                                   | MATCH  |
+| `FEATURE_AI_NARRATIVE`          | OFF                                                | linked flag row false                                                                                 | MATCH  |
+| Draft six-module items          | questions+translations draft                       | 147 questions + 147 translations = 294 draft rows                                                     | MATCH  |
 
 Kesimpulan: tidak ada drift antara dokumentasi dan bukti production yang dapat diamati read-only. Verifikasi yang masih terbuka (butuh kredensial atau approval): `review_status='draft'` untuk 147 item+translation enam modul, `config_json.guardedBeta=true` hanya pada enam version target, dan status flag `FEATURE_AI_NARRATIVE` langsung dari `feature_flags`.
 

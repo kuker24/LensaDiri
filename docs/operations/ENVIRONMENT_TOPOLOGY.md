@@ -20,7 +20,7 @@ Dokumen ini merinci topologi environment LensaDiri. Prosedur operasional harian 
 ## Boundary invariants
 
 - Preview wajib memakai database dan secret terpisah. Jika belum tersedia, status `BLOCKED_EXTERNAL`. Jangan menggantinya dengan production database atau production secret.
-- Production flag posture (checkpoint 2026-07-26): `FEATURE_MODULAR_COMPOSER` **ON**; `FEATURE_COMPLEX_MODE`, `FEATURE_AI_NARRATIVE`, `FEATURE_PROVISIONAL_PRECISION` **OFF** until separate activation approval. Env `FEATURE_REQUIRE_EMAIL_VERIFICATION` unset/OFF; Resend secrets unset (delivery dormant).
+- Production flag posture (checkpoint 2026-07-26 post-activation): `FEATURE_MODULAR_COMPOSER`, `FEATURE_COMPLEX_MODE`, `FEATURE_PROVISIONAL_PRECISION` **ON**; `FEATURE_AI_NARRATIVE` **OFF**. Env `FEATURE_REQUIRE_EMAIL_VERIFICATION` unset/OFF; Resend secrets unset (delivery dormant).
 - Database production migration-only. Seed tidak dijalankan pada production.
 - Secret tidak pernah dibaca, dicetak, atau disalin lintas environment.
 
