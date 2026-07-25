@@ -26,12 +26,12 @@ order by key;
 
 Expected hobby posture (adjust only after approved activation):
 
-| key                             | expected |
-| ------------------------------- | -------- |
-| `FEATURE_MODULAR_COMPOSER`      | `true`   |
-| `FEATURE_COMPLEX_MODE`          | `false`  |
-| `FEATURE_PROVISIONAL_PRECISION` | `false`  |
-| `FEATURE_AI_NARRATIVE`          | `false`  |
+| key                             | expected (2026-07-26) |
+| ------------------------------- | --------------------- |
+| `FEATURE_MODULAR_COMPOSER`      | `true`                |
+| `FEATURE_COMPLEX_MODE`          | `true`                |
+| `FEATURE_PROVISIONAL_PRECISION` | `true`                |
+| `FEATURE_AI_NARRATIVE`          | `false`               |
 
 ## 3. Module selectability and tiers
 
@@ -108,7 +108,7 @@ from public.combo_presets
 order by key;
 ```
 
-Expect `deep_self_discovery` and `full_spectrum` status `draft` until Complex + publication approval.
+Expect `deep_self_discovery` status `pilot` (Complex activation 2026-07-26); `full_spectrum` remains `draft` until capacity/product gate.
 
 ## 7. Public API cross-check (no DB creds)
 

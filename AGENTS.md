@@ -13,9 +13,9 @@ LensaDiri adalah platform eksplorasi kepribadian modular, privacy-first, dan mob
 - `docs/product/PRD_FULL_LensaDiri.md` versi 2.0 adalah canonical product and engineering contract. `docs/qa/PRD_V2_IMPLEMENTATION_AUDIT.md` mencatat evidence; refresh claim production hanya dari readiness + postcheck.
 - Public landing, metode, privasi, disclaimer, auth UI, dashboard, health, legacy assessment, modular selection/review/runner/report tersedia.
 - Internal auth: register/login/logout, session HttpOnly, CSRF, rate limit, Argon2id, hard-delete + re-auth. Recovery Resend transport + optional verification gate ada di kode; default OFF tanpa secret.
-- Production: Quick 40/Standard 60 tetap kompatibel. `FEATURE_MODULAR_COMPOSER` **ON**; 10 modul selectable (guarded pilot/experimental). `FEATURE_COMPLEX_MODE`, `FEATURE_PROVISIONAL_PRECISION`, `FEATURE_AI_NARRATIVE` **OFF**. Preset deep/full_spectrum tetap draft.
-- Admin `/admin/*` read-only DB-backed, fail-closed. Retention cron + audit 365d applied. Staging restore drill 2026-07-23 terbukti; long-lived staging/PITR/`pg_dump` tetap partial/external.
-- Residual butuh approval/external: Resend Preview→prod email, mandatory verification, Complex/Deep/Full Spectrum, formal review 6 modul, psychometric, manual a11y, direct DB postcheck.
+- Production: Quick 40/Standard 60 tetap kompatibel. `FEATURE_MODULAR_COMPOSER`, `FEATURE_COMPLEX_MODE`, `FEATURE_PROVISIONAL_PRECISION` **ON**; `FEATURE_AI_NARRATIVE` **OFF**. 10 modul selectable (guarded). Preset `deep_self_discovery` **pilot**; `full_spectrum` **draft** (over cap).
+- Admin `/admin/*` read-only DB-backed, fail-closed. Retention cron + audit 365d applied. Staging restore drill 2026-07-23 terbukti; long-lived staging/PITR/`pg_dump` tetap partial/external. Direct DB postcheck 2026-07-26 recorded.
+- Residual external: Resend Preview→prod email, mandatory verification, formal review 6 modul, Full Spectrum capacity, psychometric, manual a11y.
 
 ## Technology
 
@@ -151,8 +151,8 @@ Definition of done: requirement terpenuhi, input tervalidasi, error state aman, 
 
 ## Known Constraints
 
-- PRD 2.0 adalah canonical contract. Composer modular production ON (guarded); Complex/precision/AI tetap OFF sampai approval. Status hanya boleh dinaikkan dengan evidence backend, frontend, database, test, privacy, dan flag.
-- Existing `quick` dan `standard` legacy tetap valid; modular memakai public label Quick/Normal/Complex. Complex dan Full Spectrum terverifikasi lokal/CI disposable; production Complex OFF; deep/full_spectrum draft.
+- PRD 2.0 adalah canonical contract. Composer + Complex + provisional precision production ON (2026-07-26); AI OFF. Full Spectrum tetap draft sampai capacity/product gate. Status hanya naik dengan evidence.
+- Existing `quick` dan `standard` legacy tetap valid; modular label Quick/Normal/Complex. deep_self_discovery pilot; full_spectrum draft.
 - Existing trait-derived overlays adalah legacy MVP interpretation. Reader lama wajib tetap bekerja; session modular memakai per-module items dan independent scoring.
 - Trait modular remediation mempertahankan `trait_profile/mvp-1` untuk legacy dan menambah additive `modular-1` dengan `trait-profile-modular-1`. Composer/blueprint/result provenance dan scoring registry wajib match by module key plus scoring version; unknown or mismatched version fails closed. Do not mutate published version or old result.
 - Full seed replay uses `npm run test:seed-replay`: configured seeds replay twice, all flags stay false, duplicates are rejected, and reviewed canonical count/hash must match. `npm run test:seed-replay-drift` must reject intentional local identity drift, restore it, and pass replay again. Published-content immutability trigger remains required; every seed touches only owning module/version content.

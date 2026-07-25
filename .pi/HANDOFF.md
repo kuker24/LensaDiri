@@ -1,74 +1,61 @@
 # Project Handoff
 
-> Refreshed 2026-07-26 after admin DB-backed read-only merge (#36) and docs release-closure gates. Supersedes retention-era snapshot at `e5a37d1`.
+> Refreshed 2026-07-26 after Complex + provisional precision production activation and `/api/modules` deep overlay fix (#38).
 
 ## Current objective
 
-Drive remaining production-readiness gates with small PRs, green CI, and **separate explicit approval** before any secret, migration, flag flip, or production write.
+Close remaining external gates only. Do **not** fake formal item approval, psychometrics, WCAG cert, or Full Spectrum over-cap publish. Resend still needs operator credentials (never paste secrets in chat).
 
-Do not: reapply or modify production migrations through `202607290001`, activate `FEATURE_COMPLEX_MODE` / `FEATURE_PROVISIONAL_PRECISION` / `FEATURE_AI_NARRATIVE`, set Resend secrets or `FEATURE_REQUIRE_EMAIL_VERIFICATION` without approval, run hosted dry-run/backup/seed/deploy/alias unapproved, change Vercel env, expose secrets, or merge without green CI.
+Do not: reapply migrations through `202607290001`, enable `FEATURE_AI_NARRATIVE`, set Resend secrets without operator possession, force `full_spectrum` published, or claim formal review/psychometrics done.
 
 ## Current git state
 
-- Production base: `main` / `origin/main` at `3eb53bc feat(admin): DB-backed read-only catalog, feedback, and audit views (#36)`.
-- Recent merges: #34 audit retention 365d, #35 Resend recovery transport + optional verify gate, #36 admin DB-backed read-only.
-- Open PRs: none at handoff refresh (docs slice may open after this file).
-- Epics #2 / #4 / #5 remain OPEN as historical shells; residual gates live here and in `docs/deployment/RELEASE_CLOSURE_GATES.md`.
+- Production base: `main` @ `f501630 fix(api): gate deep mode selectability on FEATURE_COMPLEX_MODE (#38)`.
+- Prior: #37 release-closure docs, #36 admin read-only, #35 Resend code (dormant delivery).
 
-## Production state
+## Production state (verified 2026-07-26)
 
-- URL `https://lensadiri.vercel.app`, Supabase hosted Singapore (`lensadiri-production`, ap-southeast-1).
-- Migrations applied through `202607290001` (Local==Remote at last linked list; re-dry-run up to date).
-- `FEATURE_MODULAR_COMPOSER` = **ON**. `FEATURE_COMPLEX_MODE`, `FEATURE_PROVISIONAL_PRECISION`, `FEATURE_AI_NARRATIVE` = **OFF**.
-- 10 modules selectable (4 pilot + 2 experimental guarded). Presets `deep_self_discovery` / `full_spectrum` stay **draft** / hidden.
-- Recovery Resend transport + optional login gate: **code live, delivery dormant** (no `RESEND_API_KEY` / `EMAIL_FROM`; `FEATURE_REQUIRE_EMAIL_VERIFICATION` unset/OFF).
-- Admin `/admin/*`: DB-backed read-only, fail-closed `requireAdminSession`, DTO allowlist; guest → redirect.
-- Legacy Quick 40 / Standard 60 remains baseline-compatible.
-- Health smoke post-#36: `GET /api/health` → `200 {"status":"ok"}`; `/admin` guest `307`; retention unauth `401`.
+| Item                                 | State                                                          |
+| ------------------------------------ | -------------------------------------------------------------- |
+| URL                                  | `https://lensadiri.vercel.app`                                 |
+| Migrations                           | Local==Remote through `202607290001`                           |
+| `FEATURE_MODULAR_COMPOSER`           | **ON**                                                         |
+| `FEATURE_COMPLEX_MODE`               | **ON** (CAS via `set_feature_flag_state`)                      |
+| `FEATURE_PROVISIONAL_PRECISION`      | **ON**                                                         |
+| `FEATURE_AI_NARRATIVE`               | **OFF**                                                        |
+| Modules                              | 10 selectable; 6 guardedBeta; draft items 147+147 translations |
+| Combos public                        | 5: core + 3 pilot/exp + `deep_self_discovery` **pilot**        |
+| `full_spectrum`                      | **draft** (over Complex cap; do not publish)                   |
+| Recovery email                       | Code live; **no** `RESEND_*` / `EMAIL_FROM` in Vercel          |
+| `FEATURE_REQUIRE_EMAIL_VERIFICATION` | unset/OFF                                                      |
+| Health                               | `200 ok`                                                       |
+| `/api/modules` deep                  | `isSelectable: true` after #38                                 |
+| Admin accounts                       | none with admin/super_admin role in DB (empty)                 |
 
-## Module tiers (10 lenses)
+## Rollback (Complex / precision)
 
-| Tier           | Modules                                    |
-| -------------- | ------------------------------------------ |
-| `active`       | Trait Profile                              |
-| `published`    | 16-Type, Enneagram, Temperament            |
-| `pilot`        | Three Center, Instinct, RIASEC, Attachment |
-| `experimental` | Socionics, Psychosophy                     |
+```sql
+begin;
+select public.set_feature_flag_state('FEATURE_COMPLEX_MODE', true, false, null, 'Rollback Complex after activation window.');
+select public.set_feature_flag_state('FEATURE_PROVISIONAL_PRECISION', true, false, null, 'Rollback provisional precision.');
+-- optional: set deep_self_discovery status back to draft
+commit;
+```
 
-## Completed engineering (not residual product claims)
+## Remaining gates
 
-- Independent scoring engines for all 10 module keys; version-aware registry; fail-closed unknown version.
-- Immutable composer/blueprint; Complex lifecycle + clarifier (flag-gated); safe share/export DTO allowlist.
-- Recovery foundation + Resend transport + optional verification gate (default OFF).
-- Admin read-only DB views (#36); retention cleanup + audit 365d roll-off; observability health monitor + issue routing.
-- Isolated staging + restore drill evidence 2026-07-23 (project deleted after drill). Direct hosted `pg_dump`/`pg_restore` still `BLOCKED_EXTERNAL` without local Docker/pg.
+| Gate                                           | Status                                                    |
+| ---------------------------------------------- | --------------------------------------------------------- |
+| Resend Preview → prod email → mandatory verify | **BLOCKED**: no Resend domain/API key in operator custody |
+| Full Spectrum publish                          | **BLOCKED_PRODUCT**: coverage > Complex cap               |
+| Formal review 6 modules                        | **BLOCKED_HUMAN**: items stay draft; no fake approved     |
+| Psychometrics / WCAG cert / manual SR          | **BLOCKED_EXTERNAL**                                      |
+| AI narrative                                   | **DEFERRED** (flag OFF)                                   |
 
-## Remaining gates (approval-separated)
-
-Canonical matrix: `docs/deployment/RELEASE_CLOSURE_GATES.md`.
-
-| #   | Gate                         | Status                                    | Owner action                                      |
-| --- | ---------------------------- | ----------------------------------------- | ------------------------------------------------- |
-| 1   | Resend Preview drill         | CODE_READY / BLOCKED_EXTERNAL credentials | Domain + Preview secrets + disposable inbox proof |
-| 2   | Production email delivery    | NEEDS_APPROVAL_PROD                       | After Preview evidence only                       |
-| 3   | Mandatory verification       | CODE_READY / NEEDS_APPROVAL_PROD          | After delivery + legacy comms plan                |
-| 4   | Complex mode                 | CODE_READY flag OFF                       | Product approval + `set_feature_flag_state`       |
-| 5   | Deep / Full Spectrum presets | PARTIAL (draft)                           | After Complex + publication workflow              |
-| 6   | Provisional precision        | CODE_READY flag OFF                       | Product approval                                  |
-| 7   | Formal review 6 modules      | NOT_STARTED content                       | Human reviewers + SQL transitions                 |
-| 8   | Psychometric validation      | DEFERRED_EXTERNAL                         | Domain study; never fake claims                   |
-| 9   | Manual a11y audit            | AUTO PASS / manual BLOCKED                | NVDA/JAWS/VoiceOver + human contrast              |
-| 10  | Direct DB postcheck          | SQL pack ready                            | Operator trusted session only                     |
-| 11  | Issue/docs cleanup           | IN PROGRESS                               | This slice + epic comments                        |
-| 12  | Restore drill final          | PARTIAL                                   | Re-provision staging when needed; PITR external   |
-| 13  | Release closure              | NEEDS_APPROVAL_PROD                       | Sign-off per remaining window                     |
+Matrix: `docs/deployment/RELEASE_CLOSURE_GATES.md`.
 
 ## Resume rules
 
-- Work in repository root, not parent workspace.
-- Preserve user changes. Do not reset, clean, stash, or checkout over them.
-- Do not read `.env` or print credentials.
-- Use disposable local Supabase for reset, integration, pgTAP, seed, and E2E.
-- Preserve legacy readers; keep production flags at documented state unless approval explicit.
-- Canonical contract: `docs/product/PRD_FULL_LensaDiri.md` v2.0.
-- Evidence: `docs/qa/PRD_V2_IMPLEMENTATION_AUDIT.md`, `docs/deployment/MODULAR_RELEASE_READINESS.md`, `docs/deployment/RELEASE_CLOSURE_GATES.md`, this file + `.pi/EVIDENCE.md`.
+- No secrets in chat/files/history.
+- Disposable local DB only for destructive tests.
+- Canonical PRD v2.0; honest scientific language.
