@@ -4,9 +4,15 @@ interface AdminSectionPageProps {
   title: string;
   description: string;
   items?: readonly { label: string; value: string }[];
+  footnote?: string;
 }
 
-export function AdminSectionPage({ title, description, items = [] }: AdminSectionPageProps) {
+export function AdminSectionPage({
+  title,
+  description,
+  items = [],
+  footnote = "Read-only. Mutasi admin dinonaktifkan sampai authorization, CSRF, rate limit, dan audit mutation lengkap.",
+}: AdminSectionPageProps) {
   return (
     <main className="container-shell py-12">
       <nav aria-label="Breadcrumb" className="text-ink-muted mb-6 text-sm">
@@ -38,21 +44,21 @@ export function AdminSectionPage({ title, description, items = [] }: AdminSectio
         {items.length > 0 ? (
           <dl className="divide-line divide-y">
             {items.map((item) => (
-              <div className="flex items-center justify-between gap-4 px-5 py-3" key={item.label}>
-                <dt className="text-sm font-medium">{item.label}</dt>
-                <dd className="text-ink-muted text-sm">{item.value}</dd>
+              <div
+                className="flex items-start justify-between gap-4 px-5 py-3"
+                key={`${item.label}:${item.value}`}
+              >
+                <dt className="text-sm font-medium break-all">{item.label}</dt>
+                <dd className="text-ink-muted text-right text-sm break-all">{item.value}</dd>
               </div>
             ))}
           </dl>
         ) : (
           <div className="p-8 text-center">
             <p className="text-ink-muted">Belum ada data yang ditampilkan.</p>
-            <p className="text-ink-muted mt-1 text-xs">
-              Mutasi admin dinonaktifkan sampai endpoint authorization, CSRF, rate limit, dan audit
-              log lengkap tersedia.
-            </p>
           </div>
         )}
+        <p className="text-ink-muted border-line border-t px-5 py-3 text-xs">{footnote}</p>
       </section>
     </main>
   );

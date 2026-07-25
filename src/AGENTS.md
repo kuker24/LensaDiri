@@ -15,7 +15,9 @@
 - `lib/security/`: HMAC token, CSRF, HTTP parsing, and rate-limit primitives.
 - `lib/validation/`: Zod request-boundary schemas.
 - `server/repositories/`: typed persistence functions only; no request parsing or client exposure.
+- `server/repositories/admin-reads.ts`: admin read-only allowlist queries (modules, versions, item counts, presets, feedback preview, audit redaction); no mutations.
 - `server/services/`: auth, consent, and rate-limit orchestration within trusted server boundary.
+- `app/admin/`: fail-closed `requireAdminSession` shell; read-only DB-backed pages; no write APIs.
 - `server/repositories/assessment.ts`: token-gated legacy/modular persistence, clarifier state, atomic completion, and private/shared result access.
 - `server/repositories/blueprints.ts`: candidate loading plus immutable modular blueprint/session persistence; new modular Trait sessions resolve `trait_profile/modular-1` provenance.
 - `server/repositories/catalog.ts`: module/mode/combo catalog and feature-flag reads.

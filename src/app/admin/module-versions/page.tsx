@@ -1,27 +1,26 @@
 import { redirect } from "next/navigation";
 
-import { requireAdminSession } from "@/server/services/admin";
 import { AdminSectionPage } from "@/components/admin-section-page";
+import { listAdminModuleVersions } from "@/server/repositories/admin-reads";
+import { requireAdminSession } from "@/server/services/admin";
 
 export default async function AdminModuleVersionsPage() {
   const admin = await requireAdminSession();
   if (!admin) redirect("/dashboard");
 
+  const versions = await listAdminModuleVersions();
   return (
     <AdminSectionPage
-      description="Versi konten modul. Setiap rilis baru membutuhkan increment version minor."
-      items={[
-        { label: "trait_profile", value: "modular-1 · PUBLISHED" },
-        { label: "type_16", value: "type16-1 · PUBLISHED" },
-        { label: "enneagram", value: "enneagram-1 · PUBLISHED" },
-        { label: "temperament", value: "temperament-1 · PUBLISHED" },
-        { label: "three_center", value: "DRAFT - v1" },
-        { label: "instinct", value: "DRAFT - v1" },
-        { label: "socionics_communication", value: "DRAFT - v1" },
-        { label: "riasec", value: "DRAFT - v1" },
-        { label: "attachment", value: "DRAFT - v1" },
-        { label: "psychosophy", value: "DRAFT - v1" },
-      ]}
+      description="Versi modul dari database: status, scoring, item bank, dan jumlah item."
+      items={versions.map((row) => ({
+        label: `${row.key}@${row.version}`,
+        value: [
+          row.status,
+          `scoring ${row.scoringVersion}`,
+          `bank ${row.itemBankVersion}`,
+          `${row.questionCount} item`,
+        ].join(" · "),
+      }))}
       title="Versi Modul"
     />
   );

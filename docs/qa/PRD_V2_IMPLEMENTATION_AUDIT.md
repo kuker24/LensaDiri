@@ -94,6 +94,8 @@ Catatan flags: E2E dan a11y modular mengaktifkan `FEATURE_MODULAR_COMPOSER` dan 
 
 - `src/server/services/admin.ts`: fungsi `requireAdminSession()` dengan fail-closed untuk non-admin.
 - 9 halaman admin di `/admin/*` dengan guard session + role pada layout dan tiap halaman. Mutasi tetap nonaktif.
+- `src/server/repositories/admin-reads.ts`: read-only DB queries (modules, versions, item counts, combo presets, blueprint inventory, feature flags, feedback preview, audit logs) plus scoring registry dari kode. Feedback tanpa `result_id`/token/email; audit metadata allowlist `outcome`/`source`/`reason` saja; pagination max 50.
+- Status hardcode di halaman admin dihapus; data live dari database/registry.
 - `src/components/admin-section-page.tsx` shared component.
 
 ### Dashboard expansion
@@ -127,6 +129,7 @@ Catatan flags: E2E dan a11y modular mengaktifkan `FEATURE_MODULAR_COMPOSER` dan 
 ### Regression test baru
 
 - `tests/unit/admin-guard.test.ts`: fail-closed untuk guest/user, accept admin/super_admin.
+- `tests/unit/admin-reads.test.ts`: allowlist audit metadata + scoring registry list.
 - `tests/unit/assessment-result-token.test.ts`: token valid di-hash sebelum repository, token malformed ditolak tanpa query.
 
 ### Perbaikan boundary
