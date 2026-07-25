@@ -152,6 +152,50 @@ Tidak ada data rollback. Migration `202607280001` additive dan hanya menambah fu
 2. Untuk false alert retention monitor: nonaktifkan/revert `.github/workflows/retention-monitor.yml`, tutup issue setelah penyebab tercatat.
 3. Jangan menghapus fungsi cleanup, audit log, atau data untuk rollback. Gunakan fix-forward.
 
+## Account recovery email
+
+### Status
+
+Recovery token foundation is live in schema and APIs. Delivery uses Resend when `RESEND_API_KEY` and `EMAIL_FROM` are both set; otherwise transport stays disabled and no token is issued. `FEATURE_REQUIRE_EMAIL_VERIFICATION` defaults off so existing accounts keep logging in without email verification.
+
+Security properties (already enforced server-side):
+
+- Token raw value only in the email body/link fragment (`#token=`); database stores HMAC hash only
+- 30-minute expiry, single-use consume, one active delivered token per account+purpose
+- Anti-enumeration: forgot/request-verification always `202 request_accepted`
+- Rate limits on forgot, reset, verify, and request-verification routes
+- Password reset revokes all sessions for the account
+- Mandatory verification (when flag on) blocks login for `email_verified_at IS NULL` with `email_unverified`; does not change password or session tables
+
+### Activation order (requires explicit approval per step)
+
+1. Verify Resend domain/sender for the target environment (Preview/staging first).
+2. Set Preview `EMAIL_FROM` + `RESEND_API_KEY` only. Confirm forgot-password and verify-email deliver to a disposable inbox; confirm token works once then fails on replay.
+3. Optional: enable auto-send on register (already best-effort when transport enabled).
+4. Production delivery: set Production `EMAIL_FROM` + `RESEND_API_KEY` only after Preview evidence. Leave `FEATURE_REQUIRE_EMAIL_VERIFICATION` unset/`0`.
+5. Mandatory verification: set `FEATURE_REQUIRE_EMAIL_VERIFICATION=1` only after product approval and a communication plan for legacy accounts (`email_verified_at` null). No migration backfill required; nullable column is the grandfather path until users verify.
+6. Monitor Vercel logs for `operation=recovery_email_send` success/failure counts (no email/token fields).
+
+### Staging drill checklist
+
+```bash
+# Preview or disposable staging only — never production secrets
+# 1) Register disposable account
+# 2) Request verification / forgot password
+# 3) Open link from inbox (fragment token)
+# 4) Confirm single-use + session revoke after reset
+# 5) Confirm unknown email still returns accepted UI without delivery
+```
+
+CI already exercises the same lifecycle with `RECOVERY_TEST_TRANSPORT=1` (integration + Playwright). Real-provider drill is operator-owned and environment-scoped.
+
+### Rollback
+
+1. Delivery off: remove `RESEND_API_KEY` and/or `EMAIL_FROM` from the environment and redeploy. APIs remain safe; transport returns dormant.
+2. Mandatory verification off: set `FEATURE_REQUIRE_EMAIL_VERIFICATION=0` or remove it and redeploy. Login works for unverified accounts again.
+3. No schema rollback. Do not delete `account_recovery_tokens` or `email_verified_at`.
+4. Compromised API key: rotate Resend key, update env, redeploy; existing unused tokens expire within 30 minutes.
+
 ## Release checklist
 
 - CI seluruh job PASS pada SHA yang akan dirilis

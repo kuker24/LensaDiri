@@ -30,4 +30,36 @@ describe("server environment validation", () => {
       }),
     ).toThrow("Server environment configuration is invalid.");
   });
+
+  it("keeps recovery provider and mandatory verification optional and off by default", () => {
+    expect(parseServerEnvironment(validEnvironment)).toMatchObject({
+      emailFrom: null,
+      requireEmailVerification: false,
+      resendApiKey: null,
+    });
+    expect(
+      parseServerEnvironment({
+        ...validEnvironment,
+        EMAIL_FROM: "LensaDiri <noreply@mail.example.com>",
+        FEATURE_REQUIRE_EMAIL_VERIFICATION: "1",
+        RESEND_API_KEY: "re_test_key_at_least_20_chars",
+      }),
+    ).toMatchObject({
+      emailFrom: "LensaDiri <noreply@mail.example.com>",
+      requireEmailVerification: true,
+      resendApiKey: "re_test_key_at_least_20_chars",
+    });
+    expect(
+      parseServerEnvironment({
+        ...validEnvironment,
+        EMAIL_FROM: "",
+        FEATURE_REQUIRE_EMAIL_VERIFICATION: "",
+        RESEND_API_KEY: "",
+      }),
+    ).toMatchObject({
+      emailFrom: null,
+      requireEmailVerification: false,
+      resendApiKey: null,
+    });
+  });
 });

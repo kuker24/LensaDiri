@@ -14,6 +14,7 @@ vi.mock("@/server/repositories/accounts", () => ({
 import { requireAdminSession } from "@/server/services/admin";
 
 const accountBase = {
+  emailVerified: true,
   id: "00000000-0000-4000-8000-000000000001",
   passwordHash: "not-used-by-admin-guard",
   status: "active" as const,

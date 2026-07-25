@@ -14,6 +14,7 @@ import {
   type RecoveryPurpose,
 } from "@/server/repositories/account-recovery";
 import { createAuditLog } from "@/server/repositories/audit-logs";
+import { elapsedMilliseconds, logOperationalEvent } from "@/server/observability";
 
 const RECOVERY_TOKEN_DURATION_MS = 30 * 60 * 1_000;
 
@@ -58,11 +59,17 @@ async function requestRecovery(
     purpose,
     tokenHash: hashOpaqueToken(token, tokenHashPepper),
   });
+  const sendStarted = process.hrtime.bigint();
   try {
     await transport.send({ email: account.email, purpose, token });
     await markRecoveryTokenDelivered({ accountId: account.id, purpose, tokenId });
   } catch (error) {
     await discardUndeliveredRecoveryToken(tokenId);
+    logOperationalEvent({
+      durationMs: elapsedMilliseconds(sendStarted),
+      operation: "recovery_email_send",
+      status: "failure",
+    });
     await createAuditLog({
       action,
       actorAccountId: account.id,
@@ -72,6 +79,11 @@ async function requestRecovery(
     });
     throw error;
   }
+  logOperationalEvent({
+    durationMs: elapsedMilliseconds(sendStarted),
+    operation: "recovery_email_send",
+    status: "success",
+  });
   await createAuditLog({
     action,
     actorAccountId: account.id,

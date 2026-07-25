@@ -14,6 +14,8 @@ type AuthFormProps = {
 
 const errorMessages: Record<string, string> = {
   csrf_invalid: "Sesi formulir kedaluwarsa. Muat ulang halaman lalu coba lagi.",
+  email_unverified:
+    "Email belum diverifikasi. Buka tautan di inbox atau minta ulang dari halaman verifikasi.",
   invalid_body: "Periksa email dan password. Password minimal 12 karakter.",
   invalid_credentials: "Email atau password tidak cocok.",
   rate_limited: "Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi.",

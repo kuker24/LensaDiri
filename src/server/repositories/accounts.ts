@@ -8,6 +8,7 @@ export type AccountRole = "user" | "admin" | "super_admin";
 export type AccountStatus = "active" | "suspended" | "deleted";
 
 export type AccountAuthenticationRecord = {
+  emailVerified: boolean;
   id: string;
   passwordHash: string;
   role: AccountRole;
@@ -116,12 +117,14 @@ export async function createAccountWithAudit(input: {
 }
 
 function toAuthenticationRecord(account: {
+  email_verified_at: Date | null;
   id: string;
   password_hash: string;
   role: AccountRole;
   status: AccountStatus;
 }): AccountAuthenticationRecord {
   return {
+    emailVerified: account.email_verified_at !== null,
     id: account.id,
     passwordHash: account.password_hash,
     role: account.role,
@@ -136,13 +139,14 @@ export async function findAccountForAuthentication(
     const sql = getDatabase();
     const [account] = await sql<
       {
+        email_verified_at: Date | null;
         id: string;
         password_hash: string;
         role: AccountRole;
         status: AccountStatus;
       }[]
     >`
-      select id, password_hash, role, status
+      select id, password_hash, role, status, email_verified_at
       from public.accounts
       where email_normalized = ${emailNormalized}
         and deleted_at is null
@@ -160,13 +164,14 @@ export async function findAccountByIdForAuthentication(
     const sql = getDatabase();
     const [account] = await sql<
       {
+        email_verified_at: Date | null;
         id: string;
         password_hash: string;
         role: AccountRole;
         status: AccountStatus;
       }[]
     >`
-      select id, password_hash, role, status
+      select id, password_hash, role, status, email_verified_at
       from public.accounts
       where id = ${accountId}
         and deleted_at is null

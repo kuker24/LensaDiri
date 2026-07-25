@@ -159,7 +159,7 @@ Definition of done: requirement terpenuhi, input tervalidasi, error state aman, 
 - Private result, public shared result, and export use separate contracts. `toSafeSharedResultView()` is explicit allowlist mapping; public share never exposes quality diagnostics, raw scores, timing, IDs, scoring configuration, clarifier data, feedback, audit data, token hashes, or owner data.
 - Scoring dan item bank bersifat reflektif, original Bahasa Indonesia, dan belum melewati formal domain-expert validation, norming, reliability, factor, test-retest, atau DIF study.
 - Database runtime lokal memakai Docker-backed Supabase. Production memakai Vercel + satu Supabase hosted project Singapore dengan migration-only workflow.
-- Admin UI, provider email production, mandatory email verification, monitoring, backup/restore drill, dan formal production/accessibility verification tetap belum selesai. Recovery token/password-reset foundation sudah terverifikasi lokal dan dormant.
+- Admin UI, formal production/accessibility verification, dan psychometric validation tetap belum selesai. Recovery Resend transport + optional login gate ada di kode tetapi default OFF (tanpa secret / flag); production delivery dan mandatory verification tetap butuh approval eksplisit.
 - Production single-project memakai migration-only workflow; reset dan destructive integration/pgTAP/E2E tetap disposable-local-only. Ikuti `docs/deployment/PRODUCTION_VERCEL_SUPABASE.md`.
 - `docs/architecture/ADR-0001-phase-0-foundation.md` adalah catatan keputusan historis. Catatan lamanya tentang belum ada package lock tidak menggambarkan kondisi saat ini; `package-lock.json` kini ada.
 - Jangan membaca atau mencetak `.env`, credential, token, key, atau secret.
