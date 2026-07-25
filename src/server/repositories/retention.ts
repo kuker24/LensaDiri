@@ -18,7 +18,8 @@ function toCounts(rows: readonly { resource: string; value: number | string }[])
 
 /**
  * Read-only dry run. Returns how many rows the cleanup would remove without
- * deleting anything. Account-owned results are never included.
+ * deleting anything. Counts guest sessions, rate-limit buckets, and audit
+ * security events past 365 days. Account-owned results are never included.
  */
 export async function previewExpiredRetentionData(
   referenceTime = new Date(),
@@ -35,9 +36,10 @@ export async function previewExpiredRetentionData(
 
 /**
  * Deletes only rows already eligible under published retention policy:
- * expired guest sessions and rate-limit buckets older than 90 days. The
- * underlying function is idempotent, so a repeated or duplicate cron
- * invocation safely reprocesses outstanding work.
+ * expired guest sessions, rate-limit buckets older than 90 days, and audit
+ * security events older than 365 days. The underlying function is idempotent,
+ * so a repeated or duplicate cron invocation safely reprocesses outstanding
+ * work. Account-owned results stay user-controlled and are never touched.
  */
 export async function cleanupExpiredRetentionData(
   referenceTime = new Date(),

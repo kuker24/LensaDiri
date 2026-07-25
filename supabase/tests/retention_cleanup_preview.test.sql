@@ -1,6 +1,6 @@
 begin;
 
-select plan(9);
+select plan(14);
 
 -- Function exists and is registered with the reference-time signature.
 select ok(
@@ -117,6 +117,64 @@ select is(
   ),
   0::bigint,
   'second cleanup run is a no-op for guest sessions'
+);
+
+-- Audit security events older than 365 days are eligible; recent ones are not.
+insert into public.audit_logs (id, action, entity_type, entity_id, metadata_json, created_at)
+values
+  (
+    '00000000-0000-0000-0000-0000000000c1',
+    'account_login_failed', 'account', '00000000-0000-0000-0000-0000000000a1',
+    '{}'::jsonb, now() - interval '400 days'
+  ),
+  (
+    '00000000-0000-0000-0000-0000000000c2',
+    'account_login_succeeded', 'account', '00000000-0000-0000-0000-0000000000a1',
+    '{}'::jsonb, now() - interval '10 days'
+  );
+
+select is(
+  (
+    select eligible_count
+    from public.preview_expired_retention_data(now())
+    where resource = 'audit_security_events'
+  ),
+  1::bigint,
+  'preview counts one audit event older than 365 days'
+);
+
+-- Direct delete outside the retention GUC remains rejected.
+select throws_ok(
+  $$delete from public.audit_logs where id = '00000000-0000-0000-0000-0000000000c1'$$,
+  '55000',
+  'audit logs are append-only',
+  'direct audit delete remains append-only outside retention cleanup'
+);
+
+select is(
+  (
+    select deleted_count
+    from public.cleanup_expired_retention_data(now())
+    where resource = 'audit_security_events'
+  ),
+  1::bigint,
+  'cleanup deletes the one audit event older than 365 days'
+);
+
+select ok(
+  not exists (select 1 from public.audit_logs where id = '00000000-0000-0000-0000-0000000000c1')
+    and exists (select 1 from public.audit_logs where id = '00000000-0000-0000-0000-0000000000c2'),
+  'recent audit event preserved and only aged audit event removed'
+);
+
+select is(
+  (
+    select deleted_count
+    from public.cleanup_expired_retention_data(now())
+    where resource = 'audit_security_events'
+  ),
+  0::bigint,
+  'second cleanup run is a no-op for audit security events'
 );
 
 select * from finish();

@@ -57,14 +57,21 @@ describe("GET /api/cron/retention-cleanup", () => {
   });
 
   it("runs the real cleanup for an authorized request", async () => {
-    mocks.cleanupExpiredRetentionData.mockResolvedValue({ guest_sessions: 3, rate_limits: 5 });
+    mocks.cleanupExpiredRetentionData.mockResolvedValue({
+      guest_sessions: 3,
+      rate_limits: 5,
+      audit_security_events: 1,
+    });
     const response = await GET(request({ auth: "Bearer cron-secret-at-least-16-chars" }));
 
     expect(response.status).toBe(200);
     const body = await response.json();
     expect(body).toEqual({
       success: true,
-      data: { dryRun: false, counts: { guest_sessions: 3, rate_limits: 5 } },
+      data: {
+        dryRun: false,
+        counts: { guest_sessions: 3, rate_limits: 5, audit_security_events: 1 },
+      },
     });
     expect(mocks.cleanupExpiredRetentionData).toHaveBeenCalledOnce();
     expect(mocks.previewExpiredRetentionData).not.toHaveBeenCalled();
