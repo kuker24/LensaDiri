@@ -80,6 +80,10 @@ begin
     returning 1
   )
   select 'audit_security_events'::text, count(*)::bigint from deleted_audits;
+
+  -- Clear the session GUC so later statements in the same transaction
+  -- cannot delete audit rows outside this function.
+  perform set_config('lensadiri.retention_cleanup', '', true);
 end;
 $$;
 
