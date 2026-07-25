@@ -116,7 +116,7 @@ Hosted backup inspection langsung (pg_dump/pg_restore) tetap `BLOCKED_EXTERNAL` 
 
 - Daily Vercel Cron memanggil `GET /api/cron/retention-cleanup` (`vercel.json`, `0 3 * * *` UTC). Vercel Hobby membatasi cron sekali per hari dan dapat menembak kapan pun dalam jam terjadwal; delivery best-effort tanpa retry.
 - Route memerlukan header `Authorization: Bearer <CRON_SECRET>` (constant-time compare, fail-closed). Tanpa `CRON_SECRET` terkonfigurasi atau token salah, route mengembalikan 401 dan tidak melakukan apa pun. `CRON_SECRET` diset di Vercel sebagai environment variable, minimal 16 karakter, berbeda dari secret lain, tidak pernah dicetak.
-- Cleanup memanggil `cleanup_expired_retention_data(now())` yang idempotent: hanya menghapus guest session kedaluwarsa dan rate-limit bucket lebih tua dari 90 hari. Result akun tetap user-controlled dan tidak pernah disentuh. Duplicate atau missed run aman karena delete-where-eligible.
+- Cleanup memanggil `cleanup_expired_retention_data(now())` yang idempotent: menghapus guest session kedaluwarsa, rate-limit bucket lebih tua dari 90 hari, dan audit security event lebih tua dari 365 hari (policy `audit_security_event`). Result akun tetap user-controlled dan tidak pernah disentuh. Duplicate atau missed run aman karena delete-where-eligible.
 - Setiap invocation menulis satu `operational_event` (`operation=retention_cleanup`, `retention_counts` aggregate non-PII).
 
 ### Dry run
@@ -136,7 +136,7 @@ select * from public.preview_expired_retention_data(now()); -- read-only
 select * from public.cleanup_expired_retention_data(now());  -- deletes eligible only
 ```
 
-Audit security event mengikuti policy 365 hari terpisah dan belum dihapus oleh function ini; rekonsiliasi audit retention adalah task terpisah.
+Audit security event (`audit_logs` lebih tua dari 365 hari) dihitung sebagai resource `audit_security_events` pada preview/cleanup yang sama. Append-only trigger tetap menolak DELETE langsung; hanya path retention (GUC `lensadiri.retention_cleanup`) dan hard-delete akun yang diizinkan.
 
 ### Failure alerting
 
