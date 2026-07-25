@@ -1,29 +1,30 @@
 # Project Handoff
 
-> Refreshed 2026-07-22 after retention scheduler production activation. Supersedes stale `phase-1-foundation`/PR #3 snapshot.
+> Refreshed 2026-07-26 after admin DB-backed read-only merge (#36) and docs release-closure gates. Supersedes retention-era snapshot at `e5a37d1`.
 
 ## Current objective
 
-Complete production-readiness tasks sequentially without unapproved production action. Retention scheduler activation is complete; first provider-scheduled delivery remains pending evidence.
+Drive remaining production-readiness gates with small PRs, green CI, and **separate explicit approval** before any secret, migration, flag flip, or production write.
 
-Do not: reapply or modify production migration `202607270001`, activate `FEATURE_COMPLEX_MODE`/`FEATURE_PROVISIONAL_PRECISION`/`FEATURE_AI_NARRATIVE`, run hosted dry-run/backup/seed/deploy/alias, change Vercel env, expose secrets, or merge without green CI.
+Do not: reapply or modify production migrations through `202607290001`, activate `FEATURE_COMPLEX_MODE` / `FEATURE_PROVISIONAL_PRECISION` / `FEATURE_AI_NARRATIVE`, set Resend secrets or `FEATURE_REQUIRE_EMAIL_VERIFICATION` without approval, run hosted dry-run/backup/seed/deploy/alias unapproved, change Vercel env, expose secrets, or merge without green CI.
 
 ## Current git state
 
-- Production base: `main` / `origin/main` at `e5a37d1 feat(ops): add production retention cleanup scheduler (#28)`.
-- PR #28 squash-merged and production-activated 2026-07-22 after explicit approval.
-- Active work: docs-only retention production evidence follow-up.
-- PR #24 squash-merged 2026-07-22 (answer-persistence race fix + `sharp ^0.35.3` override clearing libvips CVEs). All CI green: `Quality and build` + `Database and browser tests`.
-- Merged history through PR #24. Prior stale snapshots referenced `agent/phase-1-foundation` / PR #3 (obsolete).
-- All-lenses release work lives on `agent/complete-all-lenses-release-ready` (from `origin/main` `38c982f`); not yet merged.
+- Production base: `main` / `origin/main` at `3eb53bc feat(admin): DB-backed read-only catalog, feedback, and audit views (#36)`.
+- Recent merges: #34 audit retention 365d, #35 Resend recovery transport + optional verify gate, #36 admin DB-backed read-only.
+- Open PRs: none at handoff refresh (docs slice may open after this file).
+- Epics #2 / #4 / #5 remain OPEN as historical shells; residual gates live here and in `docs/deployment/RELEASE_CLOSURE_GATES.md`.
 
-## Production state (per MODULAR_RELEASE_READINESS.md)
+## Production state
 
-- URL `https://lensadiri.vercel.app`, Supabase hosted Singapore.
-- Modular schema + quality-model + guarded all-lenses rollout applied through migration `202607270001` (linked migration list, 2026-07-22).
-- `FEATURE_MODULAR_COMPOSER` = ON. `FEATURE_COMPLEX_MODE`, `FEATURE_PROVISIONAL_PRECISION`, `FEATURE_AI_NARRATIVE` = OFF.
-- 10 canonical modules present and all selectable in production (confirmed via public `/modules/<key>` CTAs and `/combos` presets); honest per-module tiers.
-- Legacy Quick 40/Standard 60 remains backward-compatible baseline.
+- URL `https://lensadiri.vercel.app`, Supabase hosted Singapore (`lensadiri-production`, ap-southeast-1).
+- Migrations applied through `202607290001` (Local==Remote at last linked list; re-dry-run up to date).
+- `FEATURE_MODULAR_COMPOSER` = **ON**. `FEATURE_COMPLEX_MODE`, `FEATURE_PROVISIONAL_PRECISION`, `FEATURE_AI_NARRATIVE` = **OFF**.
+- 10 modules selectable (4 pilot + 2 experimental guarded). Presets `deep_self_discovery` / `full_spectrum` stay **draft** / hidden.
+- Recovery Resend transport + optional login gate: **code live, delivery dormant** (no `RESEND_API_KEY` / `EMAIL_FROM`; `FEATURE_REQUIRE_EMAIL_VERIFICATION` unset/OFF).
+- Admin `/admin/*`: DB-backed read-only, fail-closed `requireAdminSession`, DTO allowlist; guest → redirect.
+- Legacy Quick 40 / Standard 60 remains baseline-compatible.
+- Health smoke post-#36: `GET /api/health` → `200 {"status":"ok"}`; `/admin` guest `307`; retention unauth `401`.
 
 ## Module tiers (10 lenses)
 
@@ -34,59 +35,33 @@ Do not: reapply or modify production migration `202607270001`, activate `FEATURE
 | `pilot`        | Three Center, Instinct, RIASEC, Attachment |
 | `experimental` | Socionics, Psychosophy                     |
 
-## Completed engineering scope
+## Completed engineering (not residual product claims)
 
-- 6 new independent scoring engines (three-center, instinct, socionics, riasec, attachment, psychosophy); registry covers all 10 module keys, version-aware, fail-closed on unknown version.
-- Immutable composer/blueprint, provenance mismatch rejected pre-composition.
-- Complex lifecycle (pause/resume/segment/atomic completion), clarifier runtime, dashboard, safe share/export/delete DTO allowlist.
-- Result per-module (§17.1) + integrated report (§17.2) rendered full.
-- Confidence model versioned `module-quality-2` (skipped optional, clarifier completion, item quality weight, mode depth).
-- Recovery foundation implemented but dormant; live email + mandatory verification `BLOCKED_EXTERNAL`.
-- Admin `/admin/*` read-only fail-closed guard; dashboard sub-routes; result/test sub-routes with opaque token; blog with slug allowlist.
-- Migration `202607270001_guarded_all_lenses_release.sql` (additive, fail-closed, no flag changes) — APPLIED to production (confirmed via `supabase migration list --linked`, 2026-07-22). All 10 modules selectable.
+- Independent scoring engines for all 10 module keys; version-aware registry; fail-closed unknown version.
+- Immutable composer/blueprint; Complex lifecycle + clarifier (flag-gated); safe share/export DTO allowlist.
+- Recovery foundation + Resend transport + optional verification gate (default OFF).
+- Admin read-only DB views (#36); retention cleanup + audit 365d roll-off; observability health monitor + issue routing.
+- Isolated staging + restore drill evidence 2026-07-23 (project deleted after drill). Direct hosted `pg_dump`/`pg_restore` still `BLOCKED_EXTERNAL` without local Docker/pg.
 
-## Remaining steps
+## Remaining gates (approval-separated)
 
-1. Answer-persistence fix landed on `main` via PR #24 (DONE).
-2. Guarded all-lenses rollout (`202607270001`) merged via PR #15 and applied to production (DONE); all 10 modules selectable.
-3. Read-only production postcheck done (2026-07-22, SHA `51dc4e0`): 10 modules selectable, 4 pilot + 2 experimental, presets match readiness, Complex/precision OFF via API-derived signals. Still open (needs credentials/approval): direct `review_status='draft'` count for 147 items+translations, `config_json.guardedBeta` scope, and `FEATURE_AI_NARRATIVE` row. See `docs/deployment/MODULAR_RELEASE_READINESS.md` postcheck table.
-4. Complex mode / provisional precision / AI narrative activation only per product/release approval.
-5. Stop after evidence unless production approval is explicit.
+Canonical matrix: `docs/deployment/RELEASE_CLOSURE_GATES.md`.
 
-## Observability slice
-
-- One server-only allowlisted JSON logger is deployed. Auth/session/estimate plus assessment start, answer save, and completion emit operation/status/duration without raw user data.
-- Added `npm run monitor:health`: read-only exact-payload check for `/api/health`.
-- Scheduled/manual GitHub workflow is active. Failure deduplicates into one marked alert issue; recovery closes it. `drill=true` intentionally fails.
-- Approved merge deployed application code through existing Vercel integration. No dependency, migration, database write, feature-flag change, Vercel configuration, or secret change.
-- Local evidence: format, lint, typecheck, build, audit PASS; unit PASS 30 files/139 tests; read-only live health PASS. Docker daemon lokal unavailable.
-- Merged-SHA CI `29914521598` PASS: quality/build serta disposable database/browser tests. Vercel production status PASS pada `b424395`; read-only health PASS.
-- Manual healthy run `29915115034` PASS. Drill run `29915138990` failed intentionally, membuat tepat satu marked alert issue #26. Recovery run `29915169708` PASS dan menutup issue #26 otomatis.
-- Workflow state `active`; first provider-scheduled run `29920936659` PASS. GitHub schedule tetap best-effort.
-- Provider-level 5xx/latency/DB/flag alerts masih membutuhkan operator configuration dan approval.
-- Rollback: revert PR or disable workflow; no data rollback.
-
-## Retention scheduler slice
-
-- Added additive migration `202607280001_retention_cleanup_preview.sql`: read-only `preview_expired_retention_data(timestamptz)` counts eligible rows without deleting; security-definer, revoked from browser roles. pgTAP `retention_cleanup_preview.test.sql` proves dry-run counts, boundary safety, no deletion, idempotent cleanup, and account-session preservation.
-- Added `GET /api/cron/retention-cleanup`: `CRON_SECRET` bearer auth (constant-time, fail-closed when unset/wrong), `?dryRun=1` preview, deadline-bounded, structured `operational_event` with aggregate `retention_counts`. Reuses existing idempotent `cleanup_expired_retention_data`; account results untouched.
-- Added daily Vercel cron in `vercel.json` (`0 3 * * *`) and GitHub retention monitor workflow with marker-deduplicated issue alert + recovery close; `drill=true` intentionally fails.
-- `CRON_SECRET` is optional env (min 16 chars) in `env-schema`; set in Vercel + as GitHub secret before activation. Route fails closed if missing.
-- Local evidence: format, lint, typecheck, build, audit PASS; unit PASS 32 files/150 tests. PR CI run `29923303552` PASS, including disposable DB, integration, pgTAP, seed replay, Playwright, and accessibility. Duplicate run `29923298628` initially hit Docker Hub rate limiting plus a concurrent port collision; failed jobs reran successfully on identical HEAD.
-- PR #28 merged as `e5a37d1`; merged-SHA CI `29928134247` PASS. Production deployment `dpl_AqZzDCuwuBkwXG8ZWhJhtVXStr1P` Ready on the stable alias.
-- Migration `202607280001` APPLIED. `CRON_SECRET` provisioned as Vercel Production sensitive env and GitHub Actions secret. Unauthenticated production request returned 401.
-- Dry-run `29928883702` found 2 eligible guest sessions and 0 rate-limit rows. Approved cleanup deleted exactly those counts; post-cleanup dry-run `29929102188` returned zero for both.
-- Alert drill `29929143971` failed intentionally and created exactly one marked issue #29. Recovery `29929191879` PASS and auto-closed issue #29.
-- Vercel cron is deployed at `0 3 * * *` UTC. First provider-scheduled delivery remains `PENDING_PROVIDER`; manual cleanup and monitor paths are verified.
-- Rollback: remove `crons` from `vercel.json` or disable in Vercel, and/or revert PR; migration is additive read-only, no data rollback.
-
-## Release blockers
-
-- Production content-table postcheck for the six guarded lenses still recommended (this audit confirmed selectability via public pages only).
-- `FEATURE_COMPLEX_MODE` and Full Spectrum activation deferred; `full_spectrum`/`deep_self_discovery` presets stay draft.
-- Provider email + mandatory verification `BLOCKED_EXTERNAL`.
-- AI narrative deferred (flag OFF). Formal psychometric validation and third-party WCAG certification deferred — do not claim either.
-- Observability core terbukti kecuali first provider-scheduled run dan provider-level Vercel/Supabase thresholds. Alert owner saat ini repository maintainer melalui GitHub issue routing.
+| #   | Gate                         | Status                                    | Owner action                                      |
+| --- | ---------------------------- | ----------------------------------------- | ------------------------------------------------- |
+| 1   | Resend Preview drill         | CODE_READY / BLOCKED_EXTERNAL credentials | Domain + Preview secrets + disposable inbox proof |
+| 2   | Production email delivery    | NEEDS_APPROVAL_PROD                       | After Preview evidence only                       |
+| 3   | Mandatory verification       | CODE_READY / NEEDS_APPROVAL_PROD          | After delivery + legacy comms plan                |
+| 4   | Complex mode                 | CODE_READY flag OFF                       | Product approval + `set_feature_flag_state`       |
+| 5   | Deep / Full Spectrum presets | PARTIAL (draft)                           | After Complex + publication workflow              |
+| 6   | Provisional precision        | CODE_READY flag OFF                       | Product approval                                  |
+| 7   | Formal review 6 modules      | NOT_STARTED content                       | Human reviewers + SQL transitions                 |
+| 8   | Psychometric validation      | DEFERRED_EXTERNAL                         | Domain study; never fake claims                   |
+| 9   | Manual a11y audit            | AUTO PASS / manual BLOCKED                | NVDA/JAWS/VoiceOver + human contrast              |
+| 10  | Direct DB postcheck          | SQL pack ready                            | Operator trusted session only                     |
+| 11  | Issue/docs cleanup           | IN PROGRESS                               | This slice + epic comments                        |
+| 12  | Restore drill final          | PARTIAL                                   | Re-provision staging when needed; PITR external   |
+| 13  | Release closure              | NEEDS_APPROVAL_PROD                       | Sign-off per remaining window                     |
 
 ## Resume rules
 
@@ -94,5 +69,6 @@ Do not: reapply or modify production migration `202607270001`, activate `FEATURE
 - Preserve user changes. Do not reset, clean, stash, or checkout over them.
 - Do not read `.env` or print credentials.
 - Use disposable local Supabase for reset, integration, pgTAP, seed, and E2E.
-- Preserve legacy readers; keep production flags at documented state.
-- Canonical contract: `docs/product/PRD_FULL_LensaDiri.md` v2.0. Current evidence: `docs/qa/PRD_V2_IMPLEMENTATION_AUDIT.md` and `docs/deployment/MODULAR_RELEASE_READINESS.md`.
+- Preserve legacy readers; keep production flags at documented state unless approval explicit.
+- Canonical contract: `docs/product/PRD_FULL_LensaDiri.md` v2.0.
+- Evidence: `docs/qa/PRD_V2_IMPLEMENTATION_AUDIT.md`, `docs/deployment/MODULAR_RELEASE_READINESS.md`, `docs/deployment/RELEASE_CLOSURE_GATES.md`, this file + `.pi/EVIDENCE.md`.

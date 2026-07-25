@@ -31,7 +31,10 @@ Setelah snapshot hosted direstore ke staging, jalankan post-migration query dari
 
 ## Status
 
-Hosted backup inspection dan restore drill saat ini `BLOCKED_EXTERNAL` karena staging project terisolasi belum tersedia. Jangan membuka production backup data. Jangan menjalankan reset, integration, pgTAP, seed, atau E2E terhadap production.
+- **Isolated staging restore drill:** DONE 2026-07-23 on single-use hosted staging (synthetic seed only; project deleted after). Evidence: `docs/operations/OPERATIONS_RUNBOOK.md` + `.pi/EVIDENCE.md`. Proven: migration parity, canonical seed hash, flags OFF, RLS forced, immutability guard, scratch-schema backup→truncate→restore.
+- **Provider physical backup / PITR inspection:** still `BLOCKED_EXTERNAL` (platform/plan limits). Direct hosted `pg_dump`/`pg_restore` also `BLOCKED_EXTERNAL` without local Docker/pg client in the operator environment that ran the drill.
+- **Long-lived staging:** not kept warm; re-provision when the next drill is required.
+- Never open production backup data in chat or repo. Never run reset, integration, pgTAP, seed, or E2E against production.
 
 ## Verifikasi integritas
 

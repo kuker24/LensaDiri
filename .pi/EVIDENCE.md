@@ -1,137 +1,89 @@
 # Engineering Evidence
 
-> Refreshed 2026-07-22 after retention scheduler production activation. Supersedes stale 64-test / `phase-1-foundation` checkpoint.
+> Refreshed 2026-07-26 after `main` `3eb53bc` (#36). Supersedes retention-era checkpoint at `e5a37d1`.
 
 ## Objective
 
-Reproducible checkpoint for LensaDiri: legacy compatibility, modular composer live in production, 10-lens engineering complete and local-verified, guarded 6-lens release candidate pending approval.
+Reproducible checkpoint: hobby production baseline + modular guarded composer live; recovery delivery dormant; Complex/precision/AI OFF; residual gates external or approval-bound.
 
 ## Source checkpoint
 
-- Production checkpoint: `main` / `origin/main` `e5a37d1 feat(ops): add production retention cleanup scheduler (#28)`.
-- PR #28 merged and production-activated 2026-07-22 after explicit approval.
-- PR #24 squash-merged 2026-07-22: answer-persistence race fix + `sharp ^0.35.3` override (clears libvips CVE-2026-33327/33328/35590/35591). Both CI jobs green on merged SHA.
-- All-lenses branch: `agent/complete-all-lenses-release-ready` (from `origin/main` `38c982f`); not yet merged.
+- Production checkpoint: `main` / `origin/main` `3eb53bc feat(admin): DB-backed read-only catalog, feedback, and audit views (#36)`.
+- Prior: #35 Resend recovery transport (`c6e5d04`), #34 audit retention 365d (`fd54ff6`), #33/#32 deps, #31 staging restore docs, #30 retention evidence, #28 retention scheduler.
 - Production URL: `https://lensadiri.vercel.app`.
-- Merged history through PR #24. Prior PR #3 snapshot obsolete.
-
-Production identifiers, database URLs, tokens, passwords, keys, and secrets are intentionally excluded.
+- Production identifiers, database URLs, tokens, passwords, keys, and secrets are intentionally excluded.
 
 ## Production state
 
-- Modular schema + quality-model + guarded all-lenses rollout applied through migration `202607270001`.
-- `FEATURE_MODULAR_COMPOSER` ON; `FEATURE_COMPLEX_MODE`, `FEATURE_PROVISIONAL_PRECISION`, `FEATURE_AI_NARRATIVE` OFF (per last checkpoint; flag table not re-queried this read-only audit).
-- 10 canonical modules present, all selectable in production, honest tiers (active/published/pilot/experimental).
-- Migration `202607270001_guarded_all_lenses_release.sql` applied to production (linked migration list shows it on Local+Remote, 2026-07-22); all 10 modules selectable, confirmed via public `/modules/<key>` CTAs and `/combos` presets.
+- Migrations through `202607290001` applied (Local==Remote at last linked list).
+- `FEATURE_MODULAR_COMPOSER` ON; `FEATURE_COMPLEX_MODE`, `FEATURE_PROVISIONAL_PRECISION`, `FEATURE_AI_NARRATIVE` OFF (flag table not re-queried in every audit; API-derived signals match last postcheck).
+- 10 modules selectable; deep/full_spectrum presets hidden (draft).
+- Recovery: foundation + Resend code path live; no production secrets; verification flag OFF.
+- Admin: DB-backed read-only (#36); guest unauthenticated redirect.
 
-## Verification evidence (all-lenses branch, disposable local Supabase)
+## Post-#36 smoke (read-only)
 
-| Gate                             | Result                                                                                                                 |
-| -------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `npm run format:check`           | PASS                                                                                                                   |
-| `npm run lint`                   | PASS                                                                                                                   |
-| `npm run typecheck`              | PASS                                                                                                                   |
-| `npm test`                       | PASS: 23 files, 111 tests                                                                                              |
-| `npm run build`                  | PASS with dummy test-only environment                                                                                  |
-| `npm audit --audit-level=high`   | PASS: zero vulnerabilities                                                                                             |
-| `npm run db:reset`               | PASS against disposable local Supabase                                                                                 |
-| `npm run test:seed-replay`       | PASS: modules 10, module_versions 11, dimensions 49, questions/translations/mappings 405, presets 6, combo_mappings 27 |
-| Canonical seed SHA-256           | `45275f2a39fc284e8cb716c4b7c84b332fbcc3d150ce0fa83a0b040ec6739212`                                                     |
-| `npm run test:seed-replay-drift` | PASS: drift rejected and restored                                                                                      |
-| `npm run test:integration`       | PASS: 8 files, 32 tests                                                                                                |
-| `npm run test:db`                | PASS: 236 assertions, 4 files                                                                                          |
-| `npm run test:e2e`               | PASS: 58 tests, desktop Chromium + Pixel 5 (flags ON on disposable local only)                                         |
-| Accessibility subset             | PASS: 42 checks within full Playwright suite                                                                           |
-| GitHub Actions (PR #24 SHA)      | PASS: `Quality and build` + `Database and browser tests` green; PR squash-merged to `main` `47b8303`                   |
-| Post-merge `main` gates          | PASS: format, lint, typecheck, unit 28/134, build, `npm audit` 0 vulns, `git diff --check` clean                       |
+| Check                | Result                                          |
+| -------------------- | ----------------------------------------------- |
+| `GET /api/health`    | `200` `{"status":"ok"}`                         |
+| `GET /admin` (guest) | `307` fail-closed redirect                      |
+| Retention unauth     | `401`                                           |
+| Merged-SHA CI #36    | Quality + Database/browser PASS (`30177789771`) |
+
+## Local / CI evidence (candidate era)
+
+Canonical seed SHA-256: `45275f2a39fc284e8cb716c4b7c84b332fbcc3d150ce0fa83a0b040ec6739212`.
+
+| Gate                                    | Result                                                         |
+| --------------------------------------- | -------------------------------------------------------------- |
+| format / lint / typecheck / build       | PASS on recent PRs                                             |
+| unit (admin #36 local)                  | PASS: 157 tests at PR evidence                                 |
+| `npm audit --audit-level=high`          | PASS: zero high+                                               |
+| seed-replay / drift                     | PASS in CI disposable                                          |
+| integration / pgTAP / Playwright / a11y | PASS in CI disposable (Complex flags ON only on disposable DB) |
 
 E2E/a11y modular runs enable `FEATURE_MODULAR_COMPOSER` and `FEATURE_COMPLEX_MODE` on disposable DB only, matching CI. No production flag change.
 
 ## Security posture
 
-- Database, repository, service, scoring, transport remain server-only.
-- Cookie-auth mutations: exact same-origin CSRF + rate limit across mutation routes.
-- Password Argon2id; session/assessment/result/share/recovery tokens HMAC-hashed at rest.
-- Recovery tokens single-use, expiry, generic response, session revoke, concurrent-safe.
-- Sensitive tables forced RLS, zero browser policy, zero direct `anon`/`authenticated` privilege (pgTAP).
-- Public shared result allowlist explicit; private quality/confidence/clarifier/timing stay private.
-- IP/user-agent stored as HMAC fingerprint only. Server operational logs use an explicit field allowlist; no raw answer, token, email, account ID, IP, user-agent, request body, or private result logging.
-- Modular/Complex UI+API fail closed while flags OFF.
+- Server-only DB, scoring, transport; CSRF + rate limit on cookie mutations.
+- Argon2id passwords; session/assessment/result/share/recovery tokens HMAC-hashed at rest.
+- Recovery: single-use, expiry, generic response, session revoke, concurrent-safe; transport fail-closed without secrets.
+- Forced RLS, zero browser policy, zero direct `anon`/`authenticated` privilege (pgTAP).
+- Public share allowlist; private quality/confidence/clarifier/timing stay private.
+- Operational logs field-allowlisted; no raw answer, token, email, IP, UA, body, private result.
+- Admin DTO: no result_id/token/email; audit metadata allowlist `outcome`/`source`/`reason`; limit 50.
 
-## Residual risks and deferred scope
+## Retention + observability (prior evidence)
 
-- Migration `202607270001` already applied to production; a read-only content-table postcheck (selectability, `pilot`/`experimental` status, `draft` items/translations, `guardedBeta` scope) is still recommended and was not run in this audit.
-- Provider email delivery + mandatory verification `BLOCKED_EXTERNAL`.
-- AI narrative, formal psychometric validation, third-party WCAG certification, monitoring provider, restore drill, isolated staging, custom domain, retention automation remain deferred or partial.
-- `FEATURE_COMPLEX_MODE`, `FEATURE_PROVISIONAL_PRECISION`, `FEATURE_AI_NARRATIVE` OFF in production.
-- Never run local reset, integration, pgTAP, seed, or E2E suites against production.
+- Retention: migration `202607280001` + cron route + monitor drill; audit roll-off `202607290001` (365d).
+- First provider-scheduled retention cron at 03:00 UTC may remain `PENDING_PROVIDER` until observed; manual path verified.
+- Health monitor workflow active; alert issue routing proven on drills.
 
-## Observability task evidence
+## Isolated staging + restore drill (2026-07-23)
 
-| Gate                                | Result                                                                      |
-| ----------------------------------- | --------------------------------------------------------------------------- |
-| `npm run lint`                      | PASS                                                                        |
-| `npm run typecheck`                 | PASS                                                                        |
-| `npm test`                          | PASS: 30 files, 139 tests                                                   |
-| Targeted observability unit         | PASS: 2 tests                                                               |
-| `npm run monitor:health`            | PASS against production liveness; read-only GET only                        |
-| Forced local monitor failure        | PASS: non-zero exit with redacted target/error only                         |
-| `npm run build`                     | PASS                                                                        |
-| `npm audit --audit-level=high`      | PASS: zero vulnerabilities                                                  |
-| Disposable DB/integration/pgTAP/E2E | PASS in PR CI runs `29913149675`, `29913194014`; Docker unavailable locally |
-| Vercel Preview                      | PASS for PR #25                                                             |
-| Merged-SHA CI                       | PASS: `29914521598`                                                         |
-| Vercel production deployment        | PASS on `b424395`; read-only health PASS                                    |
-| Manual healthy monitor              | PASS: `29915115034`                                                         |
-| Alert drill                         | PASS: expected failure `29915138990`; exactly one issue #26                 |
-| Recovery                            | PASS: `29915169708`; issue #26 auto-closed                                  |
-| Workflow state                      | `active`                                                                    |
-| First provider-scheduled run        | PASS: `29920936659`                                                         |
+Single-use hosted staging (`lensadiri-staging`), synthetic seed only, project deleted after drill. Production untouched.
 
-Approved PR merge deployed application code through the existing Vercel integration. No database, migration, feature flag, secret, or provider setting changed. Rollback is workflow disable/revert plus application deployment revert if needed; no data rollback.
+| Gate                                     | Result                                         |
+| ---------------------------------------- | ---------------------------------------------- |
+| Migration parity                         | PASS Local==Remote                             |
+| Canonical seed hash                      | PASS pinned SHA                                |
+| Seed idempotence / flags OFF             | PASS                                           |
+| RLS forced + zero grants                 | PASS                                           |
+| Immutability guard                       | PASS                                           |
+| Backup → loss → restore (scratch schema) | PASS                                           |
+| Direct `pg_dump`/`pg_restore`            | `BLOCKED_EXTERNAL` (no local Docker/pg client) |
 
-## Retention scheduler task evidence
+Details: `docs/operations/OPERATIONS_RUNBOOK.md`, `docs/operations/BACKUP_RESTORE_RUNBOOK.md`.
 
-| Gate                                | Result                                                                          |
-| ----------------------------------- | ------------------------------------------------------------------------------- |
-| `npm run format:check`              | PASS                                                                            |
-| `npm run lint`                      | PASS                                                                            |
-| `npm run typecheck`                 | PASS                                                                            |
-| `npm test`                          | PASS: 32 files, 150 tests                                                       |
-| `npm run build`                     | PASS; `/api/cron/retention-cleanup` present in route manifest                   |
-| `npm audit --audit-level=high`      | PASS: zero vulnerabilities                                                      |
-| Disposable DB/integration/pgTAP/E2E | PASS in PR CI run `29923303552`                                                 |
-| Duplicate CI rerun                  | PASS: `29923298628`; initial attempt hit Docker Hub rate limit + port collision |
-| PR #28 implementation SHA           | `ec273615ec24ac737908bb94a64f086e49ba8f2d`; implementation checks green         |
-| Merged-SHA CI                       | PASS: `29928134247`                                                             |
-| Production deployment               | PASS: `dpl_AqZzDCuwuBkwXG8ZWhJhtVXStr1P`; stable alias healthy                  |
-| Migration `202607280001`            | APPLIED; subsequent linked dry-run reports remote up to date                    |
-| `CRON_SECRET`                       | Provisioned as Vercel Production sensitive env + GitHub Actions secret          |
-| Fail-closed auth                    | PASS: unauthenticated production dry-run returned HTTP 401                      |
-| Pre-cleanup dry-run                 | PASS: `29928883702`; eligible guest sessions 2, rate limits 0                   |
-| Production cleanup                  | PASS: deleted guest sessions 2, rate limits 0                                   |
-| Post-cleanup dry-run                | PASS: `29929102188`; eligible counts both 0                                     |
-| Retention monitor drill             | PASS: expected failure `29929143971`; exactly one marked issue #29              |
-| Recovery                            | PASS: `29929191879`; issue #29 auto-closed                                      |
-| First provider-scheduled cron       | `PENDING_PROVIDER`; manual invocation verified, scheduled delivery not yet due  |
+## Residual / deferred (do not claim done)
 
-Additive migration `202607280001` adds only a read-only `preview_expired_retention_data` function. The approved cleanup matched its dry-run exactly, then returned zero eligible rows. The idempotent function touches only eligible expired guest sessions and old rate-limit buckets; account-owned results are outside its delete scope. No feature flag changed. First provider-scheduled Vercel delivery remains pending.
+- Resend Preview → prod delivery → mandatory verification (credentials + approval).
+- Complex mode, provisional precision, AI narrative flags.
+- Formal six-module item review / publish; Deep/Full Spectrum preset publish.
+- Psychometric validation; third-party WCAG certification; manual SR audits.
+- Direct SQL postcheck for draft counts / guardedBeta / AI flag row (operator only).
+- Provider PITR / physical backup inspection; custom domain; isolated long-lived staging.
 
-## Isolated staging + restore drill evidence
-
-Executed 2026-07-23 on a single-use hosted staging project (`lensadiri-staging`, `mpngwfivujypqkxolaxf`, ap-southeast-1), synthetic seed only, no production data. Project deleted after the drill. Production database, secrets, migrations, and feature flags were untouched.
-
-| Gate                        | Result                                                                                                             |
-| --------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| Staging provisioning        | PASS: `supabase projects create` free-tier, ACTIVE_HEALTHY                                                         |
-| Migration parity            | PASS: 15 migrations pushed to empty staging; `migration list` Local==Remote; re-dry-run up to date                 |
-| Seed canonical identity     | PASS: `sha256=45275f2a39fc284e8cb716c4b7c84b332fbcc3d150ce0fa83a0b040ec6739212`; counts match                      |
-| Seed idempotence            | PASS: second replay produced identical canonical hash                                                              |
-| Zero duplicates / flags OFF | PASS: zero canonical duplicates; zero enabled feature flags                                                        |
-| RLS forced + zero grants    | PASS: 4 release tables `relrowsecurity`/`relforcerowsecurity` true; no `anon`/`authenticated`/`PUBLIC` grants      |
-| Immutability guard          | PASS: DELETE on published content rejected ("published module content is immutable"); content intact               |
-| Backup → loss → restore     | PASS: scratch schema 405-row backup `sha256=41822e8c…` → truncate 0 → transactional restore → identical hash/count |
-| Integration/pgTAP/E2E       | PASS via CI-disposable merged-SHA `468f098` run `29952443369` (`Database and browser tests`)                       |
-| Teardown / rollback         | PASS: staging project deleted; production untouched                                                                |
-
-Direct hosted `pg_dump`/`pg_restore` remains `BLOCKED_EXTERNAL` here (no local Docker or pg client); logical backup/restore mechanics were proven through the project driver on a disposable scratch schema instead.
+Operator SQL pack: `docs/deployment/PRODUCTION_POSTCHECK_SQL.md`.
+Gate matrix: `docs/deployment/RELEASE_CLOSURE_GATES.md`.

@@ -201,12 +201,12 @@ CI already exercises the same lifecycle with `RECOVERY_TEST_TRANSPORT=1` (integr
 - CI seluruh job PASS pada SHA yang akan dirilis
 - working tree dan branch sinkron
 - migration checksum direview
-- feature flags production tetap OFF sebelum approval
+- production flag posture matches `RELEASE_CLOSURE_GATES.md` (composer may be ON; Complex/precision/AI stay OFF until approval)
 - monitoring dan rollback owner aktif
-- preview menggunakan secret terpisah
+- preview menggunakan secret terpisah (never production Resend/DB secrets)
 - PR tetap open sampai Preview, hosted migration postcheck, dan keputusan merge lulus
 - Vercel dan CI memakai Node.js 22.x
-- production seed dan seluruh feature flag modular tetap OFF untuk release aman
+- production seed tidak dijalankan; residual gates di `docs/deployment/RELEASE_CLOSURE_GATES.md` tidak di-claim selesai tanpa evidence
 - deployment production sehat sebelumnya tercatat sebagai target rollback aplikasi
 
 ## Observability rollback
