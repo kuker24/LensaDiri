@@ -30,6 +30,64 @@ class TestRecoveryEmailTransport implements RecoveryEmailTransport {
   }
 }
 
+class ResendRecoveryEmailTransport implements RecoveryEmailTransport {
+  readonly enabled = true;
+
+  constructor(
+    private readonly apiKey: string,
+    private readonly from: string,
+    private readonly appOrigin: string,
+  ) {}
+
+  async send(input: RecoveryDelivery): Promise<void> {
+    const path = input.purpose === "email_verification" ? "/verify-email" : "/reset-password";
+    const actionUrl = `${this.appOrigin}${path}#token=${encodeURIComponent(input.token)}`;
+    const subject =
+      input.purpose === "email_verification"
+        ? "Verifikasi email LensaDiri"
+        : "Reset password LensaDiri";
+    const text =
+      input.purpose === "email_verification"
+        ? [
+            "Verifikasi email akun LensaDiri.",
+            "",
+            "Buka tautan ini dalam 30 menit (sekali pakai):",
+            actionUrl,
+            "",
+            "Abaikan pesan ini jika kamu tidak meminta verifikasi.",
+          ].join("\n")
+        : [
+            "Reset password akun LensaDiri.",
+            "",
+            "Buka tautan ini dalam 30 menit (sekali pakai):",
+            actionUrl,
+            "",
+            "Setelah password diganti, semua session lama dicabut.",
+            "Abaikan pesan ini jika kamu tidak meminta reset.",
+          ].join("\n");
+
+    const response = await fetch("https://api.resend.com/emails", {
+      body: JSON.stringify({
+        from: this.from,
+        subject,
+        text,
+        to: [input.email],
+      }),
+      headers: {
+        Authorization: `Bearer ${this.apiKey}`,
+        "Content-Type": "application/json",
+      },
+      method: "POST",
+      signal: AbortSignal.timeout(8_000),
+    });
+
+    if (!response.ok) {
+      // Never include response body: provider may echo recipient or message content.
+      throw new Error(`Recovery email provider rejected the request (${response.status}).`);
+    }
+  }
+}
+
 type RecoveryTestStore = Map<string, RecoveryDelivery>;
 
 const globalRecoveryStore = globalThis as typeof globalThis & {
@@ -41,10 +99,32 @@ function getTestStore(): RecoveryTestStore {
   return globalRecoveryStore.__lensadiriRecoveryDeliveries;
 }
 
+function resolveAppOrigin(): string | null {
+  const raw = process.env.NEXT_PUBLIC_APP_URL;
+  if (!raw) return null;
+  try {
+    const url = new URL(raw);
+    if (url.pathname !== "/" || url.search || url.hash) return null;
+    return url.origin;
+  } catch {
+    return null;
+  }
+}
+
 export function getRecoveryEmailTransport(): RecoveryEmailTransport {
-  return process.env.NODE_ENV !== "production" && process.env.RECOVERY_TEST_TRANSPORT === "1"
-    ? new TestRecoveryEmailTransport()
-    : new DisabledRecoveryEmailTransport();
+  if (process.env.NODE_ENV !== "production" && process.env.RECOVERY_TEST_TRANSPORT === "1") {
+    return new TestRecoveryEmailTransport();
+  }
+
+  const apiKey = process.env.RESEND_API_KEY?.trim() ?? "";
+  const from = process.env.EMAIL_FROM?.trim() ?? "";
+  const appOrigin = resolveAppOrigin();
+  // Live delivery requires all three. Missing any value keeps recovery dormant (fail closed).
+  if (apiKey.length >= 20 && from.includes("@") && appOrigin) {
+    return new ResendRecoveryEmailTransport(apiKey, from, appOrigin);
+  }
+
+  return new DisabledRecoveryEmailTransport();
 }
 
 export function readTestRecoveryDelivery(

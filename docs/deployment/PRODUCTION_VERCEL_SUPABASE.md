@@ -31,6 +31,23 @@ RATE_LIMIT_SECRET
 
 Optional: set `CRON_SECRET` (at least 16 characters, distinct from other secrets) to authorize the daily retention cleanup cron at `/api/cron/retention-cleanup`. Vercel sends it automatically as the `Authorization: Bearer` header for scheduled invocations. Without it the route fails closed. Add the same value as a GitHub Actions secret named `CRON_SECRET` so the retention monitor dry-run can verify eligibility.
 
+Optional recovery email (dormant by default; do not set in production without explicit approval):
+
+```text
+EMAIL_FROM
+RESEND_API_KEY
+FEATURE_REQUIRE_EMAIL_VERIFICATION
+```
+
+Rules for recovery email:
+
+- Leave `EMAIL_FROM` and `RESEND_API_KEY` unset to keep delivery disabled. Application boots and recovery APIs return generic accepted responses without sending mail.
+- `EMAIL_FROM` must be a verified Resend sender (domain or single address). Prefer a dedicated subdomain such as `mail.example.com`.
+- `RESEND_API_KEY` is server-only, min 20 characters when set, distinct per environment, never logged.
+- `FEATURE_REQUIRE_EMAIL_VERIFICATION` defaults off. Set to `1` only after delivery is proven and product approves login gating. Legacy accounts with `email_verified_at IS NULL` are blocked until they verify; password reset and `/verify-email` remain available.
+- Never set `RECOVERY_TEST_TRANSPORT` in Vercel. That flag is local/E2E only.
+- Preview must use separate Resend credentials and isolated database; never reuse production keys.
+
 Rules:
 
 - `NEXT_PUBLIC_APP_URL` is the stable origin for its scope, such as the production alias or stable branch Preview alias; no path, query, or trailing configuration data.
@@ -88,8 +105,8 @@ Database rollback: migrations are additive. Prefer fix-forward migration. Do not
 
 ## Current limitations
 
-- No staging environment.
-- No email verification or password reset.
-- No production monitoring integration or backup/restore drill.
+- Shared hobby production; isolated staging is provisioned only for approved drills.
+- Recovery foundation (hash-only tokens, single-use, expiry, anti-enumeration, rate limits, session revoke on reset) is deployed. Live Resend delivery and mandatory verification stay off until secrets and product approval.
+- Provider-level 5xx/latency thresholds and formal backup/restore tooling remain operator-configured.
 - No formal psychometric validation or automated WCAG audit.
 - Free-tier availability, quotas, and project pausing apply.

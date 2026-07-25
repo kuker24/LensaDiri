@@ -21,6 +21,7 @@ export type OperationalEvent = {
     | "login_audit_insert"
     | "login_session_insert"
     | "pool_wait"
+    | "recovery_email_send"
     | "register_auth_service"
     | "register_rate_limit"
     | "retention_cleanup"

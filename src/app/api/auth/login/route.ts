@@ -39,6 +39,7 @@ export async function POST(request: Request): Promise<NextResponse> {
         userAgent: request.headers.get("user-agent") ?? "",
       },
       password: parsed.data.password,
+      requireEmailVerification: environment.requireEmailVerification,
       secrets: {
         authSessionSecret: environment.authSessionSecret,
         tokenHashPepper: environment.tokenHashPepper,

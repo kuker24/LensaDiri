@@ -6,6 +6,7 @@ import { normalizeEmail } from "@/lib/auth/email";
 import { hashPassword, verifyDummyPassword, verifyPassword } from "@/lib/auth/password";
 import { SESSION_DURATION_MS } from "@/lib/auth/session";
 import { hashOpaqueToken } from "@/lib/security/tokens";
+import { getRecoveryEmailTransport } from "@/server/email-transport";
 import { createAuditLog } from "@/server/repositories/audit-logs";
 import {
   createAccountWithAudit,
@@ -21,6 +22,7 @@ import {
   revokeAccountSession,
   type ActiveSessionRecord,
 } from "@/server/repositories/sessions";
+import { requestEmailVerification } from "@/server/services/account-recovery";
 import { consumeRateLimit, authRateLimitPolicies } from "@/server/services/rate-limiter";
 
 export type ClientFingerprint = {
@@ -39,6 +41,7 @@ export type LoginAccountResult =
   | { success: true; data: CreatedSession }
   | { success: false; error: { code: "rate_limited"; retryAfterSeconds: number; status: 429 } }
   | { success: false; error: { code: "invalid_credentials"; status: 401 } }
+  | { success: false; error: { code: "email_unverified"; status: 403 } }
   | { success: false; error: { code: "service_unavailable"; status: 503 } };
 
 function toSessionHash(token: string, tokenHashPepper: string): string {
@@ -49,6 +52,7 @@ export async function registerAccount(
   input: {
     email: string;
     password: string;
+    tokenHashPepper?: string;
   },
   correlationId = crypto.randomUUID(),
 ): Promise<{ created: boolean }> {
@@ -78,6 +82,17 @@ export async function registerAccount(
       emailNormalized,
       passwordHash,
     });
+    // Best-effort verification email only when live/test transport is enabled.
+    // Failures must not fail registration (anti-enumeration + account still created).
+    if (input.tokenHashPepper && getRecoveryEmailTransport().enabled) {
+      try {
+        await requestEmailVerification(emailNormalized, input.tokenHashPepper);
+      } catch {
+        console.info(
+          `[TELEMETRY] cid=${correlationId} op=register_verification_email status=delivery_failed`,
+        );
+      }
+    }
     return { created: true };
   } catch (error) {
     if (
@@ -97,6 +112,7 @@ export async function loginAccount(input: {
   email: string;
   fingerprint: ClientFingerprint;
   password: string;
+  requireEmailVerification?: boolean;
   secrets: { authSessionSecret: string; tokenHashPepper: string; rateLimitSecret: string };
   correlationId?: string;
 }): Promise<LoginAccountResult> {
@@ -163,6 +179,22 @@ export async function loginAccount(input: {
     return {
       success: false,
       error: { code: "invalid_credentials", status: 401 },
+    };
+  }
+
+  // Gate only when FEATURE_REQUIRE_EMAIL_VERIFICATION is on. Accounts with
+  // email_verified_at set pass; null (legacy / unverified) are blocked.
+  if (input.requireEmailVerification && !account.emailVerified) {
+    await createAuditLog({
+      action: "account_login_failed",
+      actorAccountId: account.id,
+      entityId: account.id,
+      entityType: "account",
+      metadata: { reason: "email_unverified" },
+    });
+    return {
+      success: false,
+      error: { code: "email_unverified", status: 403 },
     };
   }
 

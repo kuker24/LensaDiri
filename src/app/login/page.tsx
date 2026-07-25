@@ -30,6 +30,24 @@ export default function LoginPage() {
             <AuthForm mode="login" />
           </div>
           <p className="text-ink-muted mt-6 text-sm">
+            Lupa password?{" "}
+            <Link
+              className="focus-ring text-lens rounded font-semibold hover:underline"
+              href="/forgot-password"
+            >
+              Reset password
+            </Link>
+          </p>
+          <p className="text-ink-muted mt-3 text-sm">
+            Belum verifikasi email?{" "}
+            <Link
+              className="focus-ring text-lens rounded font-semibold hover:underline"
+              href="/verify-email"
+            >
+              Kirim ulang verifikasi
+            </Link>
+          </p>
+          <p className="text-ink-muted mt-3 text-sm">
             Belum punya akun?{" "}
             <Link
               className="focus-ring text-lens rounded font-semibold hover:underline"

@@ -74,7 +74,13 @@ export async function POST(request: Request): Promise<NextResponse> {
     }
 
     const startRegister = process.hrtime.bigint();
-    await withDeadline(registerAccount(parsed.data, correlationId), REGISTER_DB_DEADLINE_MS);
+    await withDeadline(
+      registerAccount(
+        { ...parsed.data, tokenHashPepper: environment.tokenHashPepper },
+        correlationId,
+      ),
+      REGISTER_DB_DEADLINE_MS,
+    );
     logOperationalEvent({
       correlationId,
       durationMs: elapsedMilliseconds(startRegister),

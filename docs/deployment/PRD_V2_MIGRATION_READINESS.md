@@ -162,7 +162,7 @@ Seluruh invariant query harus menghasilkan zero rows. RLS query harus menunjukka
 - Staging Supabase project terisolasi: drill 2026-07-23 dijalankan pada `lensadiri-staging` sekali-pakai (ap-southeast-1, seed sintetis) lalu dihapus; provisioning ulang diperlukan untuk drill berikutnya
 - Preview-scoped Vercel secrets: `BLOCKED_EXTERNAL` sampai resource dibuat
 - Hosted backup restore drill: migration parity, seed canonical `45275f2a…`, RLS/grant, immutability, dan backup→loss→restore mechanics terbukti pada staging (lihat `docs/operations/OPERATIONS_RUNBOOK.md`). Direct pg_dump/pg_restore tetap `BLOCKED_EXTERNAL` tanpa Docker/pg client lokal
-- Provider email dan mandatory verification: di luar release, recovery tetap dormant
+- Provider email (Resend) dan mandatory verification: kode transport + flag siap, default OFF; production tetap dormant sampai secret + approval
 - Monitoring eksternal, formal WCAG, dan validasi psikometrik: di luar release aman
 
 Production tidak boleh menjadi test environment. Release aman hanya memigrasikan schema, deploy aplikasi, menjalankan smoke non-destruktif, dan mempertahankan seluruh feature flag false.
