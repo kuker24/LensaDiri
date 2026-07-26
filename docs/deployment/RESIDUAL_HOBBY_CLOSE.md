@@ -1,55 +1,67 @@
 # Residual hobby close (#40–#45)
 
-**Date:** 2026-07-26
+**Final hobby freeze:** `main` @ **`ab2fcdc`** · 2026-07-26
 **Constraint:** free/hobby only · no purchased services · no fake cert/review/validation · AI not paid
+**Mode after freeze:** **MAINTENANCE ONLY** (security, deps, health, monitoring, retention, backup readiness, regression tests)
 
-## Best honest status
+## Binding product status
 
-| #   | Topic                  | What engineering did                              | Residual owner                                      | Hobby close label                                    |
-| --- | ---------------------- | ------------------------------------------------- | --------------------------------------------------- | ---------------------------------------------------- |
-| 40  | Recovery email         | Code + free-tier activation runbook               | **Operator** (Resend free account + Vercel secrets) | **BLOCKED_OPERATOR** until secrets+drill; docs ready |
-| 41  | 6-module formal review | Review packet + existing SQL state machine        | **Human reviewers**                                 | **BLOCKED_HUMAN**; packet ready                      |
-| 42  | Full Spectrum          | Capacity decision: keep draft; multi-session path | Product (decided)                                   | **DECIDED** multi-session; no publish over cap       |
-| 43  | Psychometrics          | Prep protocol only                                | **External/funded**                                 | **PREP_ONLY**; not validated                         |
-| 44  | Manual a11y / WCAG     | Manual checklist; auto still PASS                 | **Human** (+ optional auditor)                      | Checklist ready; **no cert**                         |
-| 45  | AI narrative           | Explicit free-tier OFF stance                     | Product/funding                                     | **DEFERRED_OFF**                                     |
+| Lens                                 | Status                                |
+| ------------------------------------ | ------------------------------------- |
+| Hobby modular engineering            | **100% closed** at `ab2fcdc`          |
+| Full PRD product                     | **Stops honestly at ~75%** — not 100% |
+| Clinical / WCAG / psychometrics cert | **Never claim**                       |
 
-## Weighted product estimate (same model as gates)
+## Best honest residual matrix
 
-| Bucket                                                    | Weight | After this close                             |
+| #   | Topic                  | Engineering / docs                | Owner                    | Freeze label                  | Issue  |
+| --- | ---------------------- | --------------------------------- | ------------------------ | ----------------------------- | ------ |
+| 40  | Recovery email         | Code + free-tier runbook          | Operator (optional)      | **BLOCKED_OPERATOR** optional | open   |
+| 41  | 6-module formal review | Review packet + SQL state machine | Human (optional)         | **BLOCKED_HUMAN** optional    | open   |
+| 42  | Full Spectrum          | DECIDED draft + multi-session     | Product                  | **DECIDED**                   | closed |
+| 43  | Psychometrics          | Prep protocol only                | External (optional)      | **PREP_ONLY**                 | open   |
+| 44  | Manual a11y / WCAG     | Auto PASS + manual checklist      | Human/auditor (optional) | checklist; **no cert**        | open   |
+| 45  | AI narrative           | Free-tier OFF stance              | Funding                  | **DEFERRED_OFF**              | closed |
+
+Residual **#40, #41, #43, #44** are **external/optional**. They do **not** reopen the engineering freeze. Do not staff them as eng sprints.
+
+## Weighted product estimate
+
+| Bucket                                                    | Weight | At freeze                                    |
 | --------------------------------------------------------- | ------ | -------------------------------------------- |
 | Eng baseline (legacy/auth/modular/complex/admin/monitors) | 70     | 100% of those buckets                        |
-| Recovery delivery                                         | 8      | ~30% (code) + docs; live only after operator |
-| Formal review                                             | 8      | 0% content; 100% process docs                |
-| Full Spectrum path                                        | 5      | **~80%** decision+path; preset still draft   |
-| Psychometrics                                             | 4      | ~15% prep docs only                          |
-| Manual a11y / cert                                        | 3      | ~50% checklist; 0% cert                      |
-| AI                                                        | 2      | 0% feature; 100% explicit OFF                |
+| Recovery delivery                                         | 8      | ~35% (code + runbook); live only if operator |
+| Formal review                                             | 8      | process docs; content still draft            |
+| Full Spectrum path                                        | 5      | **DECIDED** multi-session; preset draft      |
+| Psychometrics                                             | 4      | prep only                                    |
+| Manual a11y / cert                                        | 3      | checklist; 0% cert                           |
+| AI                                                        | 2      | explicit OFF                                 |
 
-**Full PRD product still ~74–76%** (not 100%). Hobby modular **engineering** remains **100% closed**. Clinical/WCAG cert **never claimed**.
+**Full PRD ≈ ~75%.** Engineering modular lens **100%**.
 
-## What was intentionally not done
+## Hard bans after freeze
 
-- No Resend keys written by agent
-- No `approved` item bulk update
-- No `publish_combo_preset(full_spectrum)`
-- No LLM provider integration
-- No self-issued WCAG certificate
-- No paid panel / paid auditor
+- Large features, new modules/engines, major redesign
+- Paid services for residual close
+- AI narrative ON without funded #45 prerequisites
+- WCAG / psychometric certification claims without external evidence
+- Publish or bulk-`approved` modules without reviewers
+- `publish_combo_preset(full_spectrum)` while over Complex cap
 
-## Operator next (optional)
+## Operator next (optional only)
 
-1. Follow `docs/operations/RESEND_FREE_TIER_ACTIVATION.md` if email delivery wanted.
-2. Staff reviewers via `docs/operations/GUARDED_MODULE_REVIEW_PACKET.md`.
-3. Run `docs/qa/MANUAL_A11Y_CHECKLIST.md` when a human is available.
-4. Leave #43/#45 until funded or accept prep/deferred forever.
+1. `docs/operations/RESEND_FREE_TIER_ACTIVATION.md` if email wanted
+2. `docs/operations/GUARDED_MODULE_REVIEW_PACKET.md` if reviewers available
+3. `docs/qa/MANUAL_A11Y_CHECKLIST.md` if a human can run SR pass
+4. Leave #43 until funded; accept prep forever if not
 
 ## Related index
 
+- Freeze handoff: `.pi/HANDOFF.md`
+- Gates: `docs/deployment/RELEASE_CLOSURE_GATES.md`
 - `docs/operations/RESEND_FREE_TIER_ACTIVATION.md`
 - `docs/operations/GUARDED_MODULE_REVIEW_PACKET.md`
 - `docs/product/FULL_SPECTRUM_CAPACITY_DECISION.md`
 - `docs/science/PSYCHOMETRIC_VALIDATION_PREP.md`
 - `docs/qa/MANUAL_A11Y_CHECKLIST.md`
 - `docs/product/AI_NARRATIVE_FREE_TIER_STANCE.md`
-- `docs/deployment/RELEASE_CLOSURE_GATES.md`

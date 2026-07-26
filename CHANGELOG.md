@@ -4,9 +4,16 @@ All notable releases of LensaDiri. Dates are UTC calendar days of the release ta
 
 Honest scope: entries mark **engineering / product** posture. Nothing here claims clinical diagnosis, psychometric validation, or third-party WCAG certification.
 
-## Unreleased (maintenance)
+## Unreleased (maintenance only)
 
-Post-`v0.9.0-hobby-modular` only: security patches, deps, monitoring, retention, health, regression tests, backup readiness, residual #40–#45. No large features. Small PR + CI green + rollback.
+**Final hobby freeze:** `main` @ **`ab2fcdc`** (2026-07-26). Engineering modular **100%**. Full PRD **stops ~75%**. After freeze: security patches, deps, health, monitoring, retention, backup readiness, regression tests only. No large features, paid residual services, AI ON, WCAG/psychometric cert claims, or unreviewed publish.
+
+### Final hobby freeze (2026-07-26)
+
+- Pin: **`ab2fcdc`** · eng tag baseline `v0.9.0-hobby-modular` · residual docs #50
+- Residual open (external/optional): **#40** Resend · **#41** human review · **#43** psychometrics · **#44** manual a11y
+- Residual closed: **#42** Full Spectrum multi-session DECIDED · **#45** AI DEFERRED_OFF
+- Index: `docs/deployment/RESIDUAL_HOBBY_CLOSE.md` · handoff: `.pi/HANDOFF.md`
 
 ### Residual hobby close (2026-07-26)
 
