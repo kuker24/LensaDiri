@@ -5,7 +5,7 @@ test("landing page exposes the core trust proposition", async ({ page }) => {
 
   await expect(page.getByRole("heading", { level: 1 })).toContainText("Kenali pola dirimu");
   await expect(page.getByRole("link", { name: "Mulai eksplorasi" })).toBeVisible();
-  await expect(page.getByText("Bukan diagnosis klinis")).toBeVisible();
+  await expect(page.locator("main").getByText("Bukan diagnosis klinis")).toBeVisible();
 });
 
 test("public information pages are reachable", async ({ page }) => {
