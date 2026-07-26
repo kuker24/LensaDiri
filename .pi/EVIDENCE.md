@@ -1,38 +1,39 @@
 # Engineering Evidence
 
 > **Final hobby release:** `main` @ **`c535a6b`** | tag **`v1.0.0-hobby-final`** | 2026-07-26
-> Status: **ARCHIVED / MAINTENANCE** | standing watch **CLOSED**
+> Status: **FRONTEND REDESIGN / BACKEND MAINTENANCE** | freeze reopened 2026-07-26 for frontend only
 
 ## Release pin
 
-| Check                          | Result                                     |
-| ------------------------------ | ------------------------------------------ |
-| SHA                            | `c535a6bd04140d079bf2f34289f0be5031637830` |
-| Tag                            | `v1.0.0-hobby-final`                       |
-| Product freeze baseline        | `ab2fcdc` (docs pin #51 on top)            |
-| Eng baseline tag               | `v0.9.0-hobby-modular`                     |
-| Hobby modular engineering      | **100% closed**                            |
-| Hobby project finalization     | **100% complete**                          |
-| Full PRD product               | **~75%** - stops here honestly             |
-| Mode                           | **ARCHIVED / MAINTENANCE**                 |
-| Standing watch                 | **CLOSED**                                 |
-| `GET /api/health`              | `200` `{"status":"ok"}`                    |
-| `npm audit --audit-level=high` | **0**                                      |
-| Tree                           | clean / = origin/main at tag               |
-| Smoke readonly                 | PASS                                       |
-| Modes                          | quick/standard/deep selectable             |
-| Modules                        | 10                                         |
-| Combos                         | 5 (deep pilot; full_spectrum draft)        |
-| Migrations                     | Local==Remote through `202607290001`       |
-| AI                             | **OFF**                                    |
-| Resend production secrets      | absent (delivery dormant)                  |
-| Open residual                  | #40 #41 #43 #44 external/optional only     |
-| Closed residual                | #42 DECIDED / #45 DEFERRED_OFF             |
+| Check                          | Result                                      |
+| ------------------------------ | ------------------------------------------- |
+| SHA                            | `c535a6bd04140d079bf2f34289f0be5031637830`  |
+| Tag                            | `v1.0.0-hobby-final`                        |
+| Product freeze baseline        | `ab2fcdc` (docs pin #51 on top)             |
+| Eng baseline tag               | `v0.9.0-hobby-modular`                      |
+| Hobby modular engineering      | **100% closed**                             |
+| Hobby project finalization     | **100% complete**                           |
+| Full PRD product               | **~75%** - stops here honestly              |
+| Mode                           | **FRONTEND REDESIGN / BACKEND MAINTENANCE** |
+| Frontend redesign              | **ACTIVE** - explicitly approved            |
+| `GET /api/health`              | `200` `{"status":"ok"}`                     |
+| `npm audit --audit-level=high` | **0**                                       |
+| Tree                           | clean / = origin/main at tag                |
+| Smoke readonly                 | PASS                                        |
+| Modes                          | quick/standard/deep selectable              |
+| Modules                        | 10                                          |
+| Combos                         | 5 (deep pilot; full_spectrum draft)         |
+| Migrations                     | Local==Remote through `202607290001`        |
+| AI                             | **OFF**                                     |
+| Resend production secrets      | absent (delivery dormant)                   |
+| Open residual                  | #40 #41 #43 #44 external/optional only      |
+| Closed residual                | #42 DECIDED / #45 DEFERRED_OFF              |
 
 ## Verdict (binding)
 
 - Hobby modular engineering: **done 100%**
 - Final hobby release + archive: **done 100%**
+- Product freeze reopened for frontend UI/UX only; backend/domain remains frozen
 - Full PRD product: **not 100%** (~75%); residual is operator/human/external, **not eng blockers**
 - No clinical, psychometric validation, or WCAG third-party cert claims
 - No large features, paid residual services, AI ON, or unreviewed publish

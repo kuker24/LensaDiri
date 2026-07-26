@@ -5,10 +5,10 @@ type BadgeTone = "neutral" | "lens" | "aperture" | "success" | "warning" | "dang
 
 const toneStyles: Record<BadgeTone, string> = {
   neutral: "border-line bg-mist text-ink-muted",
-  lens: "border-[#ddd6fe] bg-[#f5f3ff] text-[#5b21b6]",
-  aperture: "border-[#bdeee5] bg-aperture-soft text-[#166b61]",
-  success: "border-[#a7f3d0] bg-[#ecfdf5] text-[#065f46]",
-  warning: "border-[#fde68a] bg-[#fffbeb] text-[#78350f]",
+  lens: "border-lens/35 bg-lens-soft text-aperture",
+  aperture: "border-aperture/25 bg-aperture-soft text-aperture",
+  success: "border-success/30 bg-success-soft text-success",
+  warning: "border-warning/30 bg-warning-soft text-warning",
   danger: "border-danger-soft bg-danger-soft text-danger",
 };
 
@@ -16,7 +16,7 @@ export function Badge({ tone = "neutral", children }: { tone?: BadgeTone; childr
   return (
     <span
       className={cn(
-        "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 text-xs font-semibold tracking-wide uppercase",
+        "inline-flex items-center gap-1 rounded-full border px-2.5 py-1 font-mono text-[0.65rem] font-medium tracking-[0.08em] uppercase",
         toneStyles[tone],
       )}
     >

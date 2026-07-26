@@ -4,9 +4,16 @@ All notable releases of LensaDiri. Dates are UTC calendar days of the release ta
 
 Honest scope: entries mark **engineering / product** posture. Nothing here claims clinical diagnosis, psychometric validation, or third-party WCAG certification.
 
-## Unreleased (reactive maintenance only)
+## Unreleased (frontend redesign)
 
-**Status:** **ARCHIVED / MAINTENANCE** after **`v1.0.0-hobby-final`**. Standing watch **CLOSED**. React only on CVE | critical dep | health fail | monitor alert | retention | backup risk | regression. No large features, paid residual services, AI ON, WCAG/psychometric cert claims, or unreviewed publish.
+**Status:** product freeze explicitly reopened on 2026-07-26 for a **frontend-only total redesign**. Backend/domain remains maintenance-only. Preserve routes, APIs, DTOs, scoring, privacy, authorization, and legacy compatibility. No paid residual services, AI ON, Full Spectrum over-cap, WCAG/psychometric cert claims, or unreviewed publish.
+
+### Midnight Reflection Observatory foundation
+
+- Added canonical `PRODUCT.md` and `DESIGN.md` for the approved redesign.
+- Replaced the light violet/aqua foundation with near-black, rationed signal-violet, Lora italic display, JetBrains Mono orientation labels, hairline surfaces, and a frosted navigation.
+- Redesigned landing, site shell, footer, and shared UI primitives without changing backend/API/scoring behavior.
+- Updated design-token contrast and browser assertions to the new semantic palette.
 
 ## [v1.0.0-hobby-final] - 2026-07-26
 

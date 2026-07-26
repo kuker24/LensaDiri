@@ -6,10 +6,10 @@ export type ButtonSize = "sm" | "md";
 
 export const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    "bg-lens text-white shadow-[0_10px_15px_-3px_rgb(139_92_246_/_0.2),0_4px_6px_-4px_rgb(139_92_246_/_0.2)] hover:bg-lens-strong active:bg-lens-strong disabled:bg-ink-muted disabled:text-white/60",
+    "bg-lens text-canvas hover:bg-[#bd70ff] active:bg-lens-strong disabled:bg-line disabled:text-ink-muted",
   secondary:
-    "border border-line bg-white/70 text-ink hover:border-lens/30 hover:bg-white active:bg-white disabled:border-line/60 disabled:text-ink-muted",
-  ghost: "text-ink hover:bg-lens-soft/70 active:bg-lens-soft disabled:text-ink-muted",
+    "border border-white/20 bg-surface text-ink hover:border-white/40 hover:bg-surface-raised active:bg-mist disabled:border-line disabled:text-ink-muted",
+  ghost: "text-ink hover:bg-white/8 active:bg-white/12 disabled:text-ink-muted",
 };
 
 export const sizeStyles: Record<ButtonSize, string> = {
@@ -18,7 +18,7 @@ export const sizeStyles: Record<ButtonSize, string> = {
 };
 
 export const buttonBaseClass =
-  "focus-ring inline-flex items-center justify-center gap-2 rounded-md font-semibold transition-[color,background-color,border-color,box-shadow,opacity] duration-150 ease-out disabled:cursor-not-allowed disabled:opacity-60";
+  "focus-ring pressable inline-flex items-center justify-center gap-2 rounded-md font-semibold transition-[color,background-color,border-color,opacity,transform] duration-150 ease-out active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:transform-none";
 
 export function getButtonClassName(variant: ButtonVariant = "primary", size: ButtonSize = "md") {
   return cn(buttonBaseClass, variantStyles[variant], sizeStyles[size]);

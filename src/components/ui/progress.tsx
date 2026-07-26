@@ -21,7 +21,7 @@ export function Progress({
         aria-valuemax={max}
         aria-valuemin={0}
         aria-valuenow={Math.round(value)}
-        className="bg-line h-1.5 w-full overflow-hidden rounded-full"
+        className="bg-line h-1 w-full overflow-hidden rounded-full"
         role="progressbar"
       >
         <div

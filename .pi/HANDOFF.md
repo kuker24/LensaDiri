@@ -1,10 +1,10 @@
-# Project Handoff - final hobby release (ARCHIVED)
+# Project Handoff - frontend redesign active
 
 > **Final hobby release:** `main` @ **`c535a6b`** | tag **`v1.0.0-hobby-final`** | 2026-07-26
 > Product freeze baseline: `ab2fcdc` | eng baseline: `v0.9.0-hobby-modular`
-> **Standing watch: CLOSED.** No active eng task queue.
+> **Freeze reopened:** 2026-07-26 for an approved frontend-only total redesign. Backend/domain remains frozen.
 
-## Status: ARCHIVED / MAINTENANCE
+## Status: FRONTEND REDESIGN / BACKEND MAINTENANCE
 
 Hobby project **engineering + release finalization: 100% complete.**
 Full PRD product still **stops honestly at ~75%** (external residual only).
@@ -14,8 +14,9 @@ Clinical / psychometric / WCAG cert: **never claim.**
 | ----------------------------------- | ---------------------------------------- |
 | Hobby modular engineering           | **100% closed**                          |
 | Final hobby release tag             | **`v1.0.0-hobby-final` @ `c535a6b`**     |
+| Frontend redesign                   | **ACTIVE** - approved total UI/UX pass   |
 | Full PRD product                    | **Stops ~75%** - not 100%                |
-| Standing-watch eng task             | **CLOSED** - reopen only on real trigger |
+| Backend/domain scope                | **FROZEN** - maintenance triggers only   |
 | Clinical / psychometric / WCAG cert | **Never claim**                          |
 | AI narrative                        | **OFF** unless #45 reopened with funding |
 
@@ -36,6 +37,8 @@ Clinical / psychometric / WCAG cert: **never claim.**
 | Full Spectrum | **draft** (DECIDED multi-session; #42 closed)     |
 
 ## In scope (only - reactive maintenance)
+
+Approved exception: total frontend visual/UX redesign may change presentation, layout, copy, and semantic UI while preserving routes, APIs, DTOs, scoring, privacy, authorization, and legacy compatibility.
 
 | Work                     | Notes                                      |
 | ------------------------ | ------------------------------------------ |
