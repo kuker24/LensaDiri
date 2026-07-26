@@ -6,7 +6,7 @@ Engineering hobby modular is **closed**. Default work:
 
 - security patches, dependency updates, monitoring/health, retention cron observation
 - regression tests, backup/restore readiness (disposable only)
-- residual issues **#40–#45** (operator / human / product / external)
+- residual **#40 #41 #43 #44** external/optional only; **#42** DECIDED · **#45** DEFERRED_OFF; freeze `ab2fcdc`
 
 Rules: **small PR**, **CI green**, **rollback documented**, no clinical/WCAG claims, no production DB reset.
 
@@ -212,32 +212,32 @@ CI already exercises the same lifecycle with `RECOVERY_TEST_TRANSPORT=1` (integr
 
 ## Release checklist
 
-### Engineering ship gate (hobby modular — tag `v0.9.0-hobby-modular` @ `bdeeec5`)
+### Engineering ship gate (final hobby freeze — `main` @ `ab2fcdc`)
 
-- [x] CI seluruh job PASS pada SHA yang dirilis
-- [x] working tree / `main` sinkron dengan production deploy
+- [x] Final hobby freeze pin `ab2fcdc` (eng baseline tag `v0.9.0-hobby-modular`)
+- [x] CI gates green on freeze line; residual docs #50
 - [x] migration Local==Remote through `202607290001` (linked list)
-- [x] production flags match approved posture: composer ON; Complex ON; provisional precision ON; AI OFF
-- [x] health `200`; modules 10; deep selectable; combos 5 (deep pilot; full_spectrum hidden)
+- [x] production flags: composer ON; Complex ON; provisional precision ON; AI OFF
+- [x] health `200`; modules 10; deep selectable; combos 5 (deep pilot; full_spectrum draft)
 - [x] monitoring + rollback owner (`docs/deployment/RELEASE_ROLLBACK.md`)
 - [x] production seed **not** re-run on hosted
-- [x] residual gates tracked as issues #40–#45 — **not** claimed done
-- [x] changelog + tag + handoff final recorded
+- [x] full PRD stopped honestly ~75%; eng modular 100%
+- [x] changelog + handoff freeze recorded
 - [ ] Preview secrets never equal production Resend/DB (when Resend enabled)
 - [ ] Vercel/CI Node.js 22.x confirmed on next deploy window
 
-### Residual gates (not required for hobby engineering release-ready)
+### Residual (external / optional — not eng reopeners)
 
-| Gate                                          | Issue | Class             |
-| --------------------------------------------- | ----- | ----------------- |
-| Resend Preview→prod→optional mandatory verify | #40   | operator external |
-| Formal review 6 guarded modules               | #41   | human             |
-| Full Spectrum redesign/decision               | #42   | product           |
-| Psychometric program                          | #43   | external          |
-| Manual a11y / WCAG cert                       | #44   | external/human    |
-| AI narrative                                  | #45   | deferred          |
+| Gate                                          | Issue | Class             | Freeze                  |
+| --------------------------------------------- | ----- | ----------------- | ----------------------- |
+| Resend Preview→prod→optional mandatory verify | #40   | operator optional | open                    |
+| Formal review 6 guarded modules               | #41   | human optional    | open                    |
+| Full Spectrum multi-session decision          | #42   | product           | **closed DECIDED**      |
+| Psychometric program                          | #43   | external optional | open                    |
+| Manual a11y / WCAG cert                       | #44   | human optional    | open                    |
+| AI narrative                                  | #45   | deferred          | **closed DEFERRED_OFF** |
 
-Do **not** mark PRD 100% or scientific/WCAG certified until residual evidence lands. See `docs/deployment/RELEASE_CLOSURE_GATES.md`.
+Maintenance-only after freeze. Do **not** mark PRD 100% or scientific/WCAG certified. See `docs/deployment/RELEASE_CLOSURE_GATES.md` and `docs/deployment/RESIDUAL_HOBBY_CLOSE.md`.
 
 ## Observability rollback
 

@@ -1,60 +1,50 @@
 # Engineering Evidence
 
-> Release tag `v0.9.0-hobby-modular` · residual hobby close docs · 2026-07-26.
+> **Final hobby freeze:** `main` @ **`ab2fcdc`** · 2026-07-26
 
-## Residual hobby close (2026-07-26)
+## Freeze pin
 
-| Check                                           | Result                                       |
-| ----------------------------------------------- | -------------------------------------------- |
-| Paid services                                   | **none**                                     |
-| Secrets written by agent                        | **none**                                     |
-| Fake approved / WCAG cert / psychometrics claim | **none**                                     |
-| Full Spectrum publish                           | **not done** (DECIDED draft + multi-session) |
-| AI flag                                         | **OFF**                                      |
-| Docs index                                      | `docs/deployment/RESIDUAL_HOBBY_CLOSE.md`    |
-| Full PRD weighted                               | **~75%** after process docs (not 100%)       |
+| Check                     | Result                                     |
+| ------------------------- | ------------------------------------------ |
+| SHA                       | `ab2fcdc80275594a2ed93636d346691b28abf6cb` |
+| Tag eng baseline          | `v0.9.0-hobby-modular`                     |
+| Residual docs             | PR #50 / same freeze line                  |
+| Hobby modular engineering | **100% closed**                            |
+| Full PRD product          | **~75%** — stops here honestly             |
+| Mode                      | **MAINTENANCE ONLY**                       |
+| `GET /api/health`         | `200` `{"status":"ok"}`                    |
+| Smoke readonly            | PASS                                       |
+| Modes                     | quick/standard/deep selectable             |
+| Modules                   | 10                                         |
+| Combos                    | 5 (deep pilot; full_spectrum draft)        |
+| Migrations                | Local==Remote through `202607290001`       |
+| AI                        | **OFF**                                    |
+| Resend production secrets | absent (delivery dormant)                  |
+| Open residual             | #40 #41 #43 #44 external/optional only     |
+| Closed residual           | #42 DECIDED · #45 DEFERRED_OFF             |
 
-## Closure verification (tag day)
+## Verdict (binding)
 
-| Check                | Result                                          |
-| -------------------- | ----------------------------------------------- |
-| Tag baseline         | `v0.9.0-hobby-modular` / prior closure SHA      |
-| Maintenance cycle 1  | `66cc9d5` next 16.2.12 + health timeout         |
-| `GET /api/health`    | `200` `{"status":"ok"}`                         |
-| Modes                | quick/standard/deep all selectable              |
-| Modules              | 10                                              |
-| Combos               | 5 (deep_self_discovery pilot; no full_spectrum) |
-| Migrations           | Local==Remote through `202607290001`            |
-| Open residual issues | #40–#45 (operator/human/external)               |
+- Engineering modular hobby lens: **done**
+- Full PRD: **not 100%**; residual is operator/human/external, not eng debt
+- No clinical, psychometric validation, or WCAG third-party cert claims
+- No large features, paid residual services, AI ON, or unreviewed publish
 
-## Verdict recorded
+## Production posture (stable)
 
-- Hobby modular **engineering** release-ready: **100%** (lens closed)
-- Full PRD product: **~75%** — live email, human review, psychometrics, WCAG cert still external
-- #42 Full Spectrum: **DECIDED** multi-session; preset stays draft
-- #45 AI: **DEFERRED_OFF** free tier
-- Clinical / psychometric validation / WCAG cert: **not claimed**
-
-## Production activation (2026-07-26, still valid)
-
-| Item                            | Result                                |
-| ------------------------------- | ------------------------------------- |
-| Flags                           | composer/complex/precision ON; AI OFF |
-| guardedBeta versions            | 6                                     |
-| Draft Q+T six modules           | 147+147                               |
-| deep_self_discovery             | pilot                                 |
-| full_spectrum                   | draft                                 |
-| #38 deep overlay                | live                                  |
-| RESEND in Vercel Production env | absent                                |
+| Item                           | State                          |
+| ------------------------------ | ------------------------------ |
+| Composer / Complex / precision | ON                             |
+| AI narrative                   | OFF                            |
+| guardedBeta versions           | 6                              |
+| Draft Q+T six modules          | 147+147                        |
+| deep_self_discovery            | pilot                          |
+| full_spectrum                  | draft (multi-session decision) |
 
 ## Artifacts
 
-- `CHANGELOG.md` — release notes
-- `docs/deployment/RELEASE_ROLLBACK.md` — rollback
-- `docs/deployment/RELEASE_CLOSURE_GATES.md` — matrix
-- GitHub issues #40–#45
-
-## Prior
-
-- Staging restore drill 2026-07-23 (torn down)
-- Canonical seed SHA-256: `45275f2a39fc284e8cb716c4b7c84b332fbcc3d150ce0fa83a0b040ec6739212`
+- `.pi/HANDOFF.md`
+- `docs/deployment/RESIDUAL_HOBBY_CLOSE.md`
+- `docs/deployment/RELEASE_CLOSURE_GATES.md`
+- `docs/deployment/RELEASE_ROLLBACK.md`
+- `CHANGELOG.md`

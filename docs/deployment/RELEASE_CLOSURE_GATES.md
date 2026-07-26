@@ -2,21 +2,21 @@
 
 Honest matrix: production-live engineering vs residual external / product / human work.
 
-**Checkpoint:** tag **`v0.9.0-hobby-modular`** · residual hobby-close docs 2026-07-26.
-**Mode:** **MAINTENANCE** — no large features; security/deps/monitoring/retention/tests/backup + residual #40–#45 only.
+**Final hobby freeze:** `main` @ **`ab2fcdc`** · tag eng baseline **`v0.9.0-hobby-modular`** · 2026-07-26.
+**Mode:** **MAINTENANCE ONLY** — security/deps/health/monitoring/retention/backup readiness/regression tests. No large features.
 **Production:** `https://lensadiri.vercel.app` · migrations Local==Remote through `202607290001`.
 **Rollback:** `docs/deployment/RELEASE_ROLLBACK.md` · **Changelog:** `CHANGELOG.md` · **Handoff:** `.pi/HANDOFF.md`.
 **Residual index:** `docs/deployment/RESIDUAL_HOBBY_CLOSE.md`.
 
 ## Release-ready status
 
-| Lens                                        | Status                                                     | Completion            |
-| ------------------------------------------- | ---------------------------------------------------------- | --------------------- |
-| **Hobby modular engineering release-ready** | **YES** — shippable production hobby (Complex + precision) | **100% of this lens** |
-| **PRD v2.0 full product completion**        | **NO** — operator/human/external residual                  | **~75%** weighted     |
-| **Scientific / WCAG certification**         | **NO**                                                     | **0%** formal claims  |
+| Lens                                        | Status                                             | Completion            |
+| ------------------------------------------- | -------------------------------------------------- | --------------------- |
+| **Hobby modular engineering release-ready** | **YES** — freeze pin `ab2fcdc`                     | **100% of this lens** |
+| **PRD v2.0 full product completion**        | **STOPPED ~75%** — residual external/optional only | **~75%** weighted     |
+| **Scientific / WCAG certification**         | **NO**                                             | **0%** formal claims  |
 
-**Engineering hobby modular = closed.** Full product is **not** 100%. Free-tier residual work produced **process docs + #42 decision + AI OFF stance**; live email, human review, psychometrics, and WCAG cert still need operators/humans/funding.
+**Engineering hobby modular = closed at `ab2fcdc`.** Full PRD **stops honestly at ~75%**. Residual **#40 #41 #43 #44** are operator/human/external **optional** — not eng reopeners. **#42** DECIDED · **#45** DEFERRED_OFF.
 
 ### Weight model (audit 2026-07-26 · residual close same day)
 
@@ -54,23 +54,24 @@ Hobby modular **engineering lens** = **100% of that lens** — residual weight i
 
 ## Gate matrix
 
-| Gate                                              | Production              | Owner class           | Tracking | Status               |
-| ------------------------------------------------- | ----------------------- | --------------------- | -------- | -------------------- |
-| Direct DB postcheck                               | DONE 2026-07-26         | eng                   | —        | **DONE**             |
-| Complex mode                                      | ON                      | eng                   | —        | **DONE**             |
-| Provisional precision                             | ON                      | eng                   | —        | **DONE**             |
-| Deep preset                                       | pilot                   | eng                   | —        | **DONE**             |
-| Issue hygiene (epics)                             | #2/#4/#5 closed         | eng                   | —        | **DONE**             |
-| Residual issue split                              | #40–#45 tracked         | eng                   | —        | **DONE** 2026-07-26  |
-| Residual hobby close docs                         | process + decisions     | eng                   | residual | **DONE** 2026-07-26  |
-| Resend Preview → prod → optional mandatory verify | dormant; free runbook   | **operator external** | **#40**  | **BLOCKED_OPERATOR** |
-| Formal review 6 modules                           | draft; packet ready     | **human**             | **#41**  | **BLOCKED_HUMAN**    |
-| Full Spectrum                                     | draft; multi-session    | **product**           | **#42**  | **DECIDED**          |
-| Psychometric validation                           | prep only; not claimed  | **external**          | **#43**  | **BLOCKED_EXTERNAL** |
-| Manual a11y / WCAG cert                           | auto PASS; checklist    | **external/human**    | **#44**  | **BLOCKED_EXTERNAL** |
-| AI narrative                                      | OFF free-tier stance    | **deferred**          | **#45**  | **DEFERRED_OFF**     |
-| Long-lived staging / PITR / `pg_dump`             | partial                 | external              | ops      | **PARTIAL**          |
-| First retention cron observation                  | may be PENDING_PROVIDER | ops                   | runbook  | **WATCH**            |
+| Gate                                              | Production              | Owner class           | Tracking | Status                  |
+| ------------------------------------------------- | ----------------------- | --------------------- | -------- | ----------------------- |
+| Direct DB postcheck                               | DONE 2026-07-26         | eng                   | —        | **DONE**                |
+| Complex mode                                      | ON                      | eng                   | —        | **DONE**                |
+| Provisional precision                             | ON                      | eng                   | —        | **DONE**                |
+| Deep preset                                       | pilot                   | eng                   | —        | **DONE**                |
+| Issue hygiene (epics)                             | #2/#4/#5 closed         | eng                   | —        | **DONE**                |
+| Residual issue split                              | #40–#45 tracked         | eng                   | —        | **DONE** 2026-07-26     |
+| Residual hobby close docs                         | process + decisions     | eng                   | residual | **DONE** 2026-07-26     |
+| Final hobby freeze pin                            | `ab2fcdc`               | eng                   | freeze   | **DONE** 2026-07-26     |
+| Resend Preview → prod → optional mandatory verify | dormant; free runbook   | **operator optional** | **#40**  | **OPTIONAL**            |
+| Formal review 6 modules                           | draft; packet ready     | **human optional**    | **#41**  | **OPTIONAL**            |
+| Full Spectrum                                     | draft; multi-session    | **product**           | **#42**  | **DECIDED closed**      |
+| Psychometric validation                           | prep only; not claimed  | **external optional** | **#43**  | **OPTIONAL**            |
+| Manual a11y / WCAG cert                           | auto PASS; checklist    | **human optional**    | **#44**  | **OPTIONAL**            |
+| AI narrative                                      | OFF free-tier stance    | **deferred**          | **#45**  | **DEFERRED_OFF closed** |
+| Long-lived staging / PITR / `pg_dump`             | partial                 | external              | ops      | **PARTIAL**             |
+| First retention cron observation                  | may be PENDING_PROVIDER | ops                   | runbook  | **WATCH**               |
 
 ## Scope partition
 
