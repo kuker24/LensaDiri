@@ -198,16 +198,17 @@ CI already exercises the same lifecycle with `RECOVERY_TEST_TRANSPORT=1` (integr
 
 ## Release checklist
 
-### Engineering ship gate (hobby modular — current baseline `e8186df`)
+### Engineering ship gate (hobby modular — tag `v0.9.0-hobby-modular` @ `bdeeec5`)
 
 - [x] CI seluruh job PASS pada SHA yang dirilis
 - [x] working tree / `main` sinkron dengan production deploy
 - [x] migration Local==Remote through `202607290001` (linked list)
 - [x] production flags match approved posture: composer ON; Complex ON; provisional precision ON; AI OFF
 - [x] health `200`; modules 10; deep selectable; combos 5 (deep pilot; full_spectrum hidden)
-- [x] monitoring + rollback owner (Complex CAS snippets in `.pi/HANDOFF.md`)
+- [x] monitoring + rollback owner (`docs/deployment/RELEASE_ROLLBACK.md`)
 - [x] production seed **not** re-run on hosted
 - [x] residual gates tracked as issues #40–#45 — **not** claimed done
+- [x] changelog + tag + handoff final recorded
 - [ ] Preview secrets never equal production Resend/DB (when Resend enabled)
 - [ ] Vercel/CI Node.js 22.x confirmed on next deploy window
 

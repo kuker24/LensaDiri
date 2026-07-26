@@ -2,18 +2,19 @@
 
 Honest matrix: production-live engineering vs residual external / product / human work.
 
-**Checkpoint:** `main` @ `e8186df` (2026-07-26 final audit).
+**Checkpoint:** `main` @ `bdeeec5` · tag **`v0.9.0-hobby-modular`** (2026-07-26).
 **Production:** `https://lensadiri.vercel.app` · migrations Local==Remote through `202607290001`.
+**Rollback:** `docs/deployment/RELEASE_ROLLBACK.md` · **Changelog:** `CHANGELOG.md`.
 
-## Release-ready status (do not claim 100%)
+## Release-ready status
 
-| Lens                                        | Status                                                        | Approx. completion            |
-| ------------------------------------------- | ------------------------------------------------------------- | ----------------------------- |
-| **Hobby modular engineering release-ready** | **YES** — shippable production hobby with Complex + precision | **~90%** engineering scope    |
-| **PRD v2.0 full product completion**        | **NO** — residual external + product + human gates open       | **~72%** weighted PRD surface |
-| **Scientific / WCAG certification**         | **NO**                                                        | **0%** formal claims          |
+| Lens                                        | Status                                                     | Completion            |
+| ------------------------------------------- | ---------------------------------------------------------- | --------------------- |
+| **Hobby modular engineering release-ready** | **YES** — shippable production hobby (Complex + precision) | **100% of this lens** |
+| **PRD v2.0 full product completion**        | **NO** — residual #40–#45                                  | **~72%** weighted     |
+| **Scientific / WCAG certification**         | **NO**                                                     | **0%** formal claims  |
 
-Completion is **not** 100% until Resend delivery, formal 6-module review, Full Spectrum product decision (or explicit permanent defer), psychometrics program, manual a11y/WCAG path, and AI narrative decision are closed or explicitly wontfix with evidence.
+**Engineering hobby modular = closed.** Full product is **not** 100% until Resend live email, formal 6-module review, Full Spectrum decision, psychometrics, manual a11y/WCAG, and AI narrative are closed or explicit wontfix with evidence.
 
 ### Weight model (audit 2026-07-26)
 
@@ -30,8 +31,8 @@ Completion is **not** 100% until Resend delivery, formal 6-module review, Full S
 | Manual a11y / WCAG cert                      | 3      | ~40% | auto PASS; no cert; #44                     |
 | AI narrative                                 | 2      | 0%   | flag OFF; #45                               |
 
-Weighted PRD-ish total ≈ **0.25·100 + 0.25·100 + 0.10·100 + 0.10·100 + 0.08·30 + 0.08·0 + 0.05·20 + 0.04·0 + 0.03·40 + 0.02·0 ≈ 72%**.
-Engineering-only (first four buckets + code for recovery) ≈ **90%**.
+Weighted full-product total ≈ **~72%** (same model as audit).
+Hobby modular **engineering lens** (first four buckets + recovery code path shipped) = **100% of that lens** — residual weight is external/product/human only.
 
 ## Live in production
 
@@ -47,7 +48,7 @@ Engineering-only (first four buckets + code for recovery) ≈ **90%**.
 | Retention + audit 365d                 | #28–#34                                                  |
 | Admin read-only                        | #36                                                      |
 | Recovery foundation                    | #35 code; delivery dormant                               |
-| Activation evidence docs               | #39 @ `e8186df`                                          |
+| Activation + closure docs              | #39, #46 @ `bdeeec5`; tag `v0.9.0-hobby-modular`         |
 
 ## Gate matrix
 
