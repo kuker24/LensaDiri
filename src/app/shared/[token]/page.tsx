@@ -7,7 +7,7 @@ export const metadata: Metadata = {
 export default async function SharedPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
   return (
-    <section className="container-shell py-12 sm:py-16">
+    <section className="container-shell py-12 sm:py-20">
       <ResultLoader shared token={token} />
       <p className="text-ink-muted mt-8 text-center text-sm">
         Tampilan aman dari link berbagi eksplisit. Jawaban mentah dan ID internal tidak disertakan.

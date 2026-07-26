@@ -75,4 +75,19 @@ describe("ResultLoader request identity", () => {
     expect(screen.getByText("hasil-b")).toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
+
+  test("merender private controls hanya setelah hasil berhasil dimuat", async () => {
+    const request = deferred<{ marker: string }>();
+    clientMocks.getPrivateResult.mockReturnValueOnce(request.promise);
+
+    render(
+      <ResultLoader token="token-private">
+        <button type="button">Kontrol privat</button>
+      </ResultLoader>,
+    );
+    expect(screen.queryByRole("button", { name: "Kontrol privat" })).not.toBeInTheDocument();
+
+    await act(async () => request.resolve({ marker: "hasil-private" }));
+    expect(screen.getByRole("button", { name: "Kontrol privat" })).toBeInTheDocument();
+  });
 });
