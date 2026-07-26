@@ -105,10 +105,10 @@ export function AccountRecoveryForm({ mode, token = "" }: { mode: RecoveryMode; 
 
   if (success) {
     return (
-      <div className="border-success rounded-md border bg-white/90 p-6" role="status">
-        <p className="text-success font-semibold">{selected.success}</p>
+      <div className="border-success/30 bg-success-soft rounded-lg border p-6" role="status">
+        <p className="text-success font-medium">{selected.success}</p>
         <Link
-          className="focus-ring bg-lens text-canvas hover:bg-lens-strong mt-5 inline-flex min-h-12 items-center justify-center rounded-md px-5 py-3 font-semibold transition-colors duration-150 ease-out"
+          className="focus-ring pressable bg-lens text-canvas mt-5 inline-flex min-h-12 items-center justify-center rounded-md px-5 py-3 font-semibold transition-[background-color,transform] duration-150 ease-out hover:bg-[#bd70ff] active:scale-[0.98]"
           href="/login"
         >
           Kembali ke login
@@ -153,14 +153,17 @@ export function AccountRecoveryForm({ mode, token = "" }: { mode: RecoveryMode; 
       ) : null}
       {selected.field === "token" && !fragmentToken ? (
         <p
-          className="border-aperture text-ink-muted rounded-md border bg-white/90 p-4"
+          className="border-warning/30 bg-warning-soft text-warning rounded-md border p-4"
           role="alert"
         >
           Link tidak memuat token.
         </p>
       ) : null}
       {error ? (
-        <p className="border-danger bg-danger-soft text-danger rounded-md border p-4" role="alert">
+        <p
+          className="border-danger/30 bg-danger-soft text-danger rounded-md border p-4"
+          role="alert"
+        >
           {error}
         </p>
       ) : null}

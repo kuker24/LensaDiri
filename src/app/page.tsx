@@ -85,7 +85,7 @@ export default function HomePage() {
           >
             <div className="border-line flex items-center justify-between gap-4 border-b pb-5">
               <div>
-                <p className="mono-label">Peta refleksi</p>
+                <p className="mono-label text-ink-muted">Peta refleksi</p>
                 <p className="mt-2 text-lg font-medium tracking-[-0.02em]">Contoh spektrum</p>
               </div>
               <span className="border-lens/40 bg-lens-soft text-aperture rounded-full border px-3 py-1 font-mono text-xs">
