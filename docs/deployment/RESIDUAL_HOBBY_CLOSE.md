@@ -1,8 +1,8 @@
 # Residual hobby close (#40–#45)
 
-**Final hobby release:** `main` @ **`c535a6b`** · tag **`v1.0.0-hobby-final`** · 2026-07-26  
-**Product freeze baseline:** `ab2fcdc`  
-**Constraint:** free/hobby only · no purchased services · no fake cert/review/validation · AI not paid  
+**Final hobby release:** `main` @ **`c535a6b`** · tag **`v1.0.0-hobby-final`** · 2026-07-26
+**Product freeze baseline:** `ab2fcdc`
+**Constraint:** free/hobby only · no purchased services · no fake cert/review/validation · AI not paid
 **Mode:** **ARCHIVED / MAINTENANCE** · standing watch **CLOSED**
 
 ## Binding product status

@@ -1,13 +1,13 @@
 # Project Handoff — final hobby release (ARCHIVED)
 
-> **Final hobby release:** `main` @ **`c535a6b`** · tag **`v1.0.0-hobby-final`** · 2026-07-26  
-> Product freeze baseline: `ab2fcdc` · eng baseline: `v0.9.0-hobby-modular`  
+> **Final hobby release:** `main` @ **`c535a6b`** · tag **`v1.0.0-hobby-final`** · 2026-07-26
+> Product freeze baseline: `ab2fcdc` · eng baseline: `v0.9.0-hobby-modular`
 > **Standing watch: CLOSED.** No active eng task queue.
 
 ## Status: ARCHIVED / MAINTENANCE
 
-Hobby project **engineering + release finalization: 100% complete.**  
-Full PRD product still **stops honestly at ~75%** (external residual only).  
+Hobby project **engineering + release finalization: 100% complete.**
+Full PRD product still **stops honestly at ~75%** (external residual only).
 Clinical / psychometric / WCAG cert: **never claim.**
 
 | Lens                                | Status                                   |
@@ -46,7 +46,7 @@ Clinical / psychometric / WCAG cert: **never claim.**
 | Backup/restore readiness | Disposable drill; no prod reset            |
 | Regression tests         | Unit / integration / e2e / pgTAP as needed |
 
-Trigger only: CVE · critical dep · health fail · monitor alert · retention · backup risk · regression.  
+Trigger only: CVE · critical dep · health fail · monitor alert · retention · backup risk · regression.
 Every change: **small PR · CI green · clear rollback · health 200**.
 
 ## Out of scope (hard ban)

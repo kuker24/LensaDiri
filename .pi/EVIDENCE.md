@@ -1,6 +1,6 @@
 # Engineering Evidence
 
-> **Final hobby release:** `main` @ **`c535a6b`** · tag **`v1.0.0-hobby-final`** · 2026-07-26  
+> **Final hobby release:** `main` @ **`c535a6b`** · tag **`v1.0.0-hobby-final`** · 2026-07-26
 > Status: **ARCHIVED / MAINTENANCE** · standing watch **CLOSED**
 
 ## Release pin

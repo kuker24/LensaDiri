@@ -10,9 +10,9 @@ Honest scope: entries mark **engineering / product** posture. Nothing here claim
 
 ## [v1.0.0-hobby-final] — 2026-07-26
 
-**Tag:** `v1.0.0-hobby-final` @ **`c535a6b`**  
-**URL:** https://lensadiri.vercel.app  
-**Hobby engineering + project finalization:** **100%**. Full PRD product: **stops ~75%** (honest).  
+**Tag:** `v1.0.0-hobby-final` @ **`c535a6b`**
+**URL:** https://lensadiri.vercel.app
+**Hobby engineering + project finalization:** **100%**. Full PRD product: **stops ~75%** (honest).
 **Mode:** **ARCHIVED / MAINTENANCE**. Standing watch **CLOSED**.
 
 ### Release verification (at tag)

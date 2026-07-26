@@ -2,11 +2,11 @@
 
 Honest matrix: production-live engineering vs residual external / product / human work.
 
-**Final hobby release:** `main` @ **`c535a6b`** · tag **`v1.0.0-hobby-final`** · 2026-07-26.  
-**Product freeze baseline:** `ab2fcdc` · eng baseline **`v0.9.0-hobby-modular`**.  
-**Mode:** **ARCHIVED / MAINTENANCE** — reactive security/deps/health/monitoring/retention/backup readiness/regression tests only. Standing watch **CLOSED**.  
-**Production:** `https://lensadiri.vercel.app` · migrations Local==Remote through `202607290001`.  
-**Rollback:** `docs/deployment/RELEASE_ROLLBACK.md` · **Changelog:** `CHANGELOG.md` · **Handoff:** `.pi/HANDOFF.md`.  
+**Final hobby release:** `main` @ **`c535a6b`** · tag **`v1.0.0-hobby-final`** · 2026-07-26.
+**Product freeze baseline:** `ab2fcdc` · eng baseline **`v0.9.0-hobby-modular`**.
+**Mode:** **ARCHIVED / MAINTENANCE** — reactive security/deps/health/monitoring/retention/backup readiness/regression tests only. Standing watch **CLOSED**.
+**Production:** `https://lensadiri.vercel.app` · migrations Local==Remote through `202607290001`.
+**Rollback:** `docs/deployment/RELEASE_ROLLBACK.md` · **Changelog:** `CHANGELOG.md` · **Handoff:** `.pi/HANDOFF.md`.
 **Residual index:** `docs/deployment/RESIDUAL_HOBBY_CLOSE.md`.
 
 ## Release-ready status
