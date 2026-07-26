@@ -231,6 +231,10 @@ export function TestRunner({ token }: { token: string }) {
   const pausedHeadingRef = useRef<HTMLHeadingElement>(null);
 
   useEffect(() => {
+    if (session?.status === "paused") pausedHeadingRef.current?.focus();
+  }, [session?.status]);
+
+  useEffect(() => {
     getAssessmentSession(token)
       .then((loaded) => {
         setSession(loaded);
@@ -316,7 +320,6 @@ export function TestRunner({ token }: { token: string }) {
       } else {
         await pauseAssessment(token);
         setSession({ ...session, status: "paused" });
-        requestAnimationFrame(() => pausedHeadingRef.current?.focus());
       }
     } catch {
       setError("Status sesi belum dapat diubah. Coba lagi.");

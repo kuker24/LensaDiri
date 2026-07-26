@@ -1,6 +1,6 @@
-# LensaDiri — Final Visual Direction
+# LensaDiri - Historical Visual Direction
 
-Status: implementasi aktif pada branch `agent/final-ui-design`. Dokumen ini adalah kontrak visual untuk seluruh redesign UI. Perubahan pada dokumen ini harus diikuti perubahan implementasi yang sesuai, bukan sebaliknya.
+Status: **superseded** by root `DESIGN.md` after the explicitly approved 2026-07-26 product-freeze reopening for a total frontend redesign. This file preserves the previous Quiet Editorial Observatory direction as historical context only. Do not use its light palette or implementation status as the current contract.
 
 ## 1. Subjek dan audiens
 

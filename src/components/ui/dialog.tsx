@@ -48,7 +48,7 @@ export function Dialog({
       ref={ref}
       aria-labelledby={titleId}
       className={cn(
-        "border-line text-ink shadow-surface backdrop:bg-ink/40 relative m-auto max-w-md rounded-lg border bg-white/95 p-6 backdrop-blur-[18px]",
+        "border-line bg-surface-raised text-ink backdrop:bg-canvas/80 relative m-auto max-w-md rounded-lg border p-6 backdrop:backdrop-blur-sm",
         className,
       )}
       onCancel={(event) => {
@@ -85,7 +85,7 @@ export function Dialog({
       >
         <span aria-hidden="true">✕</span>
       </button>
-      <h2 className="font-display pr-8 text-lg font-semibold tracking-tight" id={titleId}>
+      <h2 className="pr-8 text-lg font-semibold tracking-[-0.02em]" id={titleId}>
         {title}
       </h2>
       <div className="mt-4">{children}</div>

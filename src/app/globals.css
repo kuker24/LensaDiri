@@ -2,46 +2,55 @@
 
 @theme {
   --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display:
-    var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-lora), Georgia, serif;
+  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 
-  --color-canvas: #f7f8fc;
-  --color-ink: #17182c;
-  --color-ink-muted: #62647a;
-  --color-lens: #6558d9;
-  --color-lens-strong: #4c3ec2;
-  --color-lens-soft: #ece9ff;
-  --color-aperture: #8be0d0;
-  --color-aperture-soft: #e3f8f4;
-  --color-mist: #f1f2f8;
-  --color-line: #dfe1ec;
-  --color-success: #126857;
-  --color-warning: #8a5a12;
-  --color-danger: #a33545;
-  --color-danger-soft: #fff0f2;
-  --color-aperture-on-dark: #8be0d0;
+  --color-canvas: #090909;
+  --color-surface: #111113;
+  --color-surface-raised: #18181c;
+  --color-ink: #f7f9fa;
+  --color-ink-muted: #a4a4ac;
+  --color-lens: #af50ff;
+  --color-lens-strong: #9635e9;
+  --color-lens-soft: #251431;
+  --color-aperture: #e1bdff;
+  --color-aperture-soft: #211929;
+  --color-mist: #151518;
+  --color-line: #34343b;
+  --color-success: #7dcea0;
+  --color-success-soft: #10271a;
+  --color-warning: #f2c879;
+  --color-warning-soft: #2c2414;
+  --color-danger: #ff8b95;
+  --color-danger-soft: #30171b;
+  --color-aperture-on-dark: #e1bdff;
 
-  --radius-sm: 0.5rem;
-  --radius-md: 0.75rem;
-  --radius-lg: 1.5rem;
-  --shadow-surface: 0 24px 80px rgb(44 38 104 / 0.12);
-  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
-  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+  --radius-sm: 0.375rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 1.2rem;
+  --shadow-surface: 0 1px 0 rgb(247 249 250 / 0.08);
+  --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
+  --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
 }
 
 :root {
   --background: var(--color-canvas);
   --foreground: var(--color-ink);
   --muted: var(--color-ink-muted);
-  --surface: rgb(255 255 255 / 0.82);
-  --surface-strong: #ffffff;
+  --surface: var(--color-surface);
+  --surface-strong: var(--color-surface-raised);
   --line: var(--color-line);
   --brand: var(--color-lens);
   --brand-strong: var(--color-lens-strong);
   --brand-soft: var(--color-lens-soft);
   --aqua: var(--color-aperture);
   --shadow: var(--shadow-surface);
-  --blur-glass: 18px;
+  --blur-glass: 10px;
+  --page-max: 1200px;
+  --z-sticky: 20;
+  --z-modal-backdrop: 40;
+  --z-modal: 50;
+  --z-toast: 60;
 }
 
 * {
@@ -50,17 +59,18 @@
 
 html {
   scroll-behavior: smooth;
+  background: var(--background);
 }
 
 body {
   min-height: 100vh;
   margin: 0;
   background:
-    radial-gradient(circle at 15% 0%, rgb(139 224 208 / 0.22), transparent 30rem),
-    radial-gradient(circle at 85% 10%, rgb(101 88 217 / 0.2), transparent 34rem), var(--background);
+    radial-gradient(circle at 77% -12%, rgb(175 80 255 / 0.1), transparent 34rem), var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
   font-feature-settings: "cv11";
+  line-height: 1.6;
   text-rendering: optimizeLegibility;
 }
 
@@ -74,8 +84,23 @@ a {
   -webkit-tap-highlight-color: transparent;
 }
 
+button {
+  font: inherit;
+}
+
+h1,
+h2,
+h3 {
+  text-wrap: balance;
+}
+
+p {
+  text-wrap: pretty;
+}
+
 ::selection {
-  background: rgb(101 88 217 / 0.2);
+  background: rgb(175 80 255 / 0.35);
+  color: var(--foreground);
 }
 
 .tabular-nums {
@@ -83,39 +108,75 @@ a {
 }
 
 .container-shell {
-  width: min(1120px, calc(100% - 2rem));
+  width: min(var(--page-max), calc(100% - 2.5rem));
   margin-inline: auto;
 }
 
 .prose-shell {
-  width: min(68ch, calc(100% - 2rem));
+  width: min(68ch, calc(100% - 2.5rem));
   margin-inline: auto;
 }
 
 .surface-panel {
-  border: 1px solid rgb(23 24 44 / 0.1);
+  border: 1px solid rgb(247 249 250 / 0.14);
   border-radius: var(--radius-lg);
   background: var(--surface);
-  backdrop-filter: blur(var(--blur-glass));
 }
 
 .lens-glow {
-  background-image:
-    radial-gradient(circle at 10% 0%, rgb(139 224 208 / 0.24), transparent 17rem),
-    radial-gradient(circle at 100% 100%, rgb(101 88 217 / 0.18), transparent 22rem);
+  background-image: radial-gradient(circle at 92% 8%, rgb(175 80 255 / 0.22), transparent 22rem);
 }
 
 .focus-ring:focus-visible {
-  outline: 3px solid rgb(101 88 217 / 0.45);
+  outline: 2px solid var(--color-aperture);
   outline-offset: 3px;
+}
+
+.section-stamp {
+  color: var(--color-ink);
+  font-family: var(--font-mono);
+  font-size: clamp(2rem, 6vw, 4.625rem);
+  font-weight: 400;
+  line-height: 0.98;
+  letter-spacing: clamp(0.12em, 1.25vw, 0.2em);
+  text-transform: uppercase;
+}
+
+.mono-label {
+  color: var(--color-ink-muted);
+  font-family: var(--font-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+}
+
+.display-italic {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 400;
+}
+
+.hairline {
+  border-color: rgb(247 249 250 / 0.14);
+}
+
+.violet-bloom {
+  background:
+    radial-gradient(circle at 18% 12%, rgb(225 189 255 / 0.3), transparent 12rem),
+    radial-gradient(circle at 78% 72%, rgb(73 16 114 / 0.66), transparent 20rem), #af50ff;
+}
+
+/* Temporary compatibility while each route is moved onto dark semantic surfaces. */
+body :where([class~="bg-white"], [class*="bg-white/"]) {
+  background-color: var(--color-surface) !important;
 }
 
 .toast-motion {
   opacity: 1;
   transform: translateY(0);
   transition:
-    opacity 200ms var(--ease-out),
-    transform 200ms var(--ease-out);
+    opacity 180ms var(--ease-out),
+    transform 180ms var(--ease-out);
 
   @starting-style {
     opacity: 0;
@@ -124,20 +185,22 @@ a {
 }
 
 dialog[open] {
-  animation: dialog-in 200ms var(--ease-out);
+  animation: dialog-in 180ms var(--ease-out);
 }
 
 dialog[open]::backdrop {
-  animation: backdrop-in 200ms var(--ease-out);
+  animation: backdrop-in 160ms var(--ease-out);
 }
 
 @keyframes dialog-in {
   from {
     opacity: 0;
+    transform: scale(0.98);
   }
 
   to {
     opacity: 1;
+    transform: scale(1);
   }
 }
 
@@ -148,6 +211,19 @@ dialog[open]::backdrop {
 
   to {
     opacity: 1;
+  }
+}
+
+@media (min-width: 768px) {
+  .container-shell,
+  .prose-shell {
+    width: min(var(--page-max), calc(100% - 4rem));
+  }
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .pressable:hover {
+    transform: translateY(-1px);
   }
 }
 
@@ -165,8 +241,9 @@ dialog[open]::backdrop {
     transition-duration: 0.01ms !important;
   }
 
-  .toast-motion {
+  .toast-motion,
+  .pressable {
     transform: none;
-    transition-property: opacity;
+    transition-property: opacity, color, background-color, border-color;
   }
 }

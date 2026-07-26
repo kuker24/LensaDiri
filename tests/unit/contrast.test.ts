@@ -39,11 +39,11 @@ function token(name: string): string {
 
 describe("critical design token contrast", () => {
   test.each([
-    ["aperture-on-dark on lens-strong", "aperture-on-dark", "lens-strong", 4.5],
-    ["aperture-on-dark on ink", "aperture-on-dark", "ink", 4.5],
+    ["ink on canvas", "ink", "canvas", 4.5],
+    ["muted ink on canvas", "ink-muted", "canvas", 4.5],
     ["canvas text on lens", "canvas", "lens", 4.5],
-    ["canvas focus outline on lens-strong", "canvas", "lens-strong", 3],
-    ["canvas focus outline on ink", "canvas", "ink", 3],
+    ["aperture focus on canvas", "aperture", "canvas", 3],
+    ["danger on canvas", "danger", "canvas", 4.5],
   ])("%s meets its WCAG threshold", (_name, foreground, background, threshold) => {
     expect(contrast(token(foreground), token(background))).toBeGreaterThanOrEqual(threshold);
   });

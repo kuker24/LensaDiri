@@ -60,18 +60,18 @@ for (const route of publicRoutes) {
   });
 }
 
-test("keyboard focus treatment remains visible on light and dark surfaces", async ({ page }) => {
+test("keyboard focus treatment remains visible across primary surfaces", async ({ page }) => {
   await page.goto("/");
 
   const lightControl = page.getByRole("link", { name: "Pelajari metode" });
   await lightControl.focus();
-  await expect(lightControl).toHaveCSS("outline-color", "rgba(101, 88, 217, 0.45)");
+  await expect(lightControl).toHaveCSS("outline-color", "rgb(225, 189, 255)");
 
   await page.goto("/start/modules");
   const darkControl = page.getByRole("button", { name: "Tinjau pilihan" });
   await expect(darkControl).toBeEnabled();
   await darkControl.focus();
-  await expect(darkControl).toHaveCSS("outline-color", "rgba(101, 88, 217, 0.45)");
+  await expect(darkControl).toHaveCSS("outline-color", "rgb(225, 189, 255)");
 });
 
 test("authentication controls have labels and mobile-safe font size", async ({ page }) => {
@@ -126,7 +126,7 @@ test("module detail preserves valid selection and invalid query falls back", asy
   await expect(page.getByRole("checkbox", { name: /Profil Trait/u })).toBeChecked();
 });
 
-test("glow preserves explicit light and dark surface backgrounds", async ({ page }) => {
+test("glow preserves explicit hero and product surface backgrounds", async ({ page }) => {
   async function backgroundPixel(selector: string) {
     return page.locator(selector).evaluate((element) => {
       const canvas = document.createElement("canvas");
@@ -139,10 +139,10 @@ test("glow preserves explicit light and dark surface backgrounds", async ({ page
   }
 
   await page.goto("/");
-  expect(await backgroundPixel(".lens-glow")).toEqual([255, 255, 255, 209]);
+  expect(await backgroundPixel(".lens-glow")).toEqual([17, 17, 19, 179]);
 
   await page.goto("/start/modules");
-  expect(await backgroundPixel("aside.lens-glow")).toEqual([76, 62, 194, 255]);
+  expect(await backgroundPixel("aside.lens-glow")).toEqual([150, 53, 233, 255]);
 });
 
 test("result loading and failure states keep a single page heading", async ({ page }) => {

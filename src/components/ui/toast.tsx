@@ -23,8 +23,8 @@ export function useToast() {
 }
 
 const toneStyles: Record<ToastTone, string> = {
-  neutral: "border-line bg-white/90 text-ink",
-  success: "border-[#a7f3d0] bg-[#ecfdf5]/95 text-success",
+  neutral: "border-line bg-surface-raised text-ink",
+  success: "border-success/30 bg-success-soft text-success",
   danger: "border-danger-soft bg-danger-soft/95 text-danger",
 };
 
@@ -54,7 +54,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           <div
             key={item.id}
             className={cn(
-              "toast-motion shadow-surface pointer-events-auto rounded-md border px-4 py-2.5 text-sm backdrop-blur-[18px]",
+              "toast-motion pointer-events-auto rounded-md border px-4 py-2.5 text-sm",
               toneStyles[item.tone],
             )}
           >
