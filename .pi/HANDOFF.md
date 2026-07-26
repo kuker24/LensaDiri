@@ -1,6 +1,6 @@
 # Project Handoff — maintenance mode
 
-> Tag `v0.9.0-hobby-modular` · `main` @ `1e59de4` · 2026-07-26.
+> Tag `v0.9.0-hobby-modular` · maintenance cycle 1 · 2026-07-26.
 
 ## Mode: MAINTENANCE
 
@@ -11,6 +11,26 @@ Engineering hobby modular lens is **done**. Do **not** add large product feature
 | Hobby modular engineering           | **100% closed**                  |
 | Full PRD product                    | **~72%** — residual #40–#45 only |
 | Clinical / psychometric / WCAG cert | **Never claim**                  |
+
+## Last maintenance cycle (1)
+
+| Check               | Result                                      |
+| ------------------- | ------------------------------------------- |
+| Base SHA            | `fdbcf7e` pre-cycle; cycle PR on top        |
+| `npm audit`         | 0 vulnerabilities                           |
+| Local gates         | format/lint/typecheck/unit 157 / build PASS |
+| Prod health + smoke | PASS                                        |
+| Liveness workflow   | recent success                              |
+| Retention monitor   | recent success (scheduled ~03:20 UTC)       |
+| Code changes        | next 16.2.12; health monitor timeout 25s    |
+| #40–#45             | triaged open; no fake progress              |
+| Backup/PITR         | still BLOCKED_EXTERNAL                      |
+
+### Rollback (cycle 1)
+
+1. Revert cycle commit or promote prior Vercel deployment.
+2. Health monitor: set `DEFAULT_TIMEOUT_MS` back to `10_000` if needed.
+3. next: pin `16.2.11` + matching `eslint-config-next` + lockfile restore.
 
 ## In scope (maintenance only)
 
@@ -40,8 +60,8 @@ Engineering hobby modular lens is **done**. Do **not** add large product feature
 
 ## Production posture (stable)
 
-Composer **ON** · Complex **ON** · Provisional precision **ON** · AI **OFF**
-Recovery delivery **dormant** · mandatory email verify **OFF**
+Composer **ON** · Complex **ON** · Provisional precision **ON** · AI **OFF**  
+Recovery delivery **dormant** · mandatory email verify **OFF**  
 Migrations through `202607290001` · URL `https://lensadiri.vercel.app`
 
 ## Residual backlog (only)

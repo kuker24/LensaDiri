@@ -8,6 +8,14 @@ Honest scope: entries mark **engineering / product** posture. Nothing here claim
 
 Post-`v0.9.0-hobby-modular` only: security patches, deps, monitoring, retention, health, regression tests, backup readiness, residual #40–#45. No large features. Small PR + CI green + rollback.
 
+### Maintenance cycle 1 (2026-07-26)
+
+- **Audit:** `npm audit` 0 vulns; format/lint/typecheck/unit PASS (157); build PASS; prod health/smoke PASS; liveness + retention monitors recent success.
+- **Patch:** `next` + `eslint-config-next` **16.2.11 → 16.2.12** (patch).
+- **Patch:** `scripts/monitor-health.mjs` default timeout **10s → 25s** (Hobby cold-start; align retention monitor). Rollback: revert commit / redeploy prior SHA.
+- **Triage #40–#45:** still open; no fake close. Backup/PITR remains BLOCKED_EXTERNAL.
+- **Skipped:** major dep majors (eslint 10, TS 7, jsdom 29), AI, Full Spectrum, formal review.
+
 ## [v0.9.0-hobby-modular] — 2026-07-26
 
 **Tag:** `v0.9.0-hobby-modular` @ `1e59de4` (docs closure; eng baseline from prior merges)
