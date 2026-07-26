@@ -70,6 +70,8 @@ CI menjalankan command setelah database disposable di-reset dan feature fixture 
 
 ### Operator checklist (when auditor available)
 
+Full free-tier sheet: `docs/qa/MANUAL_A11Y_CHECKLIST.md` (issue #44).
+
 1. Keyboard-only pass: landing → start → login/register → (fixture) runner → result → dashboard.
 2. One SR pass (NVDA or VoiceOver): focus order, live regions (autosave/errors), Likert `aria-pressed`, progressbar names.
 3. Mobile Pixel-class: 44px targets, no horizontal overflow, 16px inputs (no iOS zoom).

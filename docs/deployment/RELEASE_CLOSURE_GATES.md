@@ -2,38 +2,39 @@
 
 Honest matrix: production-live engineering vs residual external / product / human work.
 
-**Checkpoint:** `main` @ `1e59de4` · tag **`v0.9.0-hobby-modular`** (2026-07-26).
+**Checkpoint:** tag **`v0.9.0-hobby-modular`** · residual hobby-close docs 2026-07-26.
 **Mode:** **MAINTENANCE** — no large features; security/deps/monitoring/retention/tests/backup + residual #40–#45 only.
 **Production:** `https://lensadiri.vercel.app` · migrations Local==Remote through `202607290001`.
 **Rollback:** `docs/deployment/RELEASE_ROLLBACK.md` · **Changelog:** `CHANGELOG.md` · **Handoff:** `.pi/HANDOFF.md`.
+**Residual index:** `docs/deployment/RESIDUAL_HOBBY_CLOSE.md`.
 
 ## Release-ready status
 
 | Lens                                        | Status                                                     | Completion            |
 | ------------------------------------------- | ---------------------------------------------------------- | --------------------- |
 | **Hobby modular engineering release-ready** | **YES** — shippable production hobby (Complex + precision) | **100% of this lens** |
-| **PRD v2.0 full product completion**        | **NO** — residual #40–#45                                  | **~72%** weighted     |
+| **PRD v2.0 full product completion**        | **NO** — operator/human/external residual                  | **~75%** weighted     |
 | **Scientific / WCAG certification**         | **NO**                                                     | **0%** formal claims  |
 
-**Engineering hobby modular = closed.** Full product is **not** 100% until Resend live email, formal 6-module review, Full Spectrum decision, psychometrics, manual a11y/WCAG, and AI narrative are closed or explicit wontfix with evidence.
+**Engineering hobby modular = closed.** Full product is **not** 100%. Free-tier residual work produced **process docs + #42 decision + AI OFF stance**; live email, human review, psychometrics, and WCAG cert still need operators/humans/funding.
 
-### Weight model (audit 2026-07-26)
+### Weight model (audit 2026-07-26 · residual close same day)
 
-| Bucket                                       | Weight | Done | Notes                                       |
-| -------------------------------------------- | ------ | ---- | ------------------------------------------- |
-| Legacy + auth + security baseline            | 25     | 100% | Argon2id, CSRF, RLS forced, private results |
-| Modular composer + 10 engines + scoring      | 25     | 100% | Server-authoritative; independent modules   |
-| Complex + provisional precision + deep pilot | 10     | 100% | Flags ON; deep selectable (#38)             |
-| Admin read-only + retention + monitors       | 10     | 100% | #28–#36                                     |
-| Recovery email **delivery**                  | 8      | ~30% | Code #35; secrets absent                    |
-| Formal review 6 guarded modules              | 8      | 0%   | draft 147+147; #41                          |
-| Full Spectrum product path                   | 5      | ~20% | draft only; #42                             |
-| Psychometric validation                      | 4      | 0%   | #43                                         |
-| Manual a11y / WCAG cert                      | 3      | ~40% | auto PASS; no cert; #44                     |
-| AI narrative                                 | 2      | 0%   | flag OFF; #45                               |
+| Bucket                                       | Weight | Done | Notes                                                      |
+| -------------------------------------------- | ------ | ---- | ---------------------------------------------------------- |
+| Legacy + auth + security baseline            | 25     | 100% | Argon2id, CSRF, RLS forced, private results                |
+| Modular composer + 10 engines + scoring      | 25     | 100% | Server-authoritative; independent modules                  |
+| Complex + provisional precision + deep pilot | 10     | 100% | Flags ON; deep selectable (#38)                            |
+| Admin read-only + retention + monitors       | 10     | 100% | #28–#36                                                    |
+| Recovery email **delivery**                  | 8      | ~35% | Code #35; free-tier runbook; secrets still operator        |
+| Formal review 6 guarded modules              | 8      | ~15% | draft 147+147; review packet ready; no fake approve        |
+| Full Spectrum product path                   | 5      | ~80% | **DECIDED** draft + multi-session; no publish over cap #42 |
+| Psychometric validation                      | 4      | ~15% | Prep protocol only; not validated #43                      |
+| Manual a11y / WCAG cert                      | 3      | ~50% | auto PASS; manual checklist; no cert #44                   |
+| AI narrative                                 | 2      | ~50% | flag OFF; free-tier **DEFERRED** stance documented #45     |
 
-Weighted full-product total ≈ **~72%** (same model as audit).
-Hobby modular **engineering lens** (first four buckets + recovery code path shipped) = **100% of that lens** — residual weight is external/product/human only.
+Weighted full-product total ≈ **~75%**.
+Hobby modular **engineering lens** = **100% of that lens** — residual weight is operator/human/external only.
 
 ## Live in production
 
@@ -60,13 +61,14 @@ Hobby modular **engineering lens** (first four buckets + recovery code path ship
 | Provisional precision                             | ON                      | eng                   | —        | **DONE**             |
 | Deep preset                                       | pilot                   | eng                   | —        | **DONE**             |
 | Issue hygiene (epics)                             | #2/#4/#5 closed         | eng                   | —        | **DONE**             |
-| Residual issue split                              | #40–#45 open            | eng                   | —        | **DONE** 2026-07-26  |
-| Resend Preview → prod → optional mandatory verify | NOT RUN / dormant       | **operator external** | **#40**  | **BLOCKED**          |
-| Formal review 6 modules                           | draft items             | **human**             | **#41**  | **BLOCKED_HUMAN**    |
-| Full Spectrum                                     | draft                   | **product**           | **#42**  | **BLOCKED_PRODUCT**  |
-| Psychometric validation                           | not claimed             | **external**          | **#43**  | **BLOCKED_EXTERNAL** |
-| Manual a11y / WCAG cert                           | auto PASS only          | **external/human**    | **#44**  | **BLOCKED_EXTERNAL** |
-| AI narrative                                      | OFF                     | **deferred**          | **#45**  | **DEFERRED**         |
+| Residual issue split                              | #40–#45 tracked         | eng                   | —        | **DONE** 2026-07-26  |
+| Residual hobby close docs                         | process + decisions     | eng                   | residual | **DONE** 2026-07-26  |
+| Resend Preview → prod → optional mandatory verify | dormant; free runbook   | **operator external** | **#40**  | **BLOCKED_OPERATOR** |
+| Formal review 6 modules                           | draft; packet ready     | **human**             | **#41**  | **BLOCKED_HUMAN**    |
+| Full Spectrum                                     | draft; multi-session    | **product**           | **#42**  | **DECIDED**          |
+| Psychometric validation                           | prep only; not claimed  | **external**          | **#43**  | **BLOCKED_EXTERNAL** |
+| Manual a11y / WCAG cert                           | auto PASS; checklist    | **external/human**    | **#44**  | **BLOCKED_EXTERNAL** |
+| AI narrative                                      | OFF free-tier stance    | **deferred**          | **#45**  | **DEFERRED_OFF**     |
 | Long-lived staging / PITR / `pg_dump`             | partial                 | external              | ops      | **PARTIAL**          |
 | First retention cron observation                  | may be PENDING_PROVIDER | ops                   | runbook  | **WATCH**            |
 
@@ -85,20 +87,20 @@ Hobby modular **engineering lens** (first four buckets + recovery code path ship
 
 ### Blocked external (operator / third party)
 
-- Resend domain + API key + Preview drill + prod secrets (#40)
-- Psychometric studies (#43)
+- Resend free-tier domain + API key + Preview drill + prod secrets (#40) — runbook: `docs/operations/RESEND_FREE_TIER_ACTIVATION.md`
+- Psychometric studies beyond prep (#43) — prep: `docs/science/PSYCHOMETRIC_VALIDATION_PREP.md`
 - Long-lived staging / PITR / offline `pg_dump` tooling where free-plan limits apply
 
 ### Product decisions
 
-- Full Spectrum redesign or permanent draft (#42)
+- Full Spectrum: **DECIDED** keep draft; multi-session path — `docs/product/FULL_SPECTRUM_CAPACITY_DECISION.md`
 - Whether/when to enable mandatory email verification after delivery works
-- Whether/when to fund AI narrative (#45)
+- AI narrative: **DEFERRED_OFF** free tier — `docs/product/AI_NARRATIVE_FREE_TIER_STANCE.md`
 
 ### Human-only work
 
-- Formal language/construct/bias review for six guarded modules (#41)
-- Manual screen-reader pass + optional WCAG auditor (#44)
+- Formal language/construct/bias review for six guarded modules (#41) — packet: `docs/operations/GUARDED_MODULE_REVIEW_PACKET.md`
+- Manual screen-reader pass + optional WCAG auditor (#44) — checklist: `docs/qa/MANUAL_A11Y_CHECKLIST.md`
 
 ## Rollback Complex / precision
 
@@ -108,13 +110,15 @@ See `.pi/HANDOFF.md` CAS `set_feature_flag_state(..., true, false, ...)` snippet
 
 - Not clinical; not psychometrically validated.
 - Not WCAG third-party certified.
-- Full Spectrum not selectable as one preset.
+- Full Spectrum not selectable as one preset (multi-session only).
 - Email recovery not delivered until secrets set.
 - Six guarded modules remain draft item review + `guardedBeta`.
-- Not 100% PRD complete.
+- AI narrative not enabled (free-tier OFF).
+- Not 100% PRD complete (~75% weighted after residual docs).
 
 ## Related
 
+- Residual hobby close: `docs/deployment/RESIDUAL_HOBBY_CLOSE.md`
 - Operator SQL: `PRODUCTION_POSTCHECK_SQL.md`
 - Ops recovery: `docs/operations/OPERATIONS_RUNBOOK.md`
 - Content workflow: `docs/operations/CONTENT_PUBLICATION_WORKFLOW.md`

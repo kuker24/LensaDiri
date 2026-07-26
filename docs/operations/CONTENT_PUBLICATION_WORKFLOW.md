@@ -1,5 +1,7 @@
 # Content Publication Workflow
 
+Guarded six-module human review packet (checklists + sign-off): `docs/operations/GUARDED_MODULE_REVIEW_PACKET.md`.
+
 ## Tujuan
 
 Workflow ini berlaku untuk item, module version, curated combo, dan feature flag. Seluruh operasi dijalankan oleh operator tepercaya melalui koneksi database server-side. Browser roles tetap tidak memiliki privilege langsung.

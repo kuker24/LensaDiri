@@ -13,6 +13,11 @@
 - `qa/MVP_LOCAL_VERIFICATION.md`: current local MVP scope, passing gates, security boundaries, and remaining production risks.
 - `deployment/PRODUCTION_VERCEL_SUPABASE.md`: single-project hobby production workflow, environment contract, smoke checks, and rollback limits.
 - `deployment/PRODUCTION_MIGRATION_MAP.md`: repository-to-production migration/seed mapping without project identifiers or credentials.
+- `deployment/RESIDUAL_HOBBY_CLOSE.md`: free-tier residual #40–#45 honest close index.
+- `operations/RESEND_FREE_TIER_ACTIVATION.md`, `operations/GUARDED_MODULE_REVIEW_PACKET.md`: operator/human residual packets.
+- `product/FULL_SPECTRUM_CAPACITY_DECISION.md`, `product/AI_NARRATIVE_FREE_TIER_STANCE.md`: product residual decisions.
+- `science/PSYCHOMETRIC_VALIDATION_PREP.md`: non-validating study prep only.
+- `qa/MANUAL_A11Y_CHECKLIST.md`: manual a11y sheet; not WCAG cert.
 - `ai/MCP_SETUP.md`: optional least-privilege MCP setup. MCP is not application runtime dependency.
 
 ## Local Contracts

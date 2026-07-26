@@ -15,7 +15,7 @@ Post-incident audit menyimpulkan tidak ada BLOCKER atau MAJOR pada security, dat
 
 **Status rilis:**
 
-> Reconciliation note (2026-07-26 final): hobby modular **engineering release-ready YES (~90%)** on `main` @ `e8186df`. Complex + provisional precision ON; deep pilot; 10 modules; migrations through `202607290001`. Full PRD completion **~72%** — residual issues #40 Resend, #41 formal 6-module review, #42 Full Spectrum, #43 psychometrics, #44 manual a11y, #45 AI narrative. **Not 100%.** See `docs/deployment/RELEASE_CLOSURE_GATES.md`.
+> Reconciliation note (2026-07-26 final + residual hobby close): hobby modular **engineering release-ready YES** (tag `v0.9.0-hobby-modular`). Complex + provisional precision ON; deep pilot; 10 modules; migrations through `202607290001`. Full PRD completion **~75%** after process docs — residual #40 operator Resend, #41 human review, #42 Full Spectrum **DECIDED** multi-session, #43 psychometrics prep, #44 manual a11y, #45 AI **OFF**. **Not 100%.** See `docs/deployment/RELEASE_CLOSURE_GATES.md` and `docs/deployment/RESIDUAL_HOBBY_CLOSE.md`.
 
 - Engineering implementation: READY (10 modules, Complex ON, precision ON, deep pilot, admin read-only, retention).
 - Production schema parity: MATCH through `202607290001`.
