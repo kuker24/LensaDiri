@@ -1,6 +1,6 @@
 # Residual hobby close (#40–#45)
 
-**Date:** 2026-07-26  
+**Date:** 2026-07-26
 **Constraint:** free/hobby only · no purchased services · no fake cert/review/validation · AI not paid
 
 ## Best honest status

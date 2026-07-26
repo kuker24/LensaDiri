@@ -1,6 +1,6 @@
 # Psychometric validation preparation (#43)
 
-**Status:** prep only · **not validated** · free/hobby program sketch  
+**Status:** prep only · **not validated** · free/hobby program sketch
 **Ban:** public copy must not claim reliability, norms, clinical use, or “scientifically proven” from this doc alone.
 
 LensaDiri scoring is **reflective**, original Bahasa Indonesia, server-deterministic. PRD §25 is the product roadmap; this file is the operator/researcher prep checklist for when humans and optional free tooling exist.

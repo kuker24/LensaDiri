@@ -1,6 +1,6 @@
 # Manual accessibility checklist (#44)
 
-Engineering auto gates: `docs/qa/ACCESSIBILITY_AUDIT.md`, `docs/qa/ACCESSIBILITY_ENGINEERING_AUDIT.md`, `npm run test:a11y`.  
+Engineering auto gates: `docs/qa/ACCESSIBILITY_AUDIT.md`, `docs/qa/ACCESSIBILITY_ENGINEERING_AUDIT.md`, `npm run test:a11y`.
 **This file is not WCAG certification.** Do not self-certify AA/AAA from CI or this checklist alone.
 
 ## When to run
@@ -23,9 +23,9 @@ If no SR device: complete keyboard + zoom + contrast sections; leave SR rows **B
 
 ## Routes (minimum)
 
-Public: `/` `/modules` `/combos` `/start` `/method` `/privacy` `/disclaimer` `/login` `/register`  
-Auth: `/dashboard` (if account)  
-Flow: assessment runner (fixture or real session) → private result → share view  
+Public: `/` `/modules` `/combos` `/start` `/method` `/privacy` `/disclaimer` `/login` `/register`
+Auth: `/dashboard` (if account)
+Flow: assessment runner (fixture or real session) → private result → share view
 Admin: `/admin/*` only if admin account exists (prod may have **0** admins)
 
 ## Keyboard-only

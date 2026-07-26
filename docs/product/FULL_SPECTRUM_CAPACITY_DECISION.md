@@ -1,7 +1,7 @@
 # Full Spectrum capacity decision (#42)
 
-**Date:** 2026-07-26  
-**Mode:** hobby / free tier  
+**Date:** 2026-07-26
+**Mode:** hobby / free tier
 **Status:** **DECIDED — keep `full_spectrum` draft; multi-session path only**
 
 ## Problem

@@ -1,6 +1,6 @@
 # AI narrative free-tier stance (#45)
 
-**Decision:** keep `FEATURE_AI_NARRATIVE` **OFF** on production for hobby/free tier.  
+**Decision:** keep `FEATURE_AI_NARRATIVE` **OFF** on production for hobby/free tier.
 **Date:** 2026-07-26
 
 ## Why OFF is correct
