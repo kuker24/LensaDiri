@@ -44,13 +44,13 @@ function LikertSelector({
         return (
           <button
             aria-pressed={selected}
-            className="focus-ring group border-line text-ink hover:border-lens hover:bg-lens-soft/40 aria-pressed:border-lens aria-pressed:bg-lens-soft flex min-h-14 items-center rounded-md border px-4 text-left font-medium transition-colors duration-150 ease-out"
+            className="focus-ring group border-line bg-surface text-ink aria-pressed:border-lens aria-pressed:bg-lens-soft flex min-h-14 items-center rounded-md border px-4 text-left font-medium transition-colors duration-150 ease-out hover:border-white/35"
             disabled={disabled}
             key={label}
             onClick={() => onAnswer(value)}
             type="button"
           >
-            <span className="border-line bg-canvas text-ink-muted group-aria-pressed:border-lens group-aria-pressed:bg-lens group-aria-pressed:text-canvas mr-3.5 inline-grid h-7 w-7 shrink-0 place-items-center rounded-full border text-sm tabular-nums transition-colors duration-150 ease-out">
+            <span className="border-line bg-canvas text-ink-muted group-aria-pressed:border-lens group-aria-pressed:bg-lens group-aria-pressed:text-canvas mr-3.5 inline-grid h-7 w-7 shrink-0 place-items-center rounded-full border font-mono text-xs tabular-nums transition-colors duration-150 ease-out">
               {value}
             </span>
             {label}
@@ -127,8 +127,8 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
   return (
     <section className="container-shell py-10 sm:py-16">
       <div className="mx-auto max-w-3xl">
-        <div className="border-aperture-soft bg-aperture-soft text-ink rounded-lg border p-5">
-          <h1 className="font-display text-xl font-semibold">
+        <div className="border-aperture/25 bg-aperture-soft text-ink rounded-lg border p-5">
+          <h1 className="text-xl font-medium tracking-[-0.02em]">
             Perjelas pola yang masih berdekatan
           </h1>
           <p className="text-ink-muted mt-2 text-sm leading-6">
@@ -148,12 +148,12 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
           max={clarifier.totalCount}
           value={answeredCount}
         />
-        <article className="border-line shadow-surface mt-8 rounded-lg border bg-white p-6 sm:p-10">
-          <p className="text-lens text-sm font-semibold capitalize">
+        <article className="border-line bg-surface mt-8 rounded-lg border p-6 sm:p-10">
+          <p className="text-aperture font-mono text-xs tracking-[0.08em] uppercase">
             {question.moduleKey.replaceAll("_", " ")}
           </p>
           <h2
-            className="font-display mt-3 text-2xl leading-tight font-semibold outline-none sm:text-3xl"
+            className="mt-3 text-2xl leading-tight font-medium tracking-[-0.025em] outline-none sm:text-3xl"
             id="clarifier-question"
             ref={questionHeadingRef}
             tabIndex={-1}
@@ -386,7 +386,7 @@ export function TestRunner({ token }: { token: string }) {
           value={answeredCount}
         />
         {modular && question.segmentIndex ? (
-          <div className="border-line mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border bg-white/70 px-4 py-3 text-sm">
+          <div className="border-line bg-surface mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border px-4 py-3 text-sm">
             <span className="tabular-nums">
               Bagian {question.segmentIndex} dari {session.segmentCount ?? 1} · {segmentAnswered}/
               {segmentQuestions.length} terjawab
@@ -405,9 +405,9 @@ export function TestRunner({ token }: { token: string }) {
           </div>
         ) : null}
         {session.status === "paused" ? (
-          <div className="border-lens-soft bg-lens-soft mt-8 rounded-xl border p-6 text-center">
+          <div className="border-lens/30 bg-lens-soft mt-8 rounded-[1.2rem] border p-6 text-center">
             <h1
-              className="font-display text-ink text-xl font-semibold outline-none"
+              className="text-ink text-xl font-medium tracking-[-0.02em] outline-none"
               ref={pausedHeadingRef}
               tabIndex={-1}
             >
@@ -421,14 +421,14 @@ export function TestRunner({ token }: { token: string }) {
             </Button>
           </div>
         ) : (
-          <article className="border-line shadow-surface mt-8 rounded-xl border bg-white/90 p-6 sm:p-10">
+          <article className="border-line bg-surface mt-8 rounded-[1.2rem] border p-6 sm:p-10">
             {modular ? (
-              <p className="text-lens text-sm font-semibold capitalize">
+              <p className="text-aperture font-mono text-xs tracking-[0.08em] uppercase">
                 {(question.moduleKey ?? "").replaceAll("_", " ")}
               </p>
             ) : null}
             <h1
-              className="font-display mt-3 text-2xl leading-tight font-semibold outline-none sm:text-3xl"
+              className="mt-3 text-2xl leading-tight font-medium tracking-[-0.025em] outline-none sm:text-3xl"
               id="assessment-question"
               ref={questionHeadingRef}
               tabIndex={-1}

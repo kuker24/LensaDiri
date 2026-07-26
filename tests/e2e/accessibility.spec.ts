@@ -68,6 +68,9 @@ test("keyboard focus treatment remains visible across primary surfaces", async (
   await expect(lightControl).toHaveCSS("outline-color", "rgb(225, 189, 255)");
 
   await page.goto("/start/modules");
+  const firstModuleCheckbox = page.getByRole("checkbox").first();
+  await firstModuleCheckbox.focus();
+  await expect(firstModuleCheckbox.locator("..")).toHaveCSS("--tw-ring-color", "#e1bdff");
   const darkControl = page.getByRole("button", { name: "Tinjau pilihan" });
   await expect(darkControl).toBeEnabled();
   await darkControl.focus();
@@ -142,7 +145,7 @@ test("glow preserves explicit hero and product surface backgrounds", async ({ pa
   expect(await backgroundPixel(".lens-glow")).toEqual([17, 17, 19, 179]);
 
   await page.goto("/start/modules");
-  expect(await backgroundPixel("aside.lens-glow")).toEqual([150, 53, 233, 255]);
+  expect(await backgroundPixel("aside.lens-glow")).toEqual([17, 17, 19, 255]);
 });
 
 test("result loading and failure states keep a single page heading", async ({ page }) => {
