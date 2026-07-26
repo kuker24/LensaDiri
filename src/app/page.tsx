@@ -52,7 +52,7 @@ export default function HomePage() {
             <p className="mono-label text-aperture">Refleksi modular · private by default</p>
             <h1 className="mt-8 max-w-4xl leading-[0.92] tracking-[-0.03em]">
               <span className="display-italic block text-[clamp(3rem,8vw,5.5rem)] text-[#f0f0f0]">
-                Kenali pola
+                Kenali pola{" "}
               </span>
               <span className="mt-2 block text-[clamp(2.25rem,5.5vw,4rem)] font-normal">
                 dirimu lewat banyak lensa.
