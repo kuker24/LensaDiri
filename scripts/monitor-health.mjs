@@ -1,5 +1,6 @@
 const DEFAULT_URL = "https://lensadiri.vercel.app";
-const DEFAULT_TIMEOUT_MS = 10_000;
+// Align with retention monitor: Hobby cold starts can exceed 10s.
+const DEFAULT_TIMEOUT_MS = 25_000;
 
 function usage() {
   console.log("description: Check LensaDiri liveness without authentication or mutation");
