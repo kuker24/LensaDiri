@@ -11,20 +11,21 @@ export const metadata: Metadata = {
 
 export default function LoginPage() {
   return (
-    <section className="container-shell py-14 sm:py-20">
-      <div className="surface-panel lens-glow mx-auto grid max-w-4xl overflow-hidden md:grid-cols-[0.9fr_1.1fr]">
-        <div className="bg-lens-strong text-canvas p-7 sm:p-10">
-          <p className="text-aperture-on-dark text-sm font-semibold">Ruang pribadimu</p>
-          <h1 className="mt-4 text-3xl font-semibold tracking-[-0.035em]">
+    <section className="container-shell py-16 sm:py-24">
+      <div className="mx-auto grid max-w-4xl overflow-hidden rounded-[1.2rem] border border-white/14 md:grid-cols-[0.9fr_1.1fr]">
+        <div className="bg-lens text-canvas flex flex-col justify-between p-7 sm:p-10">
+          <p className="font-mono text-[0.65rem] tracking-[0.16em] uppercase">Ruang pribadimu</p>
+          <h1 className="mt-20 text-3xl font-medium tracking-[-0.035em] sm:text-4xl">
             Lanjutkan eksplorasi dengan aman.
           </h1>
-          <p className="text-canvas/85 mt-5 max-w-md leading-7">
+          <p className="text-canvas mt-5 max-w-md leading-7">
             Session disimpan dalam cookie HttpOnly. Password, token mentah, dan jawaban pribadi
             tidak pernah dikirim ke metadata publik.
           </p>
         </div>
-        <div className="p-7 sm:p-10">
-          <h2 className="text-ink text-2xl font-semibold">Masuk</h2>
+        <div className="bg-surface p-7 sm:p-10">
+          <p className="mono-label text-ink-muted">Akses akun</p>
+          <h2 className="text-ink mt-3 text-2xl font-medium">Masuk</h2>
           <p className="text-ink-muted mt-2">Gunakan email dan password akunmu.</p>
           <div className="mt-7">
             <AuthForm mode="login" />
@@ -32,7 +33,7 @@ export default function LoginPage() {
           <p className="text-ink-muted mt-6 text-sm">
             Lupa password?{" "}
             <Link
-              className="focus-ring text-lens rounded font-semibold hover:underline"
+              className="focus-ring text-aperture hover:text-ink rounded font-medium transition-colors"
               href="/forgot-password"
             >
               Reset password
@@ -41,7 +42,7 @@ export default function LoginPage() {
           <p className="text-ink-muted mt-3 text-sm">
             Belum verifikasi email?{" "}
             <Link
-              className="focus-ring text-lens rounded font-semibold hover:underline"
+              className="focus-ring text-aperture hover:text-ink rounded font-medium transition-colors"
               href="/verify-email"
             >
               Kirim ulang verifikasi
@@ -50,7 +51,7 @@ export default function LoginPage() {
           <p className="text-ink-muted mt-3 text-sm">
             Belum punya akun?{" "}
             <Link
-              className="focus-ring text-lens rounded font-semibold hover:underline"
+              className="focus-ring text-aperture hover:text-ink rounded font-medium transition-colors"
               href="/register"
             >
               Daftar

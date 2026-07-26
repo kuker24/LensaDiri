@@ -56,14 +56,14 @@ export function AuthForm({ mode }: AuthFormProps) {
 
   if (registrationAccepted) {
     return (
-      <div className="border-success/30 bg-aperture-soft/70 rounded-md border p-5" role="status">
-        <p className="text-success text-sm font-semibold tracking-wide uppercase">Berhasil</p>
-        <h2 className="mt-2 text-xl font-semibold">Pendaftaran diterima</h2>
+      <div className="border-success/30 bg-success-soft rounded-lg border p-5" role="status">
+        <p className="text-success font-mono text-[0.65rem] tracking-[0.1em] uppercase">Berhasil</p>
+        <h2 className="mt-3 text-xl font-medium">Pendaftaran diterima</h2>
         <p className="text-ink-muted mt-2 leading-7">
           Jika email belum terdaftar, akun sudah dibuat. Masuk untuk melanjutkan.
         </p>
         <Link
-          className="focus-ring text-lens mt-5 inline-flex min-h-11 items-center font-semibold hover:underline"
+          className="focus-ring text-aperture hover:text-ink mt-5 inline-flex min-h-11 items-center rounded-md font-medium transition-colors"
           href="/login"
         >
           Masuk sekarang

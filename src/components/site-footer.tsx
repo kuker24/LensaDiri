@@ -13,7 +13,7 @@ export function SiteFooter() {
       <div className="container-shell py-10 sm:py-12">
         <div className="flex flex-col gap-8 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <p className="mono-label">Ruang refleksi pribadi</p>
+            <p className="mono-label text-ink-muted">Ruang refleksi pribadi</p>
             <p className="mt-3 text-lg font-medium tracking-[-0.02em]">LensaDiri</p>
             <p className="text-ink-muted mt-1 max-w-md text-sm">
               Banyak lensa untuk membaca pola, tanpa label mutlak.
