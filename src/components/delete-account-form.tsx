@@ -71,7 +71,7 @@ export function DeleteAccountForm() {
 
       {error ? (
         <p
-          className="border-danger-soft text-danger rounded-md border bg-white/90 px-4 py-3 text-sm"
+          className="border-danger-soft text-danger bg-surface rounded-md border px-4 py-3 text-sm"
           role="alert"
         >
           {error}

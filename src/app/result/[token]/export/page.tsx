@@ -36,7 +36,7 @@ export default async function ResultExportPage({ params }: { params: Promise<{ t
         mencakup ringkasan skor, penjaminan privasi, dan batasan interpretasi.
       </p>
 
-      <div className="border-line rounded-lg border bg-white/90 p-6">
+      <div className="border-line bg-surface rounded-lg border p-6">
         <h2 className="text-lg font-semibold">Format Ekspor</h2>
         <ul className="mt-3 space-y-2 text-sm">
           <li>

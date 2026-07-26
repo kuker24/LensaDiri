@@ -37,7 +37,7 @@ export function AdminSectionPage({
         </button>
       </div>
 
-      <section className="border-line mt-8 overflow-hidden rounded-lg border bg-white/90">
+      <section className="border-line bg-surface mt-8 overflow-hidden rounded-lg border">
         <div className="border-line border-b px-5 py-3">
           <p className="text-sm font-semibold">Ringkasan</p>
         </div>

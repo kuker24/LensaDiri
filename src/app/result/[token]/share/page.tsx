@@ -36,7 +36,7 @@ export default async function ResultSharePage({ params }: { params: Promise<{ to
         sewaktu-waktu.
       </p>
 
-      <div className="border-line rounded-lg border bg-white/90 p-6">
+      <div className="border-line bg-surface rounded-lg border p-6">
         <p className="text-lg font-medium">
           Hasil dengan token: {token.slice(0, 8)}... (detail share lihat di dashboard)
         </p>

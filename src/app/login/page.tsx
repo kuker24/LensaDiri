@@ -13,24 +13,28 @@ export default function LoginPage() {
   return (
     <section className="container-shell py-16 sm:py-24">
       <div className="mx-auto grid max-w-4xl overflow-hidden rounded-[1.2rem] border border-white/14 md:grid-cols-[0.9fr_1.1fr]">
-        <div className="bg-lens text-canvas flex flex-col justify-between p-7 sm:p-10">
-          <p className="font-mono text-[0.65rem] tracking-[0.16em] uppercase">Ruang pribadimu</p>
-          <h1 className="mt-20 text-3xl font-medium tracking-[-0.035em] sm:text-4xl">
+        <div className="bg-surface relative flex flex-col justify-between overflow-hidden p-7 sm:p-10">
+          <div
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_20%_10%,rgb(175_80_255_/_0.22),transparent_16rem)]"
+          />
+          <p className="mono-label text-aperture relative">Ruang pribadimu</p>
+          <h1 className="relative mt-20 text-3xl font-normal tracking-[-0.03em] sm:text-4xl">
             Lanjutkan eksplorasi dengan aman.
           </h1>
-          <p className="text-canvas mt-5 max-w-md leading-7">
+          <p className="text-steel relative mt-5 max-w-md leading-7">
             Session disimpan dalam cookie HttpOnly. Password, token mentah, dan jawaban pribadi
             tidak pernah dikirim ke metadata publik.
           </p>
         </div>
-        <div className="bg-surface p-7 sm:p-10">
-          <p className="mono-label text-ink-muted">Akses akun</p>
-          <h2 className="text-ink mt-3 text-2xl font-medium">Masuk</h2>
-          <p className="text-ink-muted mt-2">Gunakan email dan password akunmu.</p>
+        <div className="bg-surface-raised/40 border-t border-white/10 p-7 sm:p-10 md:border-t-0 md:border-l">
+          <p className="mono-label text-steel">Akses akun</p>
+          <h2 className="mt-3 text-2xl font-normal">Masuk</h2>
+          <p className="text-steel mt-2">Gunakan email dan password akunmu.</p>
           <div className="mt-7">
             <AuthForm mode="login" />
           </div>
-          <p className="text-ink-muted mt-6 text-sm">
+          <p className="text-steel mt-6 text-sm">
             Lupa password?{" "}
             <Link
               className="focus-ring text-aperture hover:text-ink rounded font-medium transition-colors"
@@ -39,7 +43,7 @@ export default function LoginPage() {
               Reset password
             </Link>
           </p>
-          <p className="text-ink-muted mt-3 text-sm">
+          <p className="text-steel mt-3 text-sm">
             Belum verifikasi email?{" "}
             <Link
               className="focus-ring text-aperture hover:text-ink rounded font-medium transition-colors"
@@ -48,7 +52,7 @@ export default function LoginPage() {
               Kirim ulang verifikasi
             </Link>
           </p>
-          <p className="text-ink-muted mt-3 text-sm">
+          <p className="text-steel mt-3 text-sm">
             Belum punya akun?{" "}
             <Link
               className="focus-ring text-aperture hover:text-ink rounded font-medium transition-colors"

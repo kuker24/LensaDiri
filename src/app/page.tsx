@@ -1,14 +1,7 @@
 import Link from "next/link";
 import { EvidenceBadge } from "@/components/evidence-badge";
+import { ReflectionPass } from "@/components/reflection-pass";
 import { getButtonClassName } from "@/components/ui/button";
-
-const sampleScores = [
-  ["Keterbukaan", 82],
-  ["Keteraturan", 64],
-  ["Energi sosial", 43],
-  ["Kooperasi", 76],
-  ["Sensitivitas", 58],
-] as const;
 
 const lenses = [
   {
@@ -44,7 +37,7 @@ const trustPrinciples = [
 export default function HomePage() {
   return (
     <>
-      <section className="relative isolate overflow-hidden border-b border-white/10">
+      <section className="relative isolate overflow-hidden">
         <div
           aria-hidden="true"
           className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_25%_22%,rgba(175,80,255,0.2),transparent_25rem),radial-gradient(circle_at_72%_20%,rgba(225,189,255,0.07),transparent_22rem),linear-gradient(145deg,#090909_15%,#121016_58%,#090909)]"
@@ -54,14 +47,18 @@ export default function HomePage() {
           className="absolute inset-x-0 top-1/2 -z-10 h-px bg-linear-to-r from-transparent via-white/20 to-transparent"
         />
 
-        <div className="container-shell grid min-h-[calc(100svh-7.75rem)] gap-14 py-16 lg:grid-cols-[1.08fr_0.92fr] lg:items-center lg:py-20">
+        <div className="container-shell grid min-h-[calc(100svh-5.5rem)] gap-14 py-16 lg:grid-cols-[1.1fr_0.9fr] lg:items-center lg:gap-16 lg:py-20">
           <div className="max-w-3xl">
-            <p className="mono-label text-aperture">Refleksi modular / private by default</p>
-            <h1 className="mt-7 text-[clamp(3rem,7vw,6rem)] leading-[0.94] tracking-[-0.04em]">
-              Kenali pola dirimu
-              <span className="display-italic text-aperture mt-2 block">lewat banyak lensa.</span>
+            <p className="mono-label text-aperture">Refleksi modular · private by default</p>
+            <h1 className="mt-8 max-w-4xl leading-[0.92] tracking-[-0.03em]">
+              <span className="display-italic block text-[clamp(3rem,8vw,5.5rem)] text-[#f0f0f0]">
+                Kenali pola
+              </span>
+              <span className="mt-2 block text-[clamp(2.25rem,5.5vw,4rem)] font-normal">
+                dirimu lewat banyak lensa.
+              </span>
             </h1>
-            <p className="text-ink-muted mt-8 max-w-2xl text-lg leading-8 sm:text-xl">
+            <p className="text-steel mt-8 max-w-xl text-lg leading-8 sm:text-xl sm:leading-9">
               Ruang refleksi terstruktur untuk memahami cara berpikir, merasa, berelasi, dan
               bertumbuh. Tanpa mengubah hasil menjadi label mutlak.
             </p>
@@ -74,99 +71,59 @@ export default function HomePage() {
                 Pelajari metode
               </Link>
             </div>
-            <p className="text-ink-muted mt-6 text-sm">
+            <p className="text-steel mt-6 text-sm">
               Bukan diagnosis klinis dan bukan pengganti asesmen profesional.
             </p>
           </div>
 
-          <aside
-            aria-label="Ilustrasi cara membaca hasil"
-            className="lens-glow bg-surface/70 relative overflow-hidden rounded-[1.2rem] border border-white/18 p-6 sm:p-8"
-          >
-            <div className="border-line flex items-center justify-between gap-4 border-b pb-5">
-              <div>
-                <p className="mono-label text-ink-muted">Peta refleksi</p>
-                <p className="mt-2 text-lg font-medium tracking-[-0.02em]">Contoh spektrum</p>
-              </div>
-              <span className="border-lens/40 bg-lens-soft text-aperture rounded-full border px-3 py-1 font-mono text-xs">
-                ilustrasi
-              </span>
-            </div>
-
-            <div className="mt-7 space-y-5">
-              {sampleScores.map(([label, value]) => (
-                <div key={label}>
-                  <div className="mb-2.5 flex items-center justify-between gap-4 text-sm">
-                    <span>{label}</span>
-                    <span className="text-ink-muted font-mono text-xs tabular-nums">{value}</span>
-                  </div>
-                  <div className="bg-line h-px overflow-visible">
-                    <div className="bg-lens relative h-px" style={{ width: `${value}%` }}>
-                      <span className="bg-lens absolute top-1/2 right-0 h-2 w-2 -translate-y-1/2 rounded-full" />
-                    </div>
-                  </div>
-                </div>
-              ))}
-            </div>
-
-            <div className="border-line mt-8 grid grid-cols-2 gap-4 border-t pt-5 text-sm">
-              <div>
-                <p className="text-ink-muted text-xs">Cara baca</p>
-                <p className="mt-1">Spektrum, bukan kotak</p>
-              </div>
-              <div>
-                <p className="text-ink-muted text-xs">Kontrol</p>
-                <p className="mt-1">Private sampai dibagikan</p>
-              </div>
-            </div>
-          </aside>
+          <ReflectionPass />
         </div>
       </section>
 
-      <section className="container-shell py-24 sm:py-28" id="cara-kerja">
-        <p className="section-stamp max-w-full overflow-hidden">Cara melihat diri</p>
-        <div className="border-line mt-12 border-t">
+      <section className="container-shell section-band" id="cara-kerja">
+        <p className="section-stamp max-w-full overflow-hidden">Cara melihat</p>
+        <div className="mt-12 border-t border-white/12">
           {steps.map(([number, title, description]) => (
             <article
-              className="border-line grid gap-4 border-b py-7 sm:grid-cols-[4rem_0.7fr_1fr] sm:items-baseline sm:gap-8"
+              className="grid gap-4 border-b border-white/12 py-8 sm:grid-cols-[4rem_0.7fr_1fr] sm:items-baseline sm:gap-8"
               key={number}
             >
-              <p className="text-lens font-mono text-sm tabular-nums">{number}</p>
-              <h2 className="text-xl font-medium tracking-[-0.02em] sm:text-2xl">{title}</h2>
-              <p className="text-ink-muted max-w-xl leading-7">{description}</p>
+              <p className="font-mono text-sm text-[#f0f0f0]/70 tabular-nums">{number}</p>
+              <h2 className="text-xl font-normal tracking-[-0.02em] sm:text-2xl">{title}</h2>
+              <p className="text-steel max-w-xl leading-7">{description}</p>
             </article>
           ))}
         </div>
       </section>
 
-      <section className="border-y border-white/10 py-24 sm:py-28">
+      <section className="section-band border-y border-white/10">
         <div className="container-shell">
           <div className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
             <div className="max-w-3xl">
-              <p className="mono-label text-aperture">Satu diri / lebih dari satu sudut</p>
-              <h2 className="mt-5 text-4xl leading-tight tracking-[-0.035em] sm:text-5xl">
+              <p className="mono-label text-aperture">Satu diri · lebih dari satu sudut</p>
+              <h2 className="mt-5 text-4xl leading-[1.1] tracking-[-0.03em] sm:text-5xl">
                 Tidak ada satu lensa yang harus menjelaskan semuanya.
               </h2>
             </div>
             <Link
-              className="focus-ring text-aperture hover:text-ink inline-flex min-h-11 items-center rounded-md font-medium transition-colors"
+              className="focus-ring text-aperture hover:text-ink inline-flex min-h-11 items-center rounded-md font-normal transition-colors"
               href="/modules"
             >
               Jelajahi semua lensa <span aria-hidden="true">↗</span>
             </Link>
           </div>
 
-          <div className="mt-14 flex flex-col">
+          <div className="mt-14 flex flex-col border-t border-white/12">
             {lenses.map((lens, index) => (
               <article
-                className="border-line grid gap-5 border-t py-8 md:grid-cols-[3rem_0.8fr_1.2fr_auto] md:items-center md:gap-8"
+                className="grid gap-5 border-b border-white/12 py-8 md:grid-cols-[3rem_0.8fr_1.2fr_auto] md:items-center md:gap-8"
                 key={lens.title}
               >
-                <span className="text-ink-muted font-mono text-xs tabular-nums">
+                <span className="font-mono text-xs text-[#f0f0f0]/70 tabular-nums">
                   {String(index + 1).padStart(2, "0")}
                 </span>
-                <h3 className="text-2xl font-medium tracking-[-0.025em]">{lens.title}</h3>
-                <p className="text-ink-muted max-w-2xl leading-7">{lens.description}</p>
+                <h3 className="text-2xl font-normal tracking-[-0.025em]">{lens.title}</h3>
+                <p className="text-steel max-w-2xl leading-7">{lens.description}</p>
                 <EvidenceBadge tier={lens.tier} />
               </article>
             ))}
@@ -174,22 +131,22 @@ export default function HomePage() {
         </div>
       </section>
 
-      <section className="container-shell py-24 sm:py-28">
+      <section className="container-shell section-band">
         <div className="grid overflow-hidden rounded-[1.2rem] border border-white/14 lg:grid-cols-[0.82fr_1.18fr]">
-          <div className="violet-bloom flex min-h-72 flex-col justify-between p-7 text-white sm:p-10">
-            <p className="font-mono text-xs tracking-[0.16em] uppercase">Privasi adalah struktur</p>
-            <h2 className="max-w-lg text-4xl leading-tight tracking-[-0.035em] sm:text-5xl">
+          <div className="violet-bloom flex min-h-72 flex-col justify-between p-8 text-white sm:p-10">
+            <p className="mono-label">Privasi adalah struktur</p>
+            <h2 className="max-w-lg text-4xl leading-tight tracking-[-0.03em] sm:text-5xl">
               Kamu memegang kontrol atas data dan hasilmu.
             </h2>
           </div>
-          <div className="bg-surface p-7 sm:p-10">
+          <div className="bg-surface p-8 sm:p-10">
             {trustPrinciples.map(([title, description]) => (
               <article
-                className="border-line grid gap-2 border-b py-5 first:pt-0 last:border-b-0 last:pb-0 sm:grid-cols-[8rem_1fr] sm:gap-6"
+                className="grid gap-2 border-b border-white/12 py-5 first:pt-0 last:border-b-0 last:pb-0 sm:grid-cols-[8rem_1fr] sm:gap-6"
                 key={title}
               >
-                <h3 className="font-mono text-xs tracking-[0.08em] uppercase">{title}</h3>
-                <p className="text-ink-muted leading-7">{description}</p>
+                <h3 className="mono-label text-[#f0f0f0]">{title}</h3>
+                <p className="text-steel leading-7">{description}</p>
               </article>
             ))}
           </div>
