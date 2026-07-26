@@ -70,10 +70,7 @@ test("keyboard focus treatment remains visible across primary surfaces", async (
   await page.goto("/start/modules");
   const firstModuleCheckbox = page.getByRole("checkbox").first();
   await firstModuleCheckbox.focus();
-  await expect(firstModuleCheckbox.locator("..")).toHaveCSS(
-    "--tw-ring-color",
-    "rgb(225, 189, 255)",
-  );
+  await expect(firstModuleCheckbox.locator("..")).toHaveCSS("--tw-ring-color", "#e1bdff");
   const darkControl = page.getByRole("button", { name: "Tinjau pilihan" });
   await expect(darkControl).toBeEnabled();
   await darkControl.focus();
