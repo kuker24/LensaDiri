@@ -1,5 +1,17 @@
 # LensaDiri Operations Runbook
 
+## Maintenance mode (from `v0.9.0-hobby-modular`)
+
+Engineering hobby modular is **closed**. Default work:
+
+- security patches, dependency updates, monitoring/health, retention cron observation
+- regression tests, backup/restore readiness (disposable only)
+- residual issues **#40–#45** (operator / human / product / external)
+
+Rules: **small PR**, **CI green**, **rollback documented**, no clinical/WCAG claims, no production DB reset.
+
+Out of scope without explicit product re-open: new modules, major UI, AI narrative ON, Full Spectrum publish, fake formal review.
+
 ## Environment topology
 
 | Environment | Application              | Database                      | Secrets                       | Data policy                                               |

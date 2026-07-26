@@ -2,9 +2,10 @@
 
 Honest matrix: production-live engineering vs residual external / product / human work.
 
-**Checkpoint:** `main` @ `bdeeec5` · tag **`v0.9.0-hobby-modular`** (2026-07-26).
+**Checkpoint:** `main` @ `1e59de4` · tag **`v0.9.0-hobby-modular`** (2026-07-26).
+**Mode:** **MAINTENANCE** — no large features; security/deps/monitoring/retention/tests/backup + residual #40–#45 only.
 **Production:** `https://lensadiri.vercel.app` · migrations Local==Remote through `202607290001`.
-**Rollback:** `docs/deployment/RELEASE_ROLLBACK.md` · **Changelog:** `CHANGELOG.md`.
+**Rollback:** `docs/deployment/RELEASE_ROLLBACK.md` · **Changelog:** `CHANGELOG.md` · **Handoff:** `.pi/HANDOFF.md`.
 
 ## Release-ready status
 
