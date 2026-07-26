@@ -1,16 +1,19 @@
-# Residual hobby close (#40–#45)
+# Residual hobby close (#40-#45)
 
-**Final hobby freeze:** `main` @ **`ab2fcdc`** · 2026-07-26
-**Constraint:** free/hobby only · no purchased services · no fake cert/review/validation · AI not paid
-**Mode after freeze:** **MAINTENANCE ONLY** (security, deps, health, monitoring, retention, backup readiness, regression tests)
+**Final hobby release:** `main` @ **`c535a6b`** | tag **`v1.0.0-hobby-final`** | 2026-07-26
+**Product freeze baseline:** `ab2fcdc`
+**Constraint:** free/hobby only | no purchased services | no fake cert/review/validation | AI not paid
+**Mode:** **ARCHIVED / MAINTENANCE** | standing watch **CLOSED**
 
 ## Binding product status
 
-| Lens                                 | Status                                |
-| ------------------------------------ | ------------------------------------- |
-| Hobby modular engineering            | **100% closed** at `ab2fcdc`          |
-| Full PRD product                     | **Stops honestly at ~75%** — not 100% |
-| Clinical / WCAG / psychometrics cert | **Never claim**                       |
+| Lens                                 | Status                                       |
+| ------------------------------------ | -------------------------------------------- |
+| Hobby modular engineering            | **100% closed**                              |
+| Hobby project finalization           | **100% complete** @ `v1.0.0-hobby-final`     |
+| Full PRD product                     | **Stops honestly at ~75%** - not 100%        |
+| Residual #40 #41 #43 #44             | **External optional - not release blockers** |
+| Clinical / WCAG / psychometrics cert | **Never claim**                              |
 
 ## Best honest residual matrix
 
