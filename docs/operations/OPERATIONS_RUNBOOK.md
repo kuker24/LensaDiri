@@ -2,13 +2,13 @@
 
 ## ARCHIVED / MAINTENANCE (from `v1.0.0-hobby-final`)
 
-Hobby project **finalized** at `main` @ **`c535a6b`** · tag **`v1.0.0-hobby-final`**. Standing watch **CLOSED**.
+Hobby project **finalized** at `main` @ **`c535a6b`** | tag **`v1.0.0-hobby-final`**. Standing watch **CLOSED**.
 
 Reactive work only (real trigger required):
 
 - security patches, dependency updates, monitoring/health, retention cron observation
 - regression tests, backup/restore readiness (disposable only)
-- residual **#40 #41 #43 #44** external/optional **not blockers**; **#42** DECIDED · **#45** DEFERRED_OFF; freeze baseline `ab2fcdc`
+- residual **#40 #41 #43 #44** external/optional **not blockers**; **#42** DECIDED | **#45** DEFERRED_OFF; freeze baseline `ab2fcdc`
 
 Rules: **small PR**, **CI green**, **rollback documented**, **health 200**, no clinical/WCAG claims, no production DB reset.
 
@@ -195,7 +195,7 @@ Security properties (already enforced server-side):
 ### Staging drill checklist
 
 ```bash
-# Preview or disposable staging only — never production secrets
+# Preview or disposable staging only - never production secrets
 # 1) Register disposable account
 # 2) Request verification / forgot password
 # 3) Open link from inbox (fragment token)
@@ -214,11 +214,11 @@ CI already exercises the same lifecycle with `RECOVERY_TEST_TRANSPORT=1` (integr
 
 ## Release checklist
 
-### Engineering ship gate (final hobby release — `main` @ `c535a6b` / `v1.0.0-hobby-final`)
+### Engineering ship gate (final hobby release - `main` @ `c535a6b` / `v1.0.0-hobby-final`)
 
 - [x] Final hobby freeze pin `ab2fcdc` (eng baseline tag `v0.9.0-hobby-modular`)
 - [x] Final hobby release tag `v1.0.0-hobby-final` @ `c535a6b` (docs archive #51 line + this close)
-- [x] Standing watch **CLOSED** — reactive maintenance only
+- [x] Standing watch **CLOSED** - reactive maintenance only
 - [x] CI gates green on freeze line; residual docs #50; freeze docs #51
 - [x] migration Local==Remote through `202607290001` (linked list)
 - [x] production flags: composer ON; Complex ON; provisional precision ON; AI OFF
@@ -230,7 +230,7 @@ CI already exercises the same lifecycle with `RECOVERY_TEST_TRANSPORT=1` (integr
 - [ ] Preview secrets never equal production Resend/DB (when Resend enabled)
 - [ ] Vercel/CI Node.js 22.x confirmed on next deploy window
 
-### Residual (external / optional — not blockers)
+### Residual (external / optional - not blockers)
 
 | Gate                                          | Issue | Class             | Status                  |
 | --------------------------------------------- | ----- | ----------------- | ----------------------- |

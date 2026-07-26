@@ -1,7 +1,7 @@
 # Engineering Evidence
 
-> **Final hobby release:** `main` @ **`c535a6b`** · tag **`v1.0.0-hobby-final`** · 2026-07-26
-> Status: **ARCHIVED / MAINTENANCE** · standing watch **CLOSED**
+> **Final hobby release:** `main` @ **`c535a6b`** | tag **`v1.0.0-hobby-final`** | 2026-07-26
+> Status: **ARCHIVED / MAINTENANCE** | standing watch **CLOSED**
 
 ## Release pin
 
@@ -13,12 +13,12 @@
 | Eng baseline tag               | `v0.9.0-hobby-modular`                     |
 | Hobby modular engineering      | **100% closed**                            |
 | Hobby project finalization     | **100% complete**                          |
-| Full PRD product               | **~75%** — stops here honestly             |
+| Full PRD product               | **~75%** - stops here honestly             |
 | Mode                           | **ARCHIVED / MAINTENANCE**                 |
 | Standing watch                 | **CLOSED**                                 |
 | `GET /api/health`              | `200` `{"status":"ok"}`                    |
 | `npm audit --audit-level=high` | **0**                                      |
-| Tree                           | clean · = origin/main at tag               |
+| Tree                           | clean | = origin/main at tag               |
 | Smoke readonly                 | PASS                                       |
 | Modes                          | quick/standard/deep selectable             |
 | Modules                        | 10                                         |
@@ -27,7 +27,7 @@
 | AI                             | **OFF**                                    |
 | Resend production secrets      | absent (delivery dormant)                  |
 | Open residual                  | #40 #41 #43 #44 external/optional only     |
-| Closed residual                | #42 DECIDED · #45 DEFERRED_OFF             |
+| Closed residual                | #42 DECIDED | #45 DEFERRED_OFF             |
 
 ## Verdict (binding)
 
