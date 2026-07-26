@@ -7,12 +7,12 @@ export const metadata: Metadata = {
 
 export default function DisclaimerPage() {
   return (
-    <article className="prose-shell py-16 lg:py-24">
-      <p className="text-lens text-sm font-semibold tracking-[0.14em] uppercase">Disclaimer</p>
-      <h1 className="mt-4 text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
+    <article className="prose-shell py-16 sm:py-24">
+      <p className="mono-label text-aperture">Batas penggunaan</p>
+      <h1 className="mt-5 text-4xl font-medium tracking-[-0.035em] sm:text-6xl">
         Alat refleksi diri, bukan diagnosis atau keputusan profesional.
       </h1>
-      <div className="border-line bg-aperture-soft text-ink mt-10 space-y-7 rounded-md border p-7 sm:p-10">
+      <div className="border-aperture/25 bg-aperture-soft text-ink mt-12 space-y-7 rounded-lg border p-7 sm:p-10">
         <p className="leading-7">
           LensaDiri tidak mendiagnosis kondisi kesehatan mental, gangguan kepribadian, kemampuan
           intelektual, atau kelayakan seseorang untuk pekerjaan, pendidikan, maupun hubungan.

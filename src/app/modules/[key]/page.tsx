@@ -19,11 +19,14 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
   }));
 
   return (
-    <main className="container-shell py-12 sm:py-18">
-      <Link className="focus-ring text-lens rounded-md text-sm font-semibold" href="/modules">
-        Kembali ke katalog
+    <section className="container-shell py-16 sm:py-24">
+      <Link
+        className="focus-ring text-ink-muted hover:text-ink inline-flex min-h-11 items-center rounded-md text-sm transition-colors"
+        href="/modules"
+      >
+        ← Kembali ke katalog
       </Link>
-      <article className="border-line mt-6 max-w-4xl rounded-md border bg-white/90 p-7 sm:p-10">
+      <article className="mt-8 max-w-4xl">
         <div className="flex flex-wrap gap-3 text-sm">
           <Badge tone="lens">Evidence {catalogModule.evidenceTier.replace("_", " ")}</Badge>
           <Badge
@@ -45,7 +48,7 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
           </Badge>
           <Badge tone="neutral">Usia minimum {catalogModule.minimumAge}</Badge>
         </div>
-        <h1 className="mt-5 text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
+        <h1 className="mt-6 text-4xl font-medium tracking-[-0.035em] sm:text-6xl">
           {catalogModule.publicName}
         </h1>
         <p className="text-ink-muted mt-5 max-w-3xl leading-7">{catalogModule.description}</p>
@@ -54,9 +57,12 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
           <h2 className="text-2xl font-semibold" id="depth-heading">
             Coverage per mode
           </h2>
-          <dl className="mt-4 grid gap-3 sm:grid-cols-3">
+          <dl className="border-line mt-5 grid border-y sm:grid-cols-3">
             {modes.map((mode) => (
-              <div className="border-line rounded-md border p-4" key={mode.label}>
+              <div
+                className="border-line py-5 sm:border-r sm:px-5 sm:first:pl-0 sm:last:border-r-0"
+                key={mode.label}
+              >
                 <dt className="font-semibold">{mode.label}</dt>
                 <dd className="text-ink-muted mt-1 text-sm tabular-nums">
                   Target alokasi {mode.count} item
@@ -67,7 +73,7 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
         </section>
 
         <section
-          className="border-line bg-lens-soft/40 mt-8 rounded-md border p-5"
+          className="border-lens/25 bg-lens-soft mt-10 rounded-lg border p-6"
           aria-labelledby="boundary-heading"
         >
           <h2 className="font-semibold" id="boundary-heading">
@@ -81,7 +87,7 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
 
         {available ? (
           <Link
-            className="focus-ring bg-lens text-canvas hover:bg-lens-strong mt-8 inline-flex min-h-12 items-center rounded-md px-5 font-semibold transition-colors duration-150 ease-out"
+            className="focus-ring pressable bg-lens text-canvas mt-8 inline-flex min-h-12 items-center rounded-md px-5 font-semibold transition-[background-color,transform] duration-150 ease-out hover:bg-[#bd70ff] active:scale-[0.98]"
             href={`/start/modules?module=${encodeURIComponent(catalogModule.key)}`}
           >
             Pilih modul ini
@@ -95,6 +101,6 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
           </div>
         )}
       </article>
-    </main>
+    </section>
   );
 }
