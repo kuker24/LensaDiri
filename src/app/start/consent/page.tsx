@@ -17,10 +17,10 @@ export default async function ConsentPage({
   const { mode } = await searchParams;
   if (mode !== "quick" && mode !== "standard") notFound();
   return (
-    <section className="container-shell py-14 sm:py-20">
-      <div className="border-line shadow-surface mx-auto max-w-2xl rounded-xl border bg-white/90 p-7 sm:p-10">
-        <p className="text-lens text-sm font-semibold">Sebelum mulai</p>
-        <h1 className="font-display mt-3 text-3xl font-semibold tracking-tight">
+    <section className="container-shell py-16 sm:py-24">
+      <div className="bg-surface mx-auto max-w-2xl rounded-[1.2rem] border border-white/14 p-7 sm:p-10">
+        <p className="mono-label text-aperture">Sebelum mulai</p>
+        <h1 className="mt-4 text-3xl font-medium tracking-[-0.03em]">
           Consent pemrosesan assessment
         </h1>
         <ul className="text-ink-muted mt-6 space-y-3 leading-7">

@@ -52,8 +52,8 @@ export function ModularReviewForm() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <p className="text-lens text-sm font-semibold">Tinjau dan consent</p>
-      <h1 className="font-display mt-3 text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">
+      <p className="mono-label text-aperture">Tinjau / consent</p>
+      <h1 className="mt-5 text-4xl font-medium tracking-[-0.035em] sm:text-6xl">
         Siap memulai eksplorasi?
       </h1>
       <p className="text-ink-muted mt-4 leading-7">
@@ -62,7 +62,7 @@ export function ModularReviewForm() {
       </p>
 
       {estimate ? (
-        <div className="border-line shadow-surface mt-8 overflow-hidden rounded-xl border bg-white/90">
+        <div className="bg-surface mt-10 overflow-hidden rounded-[1.2rem] border border-white/14">
           <div className="border-line grid gap-5 border-b p-6 sm:grid-cols-3">
             <div>
               <p className="text-ink-muted text-sm">Mode</p>
@@ -84,7 +84,7 @@ export function ModularReviewForm() {
             <ul className="mt-3 flex flex-wrap gap-2">
               {modules.map((module) => (
                 <li
-                  className="border-lens-soft bg-lens-soft text-lens-strong rounded-sm border px-3 py-1.5 text-sm"
+                  className="border-lens/30 bg-lens-soft text-aperture rounded-md border px-3 py-1.5 text-sm"
                   key={module.key}
                 >
                   {module.publicName}
@@ -102,7 +102,7 @@ export function ModularReviewForm() {
         <p>Hasil private sampai kamu membuat link berbagi.</p>
         <p>Kamu dapat menghapus hasil dan jawaban terkait.</p>
       </div>
-      <label className="border-line mt-5 flex items-start gap-3 rounded-lg border bg-white/90 p-5 text-sm leading-6">
+      <label className="border-line bg-surface mt-5 flex items-start gap-3 rounded-lg border p-5 text-sm leading-6">
         <input
           checked={consent}
           className="accent-lens mt-1 h-5 w-5"
@@ -119,7 +119,7 @@ export function ModularReviewForm() {
       ) : null}
       <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
         <Link
-          className="focus-ring border-line text-ink hover:bg-mist inline-flex min-h-12 items-center justify-center rounded-sm border bg-white px-5 py-3 text-center font-semibold transition-colors duration-150 ease-out"
+          className="focus-ring border-line bg-surface text-ink hover:bg-surface-raised inline-flex min-h-12 items-center justify-center rounded-md border px-5 py-3 text-center font-semibold transition-colors duration-150 ease-out"
           href="/start/modules"
         >
           Ubah pilihan
