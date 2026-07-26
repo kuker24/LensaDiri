@@ -155,19 +155,19 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
 
   return (
     <div>
-      <div className="lens-glow bg-lens-strong text-canvas shadow-surface relative overflow-hidden rounded-xl p-7 sm:p-10">
-        <p className="text-aperture-on-dark text-sm font-semibold">Hasil modularmu</p>
-        <h1 className="font-display mt-3 text-3xl font-semibold tracking-tight sm:text-5xl">
+      <div className="lens-glow bg-surface relative overflow-hidden rounded-[1.2rem] border border-white/14 p-7 sm:p-10">
+        <p className="mono-label text-aperture">Hasil modularmu</p>
+        <h1 className="mt-4 text-3xl font-medium tracking-[-0.035em] sm:text-5xl">
           {result.modules.length} lensa reflektif
         </h1>
-        <p className="text-canvas/85 mt-5 max-w-2xl leading-7">{result.summary.disclaimer}</p>
+        <p className="text-ink-muted mt-5 max-w-2xl leading-7">{result.summary.disclaimer}</p>
         <div className="mt-5 flex flex-wrap items-center gap-3">
-          <span className="text-canvas rounded-sm bg-white/10 px-3 py-1.5 text-sm font-semibold tabular-nums">
+          <span className="border-lens/30 bg-lens-soft text-aperture rounded-md border px-3 py-1.5 text-sm font-semibold tabular-nums">
             {hasEvidenceOrientedModule
               ? `Confidence keseluruhan ${Math.round(result.quality.confidence * 100)}%`
               : "Confidence evidence-oriented tidak dihitung"}
           </span>
-          <span className="text-canvas/70 text-sm">Skor primer server-side · private</span>
+          <span className="text-ink-muted text-sm">Skor primer server-side · private</span>
         </div>
       </div>
 
@@ -184,7 +184,7 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
       </nav>
 
       <section
-        className="border-line mt-6 rounded-lg border bg-white/90 p-5"
+        className="border-line bg-surface mt-6 rounded-lg border p-5"
         aria-labelledby="result-meta-heading"
       >
         <h2 className="text-ink-muted text-sm font-semibold" id="result-meta-heading">
@@ -225,7 +225,7 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
         className="border-aperture-soft bg-aperture-soft text-ink mt-6 rounded-lg border p-5"
         aria-labelledby="quality-heading"
       >
-        <h2 className="font-display text-xl font-semibold" id="quality-heading">
+        <h2 className="text-xl font-medium tracking-[-0.02em]" id="quality-heading">
           Confidence dan kualitas respons
         </h2>
         <p className="mt-2 text-sm leading-6">
@@ -247,12 +247,12 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
           return (
             <section
               aria-labelledby={`module-${module.moduleKey}`}
-              className="border-line rounded-xl border bg-white/90 p-6 shadow-[0_1px_2px_rgb(23_24_44_/_0.04)]"
+              className="border-line bg-surface rounded-[1.2rem] border p-6"
               key={module.moduleKey}
             >
               <div className="flex flex-wrap items-baseline justify-between gap-3">
                 <h2
-                  className="font-display text-2xl font-semibold capitalize"
+                  className="text-2xl font-medium tracking-[-0.025em] capitalize"
                   id={`module-${module.moduleKey}`}
                 >
                   {formatKey(module.moduleKey)}
@@ -282,7 +282,7 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
                 ))}
               </div>
               <div className="border-line mt-5 flex flex-wrap items-center gap-2 border-t pt-5 text-sm">
-                <span className="border-lens-soft bg-lens-soft text-lens-strong rounded-sm border px-3 py-1 font-semibold">
+                <span className="border-lens/30 bg-lens-soft text-aperture rounded-md border px-3 py-1 font-semibold">
                   Evidence {module.evidenceTier.replace("_", " ")}
                 </span>
                 <span className="border-line bg-mist text-ink-muted rounded-sm border px-3 py-1 tabular-nums">
@@ -326,7 +326,7 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
 
       {result.correlations.length > 0 ? (
         <section className="mt-8" aria-labelledby="correlation-heading">
-          <h2 className="font-display text-2xl font-semibold" id="correlation-heading">
+          <h2 className="text-2xl font-medium tracking-[-0.025em]" id="correlation-heading">
             Hubungan dan tegangan antar-lensa
           </h2>
           <div className="mt-5 grid gap-4 md:grid-cols-2">
@@ -340,7 +340,7 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
                   {narrativeLabels[correlation.narrativeKey] ??
                     "Dua lensa memberi konteks tambahan yang perlu dibaca sebagai refleksi."}
                 </p>
-                <p className="text-lens-strong mt-3 text-xs font-semibold tabular-nums">
+                <p className="text-aperture mt-3 text-xs font-semibold tabular-nums">
                   {correlation.sourceModuleKeys.map(formatKey).join(" · ")} · Confidence{" "}
                   {Math.round(correlation.confidence * 100)}%
                 </p>
@@ -351,7 +351,7 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
       ) : null}
 
       <section aria-labelledby="practical-heading-title" className="mt-8" id="practical-heading">
-        <h2 className="font-display text-2xl font-semibold" id="practical-heading-title">
+        <h2 className="text-2xl font-medium tracking-[-0.025em]" id="practical-heading-title">
           Refleksi praktis lintas konteks
         </h2>
         <div className="mt-5 grid gap-5 md:grid-cols-2">
@@ -362,7 +362,7 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
             ["Relasi", integrated.relationships],
             ["Saat stres", integrated.stress],
           ].map(([title, text]) => (
-            <article className="border-line rounded-lg border bg-white/90 p-5" key={title}>
+            <article className="border-line bg-surface rounded-lg border p-5" key={title}>
               <h3 className="font-semibold">{title}</h3>
               <p className="text-ink-muted mt-2 text-sm leading-6">{text}</p>
             </article>
@@ -371,12 +371,12 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
       </section>
 
       <section className="mt-8 grid gap-5 md:grid-cols-2" aria-label="Rencana pengembangan">
-        <article className="border-line rounded-lg border bg-white p-6">
-          <h2 className="font-display text-xl font-semibold">Growth action 7 hari</h2>
+        <article className="border-line bg-surface rounded-lg border p-6">
+          <h2 className="text-xl font-medium tracking-[-0.02em]">Growth action 7 hari</h2>
           <ReflectionList items={integrated.growth7Days} />
         </article>
-        <article className="border-line rounded-lg border bg-white p-6">
-          <h2 className="font-display text-xl font-semibold">Growth action 30 hari</h2>
+        <article className="border-line bg-surface rounded-lg border p-6">
+          <h2 className="text-xl font-medium tracking-[-0.02em]">Growth action 30 hari</h2>
           <ReflectionList items={integrated.growth30Days} />
         </article>
       </section>
@@ -389,20 +389,20 @@ export function ResultReport({ result }: { result: ResultView }) {
 
   return (
     <div>
-      <div className="lens-glow bg-lens-strong text-canvas shadow-surface relative overflow-hidden rounded-xl p-7 sm:p-10">
-        <p className="text-aperture-on-dark text-sm font-semibold">Profil reflektifmu</p>
-        <h1 className="font-display mt-3 text-3xl font-semibold tracking-tight sm:text-5xl">
+      <div className="lens-glow bg-surface relative overflow-hidden rounded-[1.2rem] border border-white/14 p-7 sm:p-10">
+        <p className="mono-label text-aperture">Profil reflektifmu</p>
+        <h1 className="mt-4 text-3xl font-medium tracking-[-0.035em] sm:text-5xl">
           {result.summary.archetype}
         </h1>
-        <p className="text-canvas/85 mt-5 max-w-2xl leading-7">{result.summary.disclaimer}</p>
+        <p className="text-ink-muted mt-5 max-w-2xl leading-7">{result.summary.disclaimer}</p>
       </div>
       <section className="mt-8" aria-labelledby="trait-heading">
-        <h2 className="font-display text-2xl font-semibold" id="trait-heading">
+        <h2 className="text-2xl font-medium tracking-[-0.025em]" id="trait-heading">
           Lima spektrum
         </h2>
         <div className="mt-5 space-y-5">
           {result.scores.map((score) => (
-            <div className="border-line rounded-md border bg-white p-5" key={score.constructKey}>
+            <div className="border-line bg-surface rounded-md border p-5" key={score.constructKey}>
               <div className="flex justify-between gap-4">
                 <h3 className="font-semibold">{labels[score.constructKey]}</h3>
                 <span className="font-semibold tabular-nums">{score.normalizedScore}</span>
@@ -425,7 +425,7 @@ export function ResultReport({ result }: { result: ResultView }) {
         </div>
       </section>
       <section className="mt-8" aria-labelledby="overlay-heading">
-        <h2 className="font-display text-2xl font-semibold" id="overlay-heading">
+        <h2 className="text-2xl font-medium tracking-[-0.025em]" id="overlay-heading">
           Lensa reflektif legacy
         </h2>
         <p className="text-ink-muted mt-2 text-sm">
@@ -437,19 +437,19 @@ export function ResultReport({ result }: { result: ResultView }) {
               className="border-line bg-lens-soft/40 min-w-[min(100%,16rem)] flex-1 rounded-md border p-5"
               key={key}
             >
-              <p className="font-display text-lg font-semibold">{overlay.label}</p>
+              <p className="text-lg font-medium">{overlay.label}</p>
               <p className="text-ink-muted mt-2 text-sm leading-6">{overlay.note}</p>
             </article>
           ))}
         </div>
       </section>
       <div className="mt-8 grid gap-5 md:grid-cols-2">
-        <section className="border-line rounded-lg border bg-white p-6">
-          <h2 className="font-display text-xl font-semibold">Pola yang menonjol</h2>
+        <section className="border-line bg-surface rounded-lg border p-6">
+          <h2 className="text-xl font-medium tracking-[-0.02em]">Pola yang menonjol</h2>
           <ReflectionList items={result.summary.strengths} />
         </section>
-        <section className="border-line rounded-lg border bg-white p-6">
-          <h2 className="font-display text-xl font-semibold">Arah pengembangan</h2>
+        <section className="border-line bg-surface rounded-lg border p-6">
+          <h2 className="text-xl font-medium tracking-[-0.02em]">Arah pengembangan</h2>
           <ReflectionList items={result.summary.growthFocus} />
         </section>
       </div>

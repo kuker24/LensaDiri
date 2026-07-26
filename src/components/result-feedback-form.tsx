@@ -28,23 +28,22 @@ export function ResultFeedbackForm({ token }: { token: string }) {
   if (sent)
     return (
       <p
-        className="border-success text-success mt-8 rounded-md border bg-white p-4 font-medium"
+        className="border-success/30 bg-success-soft text-success mt-8 rounded-md border p-4 font-medium"
         role="status"
       >
         Terima kasih. Feedback tersimpan.
       </p>
     );
   return (
-    <form
-      className="border-line shadow-surface mt-8 rounded-xl border bg-white/90 p-6"
-      onSubmit={submit}
-    >
-      <h2 className="font-display text-ink text-xl font-semibold">Apakah hasil ini membantu?</h2>
+    <form className="border-line bg-surface mt-8 rounded-[1.2rem] border p-6" onSubmit={submit}>
+      <h2 className="text-ink text-xl font-medium tracking-[-0.02em]">
+        Apakah hasil ini membantu?
+      </h2>
       <Label className="mt-4" htmlFor="feedback-rating">
         Rating 1 sampai 5
       </Label>
       <select
-        className="focus-ring border-line bg-canvas text-ink hover:border-lens/50 mt-2 min-h-12 w-full rounded-sm border px-4 text-sm transition duration-150 ease-out outline-none"
+        className="focus-ring bg-surface-raised text-ink mt-2 min-h-12 w-full rounded-md border border-white/30 px-4 text-base transition duration-150 ease-out outline-none hover:border-white/45 sm:text-sm"
         defaultValue=""
         id="feedback-rating"
         name="rating"

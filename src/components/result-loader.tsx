@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { ResultReport } from "@/components/result-report";
 import { SharedResultReport } from "@/components/shared-result-report";
@@ -8,7 +8,7 @@ import { getPrivateResult, getSharedResult } from "@/lib/assessment/client";
 import type { PrivateResultView } from "@/server/repositories/assessment";
 import type { SafeSharedResultView } from "@/server/repositories/result-views";
 
-function PrivateResultLoader({ token }: { token: string }) {
+function PrivateResultLoader({ children, token }: { children?: ReactNode; token: string }) {
   const [result, setResult] = useState<PrivateResultView | null>(null);
   const [failed, setFailed] = useState(false);
 
@@ -29,11 +29,11 @@ function PrivateResultLoader({ token }: { token: string }) {
   if (failed)
     return (
       <div
-        className="border-danger-soft shadow-surface mx-auto my-10 max-w-xl rounded-xl border bg-white/90 p-8 text-center"
+        className="border-danger/30 bg-danger-soft mx-auto my-10 max-w-xl rounded-[1.2rem] border p-8 text-center"
         role="alert"
       >
         <p className="text-danger text-sm font-semibold">Hasil pribadi</p>
-        <h1 className="font-display mt-2 text-2xl font-semibold">Hasil tidak ditemukan</h1>
+        <h1 className="mt-3 text-2xl font-medium tracking-[-0.025em]">Hasil tidak ditemukan</h1>
         <p className="text-ink-muted mt-3 leading-7">
           Hasil mungkin sudah dihapus atau tautannya tidak valid.
         </p>
@@ -42,7 +42,7 @@ function PrivateResultLoader({ token }: { token: string }) {
   if (!result)
     return (
       <div
-        className="border-line shadow-surface mx-auto my-10 max-w-xl rounded-xl border bg-white/90 p-8 text-center"
+        className="border-line bg-surface mx-auto my-10 max-w-xl rounded-[1.2rem] border p-8 text-center"
         role="status"
       >
         <span
@@ -51,11 +51,16 @@ function PrivateResultLoader({ token }: { token: string }) {
         >
           <span className="bg-lens block h-full w-1/2 rounded-full" />
         </span>
-        <h1 className="font-display mt-5 text-2xl font-semibold">Memuat hasil pribadi</h1>
+        <h1 className="mt-5 text-2xl font-medium tracking-[-0.025em]">Memuat hasil pribadi</h1>
         <p className="text-ink-muted mt-3 leading-7">Menyiapkan ringkasan reflektifmu…</p>
       </div>
     );
-  return <ResultReport result={result} />;
+  return (
+    <>
+      <ResultReport result={result} />
+      {children}
+    </>
+  );
 }
 
 function SharedResultLoader({ token }: { token: string }) {
@@ -79,11 +84,11 @@ function SharedResultLoader({ token }: { token: string }) {
   if (failed)
     return (
       <div
-        className="border-danger-soft shadow-surface mx-auto my-10 max-w-xl rounded-xl border bg-white/90 p-8 text-center"
+        className="border-danger/30 bg-danger-soft mx-auto my-10 max-w-xl rounded-[1.2rem] border p-8 text-center"
         role="alert"
       >
         <p className="text-danger text-sm font-semibold">Link berbagi</p>
-        <h1 className="font-display mt-2 text-2xl font-semibold">Hasil tidak ditemukan</h1>
+        <h1 className="mt-3 text-2xl font-medium tracking-[-0.025em]">Hasil tidak ditemukan</h1>
         <p className="text-ink-muted mt-3 leading-7">
           Tautan mungkin kedaluwarsa, sudah dicabut, atau tidak valid.
         </p>
@@ -92,7 +97,7 @@ function SharedResultLoader({ token }: { token: string }) {
   if (!result)
     return (
       <div
-        className="border-line shadow-surface mx-auto my-10 max-w-xl rounded-xl border bg-white/90 p-8 text-center"
+        className="border-line bg-surface mx-auto my-10 max-w-xl rounded-[1.2rem] border p-8 text-center"
         role="status"
       >
         <span
@@ -101,7 +106,9 @@ function SharedResultLoader({ token }: { token: string }) {
         >
           <span className="bg-lens block h-full w-1/2 rounded-full" />
         </span>
-        <h1 className="font-display mt-5 text-2xl font-semibold">Memuat hasil yang dibagikan</h1>
+        <h1 className="mt-5 text-2xl font-medium tracking-[-0.025em]">
+          Memuat hasil yang dibagikan
+        </h1>
         <p className="text-ink-muted mt-3 leading-7">
           Menyiapkan tampilan aman tanpa diagnostik pribadi…
         </p>
@@ -110,10 +117,20 @@ function SharedResultLoader({ token }: { token: string }) {
   return <SharedResultReport result={result} />;
 }
 
-export function ResultLoader({ shared, token }: { shared?: boolean; token: string }) {
+export function ResultLoader({
+  children,
+  shared,
+  token,
+}: {
+  children?: ReactNode;
+  shared?: boolean;
+  token: string;
+}) {
   return shared ? (
     <SharedResultLoader key={token} token={token} />
   ) : (
-    <PrivateResultLoader key={token} token={token} />
+    <PrivateResultLoader key={token} token={token}>
+      {children}
+    </PrivateResultLoader>
   );
 }

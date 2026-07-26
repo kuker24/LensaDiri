@@ -56,10 +56,10 @@ export function ResultControls({ token }: { token: string }) {
 
   return (
     <section
-      className="border-line mt-10 rounded-xl border bg-white/90 p-6 shadow-[0_1px_2px_rgb(23_24_44_/_0.04)]"
+      className="border-line bg-surface mt-10 rounded-[1.2rem] border p-6"
       aria-labelledby="result-controls-title"
     >
-      <h2 className="font-display text-xl font-semibold" id="result-controls-title">
+      <h2 className="text-xl font-medium tracking-[-0.02em]" id="result-controls-title">
         Kontrol hasil
       </h2>
       <p className="text-ink-muted mt-2 leading-7">
@@ -74,20 +74,20 @@ export function ResultControls({ token }: { token: string }) {
           Cabut semua link
         </Button>
         <a
-          className="focus-ring border-line text-ink hover:bg-mist inline-flex items-center rounded-sm border px-4 py-3 font-semibold transition-colors duration-150 ease-out"
+          className="focus-ring border-line bg-surface text-ink hover:bg-surface-raised inline-flex items-center rounded-md border px-4 py-3 font-semibold transition-colors duration-150 ease-out"
           download
           href={`/api/result/export/${encodeURIComponent(token)}`}
         >
           Export JSON
         </a>
         <a
-          className="focus-ring border-line text-ink hover:bg-mist inline-flex items-center rounded-sm border px-4 py-3 font-semibold transition-colors duration-150 ease-out"
+          className="focus-ring border-line bg-surface text-ink hover:bg-surface-raised inline-flex items-center rounded-md border px-4 py-3 font-semibold transition-colors duration-150 ease-out"
           href="/start"
         >
           Tes ulang
         </a>
         <button
-          className="focus-ring border-danger-soft text-danger hover:bg-danger-soft rounded-sm border px-4 py-3 font-semibold transition-colors duration-150 ease-out disabled:opacity-50"
+          className="focus-ring border-danger/30 text-danger hover:bg-danger-soft rounded-md border px-4 py-3 font-semibold transition-colors duration-150 ease-out disabled:opacity-50"
           disabled={pending}
           onClick={remove}
           type="button"
@@ -96,8 +96,8 @@ export function ResultControls({ token }: { token: string }) {
         </button>
       </div>
       {shareUrl ? (
-        <p className="border-lens-soft bg-lens-soft/40 mt-4 rounded-md border p-4 text-sm break-all">
-          <a className="focus-ring text-lens-strong underline" href={shareUrl}>
+        <p className="border-lens/30 bg-lens-soft mt-4 rounded-md border p-4 text-sm break-all">
+          <a className="focus-ring text-aperture underline" href={shareUrl}>
             {shareUrl}
           </a>
         </p>

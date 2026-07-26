@@ -1,7 +1,12 @@
-import { describe, expect, it } from "vitest";
+import { createElement } from "react";
+import { cleanup, render, screen } from "@testing-library/react";
+import { afterEach, describe, expect, it } from "vitest";
 
+import { SharedResultReport } from "@/components/shared-result-report";
 import { toExportResultView, toSafeSharedResultView } from "@/server/repositories/result-views";
 import type { PrivateResultView } from "@/server/repositories/assessment";
+
+afterEach(cleanup);
 
 const privateModularResult: PrivateResultView = {
   correlations: [
@@ -101,18 +106,25 @@ const safeMetadata = {
 };
 
 const prohibitedSharedFields = [
+  "accountId",
   "ambiguity",
   "averageResponseTimeMs",
+  "audit",
   "clarifier",
   "confidence",
+  "feedback",
   "flags",
   "low_variance",
   "quality",
   "qualityModelVersion",
   "rawScore",
+  "responseTimeMs",
+  "resultId",
+  "resultTokenHash",
   "reverse_inconsistency",
   "ruleKey",
   "scoringVersion",
+  "shareTokenHash",
   "straightlining",
   "too_fast",
 ];
@@ -171,22 +183,43 @@ describe("safe shared result projection", () => {
     const shared = toSafeSharedResultView(privateLegacyResult, "summary", safeMetadata);
     const serialized = JSON.stringify(shared);
 
-    expect(shared).toMatchObject({
+    expect(shared).toEqual({
+      createdAt: "2026-07-16T10:00:00.000Z",
       disclaimer: "Lensa refleksi, bukan diagnosis.",
+      growthFocus: ["Ubah ide menjadi eksperimen kecil."],
       kind: "legacy",
+      overlays: [
+        { label: "INFP", note: "Bukan instrumen proprietary.", title: "16-Type reflektif" },
+        { label: "Pola reflektif", note: "Bukan tipe resmi.", title: "Motivasi reflektif" },
+        {
+          label: "Tenang-stabil",
+          note: "Bukan kategori biologis.",
+          title: "Temperament reflektif",
+        },
+      ],
       scores: [
         {
           constructKey: "openness",
+          facetKey: "general",
           label: "Keterbukaan",
           normalizedScore: 72,
         },
       ],
+      share: safeMetadata,
+      strengths: ["Rasa ingin tahu terlihat menonjol."],
       title: "eksploratif",
     });
-    expect(shared).not.toHaveProperty("quality");
-    expect(serialized).not.toContain("straightLineWarning");
-    expect(serialized).not.toContain("rawScore");
-    expect(serialized).not.toContain("confidence");
+    for (const field of prohibitedSharedFields) {
+      expect(serialized).not.toContain(field);
+    }
+
+    render(createElement(SharedResultReport, { result: shared }));
+    expect(screen.getByText("INFP")).toBeInTheDocument();
+    expect(screen.getByText("Bukan instrumen proprietary.")).toBeInTheDocument();
+    expect(
+      screen.getByText("Bagian ini dipertahankan hanya untuk kompatibilitas hasil MVP lama."),
+    ).toBeInTheDocument();
+    expect(screen.queryByText(/Confidence/i)).not.toBeInTheDocument();
   });
 
   it("fails closed for unsupported share scope and creates separate portable export contract", () => {
