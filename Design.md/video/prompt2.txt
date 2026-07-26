@@ -1,0 +1,38 @@
+LensaDiri — Hero ambient PROMPT 2 / 3
+========================================
+Nama file hasil : hero-02-particles.mp4
+Lokasi drop     : Design.md/video/assets/
+Mood            : Particle parallax (debu cahaya L→R)
+
+SPEC OUTPUT
+-----------
+Resolusi : 720p (1280 x 720)
+Durasi   : 15 detik
+Rasio    : 16:9
+Audio    : YA (ambient only)
+Format   : MP4 H.264
+
+WARNA LOCK
+----------
+Void  : #090909 (near-black)
+Bloom : #AF50FF (violet, fixed upper-left)
+Rim   : lavender soft (opsional sangat tipis)
+
+LARANGAN (wajib)
+----------------
+- no people / faces / hands / silhouette
+- no text / logo / watermark
+- no medical / brain / diagnosis icons
+- no charts / metrics / barcode / airport
+- no neon game clutter
+
+AUDIO (ambient only)
+--------------------
+Quiet evolving drone.
+Sparse soft particle-like high ticks (sangat rendah di mix).
+Gentle stereo width.
+No vocals, no speech, no beat drop.
+
+===== COPY PROMPT DI BAWAH INI =====
+
+Cinematic ambient abstract video, 15 seconds, 16:9, 720p. Same near-black void #090909 with fixed soft violet bloom #AF50FF upper-left. Subtle glowing particles drift slowly left to right with gentle depth parallax, light dust catching violet, calm premium night field, ultra minimal. Slow horizontal parallax only, no hard cuts. No people, no faces, no text, no logos, no medical icons, no charts. Soft ambient soundscape: quiet evolving drone, sparse soft particle-like high ticks very low in mix, gentle stereo width, no vocals, no speech, no beat drop, reflective and private mood.

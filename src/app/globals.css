@@ -266,4 +266,12 @@ dialog[open]::backdrop {
     transform: none;
     transition-property: opacity, color, background-color, border-color;
   }
+
+  .hero-ambient-video {
+    display: none;
+  }
+
+  .hero-ambient-poster {
+    display: block;
+  }
 }

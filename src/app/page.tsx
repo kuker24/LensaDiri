@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { EvidenceBadge } from "@/components/evidence-badge";
+import { HeroAmbient } from "@/components/hero-ambient";
 import { ReflectionPass } from "@/components/reflection-pass";
 import { getButtonClassName } from "@/components/ui/button";
 
@@ -38,10 +39,7 @@ export default function HomePage() {
   return (
     <>
       <section className="relative isolate overflow-hidden">
-        <div
-          aria-hidden="true"
-          className="absolute inset-0 -z-20 bg-[radial-gradient(circle_at_25%_22%,rgba(175,80,255,0.2),transparent_25rem),radial-gradient(circle_at_72%_20%,rgba(225,189,255,0.07),transparent_22rem),linear-gradient(145deg,#090909_15%,#121016_58%,#090909)]"
-        />
+        <HeroAmbient />
         <div
           aria-hidden="true"
           className="absolute inset-x-0 top-1/2 -z-10 h-px bg-linear-to-r from-transparent via-white/20 to-transparent"

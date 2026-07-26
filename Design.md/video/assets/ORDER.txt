@@ -1,0 +1,9 @@
+LensaDiri hero ambient — mapping urutan
+======================================
+Urutan = waktu file tiba di laptop (mtime), bukan nama UUID Grok.
+
+PROMPT 1 | hero-01-bloom.mp4     | mtime 02:17:25 | ex grok-video-fb2327e7-... | bloom breathe
+PROMPT 2 | hero-02-particles.mp4 | mtime 02:19:37 | ex grok-video-3fc8f6ae-... | particles
+PROMPT 3 | hero-03-glass.mp4     | mtime 02:21:05 | ex grok-video-1e5b589b-... | glass drift
+
+Semua: 1280x720 · ~15s · h264 + aac

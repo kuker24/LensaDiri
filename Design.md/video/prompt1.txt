@@ -1,0 +1,37 @@
+LensaDiri — Hero ambient PROMPT 1 / 3
+========================================
+Nama file hasil : hero-01-bloom.mp4
+Lokasi drop     : Design.md/video/assets/
+Mood            : Bloom breathe (violet pulse + tiny push-in)
+
+SPEC OUTPUT
+-----------
+Resolusi : 720p (1280 x 720)
+Durasi   : 15 detik
+Rasio    : 16:9
+Audio    : YA (ambient only)
+Format   : MP4 H.264
+
+WARNA LOCK
+----------
+Void  : #090909 (near-black)
+Bloom : #AF50FF (violet)
+Rim   : lavender soft (opsional sangat tipis)
+
+LARANGAN (wajib)
+----------------
+- no people / faces / hands / silhouette
+- no text / logo / watermark
+- no medical / brain / diagnosis icons
+- no charts / metrics / barcode / airport
+- no neon game clutter
+
+AUDIO (ambient only)
+--------------------
+Deep low room tone + subtle airy pad.
+Satu soft crystalline shimmer saat bloom brightens.
+No vocals, no speech, no drums, no beat drop.
+
+===== COPY PROMPT DI BAWAH INI =====
+
+Cinematic ambient abstract video, 15 seconds, 16:9, 720p. Near-black void canvas #090909. Soft radial violet light bloom #AF50FF at upper-left gently breathes and pulses once, slow volumetric haze, delicate dust motes floating, faint lavender rim glow, shallow depth of field, premium quiet midnight observatory mood. Camera almost still with tiny push-in. Seamless loop-friendly ending. No people, no faces, no text, no logos, no symbols, no medical icons. Soft ambient soundscape: deep low room tone, subtle airy pad, single soft crystalline shimmer when the bloom brightens, no vocals, no speech, no drums, calm intimate night atmosphere.

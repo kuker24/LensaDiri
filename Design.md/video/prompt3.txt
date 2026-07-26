@@ -1,0 +1,38 @@
+LensaDiri — Hero ambient PROMPT 3 / 3
+========================================
+Nama file hasil : hero-03-glass.mp4
+Lokasi drop     : Design.md/video/assets/
+Mood            : Glass refraction drift (pita cahaya + reverse)
+
+SPEC OUTPUT
+-----------
+Resolusi : 720p (1280 x 720)
+Durasi   : 15 detik
+Rasio    : 16:9
+Audio    : YA (ambient only)
+Format   : MP4 H.264
+
+WARNA LOCK
+----------
+Void  : #090909 (near-black)
+Bloom : #AF50FF (violet)
+Rim   : lavender soft (opsional sangat tipis)
+
+LARANGAN (wajib)
+----------------
+- no people / faces / hands / silhouette
+- no text / logo / watermark
+- no medical / brain / diagnosis icons
+- no charts / metrics / barcode / airport
+- no neon game clutter
+
+AUDIO (ambient only)
+--------------------
+Warm low hum.
+Soft reverse-like air whoosh (sangat subtle).
+Satu distant soft chime mid-clip.
+No vocals, no speech, no aggressive bass.
+
+===== COPY PROMPT DI BAWAH INI =====
+
+Cinematic ambient abstract video, 15 seconds, 16:9, 720p. Dark void #090909, soft violet bloom #AF50FF, subtle glass-like refraction streaks and anamorphic light ribbons drifting slowly across frame, quiet night instrument atmosphere, premium editorial dark, almost still with slow reverse drift so composition can loop back toward Prompt 1. No people, no faces, no text, no logos, no symbols, no airport motifs, no neon overload. Soft ambient soundscape: warm low hum, soft reverse-like air whoosh very subtle, single distant soft chime mid-clip, no vocals, no speech, no aggressive bass, intimate and precise.
