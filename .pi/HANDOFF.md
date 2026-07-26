@@ -21,19 +21,19 @@ Clinical / psychometric / WCAG cert: **never claim.**
 
 ## Release pin
 
-| Field         | Value                                             |
-| ------------- | ------------------------------------------------- |
-| SHA           | `c535a6bd04140d079bf2f34289f0be5031637830`        |
-| Short         | `c535a6b`                                         |
-| Tag           | `v1.0.0-hobby-final`                              |
-| URL           | https://lensadiri.vercel.app                      |
-| Migrations    | Local==Remote through `202607290001`              |
-| Flags         | Composer | Complex | provisional precision **ON** |
-| AI            | **OFF**                                           |
-| Recovery      | Code live; Resend delivery **dormant**            |
-| Modules       | 10 selectable; 6 guardedBeta; items draft         |
-| Combos        | 5 public; `deep_self_discovery` pilot             |
-| Full Spectrum | **draft** (DECIDED multi-session; #42 closed)     |
+| Field         | Value                                         |
+| ------------- | --------------------------------------------- |
+| SHA           | `c535a6bd04140d079bf2f34289f0be5031637830`    |
+| Short         | `c535a6b`                                     |
+| Tag           | `v1.0.0-hobby-final`                          |
+| URL           | https://lensadiri.vercel.app                  |
+| Migrations    | Local==Remote through `202607290001`          |
+| Flags         | Composer                                      | Complex | provisional precision **ON** |
+| AI            | **OFF**                                       |
+| Recovery      | Code live; Resend delivery **dormant**        |
+| Modules       | 10 selectable; 6 guardedBeta; items draft     |
+| Combos        | 5 public; `deep_self_discovery` pilot         |
+| Full Spectrum | **draft** (DECIDED multi-session; #42 closed) |
 
 ## In scope (only - reactive maintenance)
 

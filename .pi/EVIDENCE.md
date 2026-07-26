@@ -18,7 +18,7 @@
 | Standing watch                 | **CLOSED**                                 |
 | `GET /api/health`              | `200` `{"status":"ok"}`                    |
 | `npm audit --audit-level=high` | **0**                                      |
-| Tree                           | clean | = origin/main at tag               |
+| Tree                           | clean                                      | = origin/main at tag |
 | Smoke readonly                 | PASS                                       |
 | Modes                          | quick/standard/deep selectable             |
 | Modules                        | 10                                         |
@@ -27,7 +27,7 @@
 | AI                             | **OFF**                                    |
 | Resend production secrets      | absent (delivery dormant)                  |
 | Open residual                  | #40 #41 #43 #44 external/optional only     |
-| Closed residual                | #42 DECIDED | #45 DEFERRED_OFF             |
+| Closed residual                | #42 DECIDED                                | #45 DEFERRED_OFF     |
 
 ## Verdict (binding)
 
