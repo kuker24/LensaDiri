@@ -1,56 +1,64 @@
-# Project Handoff (final — hobby modular engineering)
+# Project Handoff — maintenance mode
 
-> Release tag `v0.9.0-hobby-modular` · `main` @ `bdeeec5` · 2026-07-26.
+> Tag `v0.9.0-hobby-modular` · `main` @ `1e59de4` · 2026-07-26.
 
-## Verdict
+## Mode: MAINTENANCE
 
-| Lens                                        | Status                                    |
-| ------------------------------------------- | ----------------------------------------- |
-| **Hobby modular engineering release-ready** | **100% YES** — shippable production hobby |
-| **Full PRD v2.0 product completion**        | **NO** (~72% weighted)                    |
-| Clinical / psychometric / WCAG cert         | **NO** — never claimed                    |
+Engineering hobby modular lens is **done**. Do **not** add large product features.
 
-Full product still depends on: live email (#40), human item review (#41), Full Spectrum product path (#42), psychometrics (#43), manual a11y/WCAG (#44), AI narrative (#45).
+| Lens                                | Status                           |
+| ----------------------------------- | -------------------------------- |
+| Hobby modular engineering           | **100% closed**                  |
+| Full PRD product                    | **~72%** — residual #40–#45 only |
+| Clinical / psychometric / WCAG cert | **Never claim**                  |
 
-## Verified green (closure)
+## In scope (maintenance only)
 
-| Check                | Result                                     |
-| -------------------- | ------------------------------------------ |
-| `git` tree           | clean; `main` == `origin/main` @ `bdeeec5` |
-| CI on `bdeeec5`      | Quality + Database/browser **success**     |
-| Vercel               | Production deploy success                  |
-| `GET /api/health`    | `200` `{"status":"ok"}`                    |
-| `/api/modules`       | 10 modules; quick/standard/deep selectable |
-| `/api/combos`        | 5 presets; deep pilot; no full_spectrum    |
-| Migrations linked    | Local==Remote through `202607290001`       |
-| Open residual issues | **#40–#45** only                           |
-| Stale eng epics      | none (#2/#4/#5 closed)                     |
+| Work                        | Notes                                      |
+| --------------------------- | ------------------------------------------ |
+| Security patches            | Fail-closed; no secret leakage             |
+| Dependency updates          | Prefer pin + `npm audit`; small PR         |
+| Monitoring / health         | Liveness, structured ops events            |
+| Retention cron              | Observe provider; fix-forward only         |
+| Regression tests            | Unit / integration / e2e / pgTAP as needed |
+| Backup/restore readiness    | Disposable drill; no prod reset            |
+| Residual issues **#40–#45** | Operator/human/product/external only       |
 
-## Production flags
+## Out of scope
 
-Composer **ON** · Complex **ON** · Provisional precision **ON** · AI **OFF** · Recovery delivery **dormant** · mandatory email verify **OFF**.
+- New modules, scoring engines, major UI redesign, AI ON without #45 prerequisites
+- Fake formal item `approved`, Full Spectrum publish over cap, clinical/WCAG claims
+- Production DB reset or reverse migrations
 
-## Operator docs
+## Change rules
 
-| Doc                                        | Role                           |
-| ------------------------------------------ | ------------------------------ |
-| `CHANGELOG.md`                             | Release notes for this tag     |
-| `docs/deployment/RELEASE_ROLLBACK.md`      | Flag + deploy + email rollback |
-| `docs/deployment/RELEASE_CLOSURE_GATES.md` | Gate matrix + residual split   |
-| `.pi/EVIDENCE.md`                          | Activation + audit evidence    |
-| `docs/operations/OPERATIONS_RUNBOOK.md`    | Day-2 ops + checklist          |
+1. **Small PR** — one concern; squash merge
+2. **CI green** — format, lint, typecheck, unit, build, audit; DB/e2e when touch path needs it
+3. **Rollback clear** — flag CAS / prior Vercel deploy / env remove (see `RELEASE_ROLLBACK.md`)
+4. **No secrets** in chat, git, or issues
+5. **Honest language** — reflective tool, not diagnosis
 
-## Do not
+## Production posture (stable)
 
-- Claim 100% full product, clinical accuracy, validated psychometrics, or WCAG certification
-- Paste secrets; enable AI without consent/provider; publish full_spectrum over cap; fake item `approved`
-- Reset production DB or reverse migrations
+Composer **ON** · Complex **ON** · Provisional precision **ON** · AI **OFF**
+Recovery delivery **dormant** · mandatory email verify **OFF**
+Migrations through `202607290001` · URL `https://lensadiri.vercel.app`
 
-## Next work (issue-backed only)
+## Residual backlog (only)
 
-1. **#40** operator Resend Preview→prod (secrets outside chat)
-2. **#41** human formal review six modules
-3. **#42** product decision Full Spectrum
-4. **#43–#45** external / deferred programs
+| #   | Class          | Topic                                 |
+| --- | -------------- | ------------------------------------- |
+| 40  | operator       | Resend Preview→prod + optional verify |
+| 41  | human          | Formal review 6 guarded modules       |
+| 42  | product        | Full Spectrum redesign/decision       |
+| 43  | external       | Psychometrics program                 |
+| 44  | human/external | Manual a11y / WCAG cert               |
+| 45  | deferred       | AI narrative                          |
 
-Engineering hobby modular lens is **closed**. Residual is external/product/human.
+## Day-2 ops pointers
+
+- Runbook: `docs/operations/OPERATIONS_RUNBOOK.md`
+- Rollback: `docs/deployment/RELEASE_ROLLBACK.md`
+- Gates: `docs/deployment/RELEASE_CLOSURE_GATES.md`
+- Backup: `docs/operations/BACKUP_RESTORE_RUNBOOK.md`
+- Changelog: `CHANGELOG.md`

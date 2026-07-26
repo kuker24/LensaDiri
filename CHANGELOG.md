@@ -4,11 +4,16 @@ All notable releases of LensaDiri. Dates are UTC calendar days of the release ta
 
 Honest scope: entries mark **engineering / product** posture. Nothing here claims clinical diagnosis, psychometric validation, or third-party WCAG certification.
 
+## Unreleased (maintenance)
+
+Post-`v0.9.0-hobby-modular` only: security patches, deps, monitoring, retention, health, regression tests, backup readiness, residual #40–#45. No large features. Small PR + CI green + rollback.
+
 ## [v0.9.0-hobby-modular] — 2026-07-26
 
-**Tag:** `v0.9.0-hobby-modular` @ `bdeeec5`
+**Tag:** `v0.9.0-hobby-modular` @ `1e59de4` (docs closure; eng baseline from prior merges)
 **URL:** https://lensadiri.vercel.app
 **Lens:** Hobby modular **engineering** release-ready (**100% of that lens**). Full PRD product completion still open (~72% weighted). **Not** full-product 100%.
+**Mode after tag:** **MAINTENANCE**.
 
 ### Production posture
 
