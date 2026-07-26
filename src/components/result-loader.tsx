@@ -3,6 +3,7 @@
 import { useEffect, useState, type ReactNode } from "react";
 
 import { ResultReport } from "@/components/result-report";
+import { RecoveryPanel } from "@/components/recovery-panel";
 import { SharedResultReport } from "@/components/shared-result-report";
 import { getPrivateResult, getSharedResult } from "@/lib/assessment/client";
 import type { PrivateResultView } from "@/server/repositories/assessment";
@@ -28,16 +29,13 @@ function PrivateResultLoader({ children, token }: { children?: ReactNode; token:
 
   if (failed)
     return (
-      <div
-        className="border-danger/30 bg-danger-soft mx-auto my-10 max-w-xl rounded-[1.2rem] border p-8 text-center"
-        role="alert"
-      >
-        <p className="text-danger text-sm font-semibold">Hasil pribadi</p>
-        <h1 className="mt-3 text-2xl font-medium tracking-[-0.025em]">Hasil tidak ditemukan</h1>
-        <p className="text-ink-muted mt-3 leading-7">
-          Hasil mungkin sudah dihapus atau tautannya tidak valid.
-        </p>
-      </div>
+      <RecoveryPanel
+        description="Hasil mungkin sudah dihapus atau tautannya tidak valid."
+        eyebrow="Hasil pribadi"
+        safeHref="/start"
+        safeLabel="Mulai eksplorasi baru"
+        title="Hasil tidak ditemukan"
+      />
     );
   if (!result)
     return (
@@ -47,9 +45,9 @@ function PrivateResultLoader({ children, token }: { children?: ReactNode; token:
       >
         <span
           aria-hidden="true"
-          className="bg-lens-soft mx-auto block h-1.5 w-24 overflow-hidden rounded-full"
+          className="bg-lens-soft mx-auto block h-1.5 w-24 overflow-hidden rounded-sm"
         >
-          <span className="bg-lens block h-full w-1/2 rounded-full" />
+          <span className="bg-lens block h-full w-1/2 rounded-sm" />
         </span>
         <h1 className="mt-5 text-2xl font-medium tracking-[-0.025em]">Memuat hasil pribadi</h1>
         <p className="text-ink-muted mt-3 leading-7">Menyiapkan ringkasan reflektifmu…</p>
@@ -83,16 +81,11 @@ function SharedResultLoader({ token }: { token: string }) {
 
   if (failed)
     return (
-      <div
-        className="border-danger/30 bg-danger-soft mx-auto my-10 max-w-xl rounded-[1.2rem] border p-8 text-center"
-        role="alert"
-      >
-        <p className="text-danger text-sm font-semibold">Link berbagi</p>
-        <h1 className="mt-3 text-2xl font-medium tracking-[-0.025em]">Hasil tidak ditemukan</h1>
-        <p className="text-ink-muted mt-3 leading-7">
-          Tautan mungkin kedaluwarsa, sudah dicabut, atau tidak valid.
-        </p>
-      </div>
+      <RecoveryPanel
+        description="Tautan mungkin kedaluwarsa, sudah dicabut, atau tidak valid."
+        eyebrow="Tautan berbagi"
+        title="Hasil tidak ditemukan"
+      />
     );
   if (!result)
     return (
@@ -102,15 +95,15 @@ function SharedResultLoader({ token }: { token: string }) {
       >
         <span
           aria-hidden="true"
-          className="bg-lens-soft mx-auto block h-1.5 w-24 overflow-hidden rounded-full"
+          className="bg-lens-soft mx-auto block h-1.5 w-24 overflow-hidden rounded-sm"
         >
-          <span className="bg-lens block h-full w-1/2 rounded-full" />
+          <span className="bg-lens block h-full w-1/2 rounded-sm" />
         </span>
         <h1 className="mt-5 text-2xl font-medium tracking-[-0.025em]">
           Memuat hasil yang dibagikan
         </h1>
         <p className="text-ink-muted mt-3 leading-7">
-          Menyiapkan tampilan aman tanpa diagnostik pribadi…
+          Menyiapkan tampilan tanpa detail pemeriksaan kualitas yang bersifat pribadi…
         </p>
       </div>
     );

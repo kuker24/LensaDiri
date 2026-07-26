@@ -1,8 +1,7 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono, Lora } from "next/font/google";
+import { Inter, JetBrains_Mono } from "next/font/google";
 import type { ReactNode } from "react";
-import { SiteFooter } from "@/components/site-footer";
-import { SiteHeader } from "@/components/site-header";
+import { AppShell } from "@/components/app-shell";
 import { ToastProvider } from "@/components/ui/toast";
 import { siteConfig } from "@/lib/site";
 import "./globals.css";
@@ -11,13 +10,6 @@ const inter = Inter({
   subsets: ["latin"],
   variable: "--font-inter",
   display: "swap",
-});
-
-const lora = Lora({
-  subsets: ["latin"],
-  variable: "--font-lora",
-  display: "swap",
-  style: ["normal", "italic"],
 });
 
 const jetBrainsMono = JetBrains_Mono({
@@ -58,7 +50,7 @@ export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
   colorScheme: "dark",
-  themeColor: "#090909",
+  themeColor: "#000000",
 };
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
@@ -66,7 +58,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
     <html
       data-scroll-behavior="smooth"
       lang="id"
-      className={`${inter.variable} ${lora.variable} ${jetBrainsMono.variable}`}
+      className={`${inter.variable} ${jetBrainsMono.variable}`}
     >
       <body>
         <a
@@ -76,9 +68,7 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
           Lewati ke konten utama
         </a>
         <ToastProvider>
-          <SiteHeader />
-          <main id="konten-utama">{children}</main>
-          <SiteFooter />
+          <AppShell>{children}</AppShell>
         </ToastProvider>
       </body>
     </html>

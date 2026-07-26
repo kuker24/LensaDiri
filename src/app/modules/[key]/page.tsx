@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import { getPublicModeName, isPubliclyAvailableModule } from "@/lib/assessment/catalog";
 import { getCatalogModuleByKeyFromCache } from "@/server/repositories/catalog-cache";
 import { Badge } from "@/components/ui/badge";
+import { getButtonClassName } from "@/components/ui/button";
 
 export const dynamic = "force-dynamic";
 
@@ -28,7 +29,7 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
       </Link>
       <article className="mt-8 max-w-4xl">
         <div className="flex flex-wrap gap-3 text-sm">
-          <Badge tone="lens">Evidence {catalogModule.evidenceTier.replace("_", " ")}</Badge>
+          <Badge tone="lens">Tingkat bukti {catalogModule.evidenceTier.replace("_", " ")}</Badge>
           <Badge
             tone={
               catalogModule.status === "experimental"
@@ -43,7 +44,7 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
                 ? "Eksperimental"
                 : catalogModule.status === "pilot"
                   ? "Beta terbatas"
-                  : "Release-ready"
+                  : "Siap dirilis"
               : catalogModule.releaseDisposition?.replaceAll("_", " ")}
           </Badge>
           <Badge tone="neutral">Usia minimum {catalogModule.minimumAge}</Badge>
@@ -55,7 +56,7 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
 
         <section className="mt-8" aria-labelledby="depth-heading">
           <h2 className="text-2xl font-semibold" id="depth-heading">
-            Coverage per mode
+            Cakupan per kedalaman
           </h2>
           <dl className="border-line mt-5 grid border-y sm:grid-cols-3">
             {modes.map((mode) => (
@@ -65,7 +66,7 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
               >
                 <dt className="font-semibold">{mode.label}</dt>
                 <dd className="text-ink-muted mt-1 text-sm tabular-nums">
-                  Target alokasi {mode.count} item
+                  Target {mode.count} pertanyaan
                 </dd>
               </div>
             ))}
@@ -87,7 +88,7 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
 
         {available ? (
           <Link
-            className="focus-ring pressable bg-lens text-canvas mt-8 inline-flex min-h-12 items-center rounded-md px-5 font-semibold transition-[background-color,transform] duration-150 ease-out hover:bg-[#bd70ff] active:scale-[0.98]"
+            className={`${getButtonClassName("primary", "md")} mt-8`}
             href={`/start/modules?module=${encodeURIComponent(catalogModule.key)}`}
           >
             Pilih modul ini

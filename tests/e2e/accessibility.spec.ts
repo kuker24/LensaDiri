@@ -142,10 +142,10 @@ test("glow preserves explicit hero and product surface backgrounds", async ({ pa
   }
 
   await page.goto("/");
-  expect(await backgroundPixel(".lens-glow")).toEqual([17, 17, 19, 179]);
+  expect(await backgroundPixel(".lens-glow")).toEqual([17, 17, 17, 179]);
 
   await page.goto("/start/modules");
-  expect(await backgroundPixel("aside.lens-glow")).toEqual([17, 17, 19, 255]);
+  expect(await backgroundPixel("aside.lens-glow")).toEqual([17, 17, 17, 255]);
 });
 
 test("result loading and failure states keep a single page heading", async ({ page }) => {

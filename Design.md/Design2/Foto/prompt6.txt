@@ -1,0 +1,31 @@
+LensaDiri Design2 — Foto PROMPT 6 / 7
+======================================
+Nama file hasil : og-share-world.jpg
+Lokasi drop     : Design.md/Design2/Foto/assets/
+Mood            : Wide portal world — social / Open Graph
+Role web        : og:image optional (leave center-safe; no baked text)
+
+SPEC OUTPUT
+-----------
+Resolusi : 1200 x 630
+Rasio    : ~1.91:1
+Format   : JPG
+Style    : 3D painted-rendered game diorama wide
+
+WARNA LOCK
+----------
+Void edge : #000000
+Dominant  : emerald island OR ice chamber (match hero-01 if possible)
+Accent    : thin atmospheric light only
+
+LARANGAN (wajib)
+----------------
+- no people / faces / hands / silhouette / characters
+- no text / logo / watermark / UI / HUD (OG text is added by site meta, not baked)
+- no medical / brain / diagnosis icons
+- no charts / metrics / barcode / airport
+- no neon casino / rainbow AI slop
+
+===== COPY PROMPT DI BAWAH INI =====
+
+Still image, ultra high detail cinematic 3D game-world diorama, 1200x630 wide social share frame. Emerald floating island in pure black void, lush teal mist, soft gold distant clouds, premium painted-rendered game art, strong center subject for cropping on social platforms. No people, no faces, no characters, no text, no logos, no watermark, no HUD, no medical icons, no neon casino, no rainbow gradients. Wide cinematic composition with subject centered.

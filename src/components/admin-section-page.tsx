@@ -11,11 +11,11 @@ export function AdminSectionPage({
   title,
   description,
   items = [],
-  footnote = "Read-only. Mutasi admin dinonaktifkan sampai authorization, CSRF, rate limit, dan audit mutation lengkap.",
+  footnote = "Hanya-baca. Penambahan dan perubahan data dinonaktifkan.",
 }: AdminSectionPageProps) {
   return (
-    <main className="container-shell py-12">
-      <nav aria-label="Breadcrumb" className="text-ink-muted mb-6 text-sm">
+    <div className="container-shell py-12">
+      <nav aria-label="Jejak navigasi" className="text-ink-muted mb-6 text-sm">
         <Link className="hover:text-ink underline" href="/admin">
           Admin
         </Link>
@@ -23,18 +23,9 @@ export function AdminSectionPage({
         <span>{title}</span>
       </nav>
 
-      <div className="flex flex-wrap items-end justify-between gap-4">
-        <div>
-          <h1 className="font-display text-3xl font-semibold">{title}</h1>
-          <p className="text-ink-muted mt-2 max-w-2xl leading-7">{description}</p>
-        </div>
-        <button
-          className="bg-lens text-on-lens min-h-11 rounded-md px-4 py-2 text-sm font-semibold disabled:opacity-50"
-          disabled
-          type="button"
-        >
-          Tambah Baru
-        </button>
+      <div>
+        <h1 className="font-display text-3xl font-semibold">{title}</h1>
+        <p className="text-ink-muted mt-2 max-w-2xl leading-7">{description}</p>
       </div>
 
       <section className="border-line bg-surface mt-8 overflow-hidden rounded-lg border">
@@ -60,6 +51,6 @@ export function AdminSectionPage({
         )}
         <p className="text-ink-muted border-line border-t px-5 py-3 text-xs">{footnote}</p>
       </section>
-    </main>
+    </div>
   );
 }

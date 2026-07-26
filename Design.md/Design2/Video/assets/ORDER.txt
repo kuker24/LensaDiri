@@ -1,0 +1,6 @@
+# Rename mapping (by mtime ascending after batch generate)
+# 1st file → hero-01-island-bloom.mp4
+# 2nd file → hero-02-ice-chamber.mp4
+# 3rd file → hero-03-dune-glass.mp4
+# 4th file → section-01-lens-field.mp4
+# 5th file → section-02-mirror-garden.mp4

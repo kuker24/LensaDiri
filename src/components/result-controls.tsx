@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { postAuthenticatedMutation } from "@/lib/auth/client";
-import { Button } from "@/components/ui/button";
+import { Button, getButtonClassName } from "@/components/ui/button";
 
 export function ResultControls({ token }: { token: string }) {
   const router = useRouter();
@@ -35,14 +35,14 @@ export function ResultControls({ token }: { token: string }) {
       const url = `${window.location.origin}/shared/${data.shareToken}`;
       setShareUrl(url);
       await navigator.clipboard?.writeText(url).catch(() => undefined);
-      setMessage("Link berbagi dibuat dan disalin jika browser mengizinkan.");
+      setMessage("Tautan berbagi dibuat dan disalin jika browser mengizinkan.");
     }
   }
   async function revoke() {
     const data = await mutate("/api/result/revoke");
     if (data) {
       setShareUrl(null);
-      setMessage(data.revoked ? "Semua link aktif dicabut." : "Tidak ada link aktif.");
+      setMessage(data.revoked ? "Semua tautan aktif dicabut." : "Tidak ada tautan aktif.");
     }
   }
   async function remove() {
@@ -56,34 +56,32 @@ export function ResultControls({ token }: { token: string }) {
 
   return (
     <section
-      className="border-line bg-surface mt-10 rounded-[1.2rem] border p-6"
+      className="border-line bg-surface mt-10 rounded-lg border p-6"
       aria-labelledby="result-controls-title"
     >
       <h2 className="text-xl font-medium tracking-[-0.02em]" id="result-controls-title">
         Kontrol hasil
       </h2>
       <p className="text-ink-muted mt-2 leading-7">
-        Hasil private sampai kamu membuat link. Export tidak memuat jawaban mentah atau ID internal.
-        Tes ulang memulai sesi baru tanpa menghapus hasil ini.
+        Hasil tetap privat sampai kamu membuat tautan berbagi. Berkas ekspor tidak memuat jawaban
+        mentah atau identitas teknis internal. Tes ulang memulai sesi baru tanpa menghapus hasil
+        ini.
       </p>
       <div className="mt-5 flex flex-wrap gap-3">
         <Button disabled={pending} onClick={share} type="button">
-          Buat link berbagi
+          Buat tautan berbagi
         </Button>
         <Button disabled={pending} onClick={revoke} type="button" variant="secondary">
-          Cabut semua link
+          Cabut semua tautan
         </Button>
         <a
-          className="focus-ring border-line bg-surface text-ink hover:bg-surface-raised inline-flex items-center rounded-md border px-4 py-3 font-semibold transition-colors duration-150 ease-out"
+          className={getButtonClassName("secondary", "sm")}
           download
           href={`/api/result/export/${encodeURIComponent(token)}`}
         >
-          Export JSON
+          Unduh data (JSON)
         </a>
-        <a
-          className="focus-ring border-line bg-surface text-ink hover:bg-surface-raised inline-flex items-center rounded-md border px-4 py-3 font-semibold transition-colors duration-150 ease-out"
-          href="/start"
-        >
+        <a className={getButtonClassName("secondary", "sm")} href="/start">
           Tes ulang
         </a>
         <button

@@ -121,6 +121,19 @@ beforeEach(() => {
 afterEach(cleanup);
 
 describe("ModularStartForm", () => {
+  test("menawarkan retry saat katalog gagal dimuat", async () => {
+    mocks.getCatalog.mockRejectedValueOnce(new Error("service_unavailable"));
+    render(<ModularStartForm />);
+
+    expect(
+      await screen.findByRole("heading", { name: "Pilihan lensa belum dapat dimuat" }),
+    ).toBeVisible();
+    fireEvent.click(screen.getByRole("button", { name: "Coba lagi" }));
+
+    expect(await screen.findByRole("checkbox", { name: /Profil Trait/u })).toBeChecked();
+    expect(mocks.getCatalog).toHaveBeenCalledTimes(2);
+  });
+
   test("memilih initial module yang valid", async () => {
     mocks.estimate.mockReturnValue(new Promise(() => undefined));
     render(<ModularStartForm initialModuleKey="type_16" />);
@@ -150,10 +163,10 @@ describe("ModularStartForm", () => {
     await waitFor(() => expect(mocks.estimate).toHaveBeenCalledTimes(2));
 
     await act(async () => oldRequest.resolve(estimate(30)));
-    expect(screen.queryByText(/30 item/u)).not.toBeInTheDocument();
+    expect(screen.queryByText(/30 pertanyaan/u)).not.toBeInTheDocument();
 
     await act(async () => newRequest.resolve(estimate(80)));
-    expect(screen.getByText(/80 item/u)).toBeInTheDocument();
+    expect(screen.getByText(/80 pertanyaan/u)).toBeInTheDocument();
   });
 
   test("mengabaikan reject estimate selection lama", async () => {
@@ -168,7 +181,7 @@ describe("ModularStartForm", () => {
     await act(async () => newRequest.resolve(estimate(80)));
     await act(async () => oldRequest.reject(new Error("request_failed")));
 
-    expect(screen.getByText(/80 item/u)).toBeInTheDocument();
+    expect(screen.getByText(/80 pertanyaan/u)).toBeInTheDocument();
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
@@ -176,10 +189,10 @@ describe("ModularStartForm", () => {
     mocks.estimate.mockResolvedValue(estimate(45));
     render(<ModularStartForm />);
 
-    expect(await screen.findByText(/45 item/u)).toBeInTheDocument();
+    expect(await screen.findByText(/45 pertanyaan/u)).toBeInTheDocument();
     fireEvent.click(screen.getByRole("checkbox", { name: /Profil Trait/u }));
 
-    expect(screen.queryByText(/45 item/u)).not.toBeInTheDocument();
+    expect(screen.queryByText(/45 pertanyaan/u)).not.toBeInTheDocument();
     expect(screen.getByText("Pilih lensa untuk melihat estimasi.")).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Tinjau pilihan" })).toBeDisabled();
   });

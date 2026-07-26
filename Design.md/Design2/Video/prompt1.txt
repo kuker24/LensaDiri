@@ -1,0 +1,39 @@
+LensaDiri Design2 — Video PROMPT 1 / 5
+========================================
+Nama file hasil : hero-01-island-bloom.mp4
+Lokasi drop     : Design.md/Design2/Video/assets/
+Mood            : Emerald island diorama — slow push-in (hero loop utama)
+Role web        : Full-bleed hero ambient
+
+SPEC OUTPUT
+-----------
+Resolusi : 720p (1280 x 720)
+Durasi   : 15 detik
+Rasio    : 16:9
+Audio    : YA (ambient only)
+Format   : MP4 H.264
+
+WARNA LOCK
+----------
+Void edge : #000000 (frame edges may fall to pure black)
+Dominant  : emerald / teal mist mid-tones
+Accent    : soft warm cloud gold (very thin, not rainbow)
+No        : neon pink/cyan casino, violet UI brand flood, rainbow gradients
+
+LARANGAN (wajib)
+----------------
+- no people / faces / hands / silhouette / characters / mecha pilots
+- no text / logo / watermark / UI chrome / HUD
+- no medical / brain / diagnosis icons
+- no charts / metrics / barcode / airport
+- no neon game clutter / slot-machine lights / rainbow AI slop
+
+AUDIO (ambient only)
+--------------------
+Deep humid air + distant soft wind over water.
+Low organic pad, one soft bird-distant shimmer mid-clip (very low).
+No vocals, no speech, no drums, no beat drop.
+
+===== COPY PROMPT DI BAWAH INI =====
+
+Cinematic full-bleed 3D game-world diorama video, 15 seconds, 16:9, 720p. Massive emerald island floating in a dark void, lush green cliffs and misty teal waterfalls, soft volumetric fog, deep atmospheric depth, painted-rendered AAA game art style like a premium web3 portal hero, not a UI mockup. Camera almost still with a tiny slow push-in toward the island center. Single color family: emerald and teal mid-tones only, soft warm gold in distant clouds, pure black void at the edges. Seamless loop-friendly ending. No people, no faces, no characters, no text, no logos, no HUD, no medical icons, no neon casino lights, no rainbow gradients. Soft ambient soundscape: humid air, distant wind over water, low organic pad, one soft distant shimmer mid-clip very low in mix, no vocals, no speech, no drums, calm intimate game-gallery mood.

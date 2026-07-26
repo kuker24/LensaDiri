@@ -41,7 +41,7 @@ export default async function AdminIndexPage() {
   ];
 
   return (
-    <main className="container-shell py-12">
+    <div className="container-shell py-12">
       <p className="mono-label text-aperture">Admin · read-only</p>
       <h1 className="mt-3 text-3xl font-normal tracking-[-0.03em]">Panel Admin</h1>
       <p className="text-steel mt-2 mb-2 leading-7">
@@ -64,6 +64,6 @@ export default async function AdminIndexPage() {
           </Link>
         ))}
       </div>
-    </main>
+    </div>
   );
 }

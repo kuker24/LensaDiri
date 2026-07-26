@@ -15,9 +15,9 @@ type AuthFormProps = {
 const errorMessages: Record<string, string> = {
   csrf_invalid: "Sesi formulir kedaluwarsa. Muat ulang halaman lalu coba lagi.",
   email_unverified:
-    "Email belum diverifikasi. Buka tautan di inbox atau minta ulang dari halaman verifikasi.",
-  invalid_body: "Periksa email dan password. Password minimal 12 karakter.",
-  invalid_credentials: "Email atau password tidak cocok.",
+    "Email belum diverifikasi. Buka tautan di kotak masuk atau minta ulang dari halaman verifikasi.",
+  invalid_body: "Periksa email dan kata sandi. Kata sandi minimal 12 karakter.",
+  invalid_credentials: "Email atau kata sandi tidak cocok.",
   rate_limited: "Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi.",
   service_unavailable: "Layanan sedang tidak tersedia. Coba lagi nanti.",
 };
@@ -87,7 +87,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         />
       </div>
       <div>
-        <Label htmlFor={`${mode}-password`}>Password</Label>
+        <Label htmlFor={`${mode}-password`}>Kata sandi</Label>
         <Input
           aria-describedby={`${mode}-password-help`}
           autoComplete={isLogin ? "current-password" : "new-password"}

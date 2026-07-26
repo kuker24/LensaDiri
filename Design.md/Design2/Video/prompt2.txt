@@ -1,0 +1,39 @@
+LensaDiri Design2 — Video PROMPT 2 / 5
+========================================
+Nama file hasil : hero-02-ice-chamber.mp4
+Lokasi drop     : Design.md/Design2/Video/assets/
+Mood            : Ice fortress chamber — slow horizontal pan
+Role web        : Alt hero / film-strip section 2
+
+SPEC OUTPUT
+-----------
+Resolusi : 720p (1280 x 720)
+Durasi   : 15 detik
+Rasio    : 16:9
+Audio    : YA (ambient only)
+Format   : MP4 H.264
+
+WARNA LOCK
+----------
+Void edge : #000000
+Dominant  : ice blue / deep indigo
+Accent    : cold white specular on ice only
+No        : warm rainbow, neon cyan overload, purple brand flood
+
+LARANGAN (wajib)
+----------------
+- no people / faces / hands / silhouette / characters
+- no text / logo / watermark / UI chrome / HUD
+- no medical / brain / diagnosis icons
+- no charts / metrics / barcode / airport
+- no neon game clutter / slot lights / rainbow AI slop
+
+AUDIO (ambient only)
+--------------------
+Cold room tone + sparse ice-crystal soft ticks very low.
+Quiet evolving indigo drone.
+No vocals, no speech, no beat drop.
+
+===== COPY PROMPT DI BAWAH INI =====
+
+Cinematic full-bleed 3D game-world diorama video, 15 seconds, 16:9, 720p. Icy fortress chamber and frozen architecture hanging in pure black void, crystalline ice walls, soft god-rays of cold blue light, deep indigo shadows, high-detail painted-rendered game art, museum-gallery presentation of a single world object. Slow gentle horizontal pan left to right only, no hard cuts. Single color family: ice blue and deep indigo mid-tones, cold white specular highlights on ice only, black void framing. Loop-friendly calm ending. No people, no faces, no characters, no text, no logos, no HUD, no medical icons, no neon casino, no rainbow gradients. Soft ambient soundscape: cold room tone, sparse ice-crystal soft ticks very low, quiet evolving drone, no vocals, no speech, no beat drop, precise and private mood.

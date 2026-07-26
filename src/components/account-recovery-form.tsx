@@ -4,7 +4,7 @@ import Link from "next/link";
 import { type FormEvent, useEffect, useState } from "react";
 
 import { AuthApiError, postAuthenticatedMutation } from "@/lib/auth/client";
-import { Button } from "@/components/ui/button";
+import { Button, getButtonClassName } from "@/components/ui/button";
 import { Input, Label } from "@/components/ui/input";
 
 type RecoveryMode = "forgot" | "request-verification" | "reset" | "verify";
@@ -12,9 +12,9 @@ type RecoveryMode = "forgot" | "request-verification" | "reset" | "verify";
 const config = {
   forgot: {
     action: "/api/auth/forgot-password",
-    button: "Kirim instruksi reset",
+    button: "Kirim instruksi pengaturan ulang",
     field: "email",
-    success: "Jika akun aktif tersedia, instruksi reset sudah disiapkan.",
+    success: "Jika akun aktif tersedia, instruksi pengaturan ulang sudah disiapkan.",
   },
   "request-verification": {
     action: "/api/auth/request-verification",
@@ -24,9 +24,9 @@ const config = {
   },
   reset: {
     action: "/api/auth/reset-password",
-    button: "Simpan password baru",
+    button: "Simpan kata sandi baru",
     field: "token",
-    success: "Password diperbarui. Semua session lama sudah dicabut.",
+    success: "Kata sandi diperbarui. Semua sesi masuk lama sudah dinonaktifkan.",
   },
   verify: {
     action: "/api/auth/verify-email",
@@ -91,7 +91,7 @@ export function AccountRecoveryForm({ mode, token = "" }: { mode: RecoveryMode; 
       const code = caught instanceof AuthApiError ? caught.code : "service_unavailable";
       setError(
         code === "invalid_token"
-          ? "Link tidak valid, kedaluwarsa, atau sudah digunakan."
+          ? "Tautan tidak valid, kedaluwarsa, atau sudah digunakan."
           : code === "rate_limited"
             ? "Terlalu banyak percobaan. Tunggu sebelum mencoba lagi."
             : code === "invalid_body"
@@ -107,11 +107,8 @@ export function AccountRecoveryForm({ mode, token = "" }: { mode: RecoveryMode; 
     return (
       <div className="border-success/30 bg-success-soft rounded-lg border p-6" role="status">
         <p className="text-success font-medium">{selected.success}</p>
-        <Link
-          className="focus-ring pressable bg-lens text-canvas mt-5 inline-flex min-h-12 items-center justify-center rounded-md px-5 py-3 font-semibold transition-[background-color,transform] duration-150 ease-out hover:bg-[#bd70ff] active:scale-[0.98]"
-          href="/login"
-        >
-          Kembali ke login
+        <Link className={`${getButtonClassName("primary", "md")} mt-5`} href="/login">
+          Kembali ke halaman masuk
         </Link>
       </div>
     );
@@ -136,7 +133,7 @@ export function AccountRecoveryForm({ mode, token = "" }: { mode: RecoveryMode; 
       )}
       {mode === "reset" ? (
         <div>
-          <Label htmlFor="recovery-password">Password baru</Label>
+          <Label htmlFor="recovery-password">Kata sandi baru</Label>
           <Input
             autoComplete="new-password"
             id="recovery-password"
@@ -147,7 +144,7 @@ export function AccountRecoveryForm({ mode, token = "" }: { mode: RecoveryMode; 
             type="password"
           />
           <p className="text-ink-muted mt-2 text-sm">
-            Minimal 12 karakter. Semua session lama akan dicabut.
+            Minimal 12 karakter. Semua sesi masuk lama akan dinonaktifkan.
           </p>
         </div>
       ) : null}
@@ -156,7 +153,7 @@ export function AccountRecoveryForm({ mode, token = "" }: { mode: RecoveryMode; 
           className="border-warning/30 bg-warning-soft text-warning rounded-md border p-4"
           role="alert"
         >
-          Link tidak memuat token.
+          Tautan tidak memuat kode akses.
         </p>
       ) : null}
       {error ? (

@@ -1,6 +1,6 @@
 export default function DashboardSettingsPage() {
   return (
-    <main className="container-shell py-12">
+    <div className="container-shell py-12">
       <h1 className="font-display text-3xl font-semibold">Pengaturan Akun</h1>
       <p className="text-ink-muted mt-2 mb-8 leading-7">
         Kelola preferensi akun, notifikasi, dan data pribadimu.
@@ -25,6 +25,6 @@ export default function DashboardSettingsPage() {
           </li>
         </ul>
       </div>
-    </main>
+    </div>
   );
 }

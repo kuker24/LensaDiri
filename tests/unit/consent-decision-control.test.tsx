@@ -56,7 +56,7 @@ describe("ConsentDecisionControl", () => {
     fireEvent.click(screen.getByRole("button", { name: "Tolak atau cabut" }));
     await act(async () => request.reject(new Error("failed")));
 
-    expect(screen.getByRole("alert")).toHaveTextContent("Keputusan consent belum tersimpan.");
+    expect(screen.getByRole("alert")).toHaveTextContent("Keputusan persetujuan belum tersimpan.");
     expect(screen.getByRole("button", { name: "Izinkan" })).toBeEnabled();
     expect(screen.getByRole("button", { name: "Tolak atau cabut" })).toBeEnabled();
   });

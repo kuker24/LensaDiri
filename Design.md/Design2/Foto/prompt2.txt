@@ -1,0 +1,31 @@
+LensaDiri Design2 — Foto PROMPT 2 / 7
+======================================
+Nama file hasil : strip-ice-chamber.jpg
+Lokasi drop     : Design.md/Design2/Foto/assets/
+Mood            : Ice fortress still — full-bleed section
+Role web        : film-strip section background
+
+SPEC OUTPUT
+-----------
+Resolusi : 1920 x 1080
+Rasio    : 16:9
+Format   : JPG or PNG
+Style    : 3D painted-rendered game diorama
+
+WARNA LOCK
+----------
+Void edge : #000000
+Dominant  : ice blue / deep indigo
+Accent    : cold white ice specular only
+
+LARANGAN (wajib)
+----------------
+- no people / faces / hands / silhouette / characters
+- no text / logo / watermark / UI / HUD
+- no medical / brain / diagnosis icons
+- no charts / metrics / barcode / airport
+- no neon casino / rainbow AI slop
+
+===== COPY PROMPT DI BAWAH INI =====
+
+Still image, ultra high detail cinematic 3D game-world diorama, 16:9, 1920x1080. Icy fortress architecture and crystalline ice walls in pure black void, soft cold blue god-rays, deep indigo shadows, museum-gallery presentation of a single world object, premium painted-rendered game art. Single color family ice blue and indigo, cold white specular on ice only. No people, no faces, no characters, no text, no logos, no HUD, no medical icons, no neon, no rainbow. Leave lower-left open for white stacked display type overlay.

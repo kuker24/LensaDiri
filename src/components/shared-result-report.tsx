@@ -52,11 +52,11 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
                 </div>
                 <div
                   aria-label={`${score.label} ${score.normalizedScore} dari 100`}
-                  className="bg-line mt-3 h-1.5 overflow-hidden rounded-full"
+                  className="bg-line mt-3 h-1.5 overflow-hidden rounded-sm"
                   role="img"
                 >
                   <div
-                    className="bg-lens h-full rounded-full"
+                    className="bg-lens h-full rounded-sm"
                     style={{ width: `${score.normalizedScore}%` }}
                   />
                 </div>
@@ -69,7 +69,7 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
             Lensa reflektif yang dibagikan
           </h2>
           <p className="text-ink-muted mt-2 text-sm">
-            Bagian ini dipertahankan hanya untuk kompatibilitas hasil MVP lama.
+            Bagian ini dipertahankan agar hasil lama tetap dapat dibaca.
           </p>
           <div className="mt-5 grid gap-4 md:grid-cols-3">
             {result.overlays.map((overlay) => (
@@ -127,7 +127,7 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
                 {module.name}
               </h2>
               <span className="border-lens/30 bg-lens-soft text-aperture rounded-md border px-3 py-1 text-sm font-semibold">
-                Evidence {module.evidenceTier.replace("_", " ")}
+                Tingkat bukti {module.evidenceTier.replace("_", " ")}
               </span>
             </div>
             <p className="text-ink-muted mt-3">{module.title}</p>
@@ -141,11 +141,11 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
                   </div>
                   <div
                     aria-label={`${score.label} ${score.normalizedScore} dari 100`}
-                    className="bg-line mt-3 h-1.5 overflow-hidden rounded-full"
+                    className="bg-line mt-3 h-1.5 overflow-hidden rounded-sm"
                     role="img"
                   >
                     <div
-                      className="bg-lens h-full rounded-full"
+                      className="bg-lens h-full rounded-sm"
                       style={{ width: `${score.normalizedScore}%` }}
                     />
                   </div>

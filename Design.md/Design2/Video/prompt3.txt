@@ -1,0 +1,39 @@
+LensaDiri Design2 — Video PROMPT 3 / 5
+========================================
+Nama file hasil : hero-03-dune-glass.mp4
+Lokasi drop     : Design.md/Design2/Video/assets/
+Mood            : Warm dune + glass refraction — reverse drift (loop back to #1)
+Role web        : Alt hero / film-strip section 3
+
+SPEC OUTPUT
+-----------
+Resolusi : 720p (1280 x 720)
+Durasi   : 15 detik
+Rasio    : 16:9
+Audio    : YA (ambient only)
+Format   : MP4 H.264
+
+WARNA LOCK
+----------
+Void edge : #000000
+Dominant  : warm bone sand / soft gold
+Accent    : thin glass refraction ribbons (neutral white, not rainbow prism overload)
+No        : neon multicolor, cyberpunk pink, emerald bleed
+
+LARANGAN (wajib)
+----------------
+- no people / faces / hands / silhouette / characters
+- no text / logo / watermark / UI chrome / HUD
+- no medical / brain / diagnosis icons
+- no charts / metrics / barcode / airport
+- no neon game clutter / slot lights / rainbow AI slop
+
+AUDIO (ambient only)
+--------------------
+Warm low desert hum + soft reverse air whoosh very subtle.
+One distant soft chime mid-clip.
+No vocals, no speech, no aggressive bass.
+
+===== COPY PROMPT DI BAWAH INI =====
+
+Cinematic full-bleed 3D game-world diorama video, 15 seconds, 16:9, 720p. Pale warm bone sand dunes and glass-like crystalline structures in a pure black void, soft gold ambient light, subtle anamorphic glass refraction ribbons drifting slowly, premium painted-rendered game art, quiet gallery mood. Camera almost still with slow reverse drift so composition can loop back toward an emerald island feel. Single color family: warm bone and soft gold mid-tones only, thin neutral glass highlights, black void edges. No people, no faces, no characters, no text, no logos, no HUD, no medical icons, no neon casino, no rainbow prism overload. Soft ambient soundscape: warm low desert hum, soft reverse air whoosh very subtle, single distant soft chime mid-clip, no vocals, no speech, no aggressive bass, intimate and precise.

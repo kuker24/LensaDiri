@@ -1,0 +1,31 @@
+LensaDiri Design2 — Foto PROMPT 7 / 7
+======================================
+Nama file hasil : mobile-hero-crop.jpg
+Lokasi drop     : Design.md/Design2/Foto/assets/
+Mood            : Vertical hero world — mobile crop reference
+Role web        : mobile hero poster / object-position reference
+
+SPEC OUTPUT
+-----------
+Resolusi : 1080 x 1920
+Rasio    : 9:16
+Format   : JPG or PNG
+Style    : 3D painted-rendered game diorama vertical
+
+WARNA LOCK
+----------
+Void edge : #000000
+Dominant  : emerald / teal (match hero island family)
+Accent    : soft warm gold thin only
+
+LARANGAN (wajib)
+----------------
+- no people / faces / hands / silhouette / characters
+- no text / logo / watermark / UI / HUD
+- no medical / brain / diagnosis icons
+- no charts / metrics / barcode / airport
+- no neon casino / rainbow AI slop
+
+===== COPY PROMPT DI BAWAH INI =====
+
+Still image, ultra high detail cinematic 3D game-world diorama, 9:16 vertical, 1080x1920. Emerald floating island centered in pure black void for mobile full-bleed hero, lush green cliffs, misty teal waterfalls, soft volumetric fog, premium painted-rendered game art. Subject keeps visual weight in the upper-middle third so lower third can hold white stacked title and charcoal button. Single color family emerald and teal, thin warm gold clouds only. No people, no faces, no characters, no text, no logos, no HUD, no medical icons, no neon, no rainbow.

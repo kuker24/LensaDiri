@@ -1,0 +1,8 @@
+# Rename mapping (by mtime ascending after batch generate)
+# 1st → poster-hero-island.jpg
+# 2nd → strip-ice-chamber.jpg
+# 3rd → strip-dune-glass.jpg
+# 4th → strip-mirror-garden.jpg
+# 5th → panel-void-detail.jpg
+# 6th → og-share-world.jpg
+# 7th → mobile-hero-crop.jpg

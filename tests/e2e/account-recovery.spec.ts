@@ -44,7 +44,7 @@ test("email verification and password reset stay single-use and revoke sessions"
   await expect(page.getByRole("status").first()).toContainText("Email berhasil diverifikasi");
   await openRecoveryLink(page, "/verify-email", verificationToken);
   await page.getByRole("button", { name: "Verifikasi email" }).click();
-  await expect(page.getByText(/Link tidak valid, kedaluwarsa/u)).toContainText("sudah digunakan");
+  await expect(page.getByText(/Tautan tidak valid, kedaluwarsa/u)).toContainText("sudah digunakan");
 
   await page.goto("/login");
   await page.getByLabel("Email").fill(email);
@@ -54,13 +54,15 @@ test("email verification and password reset stay single-use and revoke sessions"
 
   await page.goto("/forgot-password");
   await page.getByLabel("Email").fill(email);
-  await page.getByRole("button", { name: "Kirim instruksi reset" }).click();
+  await page.getByRole("button", { name: "Kirim instruksi pengaturan ulang" }).click();
   await expect(page.getByRole("status").first()).toContainText("instruksi reset sudah disiapkan");
   const resetToken = await fetchRecoveryToken(page, email, "password_reset");
   await openRecoveryLink(page, "/reset-password", resetToken);
-  await page.getByLabel("Password baru").fill(newPassword);
+  await page.getByLabel("Kata sandi baru").fill(newPassword);
   await page.getByRole("button", { name: "Simpan password baru" }).click();
-  await expect(page.getByRole("status").first()).toContainText("Semua session lama sudah dicabut");
+  await expect(page.getByRole("status").first()).toContainText(
+    "Semua sesi masuk lama sudah dinonaktifkan",
+  );
 
   await page.goto("/dashboard");
   await expect(page).toHaveURL(/\/login$/u);
@@ -75,7 +77,7 @@ test("email verification and password reset stay single-use and revoke sessions"
   const unknownEmail = `unknown-${suffix}@example.test`;
   await page.goto("/forgot-password");
   await page.getByLabel("Email").fill(unknownEmail);
-  await page.getByRole("button", { name: "Kirim instruksi reset" }).click();
+  await page.getByRole("button", { name: "Kirim instruksi pengaturan ulang" }).click();
   await expect(page.getByRole("status").first()).toContainText("instruksi reset sudah disiapkan");
   const unknownDelivery = await page.request.get(
     `/api/test/recovery-token?email=${encodeURIComponent(unknownEmail)}&purpose=password_reset`,

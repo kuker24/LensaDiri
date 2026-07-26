@@ -20,6 +20,7 @@ import type {
 } from "@/server/repositories/assessment";
 import { boundedResponseTimeMs } from "@/components/assessment-response-timer";
 import { Button } from "@/components/ui/button";
+import { RecoveryPanel } from "@/components/recovery-panel";
 import { Progress } from "@/components/ui/progress";
 
 const labels = ["Sangat tidak sesuai", "Tidak sesuai", "Netral", "Sesuai", "Sangat sesuai"];
@@ -50,7 +51,7 @@ function LikertSelector({
             onClick={() => onAnswer(value)}
             type="button"
           >
-            <span className="border-line bg-canvas text-ink-muted group-aria-pressed:border-lens group-aria-pressed:bg-lens group-aria-pressed:text-canvas mr-3.5 inline-grid h-7 w-7 shrink-0 place-items-center rounded-full border font-mono text-xs tabular-nums transition-colors duration-150 ease-out">
+            <span className="border-line bg-canvas text-ink-muted group-aria-pressed:border-lens group-aria-pressed:bg-lens group-aria-pressed:text-canvas mr-3.5 inline-grid h-7 w-7 shrink-0 place-items-center rounded-sm border font-mono text-xs tabular-nums transition-colors duration-150 ease-out">
               {value}
             </span>
             {label}
@@ -358,9 +359,15 @@ export function TestRunner({ token }: { token: string }) {
   if (clarifier) return <ClarifierRunner clarifier={clarifier} token={token} />;
   if (error && !session) {
     return (
-      <p className="text-danger mx-auto max-w-xl py-20 text-center" role="alert">
-        {error}
-      </p>
+      <div className="container-shell">
+        <RecoveryPanel
+          description={error}
+          eyebrow="Sesi tidak tersedia"
+          safeHref="/start"
+          safeLabel="Pilih eksplorasi lain"
+          title="Sesi tidak dapat dibuka"
+        />
+      </div>
     );
   }
   if (!session || !question) {

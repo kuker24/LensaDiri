@@ -1,0 +1,31 @@
+LensaDiri Design2 — Foto PROMPT 1 / 7
+======================================
+Nama file hasil : poster-hero-island.jpg
+Lokasi drop     : Design.md/Design2/Foto/assets/
+Mood            : Emerald island still — hero poster / reduced-motion
+Role web        : poster hero, fallback video
+
+SPEC OUTPUT
+-----------
+Resolusi : 1920 x 1080
+Rasio    : 16:9
+Format   : JPG or PNG (high quality still)
+Style    : 3D painted-rendered game diorama (not photo of real people)
+
+WARNA LOCK
+----------
+Void edge : #000000
+Dominant  : emerald / teal mist
+Accent    : soft warm cloud gold thin only
+
+LARANGAN (wajib)
+----------------
+- no people / faces / hands / silhouette / characters
+- no text / logo / watermark / UI / HUD
+- no medical / brain / diagnosis icons
+- no charts / metrics / barcode / airport
+- no neon casino / rainbow AI slop
+
+===== COPY PROMPT DI BAWAH INI =====
+
+Still image, ultra high detail cinematic 3D game-world diorama, 16:9, 1920x1080. Massive emerald island floating in pure black void, lush green cliffs, misty teal waterfalls, soft volumetric fog, deep atmospheric depth, AAA painted-rendered game art for a premium web portal hero poster. Single color family emerald and teal mid-tones, thin warm gold in distant clouds only, black void edges. No people, no faces, no characters, no text, no logos, no HUD, no medical icons, no neon lights, no rainbow gradients. Center-weighted composition with safe left third for white UI overlay later.

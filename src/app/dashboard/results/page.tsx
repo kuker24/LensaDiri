@@ -13,10 +13,10 @@ export default async function DashboardResultsPage() {
   const results = await listAccountDashboardResults(session.accountId);
 
   return (
-    <main className="container-shell py-12">
-      <nav aria-label="Breadcrumb" className="text-ink-muted mb-6 text-sm">
+    <div className="container-shell py-12">
+      <nav aria-label="Jejak navigasi" className="text-ink-muted mb-6 text-sm">
         <Link className="hover:text-ink underline" href="/dashboard">
-          Dashboard
+          Ruang pribadi
         </Link>
         <span className="mx-2">/</span>
         <span>Semua hasil</span>
@@ -49,7 +49,8 @@ export default async function DashboardResultsPage() {
                   Dibuat pada: {new Date(res.createdAt).toLocaleDateString("id-ID")}
                 </p>
                 <p className="text-ink-muted text-xs">
-                  Scoring Version: {res.scoringVersion} · Share token aktif: {res.activeShareCount}
+                  Versi penilaian: {res.scoringVersion} · Tautan berbagi aktif:{" "}
+                  {res.activeShareCount}
                 </p>
               </div>
               <DashboardOpenButton id={res.id} kind="result" />
@@ -57,6 +58,6 @@ export default async function DashboardResultsPage() {
           ))}
         </ul>
       )}
-    </main>
+    </div>
   );
 }

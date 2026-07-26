@@ -1,0 +1,31 @@
+LensaDiri Design2 — Foto PROMPT 5 / 7
+======================================
+Nama file hasil : panel-void-detail.jpg
+Lokasi drop     : Design.md/Design2/Foto/assets/
+Mood            : Close world detail — side panel / reflection instrument
+Role web        : portrait panel beside copy (ReflectionPass replacement art)
+
+SPEC OUTPUT
+-----------
+Resolusi : 1080 x 1350
+Rasio    : 4:5
+Format   : JPG or PNG
+Style    : 3D painted-rendered game diorama detail crop
+
+WARNA LOCK
+----------
+Void edge : #000000
+Dominant  : deep teal architecture detail OR ice crystal detail (pick one coherent scene)
+Accent    : single soft specular light
+
+LARANGAN (wajib)
+----------------
+- no people / faces / hands / silhouette / characters
+- no text / logo / watermark / UI / HUD
+- no medical / brain / diagnosis icons
+- no charts / metrics / barcode / airport
+- no neon casino / rainbow AI slop
+
+===== COPY PROMPT DI BAWAH INI =====
+
+Still image, ultra high detail cinematic 3D game-world close-up diorama, 4:5 portrait, 1080x1350. Fragment of a mysterious teal stone and glass structure hanging in pure black void, soft single light source, deep material detail, premium painted-rendered game art suitable as a vertical gallery panel next to monochrome UI. One restrained color family deep teal with soft cool highlights only. No people, no faces, no characters, no text, no logos, no HUD, no medical icons, no neon, no rainbow. Vertical composition, subject slightly above center.

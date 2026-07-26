@@ -12,7 +12,7 @@ import {
 } from "@/lib/assessment/client";
 import type { AssessmentEstimate } from "@/lib/assessment/estimate";
 import { loadAssessmentSelection } from "@/lib/assessment/selection-storage";
-import { Button } from "@/components/ui/button";
+import { Button, getButtonClassName } from "@/components/ui/button";
 
 export function ModularReviewForm() {
   const router = useRouter();
@@ -45,32 +45,34 @@ export function ModularReviewForm() {
       const token = await startModularAssessment(selection);
       router.push(`/test/${token}`);
     } catch {
-      setError("Assessment belum dapat dimulai. Pilihan mungkin belum dibuka untuk publik.");
+      setError("Asesmen belum dapat dimulai. Pilihan mungkin belum dibuka untuk publik.");
       setPending(false);
     }
   }
 
   return (
     <div className="mx-auto max-w-3xl">
-      <p className="mono-label text-aperture">Tinjau / consent</p>
+      <p className="mono-label text-aperture">Tinjau / persetujuan</p>
       <h1 className="mt-5 text-4xl font-medium tracking-[-0.035em] sm:text-6xl">
         Siap memulai eksplorasi?
       </h1>
       <p className="text-ink-muted mt-4 leading-7">
-        Pastikan lensa dan kedalaman sesuai waktu yang kamu punya. Blueprint akan dikunci saat sesi
-        dimulai agar urutan dan versi item tidak berubah.
+        Pastikan lensa dan kedalaman sesuai waktu yang kamu punya. Susunan dan versi pertanyaan akan
+        dikunci saat sesi dimulai agar tidak berubah.
       </p>
 
       {estimate ? (
-        <div className="bg-surface mt-10 overflow-hidden rounded-[1.2rem] border border-white/14">
+        <div className="bg-surface mt-10 overflow-hidden rounded-lg border border-white/14">
           <div className="border-line grid gap-5 border-b p-6 sm:grid-cols-3">
             <div>
-              <p className="text-ink-muted text-sm">Mode</p>
+              <p className="text-ink-muted text-sm">Kedalaman</p>
               <p className="mt-1 text-lg font-semibold">{estimate.publicMode}</p>
             </div>
             <div>
               <p className="text-ink-muted text-sm">Jumlah</p>
-              <p className="mt-1 text-lg font-semibold tabular-nums">{estimate.itemCount} item</p>
+              <p className="mt-1 text-lg font-semibold tabular-nums">
+                {estimate.itemCount} pertanyaan
+              </p>
             </div>
             <div>
               <p className="text-ink-muted text-sm">Durasi</p>
@@ -97,9 +99,9 @@ export function ModularReviewForm() {
       ) : null}
 
       <div className="border-aperture-soft bg-aperture-soft mt-8 space-y-3 rounded-lg border p-5 text-sm leading-6">
-        <p>Jawaban dipakai hanya untuk scoring dan refleksi dari lensa yang dipilih.</p>
-        <p>Skor primer dihitung di server. Correlation tidak mengubah skor module.</p>
-        <p>Hasil private sampai kamu membuat link berbagi.</p>
+        <p>Jawaban hanya dipakai untuk penilaian dan refleksi dari lensa yang dipilih.</p>
+        <p>Skor utama dihitung di server. Hubungan antar-lensa tidak mengubah skor tiap lensa.</p>
+        <p>Hasil tetap privat sampai kamu membuat tautan berbagi.</p>
         <p>Kamu dapat menghapus hasil dan jawaban terkait.</p>
       </div>
       <label className="border-line bg-surface mt-5 flex items-start gap-3 rounded-lg border p-5 text-sm leading-6">
@@ -118,14 +120,11 @@ export function ModularReviewForm() {
         </p>
       ) : null}
       <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
-        <Link
-          className="focus-ring border-line bg-surface text-ink hover:bg-surface-raised inline-flex min-h-12 items-center justify-center rounded-md border px-5 py-3 text-center font-semibold transition-colors duration-150 ease-out"
-          href="/start/modules"
-        >
+        <Link className={getButtonClassName("secondary", "md")} href="/start/modules">
           Ubah pilihan
         </Link>
         <Button disabled={!estimate || !consent || pending} onClick={start} type="button">
-          {pending ? "Menyusun blueprint…" : "Mulai assessment"}
+          {pending ? "Menyiapkan pertanyaan…" : "Mulai asesmen"}
         </Button>
       </div>
     </div>

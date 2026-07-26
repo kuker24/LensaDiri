@@ -6,33 +6,37 @@ import { Badge } from "@/components/ui/badge";
 import { getCurrentSession } from "@/server/current-session";
 import { listAccountConsentPolicies } from "@/server/repositories/privacy";
 
-function formatConsentType(value: string): string {
-  return value.replaceAll("_", " ");
-}
+const consentLabels = {
+  ai_feature_optional: "Fitur naratif AI",
+  assessment_processing: "Pemrosesan asesmen",
+  marketing_optional: "Komunikasi produk",
+  research_optional: "Evaluasi kualitas",
+  result_storage: "Penyimpanan hasil",
+} as const;
 
 export default async function DashboardPrivacyPage() {
   const session = await getCurrentSession();
   const policies = session ? await listAccountConsentPolicies(session.accountId) : [];
 
   return (
-    <main className="container-shell py-14 sm:py-20">
+    <div className="container-shell py-14 sm:py-20">
       <Link
         className="focus-ring text-lens rounded text-sm font-semibold hover:underline"
         href="/dashboard"
       >
-        Kembali ke dashboard
+        Kembali ke ruang pribadi
       </Link>
       <header className="mt-6 max-w-3xl">
         <h1 className="text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">Pusat privasi</h1>
         <p className="text-ink-muted mt-4 max-w-2xl leading-7">
-          Consent dicatat sebagai ledger append-only. Keputusan terbaru berlaku, sedangkan riwayat
-          lama tetap tersedia untuk audit internal tanpa diekspos ke browser.
+          Persetujuan dicatat sebagai riwayat yang tidak ditimpa. Keputusan terbaru berlaku; riwayat
+          sebelumnya hanya dapat dilihat petugas berwenang.
         </p>
       </header>
 
       <section className="mt-10 max-w-4xl" aria-labelledby="consent-heading">
         <h2 className="text-2xl font-semibold" id="consent-heading">
-          Consent dan tujuan pemrosesan
+          Persetujuan dan tujuan pemrosesan
         </h2>
         <div className="mt-5 space-y-4">
           {policies.map((policy) => (
@@ -41,9 +45,7 @@ export default async function DashboardPrivacyPage() {
               key={`${policy.consentType}-${policy.version}`}
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
-                <h3 className="text-lg font-semibold capitalize">
-                  {formatConsentType(policy.consentType)}
-                </h3>
+                <h3 className="text-lg font-semibold">{consentLabels[policy.consentType]}</h3>
                 <Badge tone="neutral">
                   {policy.requiredForCore ? "Wajib untuk fungsi inti" : "Opsional"}
                 </Badge>
@@ -69,8 +71,8 @@ export default async function DashboardPrivacyPage() {
               </dl>
               {policy.requiredForCore ? (
                 <p className="text-ink-muted mt-4 text-sm">
-                  Keputusan fungsi inti dibuat pada saat memulai assessment. Penghapusan hasil atau
-                  akun menghentikan penyimpanan terkait.
+                  Persetujuan wajib diberikan saat memulai asesmen. Penghapusan hasil atau akun
+                  menghentikan penyimpanan terkait.
                 </p>
               ) : (
                 <ConsentDecisionControl
@@ -89,11 +91,12 @@ export default async function DashboardPrivacyPage() {
         aria-labelledby="retention-heading"
       >
         <h2 className="text-xl font-semibold" id="retention-heading">
-          Retention cleanup
+          Pembersihan data kedaluwarsa
         </h2>
         <p className="text-ink-muted mt-3 leading-7">
-          Sesi guest kedaluwarsa dan bucket rate limit lama dibersihkan oleh trusted scheduled job.
-          Hasil akun tidak dihapus otomatis dan tetap berada di bawah kontrol pengguna.
+          Sesi tamu yang kedaluwarsa dan catatan pembatasan permintaan lama dibersihkan otomatis
+          sesuai jadwal. Hasil akun tidak dihapus otomatis dan tetap berada di bawah kontrol
+          pengguna.
         </p>
       </section>
 
@@ -105,12 +108,11 @@ export default async function DashboardPrivacyPage() {
           Hapus akun permanen
         </h2>
         <p className="text-ink mt-3 max-w-3xl leading-7">
-          Operasi ini hard-delete akun beserta session, consent, assessment, jawaban, hasil modular,
-          share token, feedback, dan data turunan melalui cascade yang telah diuji. Operasi tidak
-          dapat dibatalkan.
+          Tindakan ini menghapus permanen akun beserta sesi, persetujuan, asesmen, jawaban, hasil,
+          tautan berbagi, masukan, dan data terkait. Tindakan ini tidak dapat dibatalkan.
         </p>
         <DeleteAccountForm />
       </section>
-    </main>
+    </div>
   );
 }

@@ -2,10 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+
 import { getButtonClassName } from "@/components/ui/button";
 import { cn } from "@/lib/cn";
+import type { RouteFamily } from "@/lib/route-family";
 
-const navigation = [
+const publicNavigation = [
   { href: "/modules", label: "Lensa" },
   { href: "/combos", label: "Kombinasi" },
   { href: "/method", label: "Metode" },
@@ -14,59 +16,127 @@ const navigation = [
   { href: "/privacy", label: "Privasi" },
 ];
 
-export function SiteHeader() {
+const familyNavigation = {
+  account: [
+    { href: "/dashboard", label: "Ringkasan" },
+    { href: "/dashboard/results", label: "Hasil" },
+    { href: "/dashboard/privacy", label: "Privasi" },
+    { href: "/dashboard/settings", label: "Pengaturan" },
+  ],
+  operator: [
+    { href: "/admin", label: "Admin" },
+    { href: "/dashboard", label: "Dashboard" },
+  ],
+} as const;
+
+function BrandLink({ context }: { context?: string }) {
+  return (
+    <Link className="focus-ring flex shrink-0 items-center gap-2.5 rounded-[2px]" href="/">
+      <span
+        aria-hidden="true"
+        className="grid h-4 w-4 place-items-center text-[0.65rem] leading-none"
+      >
+        ◆
+      </span>
+      <span className="font-mono text-xs tracking-[-0.02em]">LensaDiri</span>
+      {context ? (
+        <span className="text-ink-muted hidden font-mono text-[0.625rem] uppercase sm:inline">
+          / {context}
+        </span>
+      ) : null}
+    </Link>
+  );
+}
+
+function NavigationLinks({
+  items,
+  pathname,
+}: {
+  items: readonly { href: string; label: string }[];
+  pathname: string;
+}) {
+  return items.map((item) => {
+    const isActive =
+      pathname === item.href ||
+      (item.href !== "/dashboard" && pathname.startsWith(`${item.href}/`));
+    return (
+      <Link
+        aria-current={isActive ? "page" : undefined}
+        className={cn(
+          "nav-link focus-ring text-ink-muted hover:text-ink min-h-11 rounded-[2px] px-3 py-3 transition-colors duration-150",
+          isActive && "text-ink border-b border-[#e2e2e2]/55",
+        )}
+        href={item.href}
+        key={item.href}
+      >
+        {item.label}
+      </Link>
+    );
+  });
+}
+
+export function SiteHeader({ family }: { family: RouteFamily }) {
   const pathname = usePathname();
+
+  if (family === "auth" || family === "assessment") {
+    return (
+      <header className="nav-frost sticky top-0 z-20">
+        <div className="container-shell flex min-h-14 items-center justify-between gap-4 py-2.5">
+          <BrandLink context={family === "auth" ? "Akses akun" : "Eksplorasi"} />
+          <Link className={getButtonClassName("secondary", "sm")} href="/">
+            {family === "assessment" ? "Keluar" : "Beranda"}
+          </Link>
+        </div>
+      </header>
+    );
+  }
+
+  const items = family === "public" ? publicNavigation : familyNavigation[family];
+  const context =
+    family === "account" ? "Ruang pribadi" : family === "operator" ? "Read-only" : undefined;
 
   return (
     <header className="nav-frost sticky top-0 z-20">
-      <div className="container-shell flex min-h-16 flex-wrap items-center gap-x-4 gap-y-2 py-3 md:min-h-[4.25rem]">
-        <Link className="focus-ring flex shrink-0 items-center gap-3 rounded-md" href="/">
-          <span
-            aria-hidden="true"
-            className="relative grid h-8 w-8 place-items-center rounded-md border border-white/20"
-          >
-            <span className="bg-lens h-2 w-2 rounded-full" />
-            <span className="absolute inset-1.5 rounded-full border border-white/15" />
-          </span>
-          <span className="text-[0.95rem] font-medium tracking-[-0.02em]">LensaDiri</span>
-        </Link>
+      <div className="container-shell flex min-h-14 items-center gap-4 py-2.5">
+        <BrandLink {...(context ? { context } : {})} />
 
         <nav
-          aria-label="Navigasi utama"
-          className="order-3 -mx-1 flex w-full gap-0.5 overflow-x-auto px-1 pb-0.5 md:order-none md:mx-0 md:w-auto md:flex-1 md:justify-center md:overflow-visible md:px-0 md:pb-0"
+          aria-label={family === "public" ? "Navigasi utama" : "Navigasi ruang pribadi"}
+          className="hidden flex-1 justify-center gap-0.5 md:flex"
         >
-          {navigation.map((item) => {
-            const isActive = pathname === item.href || pathname.startsWith(`${item.href}/`);
-            return (
-              <Link
-                aria-current={isActive ? "page" : undefined}
-                className={cn(
-                  "nav-link focus-ring text-steel hover:text-ink shrink-0 rounded-md px-2.5 py-2 transition-colors duration-150",
-                  isActive && "text-ink",
-                )}
-                href={item.href}
-                key={item.href}
-                onFocus={(event) =>
-                  event.currentTarget.scrollIntoView({
-                    behavior: "auto",
-                    block: "nearest",
-                    inline: "center",
-                  })
-                }
-              >
-                {item.label}
-              </Link>
-            );
-          })}
+          <NavigationLinks items={items} pathname={pathname} />
         </nav>
 
-        <div className="ml-auto flex shrink-0 items-center gap-2 md:ml-0">
-          <Link href="/login" className={getButtonClassName("secondary", "sm")}>
-            Masuk
-          </Link>
-          <Link href="/start" className={getButtonClassName("primary", "sm")}>
-            Mulai
-          </Link>
+        <div className="ml-auto flex shrink-0 items-center gap-2">
+          <details className="relative md:hidden">
+            <summary className="focus-ring flex min-h-11 cursor-pointer list-none items-center rounded-[2px] border border-white/35 px-4 font-mono text-[0.625rem] uppercase marker:content-none">
+              Menu
+            </summary>
+            <nav
+              aria-label="Menu navigasi"
+              className="bg-canvas absolute top-[calc(100%+0.5rem)] right-0 grid min-w-52 border border-white/25 p-2"
+            >
+              <NavigationLinks items={items} pathname={pathname} />
+              {family === "public" ? (
+                <Link className="focus-ring min-h-11 px-3 py-3 font-mono text-xs" href="/login">
+                  Masuk
+                </Link>
+              ) : null}
+            </nav>
+          </details>
+          {family === "public" ? (
+            <>
+              <Link
+                href="/login"
+                className={cn(getButtonClassName("secondary", "sm"), "hidden md:inline-flex")}
+              >
+                Masuk
+              </Link>
+              <Link href="/start" className={getButtonClassName("primary", "sm")}>
+                Mulai
+              </Link>
+            </>
+          ) : null}
         </div>
       </div>
     </header>

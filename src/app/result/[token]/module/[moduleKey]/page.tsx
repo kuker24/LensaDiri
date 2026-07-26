@@ -29,7 +29,7 @@ export default async function ResultModuleDetailPage({
   if (moduleResult === undefined) return notFound();
 
   return (
-    <main className="container-shell py-12">
+    <div className="container-shell py-12">
       <nav aria-label="Breadcrumb" className="text-ink-muted mb-6 text-sm">
         <Link className="hover:text-ink underline" href="/dashboard/results">
           Hasil
@@ -82,6 +82,6 @@ export default async function ResultModuleDetailPage({
           <Button variant="secondary">Kembali</Button>
         </Link>
       </div>
-    </main>
+    </div>
   );
 }

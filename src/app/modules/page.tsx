@@ -3,11 +3,27 @@ import Link from "next/link";
 import { isPubliclyAvailableModule } from "@/lib/assessment/catalog";
 import { listCatalogModulesFromCache } from "@/server/repositories/catalog-cache";
 import { Badge } from "@/components/ui/badge";
+import { RecoveryPanel } from "@/components/recovery-panel";
 
 export const dynamic = "force-dynamic";
 
 export default async function ModulesPage() {
-  const modules = await listCatalogModulesFromCache({ includeUnavailable: true });
+  const modules = await listCatalogModulesFromCache({ includeUnavailable: true }).catch(() => null);
+
+  if (!modules) {
+    return (
+      <div className="container-shell">
+        <RecoveryPanel
+          description="Katalog lensa sedang tidak tersedia. Coba lagi setelah layanan kembali terhubung."
+          reassurance="Tidak ada data pribadi yang diubah."
+          reload
+          safeHref="/start"
+          safeLabel="Pilih jalur lain"
+          title="Katalog belum dapat dimuat"
+        />
+      </div>
+    );
+  }
 
   return (
     <section className="container-shell py-16 sm:py-24">

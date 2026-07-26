@@ -1,0 +1,39 @@
+LensaDiri Design2 — Video PROMPT 5 / 5
+========================================
+Nama file hasil : section-02-mirror-garden.mp4
+Lokasi drop     : Design.md/Design2/Video/assets/
+Mood            : Mirror garden / dark water — slow vertical settle (trust / lensa section)
+Role web        : Film-strip section trust or lensa
+
+SPEC OUTPUT
+-----------
+Resolusi : 720p (1280 x 720)
+Durasi   : 15 detik
+Rasio    : 16:9
+Audio    : YA (ambient only)
+Format   : MP4 H.264
+
+WARNA LOCK
+----------
+Void edge : #000000
+Dominant  : mirror black water + deep charcoal greens
+Accent    : thin gold dust motes only
+No        : multicolor neon reflections, cyberpunk pink, rainbow caustics
+
+LARANGAN (wajib)
+----------------
+- no people / faces / hands / silhouette / characters
+- no text / logo / watermark / UI chrome / HUD
+- no medical / brain / diagnosis icons
+- no charts / metrics / barcode / airport
+- no neon game clutter / slot lights / rainbow AI slop
+
+AUDIO (ambient only)
+--------------------
+Soft water room tone + distant warm pad.
+One soft crystalline shimmer when gold dust catches light.
+No vocals, no speech, no drums.
+
+===== COPY PROMPT DI BAWAH INI =====
+
+Cinematic full-bleed 3D game-world diorama video, 15 seconds, 16:9, 720p. Mirror garden of dark still water and tall reflective glass planes in pure black void, thin gold dust motes catching soft light, deep atmospheric reflections, painted-rendered premium game art, quiet museum piece. Camera almost still with a tiny slow downward settle. Single color family: black mirror water, deep charcoal green foliage silhouettes without cartoon brightness, thin gold dust only — no rainbow caustics, no neon. Loop-friendly calm ending. No people, no faces, no characters, no text, no logos, no HUD, no medical icons, no neon casino. Soft ambient soundscape: soft water room tone, distant warm pad, single soft crystalline shimmer when gold dust brightens, no vocals, no speech, no drums, intimate gallery mood.

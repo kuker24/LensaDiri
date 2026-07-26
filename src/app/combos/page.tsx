@@ -5,14 +5,32 @@ import {
   listCatalogModulesFromCache,
   listComboPresetsFromCache,
 } from "@/server/repositories/catalog-cache";
+import { RecoveryPanel } from "@/components/recovery-panel";
 
 export const dynamic = "force-dynamic";
 
 export default async function CombosPage() {
-  const [combos, modules] = await Promise.all([
+  const catalog = await Promise.all([
     listComboPresetsFromCache(),
     listCatalogModulesFromCache(),
-  ]);
+  ]).catch(() => null);
+
+  if (!catalog) {
+    return (
+      <div className="container-shell">
+        <RecoveryPanel
+          description="Kombinasi lensa sedang tidak tersedia. Coba lagi setelah layanan kembali terhubung."
+          reassurance="Tidak ada data pribadi yang diubah."
+          reload
+          safeHref="/start"
+          safeLabel="Pilih jalur lain"
+          title="Kombinasi belum dapat dimuat"
+        />
+      </div>
+    );
+  }
+
+  const [combos, modules] = catalog;
   const names = new Map(modules.map((module) => [module.key, module.publicName]));
 
   return (

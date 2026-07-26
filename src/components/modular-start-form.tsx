@@ -18,30 +18,31 @@ import {
 } from "@/lib/assessment/client";
 import type { AssessmentEstimate } from "@/lib/assessment/estimate";
 import { saveAssessmentSelection } from "@/lib/assessment/selection-storage";
+import { RecoveryPanel } from "@/components/recovery-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 
 const tierLabels: Record<string, string> = {
-  A: "Evidence A",
-  B: "Evidence B",
-  B_EXPERIMENTAL: "Evidence B · eksperimental",
-  C: "Lensa reflektif C",
+  A: "Bukti A",
+  B: "Reflektif B",
+  B_EXPERIMENTAL: "Reflektif B · eksperimental",
+  C: "Reflektif C",
   EXPERIMENTAL: "Eksperimental",
 };
 
 const errorLabels: Record<string, string> = {
   age_restricted: "Pilihan ini memiliki batas usia yang belum terpenuhi.",
   assessment_service_busy: "Permintaan belum dapat diproses. Coba lagi beberapa saat.",
-  coverage_unavailable: "Kombinasi ini membutuhkan coverage di atas kapasitas mode terpilih.",
+  coverage_unavailable: "Jumlah pertanyaan melebihi kapasitas kedalaman yang dipilih.",
   experimental_acknowledgment_required: "Konfirmasi lensa eksperimental sebelum melanjutkan.",
-  feature_unavailable: "Assessment modular belum tersedia untuk publik.",
-  invalid_module_count: "Pilih satu lensa atau beberapa lensa untuk combo.",
-  mode_unavailable: "Mode ini belum tersedia.",
+  feature_unavailable: "Asesmen dengan beberapa lensa belum tersedia.",
+  invalid_module_count: "Pilih satu lensa atau beberapa lensa untuk kombinasi.",
+  mode_unavailable: "Kedalaman ini belum tersedia.",
   module_unavailable: "Salah satu lensa belum tersedia.",
-  preset_mismatch: "Isi preset tidak sesuai katalog terbaru.",
-  preset_unavailable: "Preset ini belum tersedia.",
+  preset_mismatch: "Isi pilihan siap pakai tidak sesuai katalog terbaru.",
+  preset_unavailable: "Pilihan siap pakai ini belum tersedia.",
   rate_limit_unavailable: "Permintaan belum dapat diproses. Coba lagi beberapa saat.",
   request_failed: "Estimasi belum dapat dihitung. Coba lagi.",
   selection_type_mismatch: "Pilihan lensa dan jenis eksplorasi tidak cocok.",
@@ -67,6 +68,7 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [estimating, setEstimating] = useState(false);
+  const [catalogRequest, setCatalogRequest] = useState(0);
 
   useEffect(() => {
     Promise.all([getAssessmentCatalog(), getComboCatalog()])
@@ -85,7 +87,7 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
       })
       .catch(() => setError("Katalog modular belum dapat dimuat."))
       .finally(() => setLoading(false));
-  }, [initialModuleKey]);
+  }, [catalogRequest, initialModuleKey]);
 
   const selection = useMemo<AssessmentSelectionInput | null>(() => {
     if (selectedKeys.length === 0) return null;
@@ -163,7 +165,7 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
   if (loading) {
     return (
       <div className="mx-auto max-w-3xl space-y-4 py-16" role="status">
-        <span className="sr-only">Memuat katalog assessment…</span>
+        <span className="sr-only">Memuat pilihan lensa…</span>
         <div aria-hidden="true" className="space-y-4">
           <Skeleton className="h-8 w-64" />
           <Skeleton className="h-36 rounded-lg" />
@@ -173,26 +175,70 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
     );
   }
 
+  if (error && modules.length === 0) {
+    return (
+      <RecoveryPanel
+        description="Katalog lensa belum dapat dihubungi. Coba lagi tanpa kehilangan pilihan sebelumnya."
+        onRetry={() => {
+          setError(null);
+          setLoading(true);
+          setCatalogRequest((request) => request + 1);
+        }}
+        reassurance="Belum ada pilihan yang diproses."
+        safeHref="/start"
+        safeLabel="Pilih jalur lain"
+        title="Pilihan lensa belum dapat dimuat"
+      />
+    );
+  }
+
   return (
-    <div className="mx-auto max-w-5xl">
-      <div className="max-w-3xl">
-        <p className="mono-label text-aperture">Assessment modular</p>
-        <h1 className="mt-5 text-4xl font-medium tracking-[-0.035em] sm:text-6xl">
-          Pilih lensa yang ingin kamu pahami.
+    <div className="mx-auto max-w-4xl">
+      <div className="max-w-2xl">
+        <p className="mono-label text-aperture">Susun eksplorasimu</p>
+        <h1 className="mt-4 text-4xl font-medium tracking-[-0.035em] sm:text-5xl">
+          Apa yang ingin kamu pahami?
         </h1>
-        <p className="text-ink-muted mt-5 max-w-2xl text-lg leading-8">
-          Setiap lensa memakai item dan scoring independen. Hubungan antar-lensa baru dibaca setelah
-          skor primer selesai.
+        <p className="text-ink-muted mt-4 max-w-2xl leading-7">
+          Pilih satu lensa untuk fokus, atau gabungkan beberapa. Setiap lensa dinilai sendiri
+          sebelum hasilnya dibaca bersama.
         </p>
       </div>
+
+      {combos.length > 0 ? (
+        <details className="border-line mt-8 border-y py-4">
+          <summary className="focus-ring flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 font-medium [&::-webkit-details-marker]:hidden">
+            <span>Butuh pilihan cepat? Gunakan pilihan siap pakai</span>
+            <span aria-hidden="true" className="text-ink-muted font-mono text-lg">
+              +
+            </span>
+          </summary>
+          <div className="mt-3 grid gap-px overflow-hidden rounded-lg border border-white/14 bg-white/14 sm:grid-cols-2">
+            {combos.map((combo) => (
+              <button
+                aria-pressed={presetKey === combo.key}
+                className="focus-ring bg-canvas aria-pressed:bg-surface-raised hover:bg-surface min-h-28 p-4 text-left transition-colors duration-150 ease-out disabled:opacity-50"
+                key={combo.key}
+                onClick={() => selectPreset(combo)}
+                type="button"
+              >
+                <span className="font-semibold">{combo.publicName}</span>
+                <span className="text-ink-muted mt-1 block text-sm leading-6">
+                  {combo.description}
+                </span>
+              </button>
+            ))}
+          </div>
+        </details>
+      ) : null}
 
       <section className="mt-10" aria-labelledby="module-heading">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h2 className="text-2xl font-medium" id="module-heading">
-              Lensa tersedia
+            <h2 className="text-xl font-medium" id="module-heading">
+              1. Pilih lensa
             </h2>
-            <p className="text-ink-muted mt-2">Pilih satu atau buat combo sendiri.</p>
+            <p className="text-ink-muted mt-1 text-sm">Satu lensa sudah cukup untuk mulai.</p>
           </div>
           <label className="flex items-center gap-3 text-sm font-medium">
             Usia <span className="sr-only">wajib</span>
@@ -212,12 +258,12 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
             />
           </label>
         </div>
-        <div className="mt-5 grid gap-4 md:grid-cols-2">
+        <div className="border-line mt-5 overflow-hidden rounded-lg border">
           {modules.map((module) => {
             const selected = selectedKeys.includes(module.key);
             return (
               <label
-                className={`bg-surface focus-within:ring-aperture flex cursor-pointer gap-4 rounded-lg border p-5 transition-[border-color,background-color] duration-150 ease-out focus-within:ring-2 ${selected ? "border-lens bg-lens-soft" : "border-line hover:border-white/35"}`}
+                className={`focus-within:ring-aperture relative flex min-h-28 cursor-pointer gap-4 border-b p-4 transition-colors duration-150 ease-out last:border-b-0 focus-within:z-10 focus-within:ring-2 sm:p-5 ${selected ? "border-line bg-surface-raised" : "border-line bg-canvas hover:bg-surface"}`}
                 key={module.key}
               >
                 <input
@@ -228,9 +274,9 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
                 />
                 <span className="min-w-0 flex-1">
                   <span className="flex flex-wrap items-center gap-2">
-                    <span className="text-lg font-semibold">{module.publicName}</span>
+                    <span className="font-semibold sm:text-lg">{module.publicName}</span>
                     <Badge tone="lens">{tierLabels[module.evidenceTier]}</Badge>
-                    {module.status === "pilot" ? <Badge tone="aperture">Beta</Badge> : null}
+                    {module.status === "pilot" ? <Badge tone="aperture">Uji terbatas</Badge> : null}
                     {module.status === "experimental" ? (
                       <Badge tone="warning">Eksperimental</Badge>
                     ) : null}
@@ -248,39 +294,15 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
         </div>
       </section>
 
-      {combos.length > 0 ? (
-        <section className="mt-10" aria-labelledby="combo-heading">
-          <h2 className="text-2xl font-medium" id="combo-heading">
-            Preset combo
-          </h2>
-          <div className="mt-5 flex flex-wrap gap-4">
-            {combos.map((combo) => (
-              <button
-                aria-pressed={presetKey === combo.key}
-                className="focus-ring border-line bg-surface aria-pressed:border-lens aria-pressed:bg-lens-soft min-w-[min(100%,18rem)] flex-1 rounded-lg border p-5 text-left transition-[border-color,background-color] duration-150 ease-out hover:border-white/35"
-                key={combo.key}
-                onClick={() => selectPreset(combo)}
-                type="button"
-              >
-                <span className="font-semibold">{combo.publicName}</span>
-                <span className="text-ink-muted mt-2 block text-sm leading-6">
-                  {combo.description}
-                </span>
-              </button>
-            ))}
-          </div>
-        </section>
-      ) : null}
-
       <section className="mt-10" aria-labelledby="mode-heading">
-        <h2 className="text-2xl font-medium" id="mode-heading">
-          Kedalaman
+        <h2 className="text-xl font-medium" id="mode-heading">
+          2. Pilih kedalaman
         </h2>
-        <div className="mt-5 grid gap-4 sm:grid-cols-3">
+        <div className="border-line mt-5 grid overflow-hidden rounded-lg border sm:grid-cols-3">
           {modes.map((profile) => (
             <button
               aria-pressed={mode === profile.internalMode}
-              className="focus-ring border-line bg-surface aria-pressed:border-lens aria-pressed:bg-lens-soft rounded-lg border p-5 text-left transition-[border-color,background-color] duration-150 ease-out hover:border-white/35 disabled:cursor-not-allowed disabled:opacity-50"
+              className="focus-ring border-line bg-canvas aria-pressed:bg-surface-raised hover:bg-surface min-h-32 border-b p-4 text-left transition-colors duration-150 ease-out last:border-b-0 disabled:cursor-not-allowed disabled:opacity-50 sm:border-r sm:border-b-0 sm:last:border-r-0"
               disabled={!profile.isSelectable}
               key={profile.internalMode}
               onClick={() => {
@@ -292,7 +314,7 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
               <span className="flex items-center justify-between gap-2">
                 <span className="text-lg font-semibold">{profile.publicName}</span>
                 {profile.internalMode === "standard" ? (
-                  <span className="text-lens text-xs font-semibold">Recommended</span>
+                  <span className="text-aperture text-xs font-semibold">Disarankan</span>
                 ) : null}
               </span>
               <span className="text-ink-muted mt-2 block text-sm leading-6">
@@ -324,17 +346,18 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
         </label>
       ) : null}
 
-      <aside className="lens-glow bg-surface relative mt-10 overflow-hidden rounded-[1.2rem] border border-white/14 p-6 sm:flex sm:items-center sm:justify-between sm:gap-8">
+      <aside className="lens-glow bg-surface mt-10 border-y border-white/20 px-4 py-4 sm:flex sm:items-center sm:justify-between sm:gap-8 sm:px-5">
         <div aria-live="polite">
-          <p className="mono-label text-aperture">Estimasi dari server</p>
+          <p className="mono-label text-aperture">Pilihanmu</p>
           {estimating ? (
             <p className="text-ink-muted mt-2">Menghitung pilihan…</p>
           ) : estimate ? (
             <>
               <p className="mt-2 text-xl font-semibold tabular-nums">
-                {estimate.itemCount} item · sekitar {estimate.estimatedMinutes} menit
+                {selectedKeys.length} lensa · {estimate.itemCount} pertanyaan · sekitar{" "}
+                {estimate.estimatedMinutes} menit
               </p>
-              <p className="text-ink-muted mt-2 max-w-2xl text-sm leading-6">
+              <p className="text-ink-muted mt-1 max-w-2xl text-xs leading-5">
                 {estimate.disclaimer}
               </p>
             </>

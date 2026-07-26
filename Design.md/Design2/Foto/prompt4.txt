@@ -1,0 +1,31 @@
+LensaDiri Design2 — Foto PROMPT 4 / 7
+======================================
+Nama file hasil : strip-mirror-garden.jpg
+Lokasi drop     : Design.md/Design2/Foto/assets/
+Mood            : Mirror garden / dark water — trust or lensa section
+Role web        : film-strip section background
+
+SPEC OUTPUT
+-----------
+Resolusi : 1920 x 1080
+Rasio    : 16:9
+Format   : JPG or PNG
+Style    : 3D painted-rendered game diorama
+
+WARNA LOCK
+----------
+Void edge : #000000
+Dominant  : mirror black water + deep charcoal green
+Accent    : thin gold dust motes only
+
+LARANGAN (wajib)
+----------------
+- no people / faces / hands / silhouette / characters
+- no text / logo / watermark / UI / HUD
+- no medical / brain / diagnosis icons
+- no charts / metrics / barcode / airport
+- no neon casino / rainbow AI slop
+
+===== COPY PROMPT DI BAWAH INI =====
+
+Still image, ultra high detail cinematic 3D game-world diorama, 16:9, 1920x1080. Mirror garden of dark still water and tall reflective glass planes in pure black void, thin gold dust motes catching soft light, deep atmospheric reflections, premium painted-rendered game art, quiet museum piece. Single palette: black mirror water, deep charcoal green, thin gold dust only — no rainbow caustics, no neon. No people, no faces, no characters, no text, no logos, no HUD, no medical icons. Left third slightly quieter for white type overlay.

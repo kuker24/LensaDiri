@@ -31,16 +31,16 @@ export function ResultFeedbackForm({ token }: { token: string }) {
         className="border-success/30 bg-success-soft text-success mt-8 rounded-md border p-4 font-medium"
         role="status"
       >
-        Terima kasih. Feedback tersimpan.
+        Terima kasih. Masukanmu tersimpan.
       </p>
     );
   return (
-    <form className="border-line bg-surface mt-8 rounded-[1.2rem] border p-6" onSubmit={submit}>
+    <form className="border-line bg-surface mt-8 rounded-lg border p-6" onSubmit={submit}>
       <h2 className="text-ink text-xl font-medium tracking-[-0.02em]">
         Apakah hasil ini membantu?
       </h2>
       <Label className="mt-4" htmlFor="feedback-rating">
-        Rating 1 sampai 5
+        Nilai 1 sampai 5
       </Label>
       <select
         className="focus-ring bg-surface-raised text-ink mt-2 min-h-12 w-full rounded-md border border-white/30 px-4 text-base transition duration-150 ease-out outline-none hover:border-white/45 sm:text-sm"
@@ -50,7 +50,7 @@ export function ResultFeedbackForm({ token }: { token: string }) {
         required
       >
         <option disabled value="">
-          Pilih rating
+          Pilih nilai
         </option>
         {[1, 2, 3, 4, 5].map((value) => (
           <option key={value} value={value}>
@@ -64,11 +64,11 @@ export function ResultFeedbackForm({ token }: { token: string }) {
       <Textarea className="mt-2 min-h-28" id="feedback-message" maxLength={1000} name="message" />
       {error ? (
         <p className="text-danger mt-3 text-sm" role="alert">
-          Feedback gagal dikirim.
+          Masukan gagal dikirim.
         </p>
       ) : null}
       <Button className="mt-4" disabled={pending} type="submit">
-        {pending ? "Mengirim…" : "Kirim feedback"}
+        {pending ? "Mengirim…" : "Kirim masukan"}
       </Button>
     </form>
   );

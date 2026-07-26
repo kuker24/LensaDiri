@@ -1,0 +1,39 @@
+LensaDiri Design2 — Video PROMPT 4 / 5
+========================================
+Nama file hasil : section-01-lens-field.mp4
+Lokasi drop     : Design.md/Design2/Video/assets/
+Mood            : Abstract lens-field — slow particle depth (section “cara melihat”)
+Role web        : Marketing section full-bleed (not primary hero if hero is island)
+
+SPEC OUTPUT
+-----------
+Resolusi : 720p (1280 x 720)
+Durasi   : 15 detik
+Rasio    : 16:9
+Audio    : YA (ambient only)
+Format   : MP4 H.264
+
+WARNA LOCK
+----------
+Void edge : #000000
+Dominant  : deep teal + soft violet mid-tones (world light, not UI brand flood)
+Accent    : sparse luminous particles
+No        : rainbow particle storm, neon cyber grid, slot sparkle
+
+LARANGAN (wajib)
+----------------
+- no people / faces / hands / silhouette / characters
+- no text / logo / watermark / UI chrome / HUD
+- no medical / brain / diagnosis icons / eye-ball gore
+- no charts / metrics / barcode / airport
+- no neon game clutter / slot lights / rainbow AI slop
+
+AUDIO (ambient only)
+--------------------
+Quiet evolving drone + sparse soft particle-like high ticks very low.
+Gentle stereo width.
+No vocals, no speech, no beat drop.
+
+===== COPY PROMPT DI BAWAH INI =====
+
+Cinematic ambient abstract 3D field video, 15 seconds, 16:9, 720p. Dark void #000000 with a soft deep teal and muted violet light field, floating translucent lens-like discs and gentle light particles drifting with depth parallax, premium game-portal atmosphere, not medical, not UI. Slow horizontal parallax only, ultra minimal, high production value. Single restrained palette: deep teal and soft violet mid-tones only, no rainbow particle storm. Seamless loop-friendly. No people, no faces, no characters, no text, no logos, no HUD, no medical brain icons, no charts, no neon casino. Soft ambient soundscape: quiet evolving drone, sparse soft particle ticks very low, gentle stereo width, no vocals, no speech, no beat drop, reflective private mood.

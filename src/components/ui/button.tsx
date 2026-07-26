@@ -1,25 +1,24 @@
 import type { ButtonHTMLAttributes } from "react";
 import { cn } from "@/lib/cn";
 
-export type ButtonVariant = "primary" | "secondary" | "ghost" | "pill";
+export type ButtonVariant = "primary" | "secondary" | "ghost";
 export type ButtonSize = "sm" | "md";
 
 export const variantStyles: Record<ButtonVariant, string> = {
   primary:
-    "bg-lens text-canvas hover:bg-[#bd70ff] active:bg-lens-strong disabled:bg-line disabled:text-ink-muted",
+    "rounded-[2px] border border-[#e2e2e2]/35 bg-charcoal text-ink hover:bg-[#555456] active:bg-[#3a393b] disabled:bg-surface-raised disabled:text-ink-muted",
   secondary:
-    "border border-white/20 bg-canvas text-ink hover:border-white/40 hover:bg-white/5 active:bg-white/8 disabled:border-line disabled:text-ink-muted",
-  ghost: "text-ink hover:bg-white/8 active:bg-white/12 disabled:text-ink-muted",
-  pill: "rounded-[var(--radius-pill)] border-0 bg-white/8 text-ink hover:bg-white/12 active:bg-white/16 disabled:text-ink-muted",
+    "rounded-[2px] border border-[#e2e2e2]/35 bg-canvas text-ink hover:border-[#e2e2e2]/70 hover:bg-white/5 active:bg-white/8 disabled:border-white/15 disabled:text-ink-muted",
+  ghost: "rounded-[2px] text-ink hover:bg-white/8 active:bg-white/12 disabled:text-ink-muted",
 };
 
 export const sizeStyles: Record<ButtonSize, string> = {
-  sm: "min-h-[44px] px-3.5 py-2 text-sm",
-  md: "min-h-[48px] px-5 py-3 text-sm",
+  sm: "min-h-[44px] px-4 py-2 font-mono text-[0.625rem] tracking-[-0.02em] uppercase",
+  md: "min-h-[48px] px-5 py-3 font-mono text-xs tracking-[-0.02em] uppercase",
 };
 
 export const buttonBaseClass =
-  "focus-ring pressable inline-flex items-center justify-center gap-2 rounded-md font-normal transition-[color,background-color,border-color,opacity,transform] duration-150 ease-out active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:transform-none";
+  "focus-ring pressable inline-flex items-center justify-center gap-2 font-normal transition-[color,background-color,border-color,opacity,transform] duration-150 ease-out active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:transform-none";
 
 export function getButtonClassName(variant: ButtonVariant = "primary", size: ButtonSize = "md") {
   return cn(buttonBaseClass, variantStyles[variant], sizeStyles[size]);

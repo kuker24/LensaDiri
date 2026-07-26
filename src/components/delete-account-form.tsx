@@ -29,7 +29,7 @@ export function DeleteAccountForm() {
       const code = caught instanceof AuthApiError ? caught.code : "service_unavailable";
       setError(
         code === "invalid_credentials"
-          ? "Password tidak cocok. Akun belum dihapus."
+          ? "Kata sandi tidak cocok. Akun belum dihapus."
           : code === "rate_limited"
             ? "Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi."
             : "Penghapusan gagal. Akun belum diubah.",
@@ -41,7 +41,7 @@ export function DeleteAccountForm() {
   return (
     <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
       <div>
-        <Label htmlFor="delete-password">Password saat ini</Label>
+        <Label htmlFor="delete-password">Kata sandi saat ini</Label>
         <Input
           autoComplete="current-password"
           className="border-danger-soft hover:border-danger"

@@ -2,14 +2,34 @@ import Link from "next/link";
 
 import { DashboardOpenButton } from "@/components/dashboard-open-button";
 import { LogoutButton } from "@/components/logout-button";
+import { getButtonClassName } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
 import { getCurrentSession } from "@/server/current-session";
 import {
   listAccountActiveSessions,
   listAccountDashboardResults,
 } from "@/server/repositories/dashboard";
 
+const moduleLabels: Record<string, string> = {
+  attachment: "Refleksi Attachment",
+  enneagram: "Lensa Motivasi",
+  instinct: "Varian Instingtual",
+  psychosophy: "Psychosophy",
+  riasec: "Minat Karier RIASEC",
+  socionics_communication: "Komunikasi Socionics",
+  temperament: "Temperamen",
+  three_center: "Pola Tiga Pusat",
+  trait_profile: "Profil Trait",
+  type_16: "16-Type",
+};
+
+const sessionStatusLabels: Record<string, string> = {
+  active: "Berjalan",
+  paused: "Dijeda",
+};
+
 function formatModuleKey(key: string): string {
-  return key.replaceAll("_", " ");
+  return moduleLabels[key] ?? "Lensa reflektif";
 }
 
 export default async function DashboardPage() {
@@ -22,16 +42,16 @@ export default async function DashboardPage() {
     : [[], []];
 
   return (
-    <main className="container-shell py-12 sm:py-16">
+    <div className="container-shell py-12 sm:py-16">
       <header className="flex flex-col gap-6 border-b border-white/12 pb-8 sm:flex-row sm:items-end sm:justify-between">
         <div>
-          <p className="mono-label text-aperture">Dashboard pribadi</p>
+          <p className="mono-label text-aperture">Ruang pribadi</p>
           <h1 className="mt-3 text-3xl font-normal tracking-[-0.03em] sm:text-4xl">
             Sesi, hasil, dan kontrol datamu
           </h1>
-          <p className="text-steel mt-3 max-w-2xl leading-7">
-            Lanjutkan assessment yang belum selesai atau buka hasil untuk membagikan, mencabut
-            share, mengekspor, memberi feedback, dan menghapus data.
+          <p className="text-ink-muted mt-3 max-w-2xl leading-7">
+            Lanjutkan asesmen yang belum selesai atau kelola hasil, tautan berbagi, ekspor, masukan,
+            dan penghapusan data.
           </p>
         </div>
         <LogoutButton />
@@ -43,19 +63,16 @@ export default async function DashboardPage() {
             <h2 className="text-2xl font-normal" id="active-sessions-heading">
               Sesi aktif
             </h2>
-            <p className="text-steel mt-1 text-sm">
-              Token sesi dirotasi saat kamu menekan lanjutkan.
+            <p className="text-ink-muted mt-1 text-sm">
+              Akses sesi diperbarui saat kamu menekan Lanjutkan.
             </p>
           </div>
-          <Link
-            className="focus-ring bg-lens text-canvas hover:bg-lens-strong inline-flex min-h-11 items-center rounded-md px-4 py-3 text-sm transition-colors duration-150 ease-out"
-            href="/start/modules"
-          >
-            Mulai assessment
+          <Link className={getButtonClassName("primary", "sm")} href="/start/modules">
+            Mulai asesmen
           </Link>
         </div>
         {activeSessions.length === 0 ? (
-          <p className="text-steel bg-surface mt-4 rounded-[1.2rem] border border-white/12 p-6">
+          <p className="text-ink-muted bg-surface mt-4 rounded-lg border border-white/12 p-6">
             Tidak ada sesi aktif.
           </p>
         ) : (
@@ -67,22 +84,17 @@ export default async function DashboardPage() {
                     <p className="font-normal capitalize">
                       {item.moduleKeys.map(formatModuleKey).join(" · ")}
                     </p>
-                    <p className="text-steel mt-1 text-sm tabular-nums">
+                    <p className="text-ink-muted mt-1 text-sm tabular-nums">
                       {item.answeredCount}/{item.totalCount} terjawab · Bagian{" "}
-                      {item.currentSegmentIndex}/{item.segmentCount} · {item.status}
+                      {item.currentSegmentIndex}/{item.segmentCount} ·{" "}
+                      {sessionStatusLabels[item.status] ?? "Berjalan"}
                     </p>
-                    <div
+                    <Progress
                       aria-label={`${item.answeredCount} dari ${item.totalCount} pertanyaan terjawab`}
-                      className="bg-line mt-3 h-1.5 max-w-xl overflow-hidden rounded-full"
-                      role="img"
-                    >
-                      <div
-                        className="bg-lens h-full rounded-full"
-                        style={{
-                          width: `${Math.round((item.answeredCount / item.totalCount) * 100)}%`,
-                        }}
-                      />
-                    </div>
+                      className="mt-3 max-w-xl"
+                      max={item.totalCount}
+                      value={item.answeredCount}
+                    />
                   </div>
                   <DashboardOpenButton id={item.id} kind="session" />
                 </div>
@@ -97,7 +109,7 @@ export default async function DashboardPage() {
           Riwayat hasil
         </h2>
         {results.length === 0 ? (
-          <p className="text-steel bg-surface mt-4 rounded-[1.2rem] border border-white/12 p-6">
+          <p className="text-ink-muted bg-surface mt-4 rounded-lg border border-white/12 p-6">
             Belum ada hasil tersimpan.
           </p>
         ) : (
@@ -109,14 +121,14 @@ export default async function DashboardPage() {
                     <p className="font-normal capitalize">
                       {result.moduleKeys.map(formatModuleKey).join(" · ")}
                     </p>
-                    <p className="text-steel mt-1 text-sm">
+                    <p className="text-ink-muted mt-1 text-sm">
                       {new Intl.DateTimeFormat("id-ID", { dateStyle: "medium" }).format(
                         new Date(result.createdAt),
                       )}{" "}
-                      · {result.scoringVersion}
+                      · Versi penilaian {result.scoringVersion}
                     </p>
-                    <p className="text-steel mt-1 text-sm tabular-nums">
-                      {result.activeShareCount} share aktif
+                    <p className="text-ink-muted mt-1 text-sm tabular-nums">
+                      {result.activeShareCount} tautan berbagi aktif
                     </p>
                   </div>
                   <DashboardOpenButton id={result.id} kind="result" />
@@ -128,13 +140,13 @@ export default async function DashboardPage() {
       </section>
 
       <section
-        className="mt-12 grid gap-px overflow-hidden rounded-[1.2rem] border border-white/12 bg-white/12 md:grid-cols-2"
+        className="mt-12 grid gap-px overflow-hidden rounded-lg border border-white/12 bg-white/12 md:grid-cols-2"
         aria-label="Kontrol akun"
       >
         <article className="bg-surface p-6">
-          <h2 className="text-xl font-normal">Privasi dan consent</h2>
-          <p className="text-steel mt-3 leading-7">
-            Periksa consent opsional, kebijakan retensi, export, dan penghapusan data.
+          <h2 className="text-xl font-normal">Privasi dan persetujuan</h2>
+          <p className="text-ink-muted mt-3 leading-7">
+            Periksa persetujuan opsional, masa penyimpanan, ekspor, dan penghapusan data.
           </p>
           <Link
             className="focus-ring mt-5 inline-flex min-h-11 items-center rounded-md border border-white/20 px-5 py-3 text-sm transition-colors duration-150 ease-out hover:bg-white/5"
@@ -145,9 +157,9 @@ export default async function DashboardPage() {
         </article>
         <article className="bg-surface p-6">
           <h2 className="text-xl font-normal">Hapus akun</h2>
-          <p className="text-steel mt-3 leading-7">
-            Hard-delete menghapus sesi, jawaban, hasil modular, share, feedback, dan data akun
-            terkait.
+          <p className="text-ink-muted mt-3 leading-7">
+            Penghapusan permanen mencakup sesi, jawaban, hasil, tautan berbagi, masukan, dan data
+            akun terkait.
           </p>
           <Link
             className="focus-ring border-danger-soft text-danger hover:bg-danger-soft mt-5 inline-flex min-h-11 items-center rounded-md border px-5 py-3 text-sm transition-colors duration-150 ease-out"
@@ -157,6 +169,6 @@ export default async function DashboardPage() {
           </Link>
         </article>
       </section>
-    </main>
+    </div>
   );
 }

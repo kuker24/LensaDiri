@@ -3,6 +3,7 @@ import { cleanup, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { SharedResultReport } from "@/components/shared-result-report";
+import { ResultReport } from "@/components/result-report";
 import { toExportResultView, toSafeSharedResultView } from "@/server/repositories/result-views";
 import type { PrivateResultView } from "@/server/repositories/assessment";
 
@@ -130,6 +131,18 @@ const prohibitedSharedFields = [
 ];
 
 describe("safe shared result projection", () => {
+  it("menampilkan refleksi praktis sebelum membuka detail teknis", () => {
+    render(createElement(ResultReport, { result: privateModularResult }));
+
+    expect(
+      screen.getByRole("heading", { name: "Baca sebagai pola, bukan batasan." }),
+    ).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Mulai dari keseharian" })).toBeVisible();
+    expect(
+      screen.getByText("Detail hasil dan cara membaca confidence").closest("details"),
+    ).not.toHaveAttribute("open");
+  });
+
   it("keeps private modular diagnostics private and allowlists public summary fields", () => {
     expect(privateModularResult.kind).toBe("modular");
     if (privateModularResult.kind !== "modular") throw new Error("Expected modular fixture.");
@@ -217,7 +230,7 @@ describe("safe shared result projection", () => {
     expect(screen.getByText("INFP")).toBeInTheDocument();
     expect(screen.getByText("Bukan instrumen proprietary.")).toBeInTheDocument();
     expect(
-      screen.getByText("Bagian ini dipertahankan hanya untuk kompatibilitas hasil MVP lama."),
+      screen.getByText("Bagian ini dipertahankan agar hasil lama tetap dapat dibaca."),
     ).toBeInTheDocument();
     expect(screen.queryByText(/Confidence/i)).not.toBeInTheDocument();
   });

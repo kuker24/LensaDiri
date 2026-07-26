@@ -2,20 +2,18 @@ import { expect, test } from "@playwright/test";
 
 test("modular selection estimates, starts, pauses, resumes, and completes", async ({ page }) => {
   await page.goto("/start/modules");
-  await expect(
-    page.getByRole("heading", { name: "Pilih lensa yang ingin kamu pahami." }),
-  ).toBeVisible();
-  await expect(page.getByText("Estimasi dari server")).toBeVisible();
-  await expect(page.getByText(/item · sekitar/u)).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Apa yang ingin kamu pahami?" })).toBeVisible();
+  await expect(page.getByText("Pilihanmu")).toBeVisible();
+  await expect(page.getByText(/pertanyaan · sekitar/u)).toBeVisible();
 
   await page.getByRole("checkbox", { name: /RIASEC/u }).check();
   await page.getByRole("checkbox", { name: /Profil Trait/u }).uncheck();
   await page.getByRole("button", { name: /Quick/u }).click();
-  await expect(page.getByText(/24 item · sekitar/u)).toBeVisible();
+  await expect(page.getByText(/24 pertanyaan · sekitar/u)).toBeVisible();
   await page.getByRole("button", { name: "Tinjau pilihan" }).click();
   await expect(page).toHaveURL(/\/start\/review$/u);
   await page.getByRole("checkbox").check();
-  await page.getByRole("button", { name: "Mulai assessment" }).click();
+  await page.getByRole("button", { name: "Mulai asesmen" }).click();
   await expect(page).toHaveURL(/\/test\//u);
   await expect(page.getByText(/Bagian 1 dari 1/u)).toBeVisible();
 
@@ -37,12 +35,11 @@ test("modular selection estimates, starts, pauses, resumes, and completes", asyn
   await expect(page).toHaveURL(/\/result\//u);
   await expect(page.getByRole("heading", { name: "RIASEC" })).toBeVisible();
   await expect(page.getByText(/Confidence keseluruhan/u)).toBeVisible();
-  // §17.2: session meta with mode, selected lenses, completion date, scoring versions.
-  const sessionMeta = page.getByRole("region", { name: "Ringkasan sesi" });
-  await expect(page.getByRole("heading", { name: "Ringkasan sesi" })).toBeVisible();
-  await expect(sessionMeta.getByRole("term").filter({ hasText: "Mode" })).toBeVisible();
-  await expect(sessionMeta.getByText("Quick", { exact: true })).toBeVisible();
-  await expect(page.getByText(/Versi scoring/u)).toBeVisible();
+  // §17.2: session meta remains available through explicit progressive disclosure.
+  await page.getByText("Detail hasil dan cara membaca confidence").click();
+  await expect(page.getByRole("term").filter({ hasText: "Mode" })).toBeVisible();
+  await expect(page.getByText("Quick", { exact: true })).toBeVisible();
+  await expect(page.getByText(/Versi penilaian/u)).toBeVisible();
   await expect(page.getByText(/riasec-score-1/u)).toBeVisible();
 });
 
@@ -56,7 +53,7 @@ test("guarded lenses enforce age and acknowledgment before Psychosophy completio
   await expect(page.getByRole("alert").filter({ hasText: /batas usia/u })).toBeVisible();
 
   await page.getByRole("spinbutton", { name: /Usia/u }).fill("18");
-  await expect(page.getByText(/24 item · sekitar/u)).toBeVisible();
+  await expect(page.getByText(/24 pertanyaan · sekitar/u)).toBeVisible();
 
   await page.getByRole("checkbox", { name: /Refleksi Attachment/u }).uncheck();
   await page.getByRole("checkbox", { name: /Psychosophy Eksperimental/u }).check();
@@ -65,11 +62,11 @@ test("guarded lenses enforce age and acknowledgment before Psychosophy completio
     page.getByRole("alert").filter({ hasText: /Konfirmasi lensa eksperimental/u }),
   ).toBeVisible();
   await page.getByRole("checkbox", { name: /Aku memahami lensa eksperimental/u }).check();
-  await expect(page.getByText(/12 item · sekitar/u)).toBeVisible();
+  await expect(page.getByText(/12 pertanyaan · sekitar/u)).toBeVisible();
 
   await page.getByRole("button", { name: "Tinjau pilihan" }).click();
   await page.getByRole("checkbox", { name: /setuju jawabanku diproses/u }).check();
-  await page.getByRole("button", { name: "Mulai assessment" }).click();
+  await page.getByRole("button", { name: "Mulai asesmen" }).click();
   await expect(page).toHaveURL(/\/test\//u);
 
   for (let index = 0; index < 12; index += 1) {
@@ -78,7 +75,10 @@ test("guarded lenses enforce age and acknowledgment before Psychosophy completio
   await page.getByRole("button", { name: "Lihat hasil" }).click();
   await expect(page).toHaveURL(/\/result\//u);
   await expect(page.getByRole("heading", { name: "Psychosophy" })).toBeVisible();
-  await expect(page.getByText("Confidence evidence-oriented tidak dihitung")).toBeVisible();
+  await expect(
+    page.getByText("Confidence keseluruhan tidak dihitung untuk lensa eksperimental."),
+  ).toBeVisible();
+  await page.getByText("Lihat skor dan keterbatasan lensa").click();
   await expect(page.getByText(/Catatan ambiguitas/u)).toBeVisible();
   await expect(page.getByText(/hanya untuk refleksi eksploratif/u)).toBeVisible();
 });
@@ -106,10 +106,10 @@ test("Quick assessment autosaves, resumes, completes, shares, exports, revokes, 
   await expect(page.getByRole("heading", { name: "Lima spektrum" })).toBeVisible();
   await expect(page.getByText(/bukan diagnosis/u)).toBeVisible();
   await expect(page.getByRole("heading", { name: "Lensa reflektif" })).toBeVisible();
-  await page.getByLabel("Rating 1 sampai 5").selectOption("5");
+  await page.getByLabel("Nilai 1 sampai 5").selectOption("5");
   await page.getByLabel("Catatan opsional").fill("Membantu memahami pola");
-  await page.getByRole("button", { name: "Kirim feedback" }).click();
-  await expect(page.getByRole("status").first()).toContainText("Feedback tersimpan");
+  await page.getByRole("button", { name: "Kirim masukan" }).click();
+  await expect(page.getByRole("status").first()).toContainText("Masukanmu tersimpan");
 
   const resultUrl = page.url();
   const resultToken = resultUrl.split("/result/")[1];
@@ -122,7 +122,7 @@ test("Quick assessment autosaves, resumes, completes, shares, exports, revokes, 
   // §17.2: retest control begins a fresh session without deleting this result.
   await expect(page.getByRole("link", { name: "Tes ulang" })).toHaveAttribute("href", "/start");
 
-  await page.getByRole("button", { name: "Buat link berbagi" }).click();
+  await page.getByRole("button", { name: "Buat tautan berbagi" }).click();
   const sharedLink = page.getByRole("link", { name: /\/shared\//u });
   await expect(sharedLink).toBeVisible();
   const shareUrl = await sharedLink.getAttribute("href");
@@ -131,8 +131,8 @@ test("Quick assessment autosaves, resumes, completes, shares, exports, revokes, 
   await sharedPage.goto(shareUrl!);
   await expect(sharedPage.getByRole("heading", { name: "Lima spektrum" })).toBeVisible();
 
-  await page.getByRole("button", { name: "Cabut semua link" }).click();
-  await expect(page.getByText("Semua link aktif dicabut.")).toBeVisible();
+  await page.getByRole("button", { name: "Cabut semua tautan" }).click();
+  await expect(page.getByText("Semua tautan aktif dicabut.")).toBeVisible();
   await sharedPage.reload();
   await expect(sharedPage.getByText(/Hasil tidak ditemukan/u)).toBeVisible();
   await sharedPage.close();

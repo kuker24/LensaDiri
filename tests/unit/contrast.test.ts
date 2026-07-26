@@ -41,7 +41,7 @@ describe("critical design token contrast", () => {
   test.each([
     ["ink on canvas", "ink", "canvas", 4.5],
     ["muted ink on canvas", "ink-muted", "canvas", 4.5],
-    ["canvas text on lens", "canvas", "lens", 4.5],
+    ["ink text on lens", "ink", "lens", 4.5],
     ["aperture focus on canvas", "aperture", "canvas", 3],
     ["danger on canvas", "danger", "canvas", 4.5],
   ])("%s meets its WCAG threshold", (_name, foreground, background, threshold) => {

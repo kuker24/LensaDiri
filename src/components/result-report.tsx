@@ -65,14 +65,14 @@ const labels: Record<string, string> = {
   low_variance: "variasi respons rendah",
   consistency_unavailable: "konsistensi belum tersedia",
   reverse_inconsistency: "pasangan respons kurang konsisten",
-  inconsistent_pair: "pasangan forward dan reverse bertentangan",
+  inconsistent_pair: "jawaban pada pasangan pernyataan berlawanan kurang selaras",
   threshold_ambiguity: "skor dekat batas",
   excessive_midpoint: "terlalu banyak respons tengah",
-  clarifier_recommended: "clarifier direkomendasikan",
-  clarifier_completed: "clarifier selesai",
-  clarifier_skipped: "clarifier dilewati",
+  clarifier_recommended: "pertanyaan tambahan disarankan",
+  clarifier_completed: "pertanyaan tambahan selesai",
+  clarifier_skipped: "pertanyaan tambahan dilewati",
   weakest_module_low_confidence: "satu lensa memiliki confidence rendah",
-  mixed_evidence_tiers: "tier bukti beragam",
+  mixed_evidence_tiers: "tingkat bukti beragam",
 };
 
 const narrativeLabels: Record<string, string> = {
@@ -89,7 +89,7 @@ const narrativeLabels: Record<string, string> = {
   "correlation.readiness.context_balance":
     "Dorongan bersiap dan kepekaan emosional memberi konteks yang saling melengkapi.",
   "correlation.mixed_confidence.caution":
-    "Confidence antar-lensa belum merata. Utamakan lensa dengan confidence lebih kuat.",
+    "Confidence antar-lensa belum merata. Utamakan lensa dengan confidence yang lebih tinggi.",
 };
 
 function formatKey(value: string): string {
@@ -134,17 +134,20 @@ function ReflectionList({ items }: { items: readonly string[] }) {
   return (
     <ul className="text-ink-muted mt-3 space-y-2 leading-7">
       {items.map((item) => (
-        <li key={item}>{item}</li>
+        <li className="flex gap-3" key={item}>
+          <span aria-hidden="true" className="text-aperture">
+            ·
+          </span>
+          <span>{item}</span>
+        </li>
       ))}
     </ul>
   );
 }
 
 const reportAnchors = [
-  { href: "#result-meta-heading", label: "Ringkasan" },
-  { href: "#quality-heading", label: "Confidence" },
+  { href: "#practical-heading", label: "Mulai di sini" },
   { href: "#module-sections", label: "Per lensa" },
-  { href: "#practical-heading", label: "Refleksi praktis" },
 ];
 
 function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "modular" }> }) {
@@ -155,19 +158,21 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
 
   return (
     <div>
-      <div className="lens-glow bg-surface relative overflow-hidden rounded-[1.2rem] border border-white/14 p-7 sm:p-10">
-        <p className="mono-label text-aperture">Hasil modularmu</p>
-        <h1 className="mt-4 text-3xl font-medium tracking-[-0.035em] sm:text-5xl">
-          {result.modules.length} lensa reflektif
+      <div className="border-y border-white/20 py-8 sm:py-12">
+        <p className="mono-label text-aperture">Hasil pribadimu · {result.modules.length} lensa</p>
+        <h1 className="mt-4 max-w-3xl text-3xl font-medium tracking-[-0.035em] sm:text-5xl">
+          Baca sebagai pola, bukan batasan.
         </h1>
         <p className="text-ink-muted mt-5 max-w-2xl leading-7">{result.summary.disclaimer}</p>
         <div className="mt-5 flex flex-wrap items-center gap-3">
-          <span className="border-lens/30 bg-lens-soft text-aperture rounded-md border px-3 py-1.5 text-sm font-semibold tabular-nums">
+          <span className="border-line bg-surface rounded-sm border px-3 py-1.5 text-sm font-semibold tabular-nums">
             {hasEvidenceOrientedModule
               ? `Confidence keseluruhan ${Math.round(result.quality.confidence * 100)}%`
-              : "Confidence evidence-oriented tidak dihitung"}
+              : "Confidence keseluruhan tidak dihitung untuk lensa eksperimental."}
           </span>
-          <span className="text-ink-muted text-sm">Skor primer server-side · private</span>
+          <span className="text-ink-muted text-sm">
+            Skor primer dihitung server · hasil pribadi
+          </span>
         </div>
       </div>
 
@@ -183,14 +188,57 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
         ))}
       </nav>
 
-      <section
-        className="border-line bg-surface mt-6 rounded-lg border p-5"
-        aria-labelledby="result-meta-heading"
-      >
-        <h2 className="text-ink-muted text-sm font-semibold" id="result-meta-heading">
-          Ringkasan sesi
+      <section aria-labelledby="practical-heading-title" className="mt-10" id="practical-heading">
+        <div className="max-w-2xl">
+          <h2 className="text-2xl font-medium tracking-[-0.025em]" id="practical-heading-title">
+            Mulai dari keseharian
+          </h2>
+          <p className="text-ink-muted mt-2 leading-7">
+            Gunakan bagian yang terasa relevan. Sisanya boleh kamu abaikan atau periksa lagi di
+            konteks berbeda.
+          </p>
+        </div>
+        <div className="border-line mt-5 divide-y divide-white/14 border-y">
+          {[
+            ["Komunikasi", integrated.communication],
+            ["Belajar", integrated.learning],
+            ["Kerja", integrated.work],
+            ["Relasi", integrated.relationships],
+            ["Saat stres", integrated.stress],
+          ].map(([title, text]) => (
+            <article className="grid gap-1 py-4 sm:grid-cols-[9rem_1fr] sm:gap-6" key={title}>
+              <h3 className="font-semibold">{title}</h3>
+              <p className="text-ink-muted text-sm leading-6">{text}</p>
+            </article>
+          ))}
+        </div>
+      </section>
+
+      <section className="mt-10" aria-label="Rencana pengembangan">
+        <h2 className="text-2xl font-medium tracking-[-0.025em]">Langkah berikutnya</h2>
+        <div className="mt-5 grid gap-px overflow-hidden rounded-lg border border-white/14 bg-white/14 md:grid-cols-2">
+          <article className="bg-surface p-5 sm:p-6">
+            <h3 className="text-lg font-medium">7 hari ke depan</h3>
+            <ReflectionList items={integrated.growth7Days} />
+          </article>
+          <article className="bg-surface p-5 sm:p-6">
+            <h3 className="text-lg font-medium">30 hari ke depan</h3>
+            <ReflectionList items={integrated.growth30Days} />
+          </article>
+        </div>
+      </section>
+
+      <details className="border-line mt-10 border-y py-4" id="result-details">
+        <summary className="focus-ring flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 font-medium [&::-webkit-details-marker]:hidden">
+          <span>Detail hasil dan cara membaca confidence</span>
+          <span aria-hidden="true" className="text-ink-muted font-mono text-lg">
+            +
+          </span>
+        </summary>
+        <h2 className="sr-only" id="result-meta-heading">
+          Detail hasil
         </h2>
-        <dl className="mt-3 grid gap-4 sm:grid-cols-2">
+        <dl className="mt-5 grid gap-4 sm:grid-cols-2">
           <div>
             <dt className="text-ink-muted text-xs font-semibold">Mode</dt>
             <dd className="mt-1 text-sm leading-6">{getPublicModeName(result.mode)}</dd>
@@ -206,7 +254,7 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
             <dd className="mt-1 text-sm leading-6">{formatDate(result.createdAt)}</dd>
           </div>
           <div className="sm:col-span-2">
-            <dt className="text-ink-muted text-xs font-semibold">Versi scoring</dt>
+            <dt className="text-ink-muted text-xs font-semibold">Versi penilaian</dt>
             <dd className="mt-1 flex flex-wrap gap-2">
               {result.modules.map((module) => (
                 <span
@@ -219,27 +267,23 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
             </dd>
           </div>
         </dl>
-      </section>
+        <div className="border-line mt-5 border-t pt-5" aria-labelledby="quality-heading">
+          <h2 className="font-medium" id="quality-heading">
+            Cara membaca confidence
+          </h2>
+          <p className="text-ink-muted mt-2 text-sm leading-6">
+            Confidence menjelaskan kelengkapan cakupan dimensi dan konsistensi jawaban, bukan
+            kepastian identitas atau validasi psikometrik formal.
+          </p>
+          <p className="text-ink-muted mt-2 text-sm leading-6">
+            {result.quality.flags.length > 0
+              ? `Catatan pribadi: ${result.quality.flags.map(formatKey).join(", ")}.`
+              : "Pemeriksaan otomatis tidak menemukan catatan kualitas utama."}
+          </p>
+        </div>
+      </details>
 
-      <section
-        className="border-aperture-soft bg-aperture-soft text-ink mt-6 rounded-lg border p-5"
-        aria-labelledby="quality-heading"
-      >
-        <h2 className="text-xl font-medium tracking-[-0.02em]" id="quality-heading">
-          Confidence dan kualitas respons
-        </h2>
-        <p className="mt-2 text-sm leading-6">
-          Confidence menjelaskan kekuatan coverage dan konsistensi jawaban, bukan kepastian
-          identitas atau validasi psikometrik formal.
-        </p>
-        <p className="mt-2 text-sm leading-6">
-          {result.quality.flags.length > 0
-            ? `Catatan private: ${result.quality.flags.map(formatKey).join(", ")}.`
-            : "Tidak ada quality warning utama pada pemeriksaan otomatis."}
-        </p>
-      </section>
-
-      <div className="mt-8 space-y-8" id="module-sections">
+      <div className="mt-12 space-y-8" id="module-sections">
         {result.modules.map((module) => {
           const reflection = buildModuleReflection(module);
           const alternate = alternateCandidate(module.ambiguity);
@@ -247,7 +291,7 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
           return (
             <section
               aria-labelledby={`module-${module.moduleKey}`}
-              className="border-line bg-surface rounded-[1.2rem] border p-6"
+              className="border-line border-t pt-7"
               key={module.moduleKey}
             >
               <div className="flex flex-wrap items-baseline justify-between gap-3">
@@ -261,64 +305,74 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
                   Confidence {Math.round(module.confidence * 100)}%
                 </span>
               </div>
-              <div className="mt-5 space-y-5">
-                {module.scores.map((score) => (
-                  <div key={`${score.constructKey}-${score.facetKey}`}>
-                    <div className="flex justify-between gap-4">
-                      <h3 className="font-semibold capitalize">{formatKey(score.constructKey)}</h3>
-                      <span className="font-semibold tabular-nums">{score.normalizedScore}</span>
-                    </div>
-                    <div
-                      className="bg-line mt-3 h-1.5 overflow-hidden rounded-full"
-                      role="img"
-                      aria-label={`${formatKey(score.constructKey)} ${score.normalizedScore} dari 100`}
-                    >
-                      <div
-                        className="bg-lens h-full rounded-full"
-                        style={{ width: `${score.normalizedScore}%` }}
-                      />
-                    </div>
-                  </div>
-                ))}
-              </div>
-              <div className="border-line mt-5 flex flex-wrap items-center gap-2 border-t pt-5 text-sm">
-                <span className="border-lens/30 bg-lens-soft text-aperture rounded-md border px-3 py-1 font-semibold">
-                  Evidence {module.evidenceTier.replace("_", " ")}
-                </span>
-                <span className="border-line bg-mist text-ink-muted rounded-sm border px-3 py-1 tabular-nums">
-                  Completion {Math.round(module.quality.completion * 100)}%
-                </span>
-              </div>
-              <div className="mt-6 grid gap-5 md:grid-cols-2">
-                <article className="border-line bg-lens-soft/40 rounded-lg border p-5">
-                  <h3 className="font-semibold">Strengths yang mungkin terasa</h3>
+              <p className="text-ink-muted mt-4 max-w-3xl leading-7">
+                {reflection.practicalReflection}
+              </p>
+              <div className="border-line mt-6 grid gap-px overflow-hidden rounded-lg border bg-white/14 md:grid-cols-2">
+                <article className="bg-surface p-5">
+                  <h3 className="font-semibold">Hal yang mungkin membantu</h3>
                   <ReflectionList items={reflection.strengths} />
                 </article>
-                <article className="border-line bg-mist rounded-lg border p-5">
-                  <h3 className="font-semibold">Blind spots untuk diperiksa</h3>
+                <article className="bg-surface p-5">
+                  <h3 className="font-semibold">Hal yang perlu diperiksa</h3>
                   <ReflectionList items={reflection.blindSpots} />
                 </article>
               </div>
-              <p className="text-ink-muted mt-5 text-sm leading-6">
-                {reflection.practicalReflection}
-              </p>
-              {alternate ? (
-                <p className="border-aperture-soft bg-aperture-soft text-ink mt-4 rounded-md border px-4 py-3 text-sm leading-6">
-                  <span className="font-semibold">Kandidat alternatif:</span> {alternate}. Skor
-                  beberapa dimensi dekat batas, jadi baca hasil ini sebagai kecenderungan, bukan
-                  label pasti.
-                </p>
-              ) : (
-                <p className="border-aperture-soft bg-aperture-soft text-ink mt-4 rounded-md border px-4 py-3 text-sm leading-6">
-                  <span className="font-semibold">Catatan ambiguitas:</span>{" "}
-                  {ambiguityNote(module.ambiguity)}
-                </p>
-              )}
-              {limitation ? (
-                <p className="text-ink-muted mt-4 text-xs leading-6">
-                  <span className="font-semibold">Catatan keterbatasan:</span> {limitation}
-                </p>
-              ) : null}
+              <details className="border-line mt-5 border-y py-3">
+                <summary className="focus-ring flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 text-sm font-semibold [&::-webkit-details-marker]:hidden">
+                  <span>Lihat skor dan keterbatasan lensa</span>
+                  <span aria-hidden="true" className="text-ink-muted font-mono text-lg">
+                    +
+                  </span>
+                </summary>
+                <div className="mt-5 space-y-5">
+                  {module.scores.map((score) => (
+                    <div key={`${score.constructKey}-${score.facetKey}`}>
+                      <div className="flex justify-between gap-4">
+                        <h3 className="font-semibold capitalize">
+                          {formatKey(score.constructKey)}
+                        </h3>
+                        <span className="font-semibold tabular-nums">{score.normalizedScore}</span>
+                      </div>
+                      <div
+                        className="bg-line mt-3 h-1.5 overflow-hidden rounded-sm"
+                        role="img"
+                        aria-label={`${formatKey(score.constructKey)} ${score.normalizedScore} dari 100`}
+                      >
+                        <div
+                          className="bg-lens h-full rounded-sm"
+                          style={{ width: `${score.normalizedScore}%` }}
+                        />
+                      </div>
+                    </div>
+                  ))}
+                </div>
+                <div className="border-line mt-5 flex flex-wrap items-center gap-2 border-t pt-5 text-sm">
+                  <span className="border-line bg-surface rounded-sm border px-3 py-1 font-semibold">
+                    Tingkat bukti {module.evidenceTier.replace("_", " ")}
+                  </span>
+                  <span className="border-line bg-mist text-ink-muted rounded-sm border px-3 py-1 tabular-nums">
+                    Kelengkapan {Math.round(module.quality.completion * 100)}%
+                  </span>
+                </div>
+                {alternate ? (
+                  <p className="border-aperture-soft bg-aperture-soft text-ink mt-4 rounded-md border px-4 py-3 text-sm leading-6">
+                    <span className="font-semibold">Kandidat alternatif:</span> {alternate}. Skor
+                    beberapa dimensi dekat batas, jadi baca hasil ini sebagai kecenderungan, bukan
+                    label pasti.
+                  </p>
+                ) : (
+                  <p className="border-aperture-soft bg-aperture-soft text-ink mt-4 rounded-md border px-4 py-3 text-sm leading-6">
+                    <span className="font-semibold">Catatan ambiguitas:</span>{" "}
+                    {ambiguityNote(module.ambiguity)}
+                  </p>
+                )}
+                {limitation ? (
+                  <p className="text-ink-muted mt-4 text-xs leading-6">
+                    <span className="font-semibold">Catatan keterbatasan:</span> {limitation}
+                  </p>
+                ) : null}
+              </details>
             </section>
           );
         })}
@@ -349,37 +403,6 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
           </div>
         </section>
       ) : null}
-
-      <section aria-labelledby="practical-heading-title" className="mt-8" id="practical-heading">
-        <h2 className="text-2xl font-medium tracking-[-0.025em]" id="practical-heading-title">
-          Refleksi praktis lintas konteks
-        </h2>
-        <div className="mt-5 grid gap-5 md:grid-cols-2">
-          {[
-            ["Komunikasi", integrated.communication],
-            ["Belajar", integrated.learning],
-            ["Kerja", integrated.work],
-            ["Relasi", integrated.relationships],
-            ["Saat stres", integrated.stress],
-          ].map(([title, text]) => (
-            <article className="border-line bg-surface rounded-lg border p-5" key={title}>
-              <h3 className="font-semibold">{title}</h3>
-              <p className="text-ink-muted mt-2 text-sm leading-6">{text}</p>
-            </article>
-          ))}
-        </div>
-      </section>
-
-      <section className="mt-8 grid gap-5 md:grid-cols-2" aria-label="Rencana pengembangan">
-        <article className="border-line bg-surface rounded-lg border p-6">
-          <h2 className="text-xl font-medium tracking-[-0.02em]">Growth action 7 hari</h2>
-          <ReflectionList items={integrated.growth7Days} />
-        </article>
-        <article className="border-line bg-surface rounded-lg border p-6">
-          <h2 className="text-xl font-medium tracking-[-0.02em]">Growth action 30 hari</h2>
-          <ReflectionList items={integrated.growth30Days} />
-        </article>
-      </section>
     </div>
   );
 }
@@ -408,12 +431,12 @@ export function ResultReport({ result }: { result: ResultView }) {
                 <span className="font-semibold tabular-nums">{score.normalizedScore}</span>
               </div>
               <div
-                className="bg-line mt-3 h-1.5 overflow-hidden rounded-full"
+                className="bg-line mt-3 h-1.5 overflow-hidden rounded-sm"
                 role="img"
                 aria-label={`${labels[score.constructKey]} ${score.normalizedScore} dari 100`}
               >
                 <div
-                  className="bg-lens h-full rounded-full"
+                  className="bg-lens h-full rounded-sm"
                   style={{ width: `${score.normalizedScore}%` }}
                 />
               </div>
@@ -426,10 +449,10 @@ export function ResultReport({ result }: { result: ResultView }) {
       </section>
       <section className="mt-8" aria-labelledby="overlay-heading">
         <h2 className="text-2xl font-medium tracking-[-0.025em]" id="overlay-heading">
-          Lensa reflektif legacy
+          Lensa reflektif dari versi sebelumnya
         </h2>
         <p className="text-ink-muted mt-2 text-sm">
-          Bagian ini dipertahankan hanya untuk kompatibilitas hasil MVP lama.
+          Bagian ini dipertahankan agar hasil lama tetap dapat dibaca.
         </p>
         <div className="mt-5 flex flex-wrap gap-4">
           {Object.entries(result.summary.overlays).map(([key, overlay]) => (

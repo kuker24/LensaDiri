@@ -45,13 +45,13 @@ test("account lifecycle registers, logs in, rejects wrong deletion password, the
   const deleteButton = page.getByRole("button", { name: "Hapus akun permanen" });
   await expect(deleteButton).toBeDisabled();
 
-  await page.getByLabel("Password saat ini").fill("wrong password value");
+  await page.getByLabel("Kata sandi saat ini").fill("wrong password value");
   await page.getByLabel(/Ketik HAPUS AKUN/u).fill("HAPUS AKUN");
   await expect(deleteButton).toBeEnabled();
   await deleteButton.click();
-  await expect(page.getByText("Password tidak cocok. Akun belum dihapus.")).toBeVisible();
+  await expect(page.getByText("Kata sandi tidak cocok. Akun belum dihapus.")).toBeVisible();
 
-  await page.getByLabel("Password saat ini").fill(password);
+  await page.getByLabel("Kata sandi saat ini").fill(password);
   await deleteButton.click();
   await expect(page).toHaveURL(/\/?account=deleted$/u);
 

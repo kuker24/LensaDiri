@@ -6,6 +6,12 @@ import { useState } from "react";
 import { postAuthenticatedMutation } from "@/lib/auth/client";
 import type { ConsentType } from "@/server/repositories/consents";
 
+const decisionLabels = {
+  accepted: "Diizinkan",
+  not_set: "Belum dipilih",
+  rejected: "Ditolak",
+} as const;
+
 export function ConsentDecisionControl({
   consentType,
   decision,
@@ -30,7 +36,7 @@ export function ConsentDecisionControl({
       });
       router.refresh();
     } catch {
-      setError("Keputusan consent belum tersimpan.");
+      setError("Keputusan persetujuan belum tersimpan.");
     } finally {
       setPending(false);
     }
@@ -38,8 +44,8 @@ export function ConsentDecisionControl({
 
   return (
     <div className="mt-4">
-      <p className="text-sm font-semibold capitalize" aria-live="polite">
-        Status: {decision.replaceAll("_", " ")}
+      <p className="text-sm font-semibold" aria-live="polite">
+        Status: {decisionLabels[decision]}
       </p>
       <div className="mt-3 flex flex-wrap gap-3">
         <button
