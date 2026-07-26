@@ -1,71 +1,56 @@
-# Project Handoff
+# Project Handoff (final — hobby modular engineering)
 
-> Final audit 2026-07-26 · `main` @ `e8186df`.
+> Release tag `v0.9.0-hobby-modular` · `main` @ `bdeeec5` · 2026-07-26.
 
-## Current objective
+## Verdict
 
-Residual gates only. **Do not** claim 100% PRD, fake formal item approval, psychometrics, WCAG cert, Full Spectrum over-cap publish, or live email without operator secrets.
+| Lens                                        | Status                                    |
+| ------------------------------------------- | ----------------------------------------- |
+| **Hobby modular engineering release-ready** | **100% YES** — shippable production hobby |
+| **Full PRD v2.0 product completion**        | **NO** (~72% weighted)                    |
+| Clinical / psychometric / WCAG cert         | **NO** — never claimed                    |
 
-## Release-ready verdict
+Full product still depends on: live email (#40), human item review (#41), Full Spectrum product path (#42), psychometrics (#43), manual a11y/WCAG (#44), AI narrative (#45).
 
-| Lens                                        | Verdict                                         |
-| ------------------------------------------- | ----------------------------------------------- |
-| Hobby modular **engineering** release-ready | **YES** (~90%)                                  |
-| Full PRD v2.0 product completion            | **NO** (~72%)                                   |
-| 100%                                        | **NO** until #40–#45 closed or explicit wontfix |
+## Verified green (closure)
 
-Matrix + weights: `docs/deployment/RELEASE_CLOSURE_GATES.md`.
+| Check                | Result                                     |
+| -------------------- | ------------------------------------------ |
+| `git` tree           | clean; `main` == `origin/main` @ `bdeeec5` |
+| CI on `bdeeec5`      | Quality + Database/browser **success**     |
+| Vercel               | Production deploy success                  |
+| `GET /api/health`    | `200` `{"status":"ok"}`                    |
+| `/api/modules`       | 10 modules; quick/standard/deep selectable |
+| `/api/combos`        | 5 presets; deep pilot; no full_spectrum    |
+| Migrations linked    | Local==Remote through `202607290001`       |
+| Open residual issues | **#40–#45** only                           |
+| Stale eng epics      | none (#2/#4/#5 closed)                     |
 
-## Current git state
+## Production flags
 
-- `main` @ `e8186df docs(ops): record Complex + precision production activation (#39)`
-- Prior: #38 deep overlay, #37 gates docs, #36 admin, #35 Resend code (dormant)
-- Residual issues: **#40** Resend · **#41** formal 6-module review · **#42** Full Spectrum · **#43** psychometrics · **#44** manual a11y · **#45** AI narrative
-- Closed epics: #2, #4, #5 (no open stale engineering epics)
+Composer **ON** · Complex **ON** · Provisional precision **ON** · AI **OFF** · Recovery delivery **dormant** · mandatory email verify **OFF**.
 
-## Production state (verified 2026-07-26)
+## Operator docs
 
-| Item                                 | State                                                                     |
-| ------------------------------------ | ------------------------------------------------------------------------- |
-| URL                                  | `https://lensadiri.vercel.app`                                            |
-| Migrations                           | Local==Remote through `202607290001`                                      |
-| `FEATURE_MODULAR_COMPOSER`           | **ON**                                                                    |
-| `FEATURE_COMPLEX_MODE`               | **ON**                                                                    |
-| `FEATURE_PROVISIONAL_PRECISION`      | **ON**                                                                    |
-| `FEATURE_AI_NARRATIVE`               | **OFF**                                                                   |
-| Modules                              | 10 selectable; 6 guardedBeta; draft items 147+147                         |
-| Combos public                        | 5 incl. `deep_self_discovery` **pilot**                                   |
-| `full_spectrum`                      | **draft** (over Complex cap)                                              |
-| Recovery email                       | Code live; **no** `RESEND_*` / `EMAIL_FROM` in Vercel Production env list |
-| `FEATURE_REQUIRE_EMAIL_VERIFICATION` | unset/OFF                                                                 |
-| Health                               | `200` `{"status":"ok"}`                                                   |
-| `/api/modules` deep                  | `isSelectable: true`                                                      |
-| Admin role accounts                  | 0                                                                         |
+| Doc                                        | Role                           |
+| ------------------------------------------ | ------------------------------ |
+| `CHANGELOG.md`                             | Release notes for this tag     |
+| `docs/deployment/RELEASE_ROLLBACK.md`      | Flag + deploy + email rollback |
+| `docs/deployment/RELEASE_CLOSURE_GATES.md` | Gate matrix + residual split   |
+| `.pi/EVIDENCE.md`                          | Activation + audit evidence    |
+| `docs/operations/OPERATIONS_RUNBOOK.md`    | Day-2 ops + checklist          |
 
-## Rollback (Complex / precision)
+## Do not
 
-```sql
-begin;
-select public.set_feature_flag_state('FEATURE_COMPLEX_MODE', true, false, null, 'Rollback Complex after activation window.');
-select public.set_feature_flag_state('FEATURE_PROVISIONAL_PRECISION', true, false, null, 'Rollback provisional precision.');
--- optional: set deep_self_discovery status back to draft
-commit;
-```
+- Claim 100% full product, clinical accuracy, validated psychometrics, or WCAG certification
+- Paste secrets; enable AI without consent/provider; publish full_spectrum over cap; fake item `approved`
+- Reset production DB or reverse migrations
 
-## Remaining gates (issue-backed)
+## Next work (issue-backed only)
 
-| Gate                                              | Class             | Issue |
-| ------------------------------------------------- | ----------------- | ----- |
-| Resend Preview → prod → optional mandatory verify | operator external | #40   |
-| Formal review 6 modules                           | human             | #41   |
-| Full Spectrum redesign / decision                 | product           | #42   |
-| Psychometrics                                     | external          | #43   |
-| Manual a11y / WCAG                                | external/human    | #44   |
-| AI narrative                                      | deferred          | #45   |
+1. **#40** operator Resend Preview→prod (secrets outside chat)
+2. **#41** human formal review six modules
+3. **#42** product decision Full Spectrum
+4. **#43–#45** external / deferred programs
 
-## Resume rules
-
-- No secrets in chat/files/history.
-- Disposable local DB only for destructive tests.
-- Canonical PRD v2.0; honest scientific language.
-- Close residual only with evidence; never fake status transitions.
+Engineering hobby modular lens is **closed**. Residual is external/product/human.

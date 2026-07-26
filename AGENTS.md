@@ -8,11 +8,9 @@ LensaDiri adalah platform eksplorasi kepribadian modular, privacy-first, dan mob
 
 ## Project State
 
-- Status repository: **ESTABLISHED**. Hobby production `https://lensadiri.vercel.app` (Supabase Singapore). Final audit 2026-07-26 `main` @ `e8186df`: engineering release-ready **~90%**; full PRD **~72%**; **not 100%**. Checkpoint: `.pi/HANDOFF.md` + `docs/deployment/RELEASE_CLOSURE_GATES.md`.
-- Status peta DOX: **CURRENT**. Residual issues #40 Resend · #41 formal 6-module review · #42 Full Spectrum · #43 psychometrics · #44 manual a11y · #45 AI narrative.
-- `docs/product/PRD_FULL_LensaDiri.md` v2.0 canonical. Production claims only from readiness + postcheck evidence.
-- Production: Quick/Standard legacy OK. Composer + Complex + provisional precision **ON**; AI **OFF**. 10 modules selectable (6 guardedBeta draft items). `deep_self_discovery` **pilot**; `full_spectrum` **draft**.
-- Auth + recovery **code** live; Resend delivery dormant without secrets. Admin read-only #36. Retention + audit 365d. Staging drill 2026-07-23 done; PITR/`pg_dump` partial.
+- Status repository: **ESTABLISHED**. Tag **`v0.9.0-hobby-modular`** @ `bdeeec5` (2026-07-26). Hobby modular **engineering release-ready 100%** (that lens). Full PRD product **~72%** — residual #40–#45. **Not** full-product 100%. No clinical/psychometric/WCAG cert claims.
+- Checkpoint: `.pi/HANDOFF.md`, `CHANGELOG.md`, `docs/deployment/RELEASE_CLOSURE_GATES.md`, `docs/deployment/RELEASE_ROLLBACK.md`.
+- Production: `https://lensadiri.vercel.app`. Composer + Complex + provisional precision **ON**; AI **OFF**. 10 modules; deep pilot; full_spectrum draft. Recovery code live; Resend delivery dormant. Admin read-only; retention 365d.
 
 ## Technology
 
