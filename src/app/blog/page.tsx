@@ -21,30 +21,36 @@ const articles = [
 
 export default function BlogPage() {
   return (
-    <main className="container-shell py-12 sm:py-18">
+    <section className="container-shell py-16 sm:py-24">
       <header className="max-w-3xl">
-        <p className="text-lens text-sm font-semibold">Blog dan edukasi</p>
-        <h1 className="mt-2 text-4xl font-semibold tracking-[-0.035em] sm:text-5xl">
+        <p className="mono-label text-aperture">Catatan / edukasi</p>
+        <h1 className="mt-5 text-4xl font-medium tracking-[-0.035em] sm:text-6xl">
           Membaca hasil dengan lebih hati-hati
         </h1>
         <p className="text-ink-muted mt-5 leading-7">
           Materi singkat tentang metode, batas interpretasi, dan kontrol privasi LensaDiri.
         </p>
       </header>
-      <ul className="mt-10 grid gap-5 md:grid-cols-3">
-        {articles.map((article) => (
-          <li className="border-line rounded-md border bg-white/90 p-6" key={article.title}>
-            <h2 className="text-ink text-xl font-semibold">{article.title}</h2>
-            <p className="text-ink-muted mt-3 leading-7">{article.summary}</p>
+      <ul className="border-line mt-12 border-t">
+        {articles.map((article, index) => (
+          <li
+            className="border-line grid gap-5 border-b py-8 md:grid-cols-[3rem_0.9fr_1.1fr_auto] md:items-center md:gap-8"
+            key={article.title}
+          >
+            <span className="text-ink-muted font-mono text-xs tabular-nums">
+              {String(index + 1).padStart(2, "0")}
+            </span>
+            <h2 className="text-ink text-xl font-medium tracking-[-0.02em]">{article.title}</h2>
+            <p className="text-ink-muted leading-7">{article.summary}</p>
             <Link
-              className="focus-ring text-lens mt-5 inline-flex min-h-11 items-center rounded font-semibold hover:underline"
+              className="focus-ring text-aperture hover:text-ink inline-flex min-h-11 items-center rounded-md font-medium transition-colors"
               href={article.href}
             >
-              Baca materi
+              Baca <span aria-hidden="true">↗</span>
             </Link>
           </li>
         ))}
       </ul>
-    </main>
+    </section>
   );
 }

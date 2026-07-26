@@ -41,16 +41,24 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   if (!article || !knownSlugs.has(slug)) notFound();
 
   return (
-    <main className="container-shell py-12">
-      <h1 className="font-display text-3xl font-semibold">{article.title}</h1>
-      {article.content.map((paragraph, index) => (
-        <p className="text-ink-muted mt-4 max-w-2xl leading-7" key={index}>
-          {paragraph}
-        </p>
-      ))}
-      <Link className="mt-8 inline-block underline" href="/blog">
-        Kembali ke blog
+    <article className="prose-shell py-16 sm:py-24">
+      <Link
+        className="focus-ring text-ink-muted hover:text-ink inline-flex min-h-11 items-center rounded-md text-sm transition-colors"
+        href="/blog"
+      >
+        ← Kembali ke catatan
       </Link>
-    </main>
+      <p className="mono-label text-aperture mt-10">Catatan LensaDiri</p>
+      <h1 className="mt-5 text-4xl leading-tight font-medium tracking-[-0.035em] sm:text-6xl">
+        {article.title}
+      </h1>
+      <div className="border-line mt-12 border-t pt-4">
+        {article.content.map((paragraph, index) => (
+          <p className="text-ink-muted mt-6 leading-8" key={index}>
+            {paragraph}
+          </p>
+        ))}
+      </div>
+    </article>
   );
 }
