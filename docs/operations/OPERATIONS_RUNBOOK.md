@@ -1,14 +1,16 @@
 # LensaDiri Operations Runbook
 
-## Maintenance mode (from `v0.9.0-hobby-modular`)
+## ARCHIVED / MAINTENANCE (from `v1.0.0-hobby-final`)
 
-Engineering hobby modular is **closed**. Default work:
+Hobby project **finalized** at `main` @ **`c535a6b`** · tag **`v1.0.0-hobby-final`**. Standing watch **CLOSED**.
+
+Reactive work only (real trigger required):
 
 - security patches, dependency updates, monitoring/health, retention cron observation
 - regression tests, backup/restore readiness (disposable only)
-- residual **#40 #41 #43 #44** external/optional only; **#42** DECIDED · **#45** DEFERRED_OFF; freeze `ab2fcdc`
+- residual **#40 #41 #43 #44** external/optional **not blockers**; **#42** DECIDED · **#45** DEFERRED_OFF; freeze baseline `ab2fcdc`
 
-Rules: **small PR**, **CI green**, **rollback documented**, no clinical/WCAG claims, no production DB reset.
+Rules: **small PR**, **CI green**, **rollback documented**, **health 200**, no clinical/WCAG claims, no production DB reset.
 
 Out of scope without explicit product re-open: new modules, major UI, AI narrative ON, Full Spectrum publish, fake formal review.
 
@@ -212,32 +214,34 @@ CI already exercises the same lifecycle with `RECOVERY_TEST_TRANSPORT=1` (integr
 
 ## Release checklist
 
-### Engineering ship gate (final hobby freeze — `main` @ `ab2fcdc`)
+### Engineering ship gate (final hobby release — `main` @ `c535a6b` / `v1.0.0-hobby-final`)
 
 - [x] Final hobby freeze pin `ab2fcdc` (eng baseline tag `v0.9.0-hobby-modular`)
-- [x] CI gates green on freeze line; residual docs #50
+- [x] Final hobby release tag `v1.0.0-hobby-final` @ `c535a6b` (docs archive #51 line + this close)
+- [x] Standing watch **CLOSED** — reactive maintenance only
+- [x] CI gates green on freeze line; residual docs #50; freeze docs #51
 - [x] migration Local==Remote through `202607290001` (linked list)
 - [x] production flags: composer ON; Complex ON; provisional precision ON; AI OFF
-- [x] health `200`; modules 10; deep selectable; combos 5 (deep pilot; full_spectrum draft)
+- [x] health `200`; audit high+ **0**; modules 10; deep selectable; combos 5 (deep pilot; full_spectrum draft)
 - [x] monitoring + rollback owner (`docs/deployment/RELEASE_ROLLBACK.md`)
 - [x] production seed **not** re-run on hosted
-- [x] full PRD stopped honestly ~75%; eng modular 100%
-- [x] changelog + handoff freeze recorded
+- [x] full PRD stopped honestly ~75%; eng modular 100%; hobby finalization 100%
+- [x] changelog + handoff archive recorded
 - [ ] Preview secrets never equal production Resend/DB (when Resend enabled)
 - [ ] Vercel/CI Node.js 22.x confirmed on next deploy window
 
-### Residual (external / optional — not eng reopeners)
+### Residual (external / optional — not blockers)
 
-| Gate                                          | Issue | Class             | Freeze                  |
+| Gate                                          | Issue | Class             | Status                  |
 | --------------------------------------------- | ----- | ----------------- | ----------------------- |
-| Resend Preview→prod→optional mandatory verify | #40   | operator optional | open                    |
-| Formal review 6 guarded modules               | #41   | human optional    | open                    |
+| Resend Preview→prod→optional mandatory verify | #40   | operator optional | open (not blocker)      |
+| Formal review 6 guarded modules               | #41   | human optional    | open (not blocker)      |
 | Full Spectrum multi-session decision          | #42   | product           | **closed DECIDED**      |
-| Psychometric program                          | #43   | external optional | open                    |
-| Manual a11y / WCAG cert                       | #44   | human optional    | open                    |
+| Psychometric program                          | #43   | external optional | open (not blocker)      |
+| Manual a11y / WCAG cert                       | #44   | human optional    | open (not blocker)      |
 | AI narrative                                  | #45   | deferred          | **closed DEFERRED_OFF** |
 
-Maintenance-only after freeze. Do **not** mark PRD 100% or scientific/WCAG certified. See `docs/deployment/RELEASE_CLOSURE_GATES.md` and `docs/deployment/RESIDUAL_HOBBY_CLOSE.md`.
+**ARCHIVED / MAINTENANCE.** Do **not** mark PRD 100% or scientific/WCAG certified. See `docs/deployment/RELEASE_CLOSURE_GATES.md` and `docs/deployment/RESIDUAL_HOBBY_CLOSE.md`.
 
 ## Observability rollback
 

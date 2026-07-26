@@ -1,25 +1,31 @@
-# Project Handoff — final hobby freeze
+# Project Handoff — final hobby release (ARCHIVED)
 
-> **Final hobby release pin:** `main` @ **`ab2fcdc`** · 2026-07-26
-> Tag eng baseline: `v0.9.0-hobby-modular` · residual close: PR #50
+> **Final hobby release:** `main` @ **`c535a6b`** · tag **`v1.0.0-hobby-final`** · 2026-07-26  
+> Product freeze baseline: `ab2fcdc` · eng baseline: `v0.9.0-hobby-modular`  
+> **Standing watch: CLOSED.** No active eng task queue.
 
-## Mode: MAINTENANCE ONLY
+## Status: ARCHIVED / MAINTENANCE
 
-This SHA is the **final hobby product freeze**. Do **not** treat residual external work as incomplete engineering.
+Hobby project **engineering + release finalization: 100% complete.**  
+Full PRD product still **stops honestly at ~75%** (external residual only).  
+Clinical / psychometric / WCAG cert: **never claim.**
 
-| Lens                                | Status                                                        |
-| ----------------------------------- | ------------------------------------------------------------- |
-| Hobby modular engineering           | **100% closed** at freeze pin                                 |
-| Full PRD product                    | **Stops honestly at ~75%** — not 100%                         |
-| Clinical / psychometric / WCAG cert | **Never claim**                                               |
-| AI narrative                        | **OFF** forever on free tier unless #45 reopened with funding |
+| Lens                                | Status                                   |
+| ----------------------------------- | ---------------------------------------- |
+| Hobby modular engineering           | **100% closed**                          |
+| Final hobby release tag             | **`v1.0.0-hobby-final` @ `c535a6b`**     |
+| Full PRD product                    | **Stops ~75%** — not 100%                |
+| Standing-watch eng task             | **CLOSED** — reopen only on real trigger |
+| Clinical / psychometric / WCAG cert | **Never claim**                          |
+| AI narrative                        | **OFF** unless #45 reopened with funding |
 
-## Freeze pin
+## Release pin
 
 | Field         | Value                                             |
 | ------------- | ------------------------------------------------- |
-| SHA           | `ab2fcdc80275594a2ed93636d346691b28abf6cb`        |
-| Short         | `ab2fcdc`                                         |
+| SHA           | `c535a6bd04140d079bf2f34289f0be5031637830`        |
+| Short         | `c535a6b`                                         |
+| Tag           | `v1.0.0-hobby-final`                              |
 | URL           | https://lensadiri.vercel.app                      |
 | Migrations    | Local==Remote through `202607290001`              |
 | Flags         | Composer · Complex · provisional precision **ON** |
@@ -29,7 +35,7 @@ This SHA is the **final hobby product freeze**. Do **not** treat residual extern
 | Combos        | 5 public; `deep_self_discovery` pilot             |
 | Full Spectrum | **draft** (DECIDED multi-session; #42 closed)     |
 
-## In scope (only)
+## In scope (only — reactive maintenance)
 
 | Work                     | Notes                                      |
 | ------------------------ | ------------------------------------------ |
@@ -40,7 +46,8 @@ This SHA is the **final hobby product freeze**. Do **not** treat residual extern
 | Backup/restore readiness | Disposable drill; no prod reset            |
 | Regression tests         | Unit / integration / e2e / pgTAP as needed |
 
-Every change: **small PR · CI green · clear rollback**.
+Trigger only: CVE · critical dep · health fail · monitor alert · retention · backup risk · regression.  
+Every change: **small PR · CI green · clear rollback · health 200**.
 
 ## Out of scope (hard ban)
 
@@ -51,10 +58,11 @@ Every change: **small PR · CI green · clear rollback**.
 - Publish / bulk-`approved` modules without human reviewers
 - Force-publish `full_spectrum` over Complex cap 120
 - Production DB reset or reverse migrations
+- Continuous standing-watch sprints without a real trigger
 
-## Residual (external / optional only)
+## Residual (external / optional — not blockers)
 
-Process docs exist. **Do not block maintenance** on these.
+Process docs exist. **Do not block archive or maintenance** on these.
 
 | #   | Class             | Topic                           | Doc                                               |
 | --- | ----------------- | ------------------------------- | ------------------------------------------------- |
@@ -77,7 +85,7 @@ Index: `docs/deployment/RESIDUAL_HOBBY_CLOSE.md`.
 
 ## Day-2 ops
 
-- Freeze + residual: `docs/deployment/RESIDUAL_HOBBY_CLOSE.md`
+- Residual index: `docs/deployment/RESIDUAL_HOBBY_CLOSE.md`
 - Gates: `docs/deployment/RELEASE_CLOSURE_GATES.md`
 - Runbook: `docs/operations/OPERATIONS_RUNBOOK.md`
 - Rollback: `docs/deployment/RELEASE_ROLLBACK.md`

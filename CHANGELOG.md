@@ -4,16 +4,36 @@ All notable releases of LensaDiri. Dates are UTC calendar days of the release ta
 
 Honest scope: entries mark **engineering / product** posture. Nothing here claims clinical diagnosis, psychometric validation, or third-party WCAG certification.
 
-## Unreleased (maintenance only)
+## Unreleased (reactive maintenance only)
 
-**Final hobby freeze:** `main` @ **`ab2fcdc`** (2026-07-26). Engineering modular **100%**. Full PRD **stops ~75%**. After freeze: security patches, deps, health, monitoring, retention, backup readiness, regression tests only. No large features, paid residual services, AI ON, WCAG/psychometric cert claims, or unreviewed publish.
+**Status:** **ARCHIVED / MAINTENANCE** after **`v1.0.0-hobby-final`**. Standing watch **CLOSED**. React only on CVE · critical dep · health fail · monitor alert · retention · backup risk · regression. No large features, paid residual services, AI ON, WCAG/psychometric cert claims, or unreviewed publish.
 
-### Final hobby freeze (2026-07-26)
+## [v1.0.0-hobby-final] — 2026-07-26
 
-- Pin: **`ab2fcdc`** · eng tag baseline `v0.9.0-hobby-modular` · residual docs #50
-- Residual open (external/optional): **#40** Resend · **#41** human review · **#43** psychometrics · **#44** manual a11y
-- Residual closed: **#42** Full Spectrum multi-session DECIDED · **#45** AI DEFERRED_OFF
+**Tag:** `v1.0.0-hobby-final` @ **`c535a6b`**  
+**URL:** https://lensadiri.vercel.app  
+**Hobby engineering + project finalization:** **100%**. Full PRD product: **stops ~75%** (honest).  
+**Mode:** **ARCHIVED / MAINTENANCE**. Standing watch **CLOSED**.
+
+### Release verification (at tag)
+
+- SHA `c535a6b` · tree clean · = origin/main
+- `GET /api/health` → **200** `{"status":"ok"}`
+- `npm audit --audit-level=high` → **0**
+- Residual **#40 #41 #43 #44** = external optional, **not blockers**
+- Residual closed: **#42** DECIDED · **#45** DEFERRED_OFF
+
+### What this tag is
+
+- Final hobby product freeze docs pin (#51) on engineering freeze `ab2fcdc`
+- Eng baseline tag: `v0.9.0-hobby-modular`
+- Archive declaration: no continuous standing-watch queue
 - Index: `docs/deployment/RESIDUAL_HOBBY_CLOSE.md` · handoff: `.pi/HANDOFF.md`
+
+### Final hobby freeze baseline (2026-07-26)
+
+- Product freeze pin: **`ab2fcdc`** · residual docs #50 · freeze docs #51 → `c535a6b`
+- Residual open (external/optional, not blockers): **#40** Resend · **#41** human review · **#43** psychometrics · **#44** manual a11y
 
 ### Residual hobby close (2026-07-26)
 
