@@ -108,7 +108,7 @@ from public.combo_presets
 order by key;
 ```
 
-Expect `deep_self_discovery` status `pilot` (Complex activation 2026-07-26); `full_spectrum` remains `draft` until capacity/product gate.
+Expect `deep_self_discovery` status `pilot` (Complex activation 2026-07-26); `full_spectrum` remains `draft` (capacity decision: multi-session only — `docs/product/FULL_SPECTRUM_CAPACITY_DECISION.md`).
 
 ## 7. Public API cross-check (no DB creds)
 

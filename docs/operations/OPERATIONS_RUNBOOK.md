@@ -166,6 +166,8 @@ Tidak ada data rollback. Migration `202607280001` additive dan hanya menambah fu
 
 ## Account recovery email
 
+Free-tier activation checklist (no paid plan required): `docs/operations/RESEND_FREE_TIER_ACTIVATION.md`. Residual index: `docs/deployment/RESIDUAL_HOBBY_CLOSE.md`.
+
 ### Status
 
 Recovery token foundation is live in schema and APIs. Delivery uses Resend when `RESEND_API_KEY` and `EMAIL_FROM` are both set; otherwise transport stays disabled and no token is issued. `FEATURE_REQUIRE_EMAIL_VERIFICATION` defaults off so existing accounts keep logging in without email verification.

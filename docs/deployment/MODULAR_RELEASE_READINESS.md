@@ -4,7 +4,7 @@ Gate aktivasi modular LensaDiri. Migration schema readiness ada di `PRD_V2_MIGRA
 
 ## Posture saat ini
 
-> Final audit 2026-07-26 · `main` @ `e8186df`. Engineering hobby modular **release-ready ~90%**. Full PRD completion **~72%** — residual #40–#45. Bukan 100%.
+> Final audit 2026-07-26 + residual hobby close. Engineering hobby modular **release-ready 100% of that lens**. Full PRD completion **~75%** — residual #40–#45 (see `RESIDUAL_HOBBY_CLOSE.md`). Bukan 100%.
 
 - Migrations Local==Remote through `202607290001`.
 - Canonical modular content 10 modul production **selectable**.

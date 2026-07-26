@@ -8,14 +8,14 @@ LensaDiri adalah platform eksplorasi kepribadian modular, privacy-first, dan mob
 
 ## Project State
 
-- Status repository: **MAINTENANCE** after tag **`v0.9.0-hobby-modular`** (`main` @ `1e59de4`, 2026-07-26). Hobby modular **engineering closed 100%**. Full PRD **~72%** — residual **#40–#45** only. **Not** full-product 100%. No clinical/psychometric/WCAG cert claims.
+- Status repository: **MAINTENANCE** after tag **`v0.9.0-hobby-modular`**. Hobby modular **engineering closed 100%**. Full PRD **~75%** — residual **#40–#45** (operator/human/external; process docs ready). **Not** full-product 100%. No clinical/psychometric/WCAG cert claims.
 - **No large features.** In scope: security patches, deps, monitoring, retention, health, regression tests, backup readiness, residual issues. Every change: small PR, CI green, clear rollback.
-- Checkpoint: `.pi/HANDOFF.md`, `CHANGELOG.md`, `docs/deployment/RELEASE_CLOSURE_GATES.md`, `docs/deployment/RELEASE_ROLLBACK.md`.
-- Production: `https://lensadiri.vercel.app`. Composer + Complex + provisional precision **ON**; AI **OFF**. 10 modules; deep pilot; full_spectrum draft. Recovery code live; Resend delivery dormant. Admin read-only; retention 365d.
+- Checkpoint: `.pi/HANDOFF.md`, `CHANGELOG.md`, `docs/deployment/RELEASE_CLOSURE_GATES.md`, `docs/deployment/RESIDUAL_HOBBY_CLOSE.md`, `docs/deployment/RELEASE_ROLLBACK.md`.
+- Production: `https://lensadiri.vercel.app`. Composer + Complex + provisional precision **ON**; AI **OFF**. 10 modules; deep pilot; full_spectrum **draft** (DECIDED multi-session). Recovery code live; Resend delivery dormant. Admin read-only; retention 365d.
 
 ## Technology
 
-- Next.js 16.2.11 App Router dan React 19.2.7.
+- Next.js 16.2.12 App Router dan React 19.2.7.
 - TypeScript strict, Tailwind CSS 4, ESLint, dan Prettier.
 - Zod 4 untuk validasi environment dan request boundary.
 - `postgres` sebagai driver PostgreSQL server-only, `argon2` untuk password hashing, dan `server-only` sebagai import guard.

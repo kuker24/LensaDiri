@@ -8,6 +8,21 @@ Honest scope: entries mark **engineering / product** posture. Nothing here claim
 
 Post-`v0.9.0-hobby-modular` only: security patches, deps, monitoring, retention, health, regression tests, backup readiness, residual #40–#45. No large features. Small PR + CI green + rollback.
 
+### Residual hobby close (2026-07-26)
+
+Free/hobby max without paid services or fake certs. Index: `docs/deployment/RESIDUAL_HOBBY_CLOSE.md`. Full PRD product **~75%** weighted (eng lens still 100%).
+
+| #   | Outcome                                                                              | Doc                                               |
+| --- | ------------------------------------------------------------------------------------ | ------------------------------------------------- |
+| 40  | Free-tier Resend activation runbook; delivery still dormant without operator secrets | `docs/operations/RESEND_FREE_TIER_ACTIVATION.md`  |
+| 41  | Human review packet for 6 guarded modules; no bulk-approve                           | `docs/operations/GUARDED_MODULE_REVIEW_PACKET.md` |
+| 42  | **DECIDED:** keep `full_spectrum` draft; multi-session path under Complex 120        | `docs/product/FULL_SPECTRUM_CAPACITY_DECISION.md` |
+| 43  | Psychometric prep only; not validated                                                | `docs/science/PSYCHOMETRIC_VALIDATION_PREP.md`    |
+| 44  | Manual a11y checklist; no WCAG self-cert                                             | `docs/qa/MANUAL_A11Y_CHECKLIST.md`                |
+| 45  | AI narrative **OFF** free-tier stance                                                | `docs/product/AI_NARRATIVE_FREE_TIER_STANCE.md`   |
+
+- **Skipped:** buying email/LLM/auditor; publishing Full Spectrum over cap; fake item `approved`; enabling AI.
+
 ### Maintenance cycle 1 (2026-07-26)
 
 - **Audit:** `npm audit` 0 vulns; format/lint/typecheck/unit PASS (157); build PASS; prod health/smoke PASS; liveness + retention monitors recent success.
