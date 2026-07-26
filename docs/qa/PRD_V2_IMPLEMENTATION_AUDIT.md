@@ -15,12 +15,12 @@ Post-incident audit menyimpulkan tidak ada BLOCKER atau MAJOR pada security, dat
 
 **Status rilis:**
 
-> Reconciliation note (2026-07-22): baris "Production schema parity: PENDING" dan "Production activation enam lensa baru: NOT RUN" di bawah adalah status pada waktu audit branch ini dan kini **superseded**. `supabase migration list --linked` (2026-07-22) menunjukkan `202607270001` sudah applied ke production, dan halaman publik menampilkan kesepuluh modul selectable. Lihat `docs/deployment/MODULAR_RELEASE_READINESS.md` dan `docs/deployment/PRODUCTION_MIGRATION_MAP.md` untuk status terkini.
+> Reconciliation note (2026-07-26 final): hobby modular **engineering release-ready YES (~90%)** on `main` @ `e8186df`. Complex + provisional precision ON; deep pilot; 10 modules; migrations through `202607290001`. Full PRD completion **~72%** — residual issues #40 Resend, #41 formal 6-module review, #42 Full Spectrum, #43 psychometrics, #44 manual a11y, #45 AI narrative. **Not 100%.** See `docs/deployment/RELEASE_CLOSURE_GATES.md`.
 
-- Engineering implementation: READY untuk 10 modul individual dan 4 preset yang fit coverage.
-- Production schema parity: PENDING kandidat additive `202607270001_guarded_all_lenses_release.sql`. _(Superseded — sudah applied, lihat catatan di atas.)_
-- UI design readiness: READY untuk label Published/Beta/Experimental, age gate, acknowledgement, estimate, runner, dan report.
-- Production activation enam lensa baru: NOT RUN dan membutuhkan approval terpisah (lihat `MODULAR_RELEASE_READINESS.md`). _(Superseded — activation sudah dilakukan via `202607270001`.)_
+- Engineering implementation: READY (10 modules, Complex ON, precision ON, deep pilot, admin read-only, retention).
+- Production schema parity: MATCH through `202607290001`.
+- UI design readiness: READY (labels, age gate, estimate, runner, report).
+- Residual external/product/human: OPEN #40–#45 — do not claim complete.
 
 ## Requirement matrix
 
