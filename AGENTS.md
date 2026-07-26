@@ -8,14 +8,11 @@ LensaDiri adalah platform eksplorasi kepribadian modular, privacy-first, dan mob
 
 ## Project State
 
-- Status repository: **ESTABLISHED**. Hobby production aktif di `https://lensadiri.vercel.app` (Supabase Singapore). Checkpoint agent: `.pi/HANDOFF.md` + gate matrix `docs/deployment/RELEASE_CLOSURE_GATES.md`.
-- Status peta DOX: **CURRENT**. Root map dan child DOX `src/`, `tests/`, `docs/`, serta `supabase/` membedakan baseline production, fitur flag-gated, dan residual external gates.
-- `docs/product/PRD_FULL_LensaDiri.md` versi 2.0 adalah canonical product and engineering contract. `docs/qa/PRD_V2_IMPLEMENTATION_AUDIT.md` mencatat evidence; refresh claim production hanya dari readiness + postcheck.
-- Public landing, metode, privasi, disclaimer, auth UI, dashboard, health, legacy assessment, modular selection/review/runner/report tersedia.
-- Internal auth: register/login/logout, session HttpOnly, CSRF, rate limit, Argon2id, hard-delete + re-auth. Recovery Resend transport + optional verification gate ada di kode; default OFF tanpa secret.
-- Production: Quick 40/Standard 60 tetap kompatibel. `FEATURE_MODULAR_COMPOSER`, `FEATURE_COMPLEX_MODE`, `FEATURE_PROVISIONAL_PRECISION` **ON**; `FEATURE_AI_NARRATIVE` **OFF**. 10 modul selectable (guarded). Preset `deep_self_discovery` **pilot**; `full_spectrum` **draft** (over cap).
-- Admin `/admin/*` read-only DB-backed, fail-closed. Retention cron + audit 365d applied. Staging restore drill 2026-07-23 terbukti; long-lived staging/PITR/`pg_dump` tetap partial/external. Direct DB postcheck 2026-07-26 recorded.
-- Residual external: Resend Preview→prod email, mandatory verification, formal review 6 modul, Full Spectrum capacity, psychometric, manual a11y.
+- Status repository: **ESTABLISHED**. Hobby production `https://lensadiri.vercel.app` (Supabase Singapore). Final audit 2026-07-26 `main` @ `e8186df`: engineering release-ready **~90%**; full PRD **~72%**; **not 100%**. Checkpoint: `.pi/HANDOFF.md` + `docs/deployment/RELEASE_CLOSURE_GATES.md`.
+- Status peta DOX: **CURRENT**. Residual issues #40 Resend · #41 formal 6-module review · #42 Full Spectrum · #43 psychometrics · #44 manual a11y · #45 AI narrative.
+- `docs/product/PRD_FULL_LensaDiri.md` v2.0 canonical. Production claims only from readiness + postcheck evidence.
+- Production: Quick/Standard legacy OK. Composer + Complex + provisional precision **ON**; AI **OFF**. 10 modules selectable (6 guardedBeta draft items). `deep_self_discovery` **pilot**; `full_spectrum` **draft**.
+- Auth + recovery **code** live; Resend delivery dormant without secrets. Admin read-only #36. Retention + audit 365d. Staging drill 2026-07-23 done; PITR/`pg_dump` partial.
 
 ## Technology
 

@@ -4,14 +4,14 @@ Gate aktivasi modular LensaDiri. Migration schema readiness ada di `PRD_V2_MIGRA
 
 ## Posture saat ini
 
-> Direkonsiliasi 2026-07-22 dari bukti aktual read-only: `supabase migration list --linked` dan halaman publik production. Bukti mengoreksi klaim lama "hanya empat modul selectable" dan "`202607270001` pending".
+> Final audit 2026-07-26 · `main` @ `e8186df`. Engineering hobby modular **release-ready ~90%**. Full PRD completion **~72%** — residual #40–#45. Bukan 100%.
 
-- Base modular schema dan quality-model provenance sampai `202607200002`: applied ke production pada activation task sebelumnya.
-- Migration `202607270001_guarded_all_lenses_release.sql` **sudah applied ke production**. `supabase migration list --linked` (2026-07-22) menampilkan versi ini pada kolom Remote, sejajar dengan Local.
-- Canonical modular content 10 modul ada di production dan **kesepuluhnya selectable**. Halaman publik `/modules/<key>` untuk seluruh modul (termasuk `socionics_communication` dan `psychosophy` experimental) merender CTA `Pilih modul ini` → `/start/modules?module=<key>`, dan `/combos` menyajikan preset Beta serta Eksperimental.
-- `FEATURE_MODULAR_COMPOSER`, `FEATURE_COMPLEX_MODE`, dan `FEATURE_PROVISIONAL_PRECISION` production **ON** (2026-07-26 linked flag postcheck). `FEATURE_AI_NARRATIVE` **OFF**.
-- Legacy Quick 40/Standard 60 tetap backward-compatible.
-- Migration `202607270001` sudah masuk `main` melalui PR #15 (merge `9ff30cf`, 2026-07-19). Branch `agent/complete-all-lenses-release-ready` bukan lagi satu-satunya pemilik kandidat ini.
+- Migrations Local==Remote through `202607290001`.
+- Canonical modular content 10 modul production **selectable**.
+- `FEATURE_MODULAR_COMPOSER`, `FEATURE_COMPLEX_MODE`, `FEATURE_PROVISIONAL_PRECISION` **ON**; `FEATURE_AI_NARRATIVE` **OFF**.
+- Legacy Quick 40/Standard 60 backward-compatible.
+- Deep preset **pilot**; `full_spectrum` **draft** (over cap).
+- Gate matrix + %: `RELEASE_CLOSURE_GATES.md`.
 
 ## Release-ready modules
 

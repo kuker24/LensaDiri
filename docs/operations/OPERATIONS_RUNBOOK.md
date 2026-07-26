@@ -198,16 +198,31 @@ CI already exercises the same lifecycle with `RECOVERY_TEST_TRANSPORT=1` (integr
 
 ## Release checklist
 
-- CI seluruh job PASS pada SHA yang akan dirilis
-- working tree dan branch sinkron
-- migration checksum direview
-- production flag posture matches `RELEASE_CLOSURE_GATES.md` (composer may be ON; Complex/precision/AI stay OFF until approval)
-- monitoring dan rollback owner aktif
-- preview menggunakan secret terpisah (never production Resend/DB secrets)
-- PR tetap open sampai Preview, hosted migration postcheck, dan keputusan merge lulus
-- Vercel dan CI memakai Node.js 22.x
-- production seed tidak dijalankan; residual gates di `docs/deployment/RELEASE_CLOSURE_GATES.md` tidak di-claim selesai tanpa evidence
-- deployment production sehat sebelumnya tercatat sebagai target rollback aplikasi
+### Engineering ship gate (hobby modular — current baseline `e8186df`)
+
+- [x] CI seluruh job PASS pada SHA yang dirilis
+- [x] working tree / `main` sinkron dengan production deploy
+- [x] migration Local==Remote through `202607290001` (linked list)
+- [x] production flags match approved posture: composer ON; Complex ON; provisional precision ON; AI OFF
+- [x] health `200`; modules 10; deep selectable; combos 5 (deep pilot; full_spectrum hidden)
+- [x] monitoring + rollback owner (Complex CAS snippets in `.pi/HANDOFF.md`)
+- [x] production seed **not** re-run on hosted
+- [x] residual gates tracked as issues #40–#45 — **not** claimed done
+- [ ] Preview secrets never equal production Resend/DB (when Resend enabled)
+- [ ] Vercel/CI Node.js 22.x confirmed on next deploy window
+
+### Residual gates (not required for hobby engineering release-ready)
+
+| Gate                                          | Issue | Class             |
+| --------------------------------------------- | ----- | ----------------- |
+| Resend Preview→prod→optional mandatory verify | #40   | operator external |
+| Formal review 6 guarded modules               | #41   | human             |
+| Full Spectrum redesign/decision               | #42   | product           |
+| Psychometric program                          | #43   | external          |
+| Manual a11y / WCAG cert                       | #44   | external/human    |
+| AI narrative                                  | #45   | deferred          |
+
+Do **not** mark PRD 100% or scientific/WCAG certified until residual evidence lands. See `docs/deployment/RELEASE_CLOSURE_GATES.md`.
 
 ## Observability rollback
 
