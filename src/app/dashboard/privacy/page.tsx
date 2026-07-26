@@ -37,7 +37,7 @@ export default async function DashboardPrivacyPage() {
         <div className="mt-5 space-y-4">
           {policies.map((policy) => (
             <article
-              className="border-line rounded-md border bg-white/90 p-6"
+              className="border-line bg-surface rounded-md border p-6"
               key={`${policy.consentType}-${policy.version}`}
             >
               <div className="flex flex-wrap items-center justify-between gap-3">

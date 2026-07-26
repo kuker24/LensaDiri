@@ -6,7 +6,7 @@ export default function DashboardSettingsPage() {
         Kelola preferensi akun, notifikasi, dan data pribadimu.
       </p>
 
-      <div className="border-line rounded-lg border bg-white/90 p-6">
+      <div className="border-line bg-surface rounded-lg border p-6">
         <h2 className="text-lg font-semibold">Preferensi</h2>
         <ul className="mt-3 space-y-3 text-sm">
           <li>

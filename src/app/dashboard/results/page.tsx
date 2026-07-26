@@ -28,7 +28,7 @@ export default async function DashboardResultsPage() {
       </p>
 
       {results.length === 0 ? (
-        <div className="border-line rounded-lg border bg-white/90 p-8 text-center">
+        <div className="border-line bg-surface rounded-lg border p-8 text-center">
           <p className="text-ink-muted text-lg">Belum ada hasil tersimpan.</p>
           <Link className="mt-4 inline-block" href="/start">
             <Button>Mulai tes</Button>
@@ -38,7 +38,7 @@ export default async function DashboardResultsPage() {
         <ul className="space-y-4">
           {results.map((res) => (
             <li
-              className="border-line flex flex-wrap items-center justify-between gap-4 rounded-lg border bg-white/90 p-5"
+              className="border-line bg-surface flex flex-wrap items-center justify-between gap-4 rounded-lg border p-5"
               key={res.id}
             >
               <div>
