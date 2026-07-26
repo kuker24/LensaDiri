@@ -60,8 +60,8 @@ Engineering hobby modular lens is **done**. Do **not** add large product feature
 
 ## Production posture (stable)
 
-Composer **ON** · Complex **ON** · Provisional precision **ON** · AI **OFF**  
-Recovery delivery **dormant** · mandatory email verify **OFF**  
+Composer **ON** · Complex **ON** · Provisional precision **ON** · AI **OFF**
+Recovery delivery **dormant** · mandatory email verify **OFF**
 Migrations through `202607290001` · URL `https://lensadiri.vercel.app`
 
 ## Residual backlog (only)
