@@ -63,7 +63,7 @@ for (const route of publicRoutes) {
 test("keyboard focus treatment remains visible across primary surfaces", async ({ page }) => {
   await page.goto("/");
 
-  const lightControl = page.getByRole("link", { name: "Metode" });
+  const lightControl = page.locator("#konten-utama").getByRole("link", { name: "Metode" });
   await lightControl.focus();
   await expect(lightControl).toHaveCSS("outline-color", "rgb(226, 226, 226)");
 

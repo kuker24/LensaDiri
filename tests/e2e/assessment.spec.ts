@@ -15,12 +15,12 @@ test("modular selection estimates, starts, pauses, resumes, and completes", asyn
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Mulai asesmen" }).click();
   await expect(page).toHaveURL(/\/test\//u);
-  await expect(page.getByText(/Bagian 1 dari 1/u)).toBeVisible();
+  await expect(page.getByText(/Bagian 1\/1/u)).toBeVisible();
 
-  await page.getByRole("button", { name: "Jeda sesi" }).click();
+  await page.getByRole("button", { name: "Jeda", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Sesi dijeda" })).toBeFocused();
-  await page.getByRole("button", { name: "Lanjutkan sesi" }).click();
-  await expect(page.getByRole("button", { name: "Jeda sesi" })).toBeVisible();
+  await page.getByRole("button", { name: "Lanjutkan", exact: true }).click();
+  await expect(page.getByRole("button", { name: "Jeda", exact: true })).toBeVisible();
 
   for (let index = 0; index < 24; index += 1) {
     const questionHeading = page.getByRole("heading", { level: 1 });
@@ -34,7 +34,7 @@ test("modular selection estimates, starts, pauses, resumes, and completes", asyn
   await page.getByRole("button", { name: "Lihat hasil" }).click();
   await expect(page).toHaveURL(/\/result\//u);
   await expect(page.getByRole("heading", { name: "RIASEC" })).toBeVisible();
-  await expect(page.getByText(/Confidence keseluruhan/u)).toBeVisible();
+  await expect(page.getByText(/Confidence \d+%/u)).toBeVisible();
   // §17.2: session meta remains available through explicit progressive disclosure.
   await page.getByText("Detail & confidence").click();
   await expect(page.getByRole("term").filter({ hasText: "Mode" })).toBeVisible();
@@ -76,7 +76,7 @@ test("guarded lenses enforce age and acknowledgment before Psychosophy completio
   await expect(page).toHaveURL(/\/result\//u);
   await expect(page.getByRole("heading", { name: "Psychosophy" })).toBeVisible();
   await expect(
-    page.getByText("Confidence keseluruhan tidak dihitung untuk lensa eksperimental."),
+    page.getByText("Confidence tidak dihitung untuk lensa eksperimental."),
   ).toBeVisible();
   await page.getByText("Lihat skor dan keterbatasan lensa").click();
   await expect(page.getByText(/Catatan ambiguitas/u)).toBeVisible();

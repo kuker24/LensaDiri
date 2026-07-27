@@ -61,7 +61,7 @@ test("email verification and password reset stay single-use and revoke sessions"
   const resetToken = await fetchRecoveryToken(page, email, "password_reset");
   await openRecoveryLink(page, "/reset-password", resetToken);
   await page.getByLabel("Kata sandi baru").fill(newPassword);
-  await page.getByRole("button", { name: "Simpan password baru" }).click();
+  await page.getByRole("button", { name: "Simpan kata sandi baru" }).click();
   await expect(page.getByRole("status").first()).toContainText(
     "Semua sesi masuk lama sudah dinonaktifkan",
   );
