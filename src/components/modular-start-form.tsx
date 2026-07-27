@@ -366,7 +366,7 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
         </label>
       ) : null}
 
-      <aside className="sm:bg-surface fixed inset-x-0 bottom-0 z-20 border-t border-white/20 bg-[rgb(0_0_0_/_0.92)] px-4 py-4 backdrop-blur-md sm:static sm:mt-10 sm:border-y sm:px-5 sm:backdrop-blur-none">
+      <aside className="lens-glow fixed inset-x-0 bottom-0 z-20 border-t border-white/20 px-4 py-4 sm:static sm:mt-10 sm:border-y sm:px-5">
         <div className="mx-auto flex max-w-4xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
           <div aria-live="polite" className="min-w-0">
             <p className="mono-label text-ink">Pilihanmu</p>

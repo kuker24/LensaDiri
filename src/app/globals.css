@@ -608,6 +608,15 @@ dialog[open]::backdrop {
     opacity: 1 !important;
   }
 
+  /* Near-instant dialog chrome under reduced motion (a11y contract) */
+  dialog,
+  dialog[open],
+  dialog::backdrop,
+  dialog[open]::backdrop {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+  }
+
   .pressable,
   .decision-tile,
   .likert-option,

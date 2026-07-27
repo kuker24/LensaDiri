@@ -13,7 +13,7 @@ export function ReflectionPass() {
   return (
     <aside
       aria-label="Ilustrasi cara membaca hasil — contoh spektrum, bukan skor nyata"
-      className="relative overflow-hidden rounded-[16px] border border-white/20 p-8 sm:p-10"
+      className="lens-glow relative overflow-hidden rounded-[16px] border border-white/20 p-8 sm:p-10"
     >
       <div
         aria-hidden="true"

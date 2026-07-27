@@ -6,7 +6,13 @@ test("landing page exposes the core trust proposition", async ({ page }) => {
   await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName(
     /Kenali pola dirimu lewat banyak lensa\./u,
   );
-  await expect(page.getByRole("link", { name: "Mulai eksplorasi" })).toBeVisible();
+  // Hero + peak-end both link to /start; assert the primary hero CTA.
+  await expect(
+    page
+      .locator("#konten-utama")
+      .getByRole("link", { name: /Mulai eksplorasi/u })
+      .first(),
+  ).toBeVisible();
   await expect(page.locator("main").getByText("Bukan diagnosis klinis")).toBeVisible();
 });
 
