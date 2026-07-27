@@ -16,6 +16,10 @@ const nextConfig: NextConfig = {
   allowedDevOrigins: ["127.0.0.1"],
   poweredByHeader: false,
   reactStrictMode: true,
+  serverExternalPackages: ["@react-pdf/renderer"],
+  outputFileTracingIncludes: {
+    "/api/result/export/[token]": ["./src/server/export/fonts/**/*"],
+  },
   async headers() {
     return [
       {

@@ -114,9 +114,17 @@ test("Quick assessment autosaves, resumes, completes, shares, exports, revokes, 
 
   const resultUrl = page.url();
   const resultToken = resultUrl.split("/result/")[1];
-  const exportResponse = await page.request.get(`/api/result/export/${resultToken}`);
-  expect(exportResponse.ok()).toBe(true);
-  const exportBody = JSON.stringify(await exportResponse.json());
+  const exportPdfResponse = await page.request.get(`/api/result/export/${resultToken}`);
+  expect(exportPdfResponse.ok()).toBe(true);
+  expect(exportPdfResponse.headers()["content-type"] ?? "").toContain("application/pdf");
+  const pdfBytes = Buffer.from(await exportPdfResponse.body());
+  expect(pdfBytes.subarray(0, 4).toString("utf8")).toBe("%PDF");
+
+  const exportJsonResponse = await page.request.get(
+    `/api/result/export/${resultToken}?format=json`,
+  );
+  expect(exportJsonResponse.ok()).toBe(true);
+  const exportBody = JSON.stringify(await exportJsonResponse.json());
   expect(exportBody).not.toContain("raw_value");
   expect(exportBody).not.toContain("session_id");
 

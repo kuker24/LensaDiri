@@ -16,6 +16,8 @@ export default async function ResultExportPage({ params }: { params: Promise<{ t
     return notFound();
   }
 
+  const encoded = encodeURIComponent(token);
+
   return (
     <div className="task-shell">
       <nav
@@ -35,22 +37,42 @@ export default async function ResultExportPage({ params }: { params: Promise<{ t
 
       <h1 className="text-3xl font-normal tracking-[-0.03em]">Ekspor data</h1>
       <p className="text-ink-muted mt-2 mb-8 leading-7">
-        Unduh salinan hasil privatmu dalam format JSON terstruktur untuk referensi pribadi. File ini
-        mencakup ringkasan skor, penjaminan privasi, dan batasan interpretasi.
+        Unduh salinan hasil privatmu. Laporan PDF menata ringkasan skor dan refleksi dalam format
+        Soft Product LensaDiri. File JSON tetap tersedia untuk arsip data terstruktur.
       </p>
 
       <div className="border-line bg-surface rounded-[16px] border p-6">
         <h2 className="text-lg font-normal">Format ekspor</h2>
         <ul className="mt-3 space-y-2 text-sm">
           <li>
-            <strong>JSON:</strong>{" "}
-            <span className="text-ink-muted">Data lengkap terstruktur untuk pribadi.</span>
+            <strong>PDF (disarankan):</strong>{" "}
+            <span className="text-ink-muted">
+              Laporan profesional untuk dibaca dan disimpan — mencakup semua lensa, combo, dan mix.
+            </span>
           </li>
           <li>
-            <strong>Teks:</strong>{" "}
-            <span className="text-ink-muted">Ringkasan naratif untuk dibaca.</span>
+            <strong>JSON:</strong>{" "}
+            <span className="text-ink-muted">
+              Data terstruktur untuk referensi pribadi / arsip.
+            </span>
           </li>
         </ul>
+        <div className="mt-6 flex flex-wrap gap-3">
+          <a
+            className={getButtonClassName("primary", "md")}
+            download
+            href={`/api/result/export/${encoded}`}
+          >
+            Unduh laporan (PDF)
+          </a>
+          <a
+            className={getButtonClassName("secondary", "md")}
+            download
+            href={`/api/result/export/${encoded}?format=json`}
+          >
+            Unduh data (JSON)
+          </a>
+        </div>
       </div>
 
       <div className="mt-8 flex gap-4">
