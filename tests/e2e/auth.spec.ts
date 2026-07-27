@@ -36,11 +36,9 @@ test("account lifecycle registers, logs in, rejects wrong deletion password, the
   await page.getByLabel(/password|kata sandi/i).fill(password);
   await page.getByRole("button", { name: "Masuk", exact: true }).click();
   await expect(page).toHaveURL(/\/dashboard$/u);
-  await expect(
-    page.getByRole("heading", { name: "Sesi, hasil, dan kontrol datamu" }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Sesi, hasil, kontrol data" })).toBeVisible();
 
-  await page.getByRole("link", { name: "Buka pusat privasi" }).click();
+  await page.getByRole("link", { name: "Pusat privasi" }).click();
   await expect(page.getByRole("heading", { name: "Pusat privasi" })).toBeVisible();
   const deleteButton = page.getByRole("button", { name: "Hapus akun permanen" });
   await expect(deleteButton).toBeDisabled();

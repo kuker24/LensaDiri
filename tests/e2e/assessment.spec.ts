@@ -34,7 +34,7 @@ test("modular selection estimates, starts, pauses, resumes, and completes", asyn
   await page.getByRole("button", { name: "Lihat hasil" }).click();
   await expect(page).toHaveURL(/\/result\//u);
   await expect(page.getByRole("heading", { name: "RIASEC" })).toBeVisible();
-  await expect(page.getByText(/Confidence \d+%/u)).toBeVisible();
+  await expect(page.getByText(/Confidence \d+%/u).first()).toBeVisible();
   // §17.2: session meta remains available through explicit progressive disclosure.
   await page.getByText("Detail & confidence").click();
   await expect(page.getByRole("term").filter({ hasText: "Mode" })).toBeVisible();
@@ -95,7 +95,7 @@ test("Quick assessment autosaves, resumes, completes, shares, exports, revokes, 
   await page.getByRole("button", { name: /5 Sangat sesuai/u }).click();
   await expect(page.getByText("1 tersimpan")).toBeVisible();
   await page.reload();
-  await expect(page.getByText("Pertanyaan 2 dari 40")).toBeVisible();
+  await expect(page.getByText("2 / 40")).toBeVisible();
 
   for (let index = 1; index < 40; index += 1) {
     await page.getByRole("button", { name: /3 Netral/u }).click();
