@@ -15,6 +15,7 @@ import {
   estimateModularAssessment,
   getAssessmentCatalog,
   getComboCatalog,
+  type AssessmentCatalog,
 } from "@/lib/assessment/client";
 import type { AssessmentEstimate } from "@/lib/assessment/estimate";
 import { saveAssessmentSelection } from "@/lib/assessment/selection-storage";
@@ -54,40 +55,79 @@ function publicError(error: unknown): string {
   return errorLabels[code] ?? errorLabels.request_failed!;
 }
 
-export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: string }) {
+function pickInitialModuleKeys(
+  modules: readonly AssessmentModuleDefinition[],
+  initialModuleKey?: string,
+): string[] {
+  const initial = modules.find(
+    (module) => module.key === initialModuleKey && isPubliclyAvailableModule(module),
+  );
+  const first = initial ?? modules.find(isPubliclyAvailableModule);
+  return first ? [first.key] : [];
+}
+
+export function ModularStartForm({
+  initialCatalog,
+  initialCombos,
+  initialModuleKey,
+}: {
+  initialCatalog?: AssessmentCatalog;
+  initialCombos?: ComboPresetDefinition[];
+  initialModuleKey?: string;
+}) {
   const router = useRouter();
-  const [modules, setModules] = useState<AssessmentModuleDefinition[]>([]);
-  const [modes, setModes] = useState<AssessmentModeProfile[]>([]);
-  const [combos, setCombos] = useState<ComboPresetDefinition[]>([]);
-  const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
+  const hasServerCatalog = Boolean(initialCatalog);
+  const [modules, setModules] = useState<AssessmentModuleDefinition[]>(
+    () => initialCatalog?.modules ?? [],
+  );
+  const [modes, setModes] = useState<AssessmentModeProfile[]>(() => initialCatalog?.modes ?? []);
+  const [combos, setCombos] = useState<ComboPresetDefinition[]>(() => initialCombos ?? []);
+  const [selectedKeys, setSelectedKeys] = useState<string[]>(() =>
+    pickInitialModuleKeys(initialCatalog?.modules ?? [], initialModuleKey),
+  );
   const [presetKey, setPresetKey] = useState<string | null>(null);
   const [mode, setMode] = useState<AssessmentMode>("standard");
   const [age, setAge] = useState<number | null>(18);
   const [experimentalAcknowledged, setExperimentalAcknowledged] = useState(false);
   const [estimate, setEstimate] = useState<AssessmentEstimate | null>(null);
   const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [estimating, setEstimating] = useState(false);
+  const [loading, setLoading] = useState(() => !hasServerCatalog);
+  const [estimating, setEstimating] = useState(
+    () => pickInitialModuleKeys(initialCatalog?.modules ?? [], initialModuleKey).length > 0,
+  );
   const [catalogRequest, setCatalogRequest] = useState(0);
 
   useEffect(() => {
+    // Server already hydrated the picker; only hit the client APIs on retry or
+    // when SSR catalog was unavailable (so we never stick on an empty skeleton).
+    if (hasServerCatalog && catalogRequest === 0) {
+      return;
+    }
+
+    let active = true;
     Promise.all([getAssessmentCatalog(), getComboCatalog()])
       .then(([catalog, comboCatalog]) => {
+        if (!active) return;
         setModules(catalog.modules);
         setModes(catalog.modes);
         setCombos(comboCatalog);
-        const initial = catalog.modules.find(
-          (module) => module.key === initialModuleKey && isPubliclyAvailableModule(module),
-        );
-        const first = initial ?? catalog.modules.find(isPubliclyAvailableModule);
+        const nextKeys = pickInitialModuleKeys(catalog.modules, initialModuleKey);
         setEstimate(null);
         setError(null);
-        setEstimating(Boolean(first));
-        setSelectedKeys(first ? [first.key] : []);
+        setEstimating(nextKeys.length > 0);
+        setSelectedKeys(nextKeys);
       })
-      .catch(() => setError("Katalog modular belum dapat dimuat."))
-      .finally(() => setLoading(false));
-  }, [catalogRequest, initialModuleKey]);
+      .catch(() => {
+        if (active) setError("Katalog modular belum dapat dimuat.");
+      })
+      .finally(() => {
+        if (active) setLoading(false);
+      });
+
+    return () => {
+      active = false;
+    };
+  }, [catalogRequest, hasServerCatalog, initialModuleKey]);
 
   const selection = useMemo<AssessmentSelectionInput | null>(() => {
     if (selectedKeys.length === 0) return null;
