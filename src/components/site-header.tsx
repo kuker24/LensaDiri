@@ -63,8 +63,8 @@ function NavigationLinks({
       <Link
         aria-current={isActive ? "page" : undefined}
         className={cn(
-          "nav-link focus-ring text-ink-muted hover:text-ink min-h-11 rounded-[2px] px-3 py-3 transition-colors duration-150",
-          isActive && "text-ink border-b border-[#e2e2e2]/55",
+          "nav-link focus-ring text-ink-muted hover:text-ink min-h-11 rounded-[2px] px-3 py-3 transition-colors duration-200",
+          isActive && "text-ink",
         )}
         href={item.href}
         key={item.href}
@@ -114,7 +114,7 @@ export function SiteHeader({ family }: { family: RouteFamily }) {
             </summary>
             <nav
               aria-label="Menu navigasi"
-              className="bg-canvas absolute top-[calc(100%+0.5rem)] right-0 grid min-w-52 border border-white/25 p-2"
+              className="nav-menu-panel bg-canvas absolute top-[calc(100%+0.5rem)] right-0 z-30 grid min-w-52 border border-white/25 p-2 shadow-[0_18px_40px_rgb(0_0_0_/_0.45)]"
             >
               <NavigationLinks items={items} pathname={pathname} />
               {family === "public" ? (

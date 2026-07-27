@@ -48,7 +48,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
       >
         ← Kembali ke catatan
       </Link>
-      <p className="mono-label text-aperture mt-10">Catatan LensaDiri</p>
+      <p className="mono-label text-ink mt-10">Catatan LensaDiri</p>
       <h1 className="mt-5 text-4xl leading-tight font-medium tracking-[-0.035em] sm:text-6xl">
         {article.title}
       </h1>

@@ -26,15 +26,15 @@ const tiers = [
 
 export default function MethodPage() {
   return (
-    <section className="container-shell py-16 sm:py-24">
+    <section className="task-shell">
       <div className="max-w-3xl">
-        <p className="mono-label text-aperture">Metode · batas bukti</p>
+        <p className="mono-label text-ink">Metode · batas bukti</p>
         <h1 className="mt-5 text-4xl font-normal tracking-[-0.03em] sm:text-5xl">
           Jujur tentang apa yang diukur dan apa yang tidak.
         </h1>
-        <p className="text-steel mt-6 text-lg leading-8">
-          LensaDiri memisahkan skor trait, overlay reflektif, dan konten simbolik agar pengguna
-          tidak menerima semua lensa sebagai bukti dengan tingkat kekuatan yang sama.
+        <p className="text-ink-muted mt-6 text-lg leading-8">
+          Trait, overlay reflektif, dan konten simbolik dipisah — tidak semua lensa punya kekuatan
+          bukti yang sama.
         </p>
       </div>
 

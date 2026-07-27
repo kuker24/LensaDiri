@@ -138,9 +138,7 @@ describe("safe shared result projection", () => {
       screen.getByRole("heading", { name: "Baca sebagai pola, bukan batasan." }),
     ).toBeVisible();
     expect(screen.getByRole("heading", { name: "Mulai dari keseharian" })).toBeVisible();
-    expect(
-      screen.getByText("Detail hasil dan cara membaca confidence").closest("details"),
-    ).not.toHaveAttribute("open");
+    expect(screen.getByText("Detail & confidence").closest("details")).not.toHaveAttribute("open");
   });
 
   it("keeps private modular diagnostics private and allowlists public summary fields", () => {

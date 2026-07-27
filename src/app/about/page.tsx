@@ -6,7 +6,7 @@ export default function AboutPage() {
     <section className="container-shell py-16 sm:py-24">
       <article className="max-w-4xl">
         <h1 className="tracking-[-0.035em]">
-          <span className="mono-label text-aperture mb-5 block">Tentang LensaDiri</span>
+          <span className="mono-label text-ink mb-5 block">Tentang LensaDiri</span>
           <span className="text-ink block text-4xl font-medium sm:text-6xl">
             Refleksi berlapis,
             <span className="display-italic text-aperture block">tanpa label mutlak.</span>

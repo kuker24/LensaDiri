@@ -8,7 +8,7 @@ export function HeroAmbient() {
       />
       <video
         autoPlay
-        className="hero-ambient-video absolute inset-0 h-full w-full object-cover opacity-90"
+        className="hero-ambient-video absolute inset-0 h-full w-full object-cover opacity-90 will-change-transform"
         disablePictureInPicture
         loop
         muted
@@ -19,7 +19,8 @@ export function HeroAmbient() {
       >
         <source src="/media/hero-ambient.mp4" type="video/mp4" />
       </video>
-      <div className="absolute inset-0 bg-linear-to-r from-black/80 via-black/40 to-black/25" />
+      <div className="absolute inset-0 bg-linear-to-r from-black/84 via-black/42 to-black/24" />
+      <div className="absolute inset-0 bg-linear-to-t from-black/55 via-transparent to-black/30" />
     </div>
   );
 }

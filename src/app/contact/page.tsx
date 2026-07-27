@@ -2,7 +2,7 @@ export default function ContactPage() {
   return (
     <section className="container-shell py-16 sm:py-24">
       <article className="max-w-3xl">
-        <p className="mono-label text-aperture">Kontak / responsible disclosure</p>
+        <p className="mono-label text-ink">Kontak / responsible disclosure</p>
         <h1 className="mt-5 text-4xl font-medium tracking-[-0.035em] sm:text-6xl">
           Bantuan dan laporan keamanan
         </h1>

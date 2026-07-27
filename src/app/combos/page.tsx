@@ -34,15 +34,14 @@ export default async function CombosPage() {
   const names = new Map(modules.map((module) => [module.key, module.publicName]));
 
   return (
-    <section className="container-shell py-16 sm:py-24">
+    <section className="task-shell">
       <header className="max-w-3xl">
-        <p className="mono-label text-aperture">Kombinasi / preset terkurasi</p>
-        <h1 className="mt-5 text-4xl font-medium tracking-[-0.035em] sm:text-6xl">
+        <p className="mono-label text-ink">Kombinasi · preset</p>
+        <h1 className="mt-5 text-4xl font-normal tracking-[-0.035em] sm:text-6xl">
           Gabungkan lensa tanpa mencampur skor
         </h1>
         <p className="text-ink-muted mt-5 leading-7">
-          Setiap lensa tetap dihitung secara independen. Korelasi baru disusun setelah seluruh skor
-          primer final.
+          Tiap lensa dihitung sendiri. Korelasi disusun setelah skor primer final.
         </p>
       </header>
 

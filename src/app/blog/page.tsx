@@ -23,7 +23,7 @@ export default function BlogPage() {
   return (
     <section className="container-shell py-16 sm:py-24">
       <header className="max-w-3xl">
-        <p className="mono-label text-aperture">Catatan / edukasi</p>
+        <p className="mono-label text-ink">Catatan / edukasi</p>
         <h1 className="mt-5 text-4xl font-medium tracking-[-0.035em] sm:text-6xl">
           Membaca hasil dengan lebih hati-hati
         </h1>

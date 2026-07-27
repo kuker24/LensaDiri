@@ -52,7 +52,7 @@ export function ModularReviewForm() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <p className="mono-label text-aperture">Tinjau / persetujuan</p>
+      <p className="mono-label text-ink">Tinjau / persetujuan</p>
       <h1 className="mt-5 text-4xl font-medium tracking-[-0.035em] sm:text-6xl">
         Siap memulai eksplorasi?
       </h1>

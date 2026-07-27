@@ -19,24 +19,21 @@ export default async function DashboardPrivacyPage() {
   const policies = session ? await listAccountConsentPolicies(session.accountId) : [];
 
   return (
-    <div className="container-shell py-14 sm:py-20">
-      <Link
-        className="focus-ring text-lens rounded text-sm font-semibold hover:underline"
-        href="/dashboard"
-      >
-        Kembali ke ruang pribadi
+    <div className="task-shell">
+      <Link className="focus-ring quiet-link rounded-[2px] text-sm font-medium" href="/dashboard">
+        ← Ruang pribadi
       </Link>
       <header className="mt-6 max-w-3xl">
-        <h1 className="text-3xl font-semibold tracking-[-0.035em] sm:text-4xl">Pusat privasi</h1>
+        <p className="mono-label text-ink">Privasi</p>
+        <h1 className="mt-3 text-3xl font-normal tracking-[-0.035em] sm:text-4xl">Pusat privasi</h1>
         <p className="text-ink-muted mt-4 max-w-2xl leading-7">
-          Persetujuan dicatat sebagai riwayat yang tidak ditimpa. Keputusan terbaru berlaku; riwayat
-          sebelumnya hanya dapat dilihat petugas berwenang.
+          Persetujuan dicatat sebagai riwayat. Keputusan terbaru yang berlaku.
         </p>
       </header>
 
       <section className="mt-10 max-w-4xl" aria-labelledby="consent-heading">
-        <h2 className="text-2xl font-semibold" id="consent-heading">
-          Persetujuan dan tujuan pemrosesan
+        <h2 className="text-2xl font-normal" id="consent-heading">
+          Persetujuan & pemrosesan
         </h2>
         <div className="mt-5 space-y-4">
           {policies.map((policy) => (

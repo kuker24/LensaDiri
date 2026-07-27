@@ -45,13 +45,13 @@ function LikertSelector({
         return (
           <button
             aria-pressed={selected}
-            className="focus-ring group border-line bg-surface text-ink aria-pressed:border-lens aria-pressed:bg-lens-soft flex min-h-14 items-center rounded-md border px-4 text-left font-medium transition-colors duration-150 ease-out hover:border-white/35"
+            className="likert-option focus-ring group border-line bg-surface text-ink aria-pressed:border-frost/55 aria-pressed:bg-lens-soft flex min-h-14 items-center rounded-[2px] border px-4 text-left font-medium hover:border-white/35"
             disabled={disabled}
             key={label}
             onClick={() => onAnswer(value)}
             type="button"
           >
-            <span className="border-line bg-canvas text-ink-muted group-aria-pressed:border-lens group-aria-pressed:bg-lens group-aria-pressed:text-canvas mr-3.5 inline-grid h-7 w-7 shrink-0 place-items-center rounded-sm border font-mono text-xs tabular-nums transition-colors duration-150 ease-out">
+            <span className="border-line bg-canvas text-ink-muted group-aria-pressed:border-frost/55 group-aria-pressed:bg-charcoal group-aria-pressed:text-ink mr-3.5 inline-grid h-7 w-7 shrink-0 place-items-center rounded-[2px] border font-mono text-xs tabular-nums transition-colors duration-200 ease-out">
               {value}
             </span>
             {label}
@@ -376,11 +376,11 @@ export function TestRunner({ token }: { token: string }) {
 
   const modular = session.isModular;
   return (
-    <section className="container-shell py-10 sm:py-16">
+    <section className="task-shell !py-10 sm:!py-16">
       <div className="mx-auto max-w-3xl">
-        <div className="text-ink-muted flex flex-wrap items-center justify-between gap-4 text-sm">
+        <div className="text-ink-muted flex flex-wrap items-center justify-between gap-4 font-mono text-xs tracking-[-0.02em]">
           <span className="tabular-nums">
-            Pertanyaan {index + 1} dari {session.totalCount}
+            {index + 1} / {session.totalCount}
           </span>
           <span aria-live="polite" className="tabular-nums">
             {saveStatus === "saving" ? "Menyimpan…" : `${answeredCount} tersimpan`}
@@ -393,10 +393,10 @@ export function TestRunner({ token }: { token: string }) {
           value={answeredCount}
         />
         {modular && question.segmentIndex ? (
-          <div className="border-line bg-surface mt-4 flex flex-wrap items-center justify-between gap-3 rounded-lg border px-4 py-3 text-sm">
+          <div className="border-line bg-surface mt-4 flex flex-wrap items-center justify-between gap-3 rounded-[10px] border px-4 py-3 text-sm">
             <span className="tabular-nums">
-              Bagian {question.segmentIndex} dari {session.segmentCount ?? 1} · {segmentAnswered}/
-              {segmentQuestions.length} terjawab
+              Bagian {question.segmentIndex}/{session.segmentCount ?? 1} · {segmentAnswered}/
+              {segmentQuestions.length}
             </span>
             {session.status !== "paused" ? (
               <Button
@@ -406,36 +406,36 @@ export function TestRunner({ token }: { token: string }) {
                 type="button"
                 variant="secondary"
               >
-                Jeda sesi
+                Jeda
               </Button>
             ) : null}
           </div>
         ) : null}
         {session.status === "paused" ? (
-          <div className="border-lens/30 bg-lens-soft mt-8 rounded-[1.2rem] border p-6 text-center">
+          <div className="border-line bg-lens-soft mt-8 rounded-[20px] border p-6 text-center">
             <h1
-              className="text-ink text-xl font-medium tracking-[-0.02em] outline-none"
+              className="text-ink text-xl font-normal tracking-[-0.02em] outline-none"
               ref={pausedHeadingRef}
               tabIndex={-1}
             >
               Sesi dijeda
             </h1>
             <p className="text-ink-muted mt-2 text-sm leading-6">
-              Progres tersimpan. Lanjutkan saat kamu siap.
+              Progres tersimpan. Lanjutkan saat siap.
             </p>
             <Button className="mt-5" onClick={togglePause} type="button">
-              Lanjutkan sesi
+              Lanjutkan
             </Button>
           </div>
         ) : (
-          <article className="border-line bg-surface mt-8 rounded-[1.2rem] border p-6 sm:p-10">
+          <article className="border-line bg-surface mt-8 rounded-[20px] border p-6 sm:p-10">
             {modular ? (
-              <p className="text-aperture font-mono text-xs tracking-[0.08em] uppercase">
+              <p className="mono-label text-ink-muted">
                 {(question.moduleKey ?? "").replaceAll("_", " ")}
               </p>
             ) : null}
             <h1
-              className="mt-3 text-2xl leading-tight font-medium tracking-[-0.025em] outline-none sm:text-3xl"
+              className="mt-3 text-2xl leading-tight font-normal tracking-[-0.025em] outline-none sm:text-3xl"
               id="assessment-question"
               ref={questionHeadingRef}
               tabIndex={-1}

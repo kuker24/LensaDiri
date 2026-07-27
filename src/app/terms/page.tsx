@@ -2,7 +2,7 @@ export default function TermsPage() {
   return (
     <section className="container-shell py-16 sm:py-24">
       <article className="prose-shell">
-        <p className="mono-label text-aperture">Ketentuan penggunaan</p>
+        <p className="mono-label text-ink">Ketentuan penggunaan</p>
         <h1 className="mt-5 text-4xl font-medium tracking-[-0.035em] sm:text-6xl">
           Gunakan hasil sebagai bahan refleksi
         </h1>

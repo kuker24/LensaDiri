@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { ModularLaunchCard } from "@/components/modular-launch-card";
+import { Reveal } from "@/components/reveal";
 import { getButtonClassName } from "@/components/ui/button";
 
 export const metadata: Metadata = {
@@ -13,47 +14,54 @@ const modes = [
   {
     key: "quick",
     name: "Quick",
-    duration: "5 sampai 8 menit",
-    items: "40 item",
-    description: "Lima spektrum trait dengan confidence ringkas.",
+    duration: "5–8 menit",
+    items: "40 pertanyaan",
+    description: "Lima spektrum trait, ringkas.",
   },
   {
     key: "standard",
     name: "Standard",
-    duration: "10 sampai 15 menit",
-    items: "60 item",
-    description: "Item lebih banyak untuk confidence yang lebih kuat.",
+    duration: "10–15 menit",
+    items: "60 pertanyaan",
+    description: "Lebih banyak item, confidence lebih kuat.",
   },
 ] as const;
 
 export default function StartPage() {
   return (
-    <section className="container-shell py-16 sm:py-24">
-      <div className="mx-auto max-w-3xl">
-        <p className="mono-label text-aperture">Mulai · pilih jalur</p>
+    <section className="task-shell">
+      <Reveal className="mx-auto max-w-3xl">
+        <p className="mono-label text-ink">Mulai</p>
         <h1 className="mt-5 text-4xl font-normal tracking-[-0.03em] sm:text-5xl">
           Pilih kedalaman yang nyaman.
         </h1>
-        <p className="text-steel mt-5 text-lg leading-8">
-          Keduanya memakai item original LensaDiri, scoring server-side deterministik, dan hasil
-          private secara default.
+        <p className="text-ink-muted mt-5 max-w-2xl text-lg leading-8">
+          Item original, skor di server, hasil private by default.
         </p>
-      </div>
-      <ModularLaunchCard />
-      <div className="mx-auto mt-12 max-w-4xl border-t border-white/12 pt-8">
+      </Reveal>
+
+      <Reveal delayMs={80}>
+        <ModularLaunchCard />
+      </Reveal>
+
+      <Reveal delayMs={120} className="mx-auto mt-12 max-w-4xl border-t border-white/12 pt-8">
         <h2 className="text-xl font-normal">Tes legacy</h2>
-        <p className="text-steel mt-2 text-sm leading-6">
-          Quick 40 dan Standard 60 tetap tersedia selama migrasi modular.
+        <p className="text-ink-muted mt-2 text-sm leading-6">
+          Quick 40 dan Standard 60 tetap tersedia.
         </p>
-      </div>
-      <div className="mx-auto mt-5 grid max-w-4xl border-y border-white/12 md:grid-cols-2">
+      </Reveal>
+
+      <Reveal
+        delayMs={160}
+        className="mx-auto mt-5 grid max-w-4xl border-y border-white/12 md:grid-cols-2"
+      >
         {modes.map((mode) => (
           <article
-            className="border-b border-white/12 py-7 md:border-r md:border-b-0 md:px-7 md:first:pl-0 md:last:border-r-0 md:last:pr-0"
+            className="row-hover border-b border-white/12 py-7 md:border-r md:border-b-0 md:px-7 md:first:pl-0 md:last:border-r-0 md:last:pr-0"
             key={mode.key}
           >
             <h2 className="text-2xl font-normal">{mode.name}</h2>
-            <p className="text-steel mt-3 leading-7">{mode.description}</p>
+            <p className="text-ink-muted mt-3 leading-7">{mode.description}</p>
             <p className="mt-5 text-sm">
               <strong>{mode.items}</strong> · {mode.duration}
             </p>
@@ -65,7 +73,7 @@ export default function StartPage() {
             </Link>
           </article>
         ))}
-      </div>
+      </Reveal>
     </section>
   );
 }

@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 export default function PrivacyPage() {
   return (
     <article className="prose-shell py-16 sm:py-24">
-      <p className="mono-label text-aperture">Privasi / kontrol data</p>
+      <p className="mono-label text-ink">Privasi / kontrol data</p>
       <h1 className="mt-5 text-4xl font-medium tracking-[-0.035em] sm:text-6xl">
         Private by default, kontrol tetap di tangan pengguna.
       </h1>

@@ -195,13 +195,12 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
   return (
     <div className="mx-auto max-w-4xl">
       <div className="max-w-2xl">
-        <p className="mono-label text-aperture">Susun eksplorasimu</p>
-        <h1 className="mt-4 text-4xl font-medium tracking-[-0.035em] sm:text-5xl">
+        <p className="mono-label text-ink">Susun eksplorasi</p>
+        <h1 className="mt-4 text-4xl font-normal tracking-[-0.035em] sm:text-5xl">
           Apa yang ingin kamu pahami?
         </h1>
         <p className="text-ink-muted mt-4 max-w-2xl leading-7">
-          Pilih satu lensa untuk fokus, atau gabungkan beberapa. Setiap lensa dinilai sendiri
-          sebelum hasilnya dibaca bersama.
+          Satu lensa atau beberapa. Tiap lensa dinilai sendiri, lalu dibaca bersama.
         </p>
       </div>
 
@@ -217,7 +216,7 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
             {combos.map((combo) => (
               <button
                 aria-pressed={presetKey === combo.key}
-                className="focus-ring bg-canvas aria-pressed:bg-surface-raised hover:bg-surface min-h-28 p-4 text-left transition-colors duration-150 ease-out disabled:opacity-50"
+                className="focus-ring bg-canvas aria-pressed:bg-surface-raised hover:bg-surface min-h-28 p-4 text-left transition-colors duration-200 ease-out disabled:opacity-50"
                 key={combo.key}
                 onClick={() => selectPreset(combo)}
                 type="button"
@@ -263,7 +262,7 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
             const selected = selectedKeys.includes(module.key);
             return (
               <label
-                className={`focus-within:ring-aperture relative flex min-h-28 cursor-pointer gap-4 border-b p-4 transition-colors duration-150 ease-out last:border-b-0 focus-within:z-10 focus-within:ring-2 sm:p-5 ${selected ? "border-line bg-surface-raised" : "border-line bg-canvas hover:bg-surface"}`}
+                className={`focus-within:ring-frost relative flex min-h-28 cursor-pointer gap-4 border-b p-4 transition-colors duration-200 ease-out last:border-b-0 focus-within:z-10 focus-within:ring-2 sm:p-5 ${selected ? "border-line bg-surface-raised" : "border-line bg-canvas hover:bg-surface"}`}
                 key={module.key}
               >
                 <input
@@ -302,7 +301,7 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
           {modes.map((profile) => (
             <button
               aria-pressed={mode === profile.internalMode}
-              className="focus-ring border-line bg-canvas aria-pressed:bg-surface-raised hover:bg-surface min-h-32 border-b p-4 text-left transition-colors duration-150 ease-out last:border-b-0 disabled:cursor-not-allowed disabled:opacity-50 sm:border-r sm:border-b-0 sm:last:border-r-0"
+              className="focus-ring border-line bg-canvas aria-pressed:bg-surface-raised hover:bg-surface min-h-32 border-b p-4 text-left transition-colors duration-200 ease-out last:border-b-0 disabled:cursor-not-allowed disabled:opacity-50 sm:border-r sm:border-b-0 sm:last:border-r-0"
               disabled={!profile.isSelectable}
               key={profile.internalMode}
               onClick={() => {
@@ -314,7 +313,9 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
               <span className="flex items-center justify-between gap-2">
                 <span className="text-lg font-semibold">{profile.publicName}</span>
                 {profile.internalMode === "standard" ? (
-                  <span className="text-aperture text-xs font-semibold">Disarankan</span>
+                  <span className="text-ink font-mono text-[0.625rem] tracking-[-0.02em] uppercase">
+                    Disarankan
+                  </span>
                 ) : null}
               </span>
               <span className="text-ink-muted mt-2 block text-sm leading-6">
@@ -331,7 +332,7 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
       </section>
 
       {modules.some((module) => selectedKeys.includes(module.key) && module.isExperimental) ? (
-        <label className="border-aperture-soft bg-aperture-soft text-ink mt-6 flex items-start gap-3 rounded-md border p-4 text-sm leading-6">
+        <label className="border-aperture-soft bg-aperture-soft text-ink mt-6 flex items-start gap-3 rounded-[2px] border p-4 text-sm leading-6">
           <input
             checked={experimentalAcknowledged}
             className="accent-aperture mt-1 h-5 w-5"
@@ -348,7 +349,7 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
 
       <aside className="lens-glow bg-surface mt-10 border-y border-white/20 px-4 py-4 sm:flex sm:items-center sm:justify-between sm:gap-8 sm:px-5">
         <div aria-live="polite">
-          <p className="mono-label text-aperture">Pilihanmu</p>
+          <p className="mono-label text-ink">Pilihanmu</p>
           {estimating ? (
             <p className="text-ink-muted mt-2">Menghitung pilihan…</p>
           ) : estimate ? (

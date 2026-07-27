@@ -14,7 +14,7 @@ export default async function ModularStartPage({
 }) {
   const { module } = await searchParams;
   return (
-    <section className="container-shell py-12 sm:py-16">
+    <section className="task-shell">
       <ModularStartForm {...(module === undefined ? {} : { initialModuleKey: module })} />
     </section>
   );

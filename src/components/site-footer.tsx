@@ -19,7 +19,7 @@ export function SiteFooter() {
             <div>
               <p className="font-mono text-xs tracking-[-0.02em]">LensaDiri</p>
               <p className="text-ink-muted mt-1 max-w-sm text-sm leading-6">
-                Banyak lensa untuk membaca pola, tanpa label mutlak.
+                Banyak lensa. Tanpa label mutlak.
               </p>
             </div>
           </div>

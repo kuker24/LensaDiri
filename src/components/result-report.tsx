@@ -159,27 +159,25 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
   return (
     <div>
       <div className="border-y border-white/20 py-8 sm:py-12">
-        <p className="mono-label text-aperture">Hasil pribadimu · {result.modules.length} lensa</p>
-        <h1 className="mt-4 max-w-3xl text-3xl font-medium tracking-[-0.035em] sm:text-5xl">
+        <p className="mono-label text-ink">Hasil pribadi · {result.modules.length} lensa</p>
+        <h1 className="mt-4 max-w-3xl text-3xl font-normal tracking-[-0.035em] sm:text-5xl">
           Baca sebagai pola, bukan batasan.
         </h1>
         <p className="text-ink-muted mt-5 max-w-2xl leading-7">{result.summary.disclaimer}</p>
         <div className="mt-5 flex flex-wrap items-center gap-3">
-          <span className="border-line bg-surface rounded-sm border px-3 py-1.5 text-sm font-semibold tabular-nums">
+          <span className="border-line bg-surface rounded-[2px] border px-3 py-1.5 font-mono text-xs tracking-[-0.02em] tabular-nums">
             {hasEvidenceOrientedModule
-              ? `Confidence keseluruhan ${Math.round(result.quality.confidence * 100)}%`
-              : "Confidence keseluruhan tidak dihitung untuk lensa eksperimental."}
+              ? `Confidence ${Math.round(result.quality.confidence * 100)}%`
+              : "Confidence tidak dihitung untuk lensa eksperimental."}
           </span>
-          <span className="text-ink-muted text-sm">
-            Skor primer dihitung server · hasil pribadi
-          </span>
+          <span className="text-ink-muted text-sm">Skor di server · privat</span>
         </div>
       </div>
 
       <nav aria-label="Navigasi laporan" className="mt-6 flex scrollbar-none gap-2 overflow-x-auto">
         {reportAnchors.map((anchor) => (
           <a
-            className="focus-ring border-line text-ink-muted hover:border-lens hover:text-ink shrink-0 rounded-sm border px-3 py-1.5 text-sm transition-colors duration-150 ease-out"
+            className="focus-ring border-line text-ink-muted hover:border-frost/55 hover:text-ink shrink-0 rounded-[2px] border px-3 py-1.5 text-sm transition-colors duration-200 ease-out"
             href={anchor.href}
             key={anchor.href}
           >
@@ -190,12 +188,11 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
 
       <section aria-labelledby="practical-heading-title" className="mt-10" id="practical-heading">
         <div className="max-w-2xl">
-          <h2 className="text-2xl font-medium tracking-[-0.025em]" id="practical-heading-title">
+          <h2 className="text-2xl font-normal tracking-[-0.025em]" id="practical-heading-title">
             Mulai dari keseharian
           </h2>
           <p className="text-ink-muted mt-2 leading-7">
-            Gunakan bagian yang terasa relevan. Sisanya boleh kamu abaikan atau periksa lagi di
-            konteks berbeda.
+            Ambil yang relevan. Sisanya boleh ditunda.
           </p>
         </div>
         <div className="border-line mt-5 divide-y divide-white/14 border-y">
@@ -215,22 +212,22 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
       </section>
 
       <section className="mt-10" aria-label="Rencana pengembangan">
-        <h2 className="text-2xl font-medium tracking-[-0.025em]">Langkah berikutnya</h2>
-        <div className="mt-5 grid gap-px overflow-hidden rounded-lg border border-white/14 bg-white/14 md:grid-cols-2">
+        <h2 className="text-2xl font-normal tracking-[-0.025em]">Langkah berikutnya</h2>
+        <div className="mt-5 grid gap-px overflow-hidden rounded-[10px] border border-white/14 bg-white/14 md:grid-cols-2">
           <article className="bg-surface p-5 sm:p-6">
-            <h3 className="text-lg font-medium">7 hari ke depan</h3>
+            <h3 className="text-lg font-normal">7 hari</h3>
             <ReflectionList items={integrated.growth7Days} />
           </article>
           <article className="bg-surface p-5 sm:p-6">
-            <h3 className="text-lg font-medium">30 hari ke depan</h3>
+            <h3 className="text-lg font-normal">30 hari</h3>
             <ReflectionList items={integrated.growth30Days} />
           </article>
         </div>
       </section>
 
       <details className="border-line mt-10 border-y py-4" id="result-details">
-        <summary className="focus-ring flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 font-medium [&::-webkit-details-marker]:hidden">
-          <span>Detail hasil dan cara membaca confidence</span>
+        <summary className="focus-ring flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 font-normal [&::-webkit-details-marker]:hidden">
+          <span>Detail & confidence</span>
           <span aria-hidden="true" className="text-ink-muted font-mono text-lg">
             +
           </span>
@@ -412,33 +409,38 @@ export function ResultReport({ result }: { result: ResultView }) {
 
   return (
     <div>
-      <div className="lens-glow bg-surface relative overflow-hidden rounded-[1.2rem] border border-white/14 p-7 sm:p-10">
-        <p className="mono-label text-aperture">Profil reflektifmu</p>
-        <h1 className="mt-4 text-3xl font-medium tracking-[-0.035em] sm:text-5xl">
+      <div className="lens-glow bg-surface relative overflow-hidden rounded-[20px] border border-white/14 p-7 sm:p-10">
+        <p className="mono-label text-ink">Profil reflektif</p>
+        <h1 className="mt-4 text-3xl font-normal tracking-[-0.035em] sm:text-5xl">
           {result.summary.archetype}
         </h1>
         <p className="text-ink-muted mt-5 max-w-2xl leading-7">{result.summary.disclaimer}</p>
       </div>
       <section className="mt-8" aria-labelledby="trait-heading">
-        <h2 className="text-2xl font-medium tracking-[-0.025em]" id="trait-heading">
+        <h2 className="text-2xl font-normal tracking-[-0.025em]" id="trait-heading">
           Lima spektrum
         </h2>
         <div className="mt-5 space-y-5">
           {result.scores.map((score) => (
-            <div className="border-line bg-surface rounded-md border p-5" key={score.constructKey}>
+            <div
+              className="border-line bg-surface rounded-[10px] border p-5"
+              key={score.constructKey}
+            >
               <div className="flex justify-between gap-4">
-                <h3 className="font-semibold">{labels[score.constructKey]}</h3>
-                <span className="font-semibold tabular-nums">{score.normalizedScore}</span>
+                <h3 className="font-normal">{labels[score.constructKey]}</h3>
+                <span className="font-mono text-sm tabular-nums">{score.normalizedScore}</span>
               </div>
               <div
-                className="bg-line mt-3 h-1.5 overflow-hidden rounded-sm"
+                className="bg-line mt-3 h-px overflow-visible"
                 role="img"
                 aria-label={`${labels[score.constructKey]} ${score.normalizedScore} dari 100`}
               >
                 <div
-                  className="bg-lens h-full rounded-sm"
+                  className="bg-frost relative h-px"
                   style={{ width: `${score.normalizedScore}%` }}
-                />
+                >
+                  <span className="bg-frost absolute top-1/2 right-0 h-1.5 w-1.5 -translate-y-1/2 rounded-full" />
+                </div>
               </div>
               <p className="text-ink-muted mt-2 text-sm tabular-nums">
                 Confidence {Math.round(score.confidence * 100)}%

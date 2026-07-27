@@ -18,7 +18,7 @@ export const sizeStyles: Record<ButtonSize, string> = {
 };
 
 export const buttonBaseClass =
-  "focus-ring pressable inline-flex items-center justify-center gap-2 font-normal transition-[color,background-color,border-color,opacity,transform] duration-150 ease-out active:scale-[0.98] disabled:cursor-not-allowed disabled:opacity-60 disabled:transform-none";
+  "focus-ring pressable inline-flex items-center justify-center gap-2 font-normal transition-[color,background-color,border-color,opacity,transform] duration-200 ease-out active:scale-[0.97] disabled:cursor-not-allowed disabled:opacity-60 disabled:transform-none";
 
 export function getButtonClassName(variant: ButtonVariant = "primary", size: ButtonSize = "md") {
   return cn(buttonBaseClass, variantStyles[variant], sizeStyles[size]);

@@ -17,50 +17,49 @@ export default async function AdminIndexPage() {
   });
 
   const links = [
-    { href: "/admin/modules", label: "Modul", desc: "Katalog modul (DB)" },
+    { href: "/admin/modules", label: "Modul", desc: "Katalog modul" },
     {
       href: "/admin/module-versions",
       label: "Versi Modul",
-      desc: "Versi, scoring, item bank (DB)",
+      desc: "Versi, scoring, item bank",
     },
-    { href: "/admin/questions", label: "Pertanyaan", desc: "Jumlah item per versi (DB)" },
+    { href: "/admin/questions", label: "Pertanyaan", desc: "Jumlah item per versi" },
     {
       href: "/admin/blueprints",
       label: "Blueprint",
-      desc: "Inventori blueprint sesi per mode (DB)",
+      desc: "Inventori blueprint sesi",
     },
-    { href: "/admin/combo-presets", label: "Combo Presets", desc: "Preset kombinasi (DB)" },
+    { href: "/admin/combo-presets", label: "Combo Presets", desc: "Preset kombinasi" },
     {
       href: "/admin/scoring-versions",
       label: "Scoring Versions",
-      desc: "Registry engine di kode",
+      desc: "Registry engine",
     },
-    { href: "/admin/content", label: "Konten", desc: "Feature flags (DB); CMS belum ada" },
-    { href: "/admin/feedback", label: "Feedback", desc: "Rating + preview pesan (DB)" },
-    { href: "/admin/audit-logs", label: "Audit Logs", desc: "Log operasional ter-redaksi" },
+    { href: "/admin/content", label: "Konten", desc: "Feature flags; CMS belum ada" },
+    { href: "/admin/feedback", label: "Feedback", desc: "Rating + preview" },
+    { href: "/admin/audit-logs", label: "Audit Logs", desc: "Log ter-redaksi" },
   ];
 
   return (
-    <div className="container-shell py-12">
-      <p className="mono-label text-aperture">Admin · read-only</p>
+    <div className="task-shell">
+      <p className="mono-label text-ink">Admin · read-only</p>
       <h1 className="mt-3 text-3xl font-normal tracking-[-0.03em]">Panel Admin</h1>
-      <p className="text-steel mt-2 mb-2 leading-7">
-        Read-only. Role: <span className="text-ink font-medium">{admin.role}</span>. Mutasi
-        dinonaktifkan.
+      <p className="text-ink-muted mt-2 mb-2 leading-7">
+        Role: <span className="text-ink font-medium">{admin.role}</span>. Mutasi off.
       </p>
-      <p className="text-steel mb-8 text-sm leading-6">
-        Data diambil dari database / scoring registry. Tidak ada status hardcode.
+      <p className="text-ink-muted mb-8 text-sm leading-6">
+        Data dari database / scoring registry. Tanpa hardcode status.
       </p>
 
-      <div className="grid gap-px overflow-hidden rounded-[1.2rem] border border-white/12 bg-white/12 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-px overflow-hidden rounded-[20px] border border-white/12 bg-white/12 sm:grid-cols-2 lg:grid-cols-3">
         {links.map((link) => (
           <Link
-            className="bg-surface hover:bg-surface-raised p-5 transition"
+            className="row-hover bg-surface hover:bg-surface-raised p-5 transition-colors duration-200"
             href={link.href}
             key={link.href}
           >
             <h2 className="font-normal">{link.label}</h2>
-            <p className="text-steel mt-1 text-sm">{link.desc}</p>
+            <p className="text-ink-muted mt-1 text-sm">{link.desc}</p>
           </Link>
         ))}
       </div>

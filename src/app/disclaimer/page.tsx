@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 export default function DisclaimerPage() {
   return (
     <article className="prose-shell py-16 sm:py-24">
-      <p className="mono-label text-aperture">Batas penggunaan</p>
+      <p className="mono-label text-ink">Batas penggunaan</p>
       <h1 className="mt-5 text-4xl font-medium tracking-[-0.035em] sm:text-6xl">
         Alat refleksi diri, bukan diagnosis atau keputusan profesional.
       </h1>

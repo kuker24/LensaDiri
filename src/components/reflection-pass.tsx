@@ -6,11 +6,7 @@ const sampleScores = [
   ["Sensitivitas", 58],
 ] as const;
 
-const passSteps = [
-  "Pilih kedalaman refleksi",
-  "Jawab dengan jujur",
-  "Baca pola + batasan",
-] as const;
+const passSteps = ["Pilih kedalaman", "Jawab jujur", "Baca pola + batasan"] as const;
 
 export function ReflectionPass() {
   return (
@@ -50,13 +46,16 @@ export function ReflectionPass() {
 
         <div className="mt-8 space-y-5 border-t border-white/15 pt-6">
           {sampleScores.map(([label, value]) => (
-            <div key={label}>
+            <div className="spectrum-row" key={label}>
               <div className="mb-2 flex items-center justify-between gap-4 text-sm">
                 <span>{label}</span>
                 <span className="text-ink/70 font-mono text-xs tabular-nums">{value}</span>
               </div>
               <div className="h-px bg-white/15">
-                <div className="bg-frost relative h-px" style={{ width: `${value}%` }}>
+                <div
+                  className="spectrum-mark bg-frost relative h-px"
+                  style={{ width: `${value}%` }}
+                >
                   <span className="bg-frost absolute top-1/2 right-0 h-1.5 w-1.5 -translate-y-1/2 rounded-full" />
                 </div>
               </div>
@@ -66,7 +65,7 @@ export function ReflectionPass() {
 
         <div className="mt-8 grid grid-cols-2 gap-4 border-t border-white/15 pt-5 text-sm">
           <div>
-            <p className="mono-label text-ink-muted">Cara baca</p>
+            <p className="mono-label text-ink-muted">Baca</p>
             <p className="mt-2">Spektrum, bukan kotak</p>
           </div>
           <div>

@@ -40,7 +40,7 @@ function PrivateResultLoader({ children, token }: { children?: ReactNode; token:
   if (!result)
     return (
       <div
-        className="border-line bg-surface mx-auto my-10 max-w-xl rounded-[1.2rem] border p-8 text-center"
+        className="border-line bg-surface mx-auto my-10 max-w-xl rounded-[20px] border p-8 text-center"
         role="status"
       >
         <span
@@ -90,7 +90,7 @@ function SharedResultLoader({ token }: { token: string }) {
   if (!result)
     return (
       <div
-        className="border-line bg-surface mx-auto my-10 max-w-xl rounded-[1.2rem] border p-8 text-center"
+        className="border-line bg-surface mx-auto my-10 max-w-xl rounded-[20px] border p-8 text-center"
         role="status"
       >
         <span

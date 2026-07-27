@@ -26,16 +26,14 @@ export default async function ModulesPage() {
   }
 
   return (
-    <section className="container-shell py-16 sm:py-24">
+    <section className="task-shell">
       <header className="max-w-3xl">
-        <p className="mono-label text-aperture">Katalog / 10 lensa</p>
-        <h1 className="mt-5 text-4xl font-medium tracking-[-0.035em] sm:text-6xl">
+        <p className="mono-label text-ink">Katalog · 10 lensa</p>
+        <h1 className="mt-5 text-4xl font-normal tracking-[-0.035em] sm:text-6xl">
           Pilih lensa yang relevan
         </h1>
         <p className="text-ink-muted mt-5 leading-7">
-          Setiap modul memiliki item dan scoring sendiri. Modul yang belum melewati review tetap
-          terlihat sebagai roadmap, tetapi tidak dapat dipilih dan tidak pernah ditebak dari Profil
-          Trait.
+          Tiap modul punya item & skor sendiri. Belum direview = roadmap, tidak bisa dipilih.
         </p>
       </header>
 

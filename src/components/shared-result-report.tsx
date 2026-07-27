@@ -29,15 +29,15 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
   if (result.kind === "legacy") {
     return (
       <div>
-        <header className="lens-glow bg-surface relative overflow-hidden rounded-[1.2rem] border border-white/14 p-7 sm:p-10">
-          <p className="mono-label text-aperture">Ringkasan hasil yang dibagikan</p>
-          <h1 className="mt-4 text-3xl font-medium tracking-[-0.035em] sm:text-5xl">
+        <header className="lens-glow bg-surface relative overflow-hidden rounded-[20px] border border-white/14 p-7 sm:p-10">
+          <p className="mono-label text-ink">Ringkasan hasil yang dibagikan</p>
+          <h1 className="mt-4 text-3xl font-normal tracking-[-0.035em] sm:text-5xl">
             {result.title}
           </h1>
           <p className="text-ink-muted mt-5 max-w-2xl leading-7">{result.disclaimer}</p>
         </header>
         <section className="mt-8" aria-labelledby="shared-trait-heading">
-          <h2 className="text-2xl font-medium tracking-[-0.025em]" id="shared-trait-heading">
+          <h2 className="text-2xl font-normal tracking-[-0.025em]" id="shared-trait-heading">
             Lima spektrum
           </h2>
           <div className="mt-5 space-y-5">
@@ -65,7 +65,7 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
           </div>
         </section>
         <section className="mt-8" aria-labelledby="shared-overlay-heading">
-          <h2 className="text-2xl font-medium tracking-[-0.025em]" id="shared-overlay-heading">
+          <h2 className="text-2xl font-normal tracking-[-0.025em]" id="shared-overlay-heading">
             Lensa reflektif yang dibagikan
           </h2>
           <p className="text-ink-muted mt-2 text-sm">
@@ -74,7 +74,7 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
           <div className="mt-5 grid gap-4 md:grid-cols-3">
             {result.overlays.map((overlay) => (
               <article className="border-line bg-surface rounded-lg border p-5" key={overlay.title}>
-                <p className="mono-label text-aperture">{overlay.title}</p>
+                <p className="mono-label text-ink">{overlay.title}</p>
                 <h3 className="mt-3 text-lg font-medium">{overlay.label}</h3>
                 <p className="text-ink-muted mt-2 text-sm leading-6">{overlay.note}</p>
               </article>
@@ -82,16 +82,16 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
           </div>
         </section>
         <section className="mt-8 grid gap-5 md:grid-cols-2">
-          <article className="border-line bg-surface rounded-[1.2rem] border p-6">
-            <h2 className="text-xl font-medium tracking-[-0.02em]">Pola yang dibagikan</h2>
+          <article className="border-line bg-surface rounded-[20px] border p-6">
+            <h2 className="text-xl font-normal tracking-[-0.02em]">Pola yang dibagikan</h2>
             <ul className="text-ink-muted mt-4 space-y-3 leading-7">
               {result.strengths.map((item) => (
                 <li key={item}>{item}</li>
               ))}
             </ul>
           </article>
-          <article className="border-line bg-surface rounded-[1.2rem] border p-6">
-            <h2 className="text-xl font-medium tracking-[-0.02em]">Arah pengembangan</h2>
+          <article className="border-line bg-surface rounded-[20px] border p-6">
+            <h2 className="text-xl font-normal tracking-[-0.02em]">Arah pengembangan</h2>
             <ul className="text-ink-muted mt-4 space-y-3 leading-7">
               {result.growthFocus.map((item) => (
                 <li key={item}>{item}</li>
@@ -105,9 +105,9 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
 
   return (
     <div>
-      <header className="lens-glow bg-surface relative overflow-hidden rounded-[1.2rem] border border-white/14 p-7 sm:p-10">
-        <p className="mono-label text-aperture">Ringkasan hasil yang dibagikan</p>
-        <h1 className="mt-4 text-3xl font-medium tracking-[-0.035em] sm:text-5xl">
+      <header className="lens-glow bg-surface relative overflow-hidden rounded-[20px] border border-white/14 p-7 sm:p-10">
+        <p className="mono-label text-ink">Ringkasan hasil yang dibagikan</p>
+        <h1 className="mt-4 text-3xl font-normal tracking-[-0.035em] sm:text-5xl">
           {result.title}
         </h1>
         <p className="text-ink-muted mt-5 max-w-2xl leading-7">{result.disclaimer}</p>
@@ -116,12 +116,12 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
         {result.modules.map((module) => (
           <section
             aria-labelledby={`shared-module-${module.key}`}
-            className="border-line bg-surface rounded-[1.2rem] border p-6"
+            className="border-line bg-surface rounded-[20px] border p-6"
             key={module.key}
           >
             <div className="flex flex-wrap items-baseline justify-between gap-3">
               <h2
-                className="text-2xl font-medium tracking-[-0.025em]"
+                className="text-2xl font-normal tracking-[-0.025em]"
                 id={`shared-module-${module.key}`}
               >
                 {module.name}
@@ -157,7 +157,7 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
       </div>
       {result.correlations.length > 0 ? (
         <section className="mt-8" aria-labelledby="shared-correlation-heading">
-          <h2 className="text-2xl font-medium tracking-[-0.025em]" id="shared-correlation-heading">
+          <h2 className="text-2xl font-normal tracking-[-0.025em]" id="shared-correlation-heading">
             Hubungan antar-lensa
           </h2>
           <div className="mt-5 grid gap-4 md:grid-cols-2">

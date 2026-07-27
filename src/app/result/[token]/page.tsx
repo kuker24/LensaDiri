@@ -9,7 +9,7 @@ export const metadata: Metadata = {
 export default async function ResultPage({ params }: { params: Promise<{ token: string }> }) {
   const { token } = await params;
   return (
-    <section className="container-shell py-12 sm:py-20">
+    <section className="task-shell">
       <ResultLoader token={token}>
         <ResultControls token={token} />
         <ResultFeedbackForm token={token} />
