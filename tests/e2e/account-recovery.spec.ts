@@ -55,7 +55,7 @@ test("email verification and password reset stay single-use and revoke sessions"
   await page.goto("/forgot-password");
   await page.getByLabel("Email").fill(email);
   await page.getByRole("button", { name: "Kirim instruksi pengaturan ulang" }).click();
-  await expect(page.getByRole("status").first()).toContainText("instruksi reset sudah disiapkan");
+  await expect(page.getByRole("status").first()).toContainText("instruksi pengaturan ulang sudah disiapkan");
   const resetToken = await fetchRecoveryToken(page, email, "password_reset");
   await openRecoveryLink(page, "/reset-password", resetToken);
   await page.getByLabel("Kata sandi baru").fill(newPassword);
@@ -78,7 +78,7 @@ test("email verification and password reset stay single-use and revoke sessions"
   await page.goto("/forgot-password");
   await page.getByLabel("Email").fill(unknownEmail);
   await page.getByRole("button", { name: "Kirim instruksi pengaturan ulang" }).click();
-  await expect(page.getByRole("status").first()).toContainText("instruksi reset sudah disiapkan");
+  await expect(page.getByRole("status").first()).toContainText("instruksi pengaturan ulang sudah disiapkan");
   const unknownDelivery = await page.request.get(
     `/api/test/recovery-token?email=${encodeURIComponent(unknownEmail)}&purpose=password_reset`,
   );

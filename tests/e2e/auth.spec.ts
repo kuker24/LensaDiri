@@ -60,5 +60,5 @@ test("account lifecycle registers, logs in, rejects wrong deletion password, the
   await page.getByLabel("Email").fill(email);
   await page.getByLabel(/password|kata sandi/i).fill(password);
   await page.getByRole("button", { name: "Masuk", exact: true }).click();
-  await expect(page.getByText("Email atau password tidak cocok.")).toBeVisible();
+  await expect(page.getByText("Email atau kata sandi tidak cocok.")).toBeVisible();
 });
