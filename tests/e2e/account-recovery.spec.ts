@@ -69,7 +69,7 @@ test("email verification and password reset stay single-use and revoke sessions"
   await page.getByLabel("Email").fill(email);
   await page.getByLabel(/password|kata sandi/i).fill(oldPassword);
   await page.getByRole("button", { name: "Masuk", exact: true }).click();
-  await expect(page.getByText("Email atau password tidak cocok.")).toBeVisible();
+  await expect(page.getByText("Email atau kata sandi tidak cocok.")).toBeVisible();
   await page.getByLabel(/password|kata sandi/i).fill(newPassword);
   await page.getByRole("button", { name: "Masuk", exact: true }).click();
   await expect(page).toHaveURL(/\/dashboard$/u);
