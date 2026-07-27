@@ -28,6 +28,12 @@ Honest scope: entries mark **engineering / product** posture. Nothing here claim
 - E2E assertions aligned to polished copy; CI Quality + Database/browser green on `9e638ec`.
 - Production smoke 10/10; health 200; Vercel Production deploy `9e638ec`.
 
+### Hero portal lens (experimental design → product)
+
+- Replaced hero right-panel illustration with decorative WebGL **PortalLens** (frost glass aperture, soft bloom, damped parallax).
+- Client-only Three.js canvas; lite path on mobile / reduced-motion; pause when off-screen; no scoring claims.
+- Dependency: `three@0.172.0`. Lab studies remain under `experiments/web-clones/` (local reference, not required at runtime).
+
 ## [v1.0.0-hobby-final] - 2026-07-26
 
 **Tag:** `v1.0.0-hobby-final` @ **`c535a6b`**
