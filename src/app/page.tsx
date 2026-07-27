@@ -1,22 +1,9 @@
-import dynamic from "next/dynamic";
 import Link from "next/link";
 import { EvidenceBadge } from "@/components/evidence-badge";
 import { HeroAmbient } from "@/components/hero-ambient";
+import { PortalLens } from "@/components/portal-lens";
 import { BlurFade } from "@/components/ui/blur-fade";
 import { getButtonClassName } from "@/components/ui/button";
-
-const PortalLens = dynamic(
-  () => import("@/components/portal-lens").then((module) => module.PortalLens),
-  {
-    ssr: false,
-    loading: () => (
-      <div
-        aria-hidden="true"
-        className="relative min-h-[22rem] w-full overflow-hidden rounded-[20px] bg-[radial-gradient(ellipse_70%_55%_at_58%_42%,#243656_0%,#101828_48%,#070a12_100%)] sm:min-h-[26rem] lg:min-h-[28rem]"
-      />
-    ),
-  },
-);
 
 const lenses = [
   {
