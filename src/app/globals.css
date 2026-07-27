@@ -4,8 +4,8 @@
 
 @theme {
   /* Soft Product: Plus Jakarta Sans for UI/display; mono only for meta/data */
-  --font-sans: var(--font-plus-jakarta), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
-    sans-serif;
+  --font-sans:
+    var(--font-plus-jakarta), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
   --font-display: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 
@@ -92,7 +92,9 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
-  font-feature-settings: "ss01" on, "cv11" on;
+  font-feature-settings:
+    "ss01" on,
+    "cv11" on;
   line-height: 1.65;
   letter-spacing: -0.011em;
   text-rendering: optimizeLegibility;
@@ -644,20 +646,8 @@ dialog[open]::backdrop {
 }
 
 @theme inline {
-  --animate-shiny-text: shiny-text 8s infinite;
+  /* Soft Product: monochrome spotlight only — no shiny/gradient text keyframes */
   --animate-spotlight: spotlight 2s ease 0.65s 1 forwards;
-
-  @keyframes shiny-text {
-    0%,
-    90%,
-    100% {
-      background-position: calc(-100% - var(--shiny-width)) 0;
-    }
-    30%,
-    60% {
-      background-position: calc(100% + var(--shiny-width)) 0;
-    }
-  }
 
   @keyframes spotlight {
     0% {
@@ -672,12 +662,8 @@ dialog[open]::backdrop {
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .animate-shiny-text,
   .animate-spotlight {
     animation: none !important;
-  }
-
-  .animate-spotlight {
     display: none !important;
   }
 }

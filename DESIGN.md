@@ -31,11 +31,12 @@ Chromatic color lives in media only. Do not reintroduce violet as default CTA.
 
 ## Typography
 
-- UI/display: Inter via `next/font/google` (Roobert substitute), weight 400 for monumental display.
-- Chrome/labels: JetBrains Mono (GT America Mono substitute), 10–12px, tracking ≈ `-0.02em`.
-- Display stacked mark: large sizes with line-height ≈ `0.78`; optional 1px frost underline mark 30–50% of line width on hero lines only.
+- UI/display: **Plus Jakarta Sans** via `next/font/google` (Soft Product), weight 400–500 for monumental display.
+- Chrome/labels: JetBrains Mono, 10–12px, tracking ≈ `-0.02em` — **meta/instrumentation only**, not section titles or trust copy.
+- Display stacked mark: large sizes with line-height ≈ `0.95`; optional 1px frost underline on hero lines only.
 - Body: 16px minimum on mobile controls, 1.6 line height, 65–72ch prose max.
 - No Lora italic as brand hero voice under Design2.
+- No gradient-clip text (`background-clip: text` + gradient fill) on labels or headings.
 
 ## Layout
 
@@ -43,7 +44,8 @@ Chromatic color lives in media only. Do not reintroduce violet as default CTA.
 - Overlay copy: left-aligned, generous padding (20–80px), absolute or flex over art.
 - Product flows: content max ~1200px, gutters 20/32/40; task density compact.
 - Cards only when grouping needs a boundary; hairlines carry most hierarchy.
-- Radii: controls **2px**, cards **10px**, large containers **20px**. Nothing larger.
+- Radii (Soft Product): controls **~12px**, panels **~16px**, large containers **~20px**. Nothing larger.
+- Scroll reveal must be **content-first**: never leave marketing copy at opacity 0 waiting for IntersectionObserver.
 
 ## Shape And Elevation
 

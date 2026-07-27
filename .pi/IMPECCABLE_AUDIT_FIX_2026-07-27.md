@@ -4,14 +4,14 @@ Scope: product register web UI; frontend-only. Commands: audit → polish/clarif
 
 ## Audit health (post-fix estimate)
 
-| # | Dimension | Score | Key finding |
-| --- | --- | --- | --- |
-| 1 | Accessibility | 3 | Focus rings, 44px targets, labels; charcoal fill vs void still low silhouette (text-on-button OK) |
-| 2 | Performance | 3 | Transform/opacity motion; media film strips OK; no layout thrash |
-| 3 | Responsive | 3 | Task shells + sticky nav; mobile menu details |
-| 4 | Theming | 4 | Design2 tokens; radius 2/10/20 aligned |
-| 5 | Anti-patterns | 4 | Monochrome portal; no violet/gradient-text/card grid slop |
-| **Total** | | **17/20** | **Good** |
+| #         | Dimension     | Score     | Key finding                                                                                       |
+| --------- | ------------- | --------- | ------------------------------------------------------------------------------------------------- |
+| 1         | Accessibility | 3         | Focus rings, 44px targets, labels; charcoal fill vs void still low silhouette (text-on-button OK) |
+| 2         | Performance   | 3         | Transform/opacity motion; media film strips OK; no layout thrash                                  |
+| 3         | Responsive    | 3         | Task shells + sticky nav; mobile menu details                                                     |
+| 4         | Theming       | 4         | Design2 tokens; radius 2/10/20 aligned                                                            |
+| 5         | Anti-patterns | 4         | Monochrome portal; no violet/gradient-text/card grid slop                                         |
+| **Total** |               | **17/20** | **Good**                                                                                          |
 
 ## Fixed this pass
 
@@ -25,7 +25,7 @@ Scope: product register web UI; frontend-only. Commands: audit → polish/clarif
 
 ## Residual (not P0)
 
-- Charcoal `#444345` vs void silhouette ≈2.1:1 (button *chrome* edge; label bone-on-charcoal ≈9.8:1) — mitigated by stronger frost border
+- Charcoal `#444345` vs void silhouette ≈2.1:1 (button _chrome_ edge; label bone-on-charcoal ≈9.8:1) — mitigated by stronger frost border
 - Numbered 01–03 process steps intentional sequence, not AI eyebrow spam
 - Full e2e/browser visual not re-run this pass
 

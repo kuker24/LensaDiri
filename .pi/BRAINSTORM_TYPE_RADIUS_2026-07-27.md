@@ -9,15 +9,15 @@
 
 ## Diagnosis singkat (kenapa terasa kaku)
 
-| Sumber | Keadaan sekarang | Efek |
-|--------|------------------|------|
-| **Tombol** | `rounded-[2px]` + `font-mono` + **UPPERCASE** | Baca seperti terminal/instrumentasi, bukan produk refleksi |
-| **Radius token** | sm/md/pill = **2px**, lg = 10px, container = 20px | Kontrol interaktif “kotak tajam”; gallery MekaVerse, bukan soft product |
-| **Display/body** | Inter saja, weight 400, `"liga" 0` | Netral-geometris; aman tapi dingin jika tanpa kontras humanis |
-| **Mono scope** | JetBrains Mono di CTA, badge, nav micro, banyak label | Mono mendominasi chrome → kaku di seluruh flow |
-| **Kontrak Design2** | MekaVerse: 2px control, mono chrome, flat void | Sengaja “museum/terminal”; cocok game portal, kurang hangat untuk LensaDiri |
+| Sumber              | Keadaan sekarang                                      | Efek                                                                        |
+| ------------------- | ----------------------------------------------------- | --------------------------------------------------------------------------- |
+| **Tombol**          | `rounded-[2px]` + `font-mono` + **UPPERCASE**         | Baca seperti terminal/instrumentasi, bukan produk refleksi                  |
+| **Radius token**    | sm/md/pill = **2px**, lg = 10px, container = 20px     | Kontrol interaktif “kotak tajam”; gallery MekaVerse, bukan soft product     |
+| **Display/body**    | Inter saja, weight 400, `"liga" 0`                    | Netral-geometris; aman tapi dingin jika tanpa kontras humanis               |
+| **Mono scope**      | JetBrains Mono di CTA, badge, nav micro, banyak label | Mono mendominasi chrome → kaku di seluruh flow                              |
+| **Kontrak Design2** | MekaVerse: 2px control, mono chrome, flat void        | Sengaja “museum/terminal”; cocok game portal, kurang hangat untuk LensaDiri |
 
-**Bukan bug teknis** — ini rasa *shape language* + *type voice* yang terlalu setia ke referensi MekaVerse.
+**Bukan bug teknis** — ini rasa _shape language_ + _type voice_ yang terlalu setia ke referensi MekaVerse.
 
 Warna monokrom (void / bone / charcoal / frost / ash) **bisa tetap**. Yang digeser: huruf + radius + peran mono.
 
@@ -35,50 +35,50 @@ Warna monokrom (void / bone / charcoal / frost / ash) **bisa tetap**. Yang diges
 
 ## Tiga arah desain (pilih satu)
 
-### A — *Soft Product* (disarankan untuk “tidak kaku”)
+### A — _Soft Product_ (disarankan untuk “tidak kaku”)
 
 **Rasa:** aplikasi refleksi modern Indonesia; tenang, ramah, tetap premium gelap.
 
-| Layer | Usulan |
-|-------|--------|
-| **Display + body** | **Plus Jakarta Sans** (Google Fonts; bagus untuk Latin/ID) *atau* **DM Sans** |
-| **Mono** | JetBrains Mono **hanya** meta/skor/evidence — **bukan** label tombol |
-| **Tombol** | Sentence case (bukan ALL CAPS), font sans weight 500–600, tracking normal |
-| **Radius** | control **10–12px**, input **10px**, card/panel **16px**, shell besar **20–24px**, badge **999px** (pill) opsional |
-| **Hero** | Line-height longgar (~0.95–1.05), bukan 0.78 monumental-kaku |
+| Layer              | Usulan                                                                                                             |
+| ------------------ | ------------------------------------------------------------------------------------------------------------------ |
+| **Display + body** | **Plus Jakarta Sans** (Google Fonts; bagus untuk Latin/ID) _atau_ **DM Sans**                                      |
+| **Mono**           | JetBrains Mono **hanya** meta/skor/evidence — **bukan** label tombol                                               |
+| **Tombol**         | Sentence case (bukan ALL CAPS), font sans weight 500–600, tracking normal                                          |
+| **Radius**         | control **10–12px**, input **10px**, card/panel **16px**, shell besar **20–24px**, badge **999px** (pill) opsional |
+| **Hero**           | Line-height longgar (~0.95–1.05), bukan 0.78 monumental-kaku                                                       |
 
 **Pro:** langsung meredakan “petak lancip”; cocok brand LensaDiri.  
 **Kontra:** menjauh dari literal Design2/MekaVerse; perlu update catatan Design2.
 
 ---
 
-### B — *Warm Editorial* (lebih berkarakter)
+### B — _Warm Editorial_ (lebih berkarakter)
 
 **Rasa:** refleksi + editorial lembut; sedikit “jurnal pribadi”.
 
-| Layer | Usulan |
-|-------|--------|
+| Layer       | Usulan                                                      |
+| ----------- | ----------------------------------------------------------- |
 | **Display** | **Lora** atau **Literata** (serif humanis) — hero & H1 saja |
-| **Body/UI** | **Source Sans 3** atau **IBM Plex Sans** |
-| **Mono** | Meta saja |
-| **Tombol** | Sans medium, sentence case, radius **12px** |
-| **Radius** | control 12px, card 16–20px |
+| **Body/UI** | **Source Sans 3** atau **IBM Plex Sans**                    |
+| **Mono**    | Meta saja                                                   |
+| **Tombol**  | Sans medium, sentence case, radius **12px**                 |
+| **Radius**  | control 12px, card 16–20px                                  |
 
 **Pro:** paling “tidak kaku” secara emosional; kontras display/body.  
 **Kontra:** serif di dark UI butuh hati-hati (contrast, size); lebih banyak token type; Lora pernah di-remove di redesign — perlu sadar regress history.
 
 ---
 
-### C — *Gallery Softened* (paling dekat Design2)
+### C — _Gallery Softened_ (paling dekat Design2)
 
 **Rasa:** monokrom gallery tetap, hanya “dilembutkan”.
 
-| Layer | Usulan |
-|-------|--------|
-| **Font** | Tetap **Inter** (+ opsional Inter display optical) |
-| **Mono** | Nav/micro boleh mono; **CTA pindah ke Inter** + sentence case |
-| **Radius** | control **8px** (bukan 2), card **12–16**, large **20** |
-| **Hero** | Sedikit longgar line-height; keep weight 400 |
+| Layer      | Usulan                                                        |
+| ---------- | ------------------------------------------------------------- |
+| **Font**   | Tetap **Inter** (+ opsional Inter display optical)            |
+| **Mono**   | Nav/micro boleh mono; **CTA pindah ke Inter** + sentence case |
+| **Radius** | control **8px** (bukan 2), card **12–16**, large **20**       |
+| **Hero**   | Sedikit longgar line-height; keep weight 400                  |
 
 **Pro:** minimal drift dari kontrak Design2; effort rendah.  
 **Kontra:** mungkin masih terasa agak kaku jika yang diinginkan benar-benar soft product.
@@ -87,13 +87,13 @@ Warna monokrom (void / bone / charcoal / frost / ash) **bisa tetap**. Yang diges
 
 ## Matriks cepat
 
-| Kriteria | A Soft Product | B Warm Editorial | C Gallery Softened |
-|----------|----------------|------------------|--------------------|
-| Anti-kaku | ★★★★★ | ★★★★★ | ★★★☆☆ |
-| Setia Design2 monokrom shell | ★★★★☆ | ★★★☆☆ | ★★★★★ |
-| Effort implementasi | sedang | sedang–tinggi | rendah |
-| Risiko “bukan LensaDiri lagi” | rendah | medium (serif) | rendah |
-| Cocok privacy calm | tinggi | tinggi | medium–tinggi |
+| Kriteria                      | A Soft Product | B Warm Editorial | C Gallery Softened |
+| ----------------------------- | -------------- | ---------------- | ------------------ |
+| Anti-kaku                     | ★★★★★          | ★★★★★            | ★★★☆☆              |
+| Setia Design2 monokrom shell  | ★★★★☆          | ★★★☆☆            | ★★★★★              |
+| Effort implementasi           | sedang         | sedang–tinggi    | rendah             |
+| Risiko “bukan LensaDiri lagi” | rendah         | medium (serif)   | rendah             |
+| Cocok privacy calm            | tinggi         | tinggi           | medium–tinggi      |
 
 ---
 
@@ -120,8 +120,8 @@ Warna monokrom (void / bone / charcoal / frost / ash) **bisa tetap**. Yang diges
 
 **Verifikasi**
 
-- lint + typecheck  
-- smoke visual: `/`, `/start`, runner, result, auth  
+- lint + typecheck
+- smoke visual: `/`, `/start`, runner, result, auth
 - e2e jika flow selector/copy tombol berubah assertion
 
 **Out of scope**
@@ -132,33 +132,33 @@ Warna monokrom (void / bone / charcoal / frost / ash) **bisa tetap**. Yang diges
 
 ## Keputusan yang dibutuhkan dari pemilik produk
 
-1. **Arah:** A / B / C (atau hybrid, mis. A font + C radius).  
-2. **Tombol:** sentence case vs tetap uppercase (disarankan sentence case).  
-3. **Mono:** hanya meta, atau masih boleh di nav?  
-4. **Seberapa bulat:** 8px (halus) vs 12px (jelas soft) vs pill CTA.  
+1. **Arah:** A / B / C (atau hybrid, mis. A font + C radius).
+2. **Tombol:** sentence case vs tetap uppercase (disarankan sentence case).
+3. **Mono:** hanya meta, atau masih boleh di nav?
+4. **Seberapa bulat:** 8px (halus) vs 12px (jelas soft) vs pill CTA.
 5. **Apakah boleh update catatan Design2** sebagai “adapted product shell”?
 
 ---
 
 ## Rekomendasi facilitator
 
-Untuk keluhan *“huruf kaku + petak sudut lancip”* pada produk refleksi Indonesia:
+Untuk keluhan _“huruf kaku + petak sudut lancip”_ pada produk refleksi Indonesia:
 
 → **Arah A (Soft Product)**  
 → Plus Jakarta Sans (display+UI)  
 → JetBrains Mono hanya meta  
 → control radius **12px**, panel **16px**, large **20px**  
-→ CTA sentence case, weight medium  
+→ CTA sentence case, weight medium
 
 ## Keputusan terkunci (2026-07-27)
 
-| Item | Pilihan |
-|------|---------|
-| Arah | **A Soft Product** |
-| Radius control | **12px** (panel 16px, shell 20px) |
-| CTA | **Sentence case + sans** |
-| Display/body | **Plus Jakarta Sans** |
-| Mono | Meta/skor/evidence only (JetBrains Mono) |
+| Item           | Pilihan                                  |
+| -------------- | ---------------------------------------- |
+| Arah           | **A Soft Product**                       |
+| Radius control | **12px** (panel 16px, shell 20px)        |
+| CTA            | **Sentence case + sans**                 |
+| Display/body   | **Plus Jakarta Sans**                    |
+| Mono           | Meta/skor/evidence only (JetBrains Mono) |
 
 ### Implementasi (working tree)
 

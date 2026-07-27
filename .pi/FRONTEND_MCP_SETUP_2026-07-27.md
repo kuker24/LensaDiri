@@ -8,15 +8,15 @@
 
 ## Profil project (kenapa stack ini)
 
-| Sinyal LensaDiri | Implikasi MCP |
-|------------------|---------------|
-| Landing cinematic monokrom + Soft Product | Perlu polish visual, **bukan** WebGL/efek kasual berlebihan |
-| Flow asesmen, form, result, dashboard | Butuh motion state & komponen UI terkurasi |
+| Sinyal LensaDiri                              | Implikasi MCP                                                      |
+| --------------------------------------------- | ------------------------------------------------------------------ |
+| Landing cinematic monokrom + Soft Product     | Perlu polish visual, **bukan** WebGL/efek kasual berlebihan        |
+| Flow asesmen, form, result, dashboard         | Butuh motion state & komponen UI terkurasi                         |
 | UI custom Design2 (bukan full shadcn default) | shadcn MCP + registry; **jangan** rewrite brand tokens sembarangan |
-| Playwright e2e sudah ada | Playwright MCP berguna untuk QA visual agent |
-| Backend/AI narrative frozen | **Tidak** butuh Higgsfield / media AI MCP |
-| Bukan Kanban/Gantt/editor-heavy SaaS | **Skip** Kibo UI |
-| Tidak ada API key 21st.dev | **Skip** 21st.dev Magic MCP |
+| Playwright e2e sudah ada                      | Playwright MCP berguna untuk QA visual agent                       |
+| Backend/AI narrative frozen                   | **Tidak** butuh Higgsfield / media AI MCP                          |
+| Bukan Kanban/Gantt/editor-heavy SaaS          | **Skip** Kibo UI                                                   |
+| Tidak ada API key 21st.dev                    | **Skip** 21st.dev Magic MCP                                        |
 
 ---
 
@@ -24,35 +24,35 @@
 
 ### Wajib / dipasang
 
-| Item | Jenis | Alasan |
-|------|--------|--------|
-| **shadcn MCP** | MCP server | Fondasi: search/add komponen; gateway registry Animate + Aceternity |
-| **Animate UI** | Registry `@animate-ui` | Transisi state halus (dialog, tabs, form feedback) cocok task UI |
-| **Aceternity UI** | Registry `@aceternity` | Hero/section landing premium; pakai **selektif** (tetap monokrom Soft Product) |
-| **Magic UI MCP** | MCP server | Animasi landing ringan (marquee, blur fade, text) tanpa setup registry ekstra |
-| **Playwright MCP** | MCP server | Screenshot, flow browser, a11y check selaras suite e2e |
+| Item               | Jenis                  | Alasan                                                                         |
+| ------------------ | ---------------------- | ------------------------------------------------------------------------------ |
+| **shadcn MCP**     | MCP server             | Fondasi: search/add komponen; gateway registry Animate + Aceternity            |
+| **Animate UI**     | Registry `@animate-ui` | Transisi state halus (dialog, tabs, form feedback) cocok task UI               |
+| **Aceternity UI**  | Registry `@aceternity` | Hero/section landing premium; pakai **selektif** (tetap monokrom Soft Product) |
+| **Magic UI MCP**   | MCP server             | Animasi landing ringan (marquee, blur fade, text) tanpa setup registry ekstra  |
+| **Playwright MCP** | MCP server             | Screenshot, flow browser, a11y check selaras suite e2e                         |
 
 ### Tidak dipasang (sengaja)
 
-| Item | Alasan |
-|------|--------|
-| Kibo UI | Komponen app-kompleks tidak dibutuhkan sekarang |
-| React Bits | WebGL/cursor experimental — bentrok rasa calm Design2 |
-| 21st.dev Magic | Butuh API key; overlap Magic UI + shadcn |
-| Higgsfield AI | Eksperimental komunitas; media AI di luar scope produk |
+| Item           | Alasan                                                 |
+| -------------- | ------------------------------------------------------ |
+| Kibo UI        | Komponen app-kompleks tidak dibutuhkan sekarang        |
+| React Bits     | WebGL/cursor experimental — bentrok rasa calm Design2  |
+| 21st.dev Magic | Butuh API key; overlap Magic UI + shadcn               |
+| Higgsfield AI  | Eksperimental komunitas; media AI di luar scope produk |
 
 ---
 
 ## File yang dipasang di repo
 
-| Path | Isi |
-|------|-----|
-| `components.json` | Alias + registry `@animate-ui` + `@aceternity` |
-| `src/lib/utils.ts` | Bridge `cn` untuk CLI shadcn |
-| `.grok/config.toml` | MCP project-scoped (Grok Build) |
-| `.mcp.json` | Lokal (gitignored) — Claude/Cursor-compatible |
-| `.mcp.example.json` | Template tim tanpa secret |
-| `.pi/FRONTEND_MCP_SETUP_2026-07-27.md` | Dokumen ini |
+| Path                                   | Isi                                            |
+| -------------------------------------- | ---------------------------------------------- |
+| `components.json`                      | Alias + registry `@animate-ui` + `@aceternity` |
+| `src/lib/utils.ts`                     | Bridge `cn` untuk CLI shadcn                   |
+| `.grok/config.toml`                    | MCP project-scoped (Grok Build)                |
+| `.mcp.json`                            | Lokal (gitignored) — Claude/Cursor-compatible  |
+| `.mcp.example.json`                    | Template tim tanpa secret                      |
+| `.pi/FRONTEND_MCP_SETUP_2026-07-27.md` | Dokumen ini                                    |
 
 ---
 

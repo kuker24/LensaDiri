@@ -32,7 +32,10 @@ const familyNavigation = {
 
 function BrandLink({ context }: { context?: string }) {
   return (
-    <Link className="focus-ring flex min-h-11 shrink-0 items-center gap-2.5 rounded-[12px]" href="/">
+    <Link
+      className="focus-ring flex min-h-11 shrink-0 items-center gap-2.5 rounded-[12px]"
+      href="/"
+    >
       <BrandMark className="text-ink h-5 w-5" />
       <span className="text-sm font-semibold tracking-[-0.02em]">LensaDiri</span>
       {context ? (

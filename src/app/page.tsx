@@ -2,9 +2,7 @@ import Link from "next/link";
 import { EvidenceBadge } from "@/components/evidence-badge";
 import { HeroAmbient } from "@/components/hero-ambient";
 import { ReflectionPass } from "@/components/reflection-pass";
-import { AnimatedShinyText } from "@/components/ui/animated-shiny-text";
 import { BlurFade } from "@/components/ui/blur-fade";
-import { BorderBeam } from "@/components/ui/border-beam";
 import { getButtonClassName } from "@/components/ui/button";
 
 const lenses = [
@@ -45,9 +43,7 @@ export default function HomePage() {
         <HeroAmbient />
         <div className="container-shell grid min-h-[calc(100svh-3.5rem)] gap-12 py-16 lg:grid-cols-[1.05fr_0.95fr] lg:items-end lg:gap-16 lg:py-20">
           <div className="hero-entrance max-w-3xl">
-            <AnimatedShinyText className="mono-label mx-0 text-left tracking-[-0.02em] text-ink/90 uppercase">
-              Privat · multi-lensa
-            </AnimatedShinyText>
+            <p className="mono-label text-ink/90">Privat · multi-lensa</p>
             <h1 className="display-stack text-ink mt-6 max-w-4xl sm:mt-8">
               <span className="display-underline block text-[clamp(2.5rem,8.5vw,5rem)] leading-[0.95]">
                 Kenali pola
@@ -122,10 +118,7 @@ export default function HomePage() {
         />
         <div className="film-strip-scrim" />
         <div className="container-shell section-band">
-          <BlurFade
-            inView
-            className="flex flex-col justify-between gap-8 md:flex-row md:items-end"
-          >
+          <BlurFade inView className="flex flex-col justify-between gap-8 md:flex-row md:items-end">
             <div className="max-w-3xl">
               <h2 className="text-ink text-4xl leading-[1.05] tracking-[-0.03em] sm:text-5xl">
                 Satu lensa tak cukup menjelaskan semua.
@@ -150,14 +143,11 @@ export default function HomePage() {
               <strong className="text-ink font-normal">Eksperimental</strong> uji terbatas. Bukan
               sertifikasi klinis.
             </p>
-            {lenses.map((lens, index) => (
+            {lenses.map((lens) => (
               <article
-                className="row-hover grid gap-5 border-b border-white/15 px-3 py-8 md:grid-cols-[3rem_0.8fr_1.2fr_auto] md:items-center md:gap-8 md:px-4"
+                className="row-hover grid gap-5 border-b border-white/15 px-3 py-8 md:grid-cols-[0.8fr_1.2fr_auto] md:items-center md:gap-8 md:px-4"
                 key={lens.title}
               >
-                <span className="text-ink/70 font-mono text-xs tabular-nums">
-                  {String(index + 1).padStart(2, "0")}
-                </span>
                 <h3 className="text-ink text-2xl font-normal tracking-[-0.025em]">{lens.title}</h3>
                 <p className="text-ink-muted max-w-2xl leading-7">{lens.description}</p>
                 <EvidenceBadge tier={lens.tier} />
@@ -179,7 +169,6 @@ export default function HomePage() {
             inView
             className="relative grid overflow-hidden rounded-[20px] border border-white/20 lg:grid-cols-[0.82fr_1.18fr]"
           >
-            <BorderBeam size={100} duration={14} borderWidth={1} />
             <div className="bg-charcoal text-ink relative flex min-h-72 flex-col justify-between overflow-hidden p-8 sm:p-10">
               <div
                 aria-hidden="true"
@@ -196,13 +185,13 @@ export default function HomePage() {
                 </h2>
               </div>
             </div>
-            <div className="bg-surface/90 p-8 backdrop-blur-[2px] sm:p-10">
+            <div className="bg-surface/95 p-8 sm:p-10">
               {trustPrinciples.map(([title, description]) => (
                 <article
-                  className="grid gap-2 border-b border-white/12 py-5 first:pt-0 last:border-b-0 last:pb-0 sm:grid-cols-[8rem_1fr] sm:gap-6"
+                  className="grid gap-2 border-b border-white/12 py-5 first:pt-0 last:border-b-0 last:pb-0 sm:grid-cols-[9.5rem_1fr] sm:gap-6"
                   key={title}
                 >
-                  <h3 className="mono-label text-ink">{title}</h3>
+                  <h3 className="text-ink text-base font-medium tracking-[-0.02em]">{title}</h3>
                   <p className="text-ink-muted leading-7">{description}</p>
                 </article>
               ))}
@@ -221,7 +210,11 @@ export default function HomePage() {
               Mulai tenang. Jeda kapan saja. Hasil tetap di tanganmu.
             </p>
           </BlurFade>
-          <BlurFade inView delay={0.06} className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
+          <BlurFade
+            inView
+            delay={0.06}
+            className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row"
+          >
             <Link
               className={`${getButtonClassName("primary", "md")} w-full sm:w-auto`}
               href="/start"

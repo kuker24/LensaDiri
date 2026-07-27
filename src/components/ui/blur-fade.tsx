@@ -2,7 +2,6 @@
 
 import { useRef, type ReactNode } from "react";
 import {
-  AnimatePresence,
   motion,
   useInView,
   type MotionProps,
@@ -26,17 +25,20 @@ interface BlurFadeProps extends MotionProps {
   delay?: number;
   offset?: number;
   direction?: "up" | "down" | "left" | "right";
-  /** When true, wait until the element is in view before revealing. */
+  /** When true, reveal motion waits until the element is in view. */
   inView?: boolean;
   inViewMargin?: MarginType;
+  /**
+   * Optional blur on the pre-reveal frame. Keep light — content must stay readable.
+   * Empty string disables blur transition.
+   */
   blur?: string;
 }
 
-const getFilter = (v: Variants[string]) => (typeof v === "function" ? undefined : v.filter);
-
 /**
- * Soft Product scroll/mount reveal. Respects prefers-reduced-motion.
- * Pass `inView` for section reveals; omit for mount-only hero staggers.
+ * Soft Product scroll/mount reveal — content-first.
+ * Never gates copy at opacity 0 (full-page capture, background tabs, late IO).
+ * Motion is transform (+ optional soft blur); reduced-motion is static.
  */
 export function BlurFade({
   children,
@@ -48,7 +50,7 @@ export function BlurFade({
   direction = "up",
   inView = false,
   inViewMargin = "-8% 0px -8% 0px",
-  blur = "6px",
+  blur = "",
   ...props
 }: BlurFadeProps) {
   const ref = useRef(null);
@@ -56,49 +58,43 @@ export function BlurFade({
   const reduceMotion = usePrefersReducedMotion();
   const shouldAnimate = !reduceMotion && (!inView || inViewResult);
 
+  const axis = direction === "left" || direction === "right" ? "x" : "y";
+  const from = direction === "right" || direction === "down" ? -offset : offset;
+
   const defaultVariants: Variants = {
+    // opacity stays 1 — readable even before the observer fires
     hidden: {
-      [direction === "left" || direction === "right" ? "x" : "y"]:
-        direction === "right" || direction === "down" ? -offset : offset,
-      opacity: 0,
-      filter: `blur(${blur})`,
+      [axis]: from,
+      opacity: 1,
+      ...(blur ? { filter: `blur(${blur})` } : {}),
     },
     visible: {
-      [direction === "left" || direction === "right" ? "x" : "y"]: 0,
+      [axis]: 0,
       opacity: 1,
-      filter: "blur(0px)",
+      ...(blur ? { filter: "blur(0px)" } : {}),
     },
   };
   const combinedVariants = variant ?? defaultVariants;
-
-  const hiddenFilter = getFilter(combinedVariants.hidden);
-  const visibleFilter = getFilter(combinedVariants.visible);
-  const shouldTransitionFilter =
-    hiddenFilter != null && visibleFilter != null && hiddenFilter !== visibleFilter;
 
   if (reduceMotion) {
     return <div className={cn(className)}>{children}</div>;
   }
 
   return (
-    <AnimatePresence>
-      <motion.div
-        ref={ref}
-        initial="hidden"
-        animate={shouldAnimate ? "visible" : "hidden"}
-        exit="hidden"
-        variants={combinedVariants}
-        transition={{
-          delay: 0.04 + delay,
-          duration,
-          ease: [0.23, 1, 0.32, 1],
-          ...(shouldTransitionFilter ? { filter: { duration } } : {}),
-        }}
-        className={className}
-        {...props}
-      >
-        {children}
-      </motion.div>
-    </AnimatePresence>
+    <motion.div
+      ref={ref}
+      initial="hidden"
+      animate={shouldAnimate ? "visible" : "hidden"}
+      variants={combinedVariants}
+      transition={{
+        delay: 0.04 + delay,
+        duration,
+        ease: [0.23, 1, 0.32, 1],
+      }}
+      className={className}
+      {...props}
+    >
+      {children}
+    </motion.div>
   );
 }

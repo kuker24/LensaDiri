@@ -45,11 +45,12 @@ export default function StartPage() {
       </BlurFade>
 
       <BlurFade delay={0.12} className="mx-auto mt-12 max-w-4xl">
-        <details className="border-line border-y py-4">
+        <details className="group border-line border-y py-4">
           <summary className="focus-ring flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 font-normal [&::-webkit-details-marker]:hidden">
             <span>Butuh tes lama? Quick 40 / Standard 60</span>
             <span aria-hidden="true" className="text-ink-muted font-mono text-lg">
-              +
+              <span className="group-open:hidden">+</span>
+              <span className="hidden group-open:inline">−</span>
             </span>
           </summary>
           <p className="text-ink-muted mt-3 text-sm leading-6">
