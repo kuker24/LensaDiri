@@ -18,7 +18,7 @@ export default async function DashboardResultsPage() {
         aria-label="Jejak navigasi"
         className="text-ink-muted mb-6 font-mono text-xs tracking-[-0.02em]"
       >
-        <Link className="focus-ring quiet-link rounded-[2px]" href="/dashboard">
+        <Link className="focus-ring quiet-link rounded-[12px]" href="/dashboard">
           Ruang pribadi
         </Link>
         <span className="mx-2">/</span>
@@ -29,7 +29,7 @@ export default async function DashboardResultsPage() {
       <p className="text-ink-muted mt-2 mb-8 leading-7">Riwayat laporan yang sudah selesai.</p>
 
       {results.length === 0 ? (
-        <div className="border-line bg-surface rounded-[10px] border p-8 text-center">
+        <div className="border-line bg-surface rounded-[16px] border p-8 text-center">
           <p className="text-ink-muted text-lg">Belum ada hasil tersimpan.</p>
           <Link className="mt-4 inline-block" href="/start">
             <Button>Mulai tes</Button>

@@ -56,16 +56,18 @@ export function ResultControls({ token }: { token: string }) {
 
   return (
     <section
-      className="border-line bg-surface mt-10 rounded-lg border p-6"
+      className="bg-surface mt-10 scroll-mt-28 rounded-[16px] border border-dashed border-white/30 p-6"
       aria-labelledby="result-controls-title"
+      id="share-controls"
     >
-      <h2 className="text-xl font-medium tracking-[-0.02em]" id="result-controls-title">
+      <p className="mono-label text-ink-muted">Surface berbagi · public-safe</p>
+      <h2 className="mt-3 text-xl font-normal tracking-[-0.02em]" id="result-controls-title">
         Kontrol hasil
       </h2>
       <p className="text-ink-muted mt-2 leading-7">
-        Hasil tetap privat sampai kamu membuat tautan berbagi. Berkas ekspor tidak memuat jawaban
-        mentah atau identitas teknis internal. Tes ulang memulai sesi baru tanpa menghapus hasil
-        ini.
+        Hasil tetap privat sampai kamu membuat tautan berbagi. Tautan publik memakai allowlist
+        terpisah — tanpa skor mentah, diagnostics, atau data pemilik. Tes ulang memulai sesi baru
+        tanpa menghapus hasil ini.
       </p>
       <div className="mt-5 flex flex-wrap gap-3">
         <Button disabled={pending} onClick={share} type="button">
@@ -85,7 +87,7 @@ export function ResultControls({ token }: { token: string }) {
           Tes ulang
         </a>
         <button
-          className="focus-ring border-danger/30 text-danger hover:bg-danger-soft rounded-md border px-4 py-3 font-semibold transition-colors duration-150 ease-out disabled:opacity-50"
+          className="focus-ring pressable border-danger/30 text-danger hover:bg-danger-soft min-h-12 rounded-[12px] border px-4 py-3 font-semibold disabled:opacity-50"
           disabled={pending}
           onClick={remove}
           type="button"
@@ -94,7 +96,7 @@ export function ResultControls({ token }: { token: string }) {
         </button>
       </div>
       {shareUrl ? (
-        <p className="border-lens/30 bg-lens-soft mt-4 rounded-md border p-4 text-sm break-all">
+        <p className="border-lens/30 bg-lens-soft mt-4 rounded-[16px] border p-4 text-sm break-all">
           <a className="focus-ring text-aperture underline" href={shareUrl}>
             {shareUrl}
           </a>

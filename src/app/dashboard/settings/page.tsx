@@ -7,7 +7,7 @@ export default function DashboardSettingsPage() {
         Preferensi akun dan perilaku antarmuka.
       </p>
 
-      <div className="border-line bg-surface rounded-[10px] border p-6">
+      <div className="border-line bg-surface rounded-[16px] border p-6">
         <h2 className="text-lg font-normal">Preferensi</h2>
         <ul className="mt-3 space-y-3 text-sm">
           <li>

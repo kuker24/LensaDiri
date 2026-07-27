@@ -49,8 +49,8 @@ export default async function ModulesPage() {
                 {String(index + 1).padStart(2, "0")}
               </span>
               <div>
-                <Badge tone="lens">Evidence {module.evidenceTier.replace("_", " ")}</Badge>
-                <span className="text-ink-muted mt-3 block font-mono text-[0.65rem] tracking-[0.08em] uppercase">
+                <Badge tone="lens">Tingkat bukti {module.evidenceTier.replace("_", " ")}</Badge>
+                <span className="text-ink-muted mono-label mt-3 block">
                   {available
                     ? module.status === "experimental"
                       ? "Eksperimental"
@@ -70,7 +70,7 @@ export default async function ModulesPage() {
               <div>
                 {available ? (
                   <Link
-                    className="focus-ring text-aperture hover:text-ink inline-flex min-h-11 items-center rounded-md font-medium transition-colors"
+                    className="focus-ring ui-transition text-ink hover:text-ink-muted inline-flex min-h-11 items-center rounded-[12px] text-sm font-medium tracking-[-0.01em]"
                     href={`/modules/${module.key}`}
                   >
                     Lihat detail <span aria-hidden="true">↗</span>

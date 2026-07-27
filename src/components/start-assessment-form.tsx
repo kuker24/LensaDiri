@@ -27,7 +27,7 @@ export function StartAssessmentForm({ mode }: { mode: AssessmentMode }) {
 
   return (
     <div>
-      <label className="border-line bg-lens-soft/40 flex items-start gap-3 rounded-md border p-4 text-sm leading-6">
+      <label className="border-line bg-lens-soft/40 flex items-start gap-3 rounded-[16px] border p-4 text-sm leading-6">
         <input
           className="focus-ring accent-lens mt-1 h-5 w-5"
           checked={consent}

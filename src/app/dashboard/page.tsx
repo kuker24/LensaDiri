@@ -69,9 +69,20 @@ export default async function DashboardPage() {
           </Link>
         </div>
         {activeSessions.length === 0 ? (
-          <p className="text-ink-muted bg-surface mt-4 rounded-[10px] border border-white/12 p-6">
-            Tidak ada sesi aktif.
-          </p>
+          <div className="bg-surface mt-4 rounded-[16px] border border-white/12 p-6 sm:p-8">
+            <p className="text-ink text-lg font-normal">Belum ada sesi aktif.</p>
+            <p className="text-ink-muted mt-2 max-w-xl leading-7">
+              Mulai dari satu lensa — kamu bisa menjeda kapan saja.
+            </p>
+            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+              <Link className={getButtonClassName("primary", "md")} href="/start/modules">
+                Mulai asesmen
+              </Link>
+              <Link className={getButtonClassName("secondary", "md")} href="/method">
+                Pelajari metode
+              </Link>
+            </div>
+          </div>
         ) : (
           <ul className="mt-4 divide-y divide-white/12 border-y border-white/12">
             {activeSessions.map((item) => (
@@ -105,7 +116,7 @@ export default async function DashboardPage() {
           Riwayat hasil
         </h2>
         {results.length === 0 ? (
-          <p className="text-ink-muted bg-surface mt-4 rounded-[10px] border border-white/12 p-6">
+          <p className="text-ink-muted bg-surface mt-4 rounded-[16px] border border-white/12 p-6">
             Belum ada hasil tersimpan.
           </p>
         ) : (
@@ -136,7 +147,7 @@ export default async function DashboardPage() {
       </section>
 
       <section
-        className="mt-12 grid gap-px overflow-hidden rounded-[10px] border border-white/12 bg-white/12 md:grid-cols-2"
+        className="mt-12 grid gap-px overflow-hidden rounded-[16px] border border-white/12 bg-white/12 md:grid-cols-2"
         aria-label="Kontrol akun"
       >
         <article className="bg-surface p-6">
@@ -145,7 +156,7 @@ export default async function DashboardPage() {
             Persetujuan, masa simpan, ekspor, dan hapus data.
           </p>
           <Link
-            className="focus-ring mt-5 inline-flex min-h-11 items-center rounded-[2px] border border-white/20 px-5 py-3 text-sm transition-colors duration-200 ease-out hover:bg-white/5"
+            className="focus-ring ui-transition mt-5 inline-flex min-h-11 items-center rounded-[12px] border border-white/20 px-5 py-3 text-sm hover:bg-white/5"
             href="/dashboard/privacy"
           >
             Pusat privasi
@@ -157,7 +168,7 @@ export default async function DashboardPage() {
             Permanen: sesi, jawaban, hasil, berbagi, masukan, dan data akun.
           </p>
           <Link
-            className="focus-ring border-danger-soft text-danger hover:bg-danger-soft mt-5 inline-flex min-h-11 items-center rounded-[2px] border px-5 py-3 text-sm transition-colors duration-200 ease-out"
+            className="focus-ring ui-transition border-danger-soft text-danger hover:bg-danger-soft mt-5 inline-flex min-h-11 items-center rounded-[12px] border px-5 py-3 text-sm"
             href="/dashboard/privacy#delete-account-title"
           >
             Kelola penghapusan

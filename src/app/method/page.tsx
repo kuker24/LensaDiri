@@ -9,18 +9,18 @@ export const metadata: Metadata = {
 const tiers = [
   {
     tier: "A" as const,
-    title: "Evidence-oriented trait layer",
-    body: "Fondasi dimensional yang dibaca sebagai spektrum. Scoring harus deterministik, versioned, repeatable, dan dapat diaudit.",
+    title: "Lapisan trait berorientasi bukti",
+    body: "Fondasi dimensional yang dibaca sebagai spektrum. Skor deterministik, berversi, dapat diulang, dan diaudit.",
   },
   {
     tier: "B" as const,
-    title: "Question-based reflective layer",
+    title: "Lapisan reflektif berbasis pertanyaan",
     body: "Kerangka tipe dan motivasi untuk membantu refleksi. Hasilnya bukan identitas mutlak atau keputusan profesional.",
   },
   {
     tier: "C" as const,
-    title: "Cultural or symbolic layer",
-    body: "Konten ringan yang harus dipisahkan secara visual dan tidak boleh diberi klaim biologis, medis, atau psikometrik.",
+    title: "Lapisan kultural atau simbolik",
+    body: "Konten ringan yang dipisahkan secara visual dan tidak boleh diberi klaim biologis, medis, atau psikometrik.",
   },
 ];
 

@@ -54,7 +54,7 @@ export default async function AdminIndexPage() {
       <div className="grid gap-px overflow-hidden rounded-[20px] border border-white/12 bg-white/12 sm:grid-cols-2 lg:grid-cols-3">
         {links.map((link) => (
           <Link
-            className="row-hover bg-surface hover:bg-surface-raised p-5 transition-colors duration-200"
+            className="row-hover bg-surface hover:bg-surface-raised p-5"
             href={link.href}
             key={link.href}
           >

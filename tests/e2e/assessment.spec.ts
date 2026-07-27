@@ -87,6 +87,7 @@ test("Quick assessment autosaves, resumes, completes, shares, exports, revokes, 
   page,
 }) => {
   await page.goto("/start");
+  await page.getByText("Butuh tes lama? Quick 40 / Standard 60").click();
   await page.getByRole("link", { name: "Pilih Quick" }).click();
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Mulai Quick" }).click();

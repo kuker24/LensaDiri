@@ -2,18 +2,22 @@ import { Badge } from "@/components/ui/badge";
 
 type EvidenceTier = "A" | "B" | "C" | "Experimental";
 
-const tones: Record<EvidenceTier, "success" | "lens" | "warning" | "neutral"> = {
-  A: "success",
+/**
+ * Soft Product monochrome hierarchy — no green/amber success-warning colors.
+ * A strongest frost, B/C softer frost, Experimental quiet mist.
+ */
+const tones: Record<EvidenceTier, "aperture" | "lens" | "neutral"> = {
+  A: "aperture",
   B: "lens",
-  C: "warning",
+  C: "lens",
   Experimental: "neutral",
 };
 
 const labels: Record<EvidenceTier, string> = {
-  A: "Evidence Tier A",
-  B: "Evidence Tier B",
-  C: "Evidence Tier C",
-  Experimental: "Experimental",
+  A: "Bukti A",
+  B: "Reflektif B",
+  C: "Reflektif C",
+  Experimental: "Eksperimental",
 };
 
 export function EvidenceBadge({ tier }: { tier: EvidenceTier }) {

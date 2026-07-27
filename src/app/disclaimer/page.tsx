@@ -12,7 +12,7 @@ export default function DisclaimerPage() {
       <h1 className="mt-5 text-4xl font-medium tracking-[-0.035em] sm:text-6xl">
         Alat refleksi diri, bukan diagnosis atau keputusan profesional.
       </h1>
-      <div className="border-aperture/25 bg-aperture-soft text-ink mt-12 space-y-7 rounded-lg border p-7 sm:p-10">
+      <div className="border-aperture/25 bg-aperture-soft text-ink mt-12 space-y-7 rounded-[16px] border p-7 sm:p-10">
         <p className="leading-7">
           LensaDiri tidak mendiagnosis kondisi kesehatan mental, gangguan kepribadian, kemampuan
           intelektual, atau kelayakan seseorang untuk pekerjaan, pendidikan, maupun hubungan.

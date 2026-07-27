@@ -105,7 +105,7 @@ export function AccountRecoveryForm({ mode, token = "" }: { mode: RecoveryMode; 
 
   if (success) {
     return (
-      <div className="border-success/30 bg-success-soft rounded-lg border p-6" role="status">
+      <div className="border-success/30 bg-success-soft rounded-[16px] border p-6" role="status">
         <p className="text-success font-medium">{selected.success}</p>
         <Link className={`${getButtonClassName("primary", "md")} mt-5`} href="/login">
           Kembali ke halaman masuk
@@ -150,7 +150,7 @@ export function AccountRecoveryForm({ mode, token = "" }: { mode: RecoveryMode; 
       ) : null}
       {selected.field === "token" && !fragmentToken ? (
         <p
-          className="border-warning/30 bg-warning-soft text-warning rounded-md border p-4"
+          className="border-warning/30 bg-warning-soft text-warning rounded-[16px] border p-4"
           role="alert"
         >
           Tautan tidak memuat kode akses.
@@ -158,7 +158,7 @@ export function AccountRecoveryForm({ mode, token = "" }: { mode: RecoveryMode; 
       ) : null}
       {error ? (
         <p
-          className="border-danger/30 bg-danger-soft text-danger rounded-md border p-4"
+          className="border-danger/30 bg-danger-soft text-danger rounded-[16px] border p-4"
           role="alert"
         >
           {error}

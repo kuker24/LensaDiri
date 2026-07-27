@@ -10,7 +10,7 @@ export default function PrivacyPage() {
     <article className="prose-shell py-16 sm:py-24">
       <p className="mono-label text-ink">Privasi / kontrol data</p>
       <h1 className="mt-5 text-4xl font-medium tracking-[-0.035em] sm:text-6xl">
-        Private by default, kontrol tetap di tangan pengguna.
+        Privat secara bawaan, kontrol tetap di tangan pengguna.
       </h1>
       <p className="text-ink-muted mt-6 text-lg leading-8">
         Dokumen ini adalah ringkasan prinsip produk selama tahap pengembangan dan belum menjadi
@@ -28,7 +28,7 @@ export default function PrivacyPage() {
         <section className="border-line border-b py-7">
           <h2 className="text-ink text-2xl font-medium">Akses dan berbagi</h2>
           <p className="text-ink-muted mt-3 leading-7">
-            Hasil dibuat private. Tautan berbagi hanya dibuat melalui tindakan eksplisit pengguna,
+            Hasil dibuat privat. Tautan berbagi hanya dibuat melalui tindakan eksplisit pengguna,
             memakai token berentropi tinggi, dapat kedaluwarsa, dapat dicabut, dan disimpan sebagai
             hash.
           </p>

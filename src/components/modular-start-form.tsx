@@ -168,8 +168,8 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
         <span className="sr-only">Memuat pilihan lensa…</span>
         <div aria-hidden="true" className="space-y-4">
           <Skeleton className="h-8 w-64" />
-          <Skeleton className="h-36 rounded-lg" />
-          <Skeleton className="h-36 rounded-lg" />
+          <Skeleton className="h-36 rounded-[16px]" />
+          <Skeleton className="h-36 rounded-[16px]" />
         </div>
       </div>
     );
@@ -193,7 +193,7 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
   }
 
   return (
-    <div className="mx-auto max-w-4xl">
+    <div className="mx-auto max-w-4xl pb-28 sm:pb-8">
       <div className="max-w-2xl">
         <p className="mono-label text-ink">Susun eksplorasi</p>
         <h1 className="mt-4 text-4xl font-normal tracking-[-0.035em] sm:text-5xl">
@@ -204,6 +204,25 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
         </p>
       </div>
 
+      <ol
+        aria-label="Langkah penyusunan"
+        className="mt-8 flex flex-wrap gap-2 border-y border-white/12 py-4"
+      >
+        {[
+          ["01", "Lensa"],
+          ["02", "Kedalaman"],
+          ["03", "Tinjau"],
+        ].map(([step, label]) => (
+          <li
+            className="border-line bg-surface text-ink-muted inline-flex min-h-11 items-center gap-2 rounded-[12px] border px-3 text-xs font-medium tracking-[-0.01em]"
+            key={step}
+          >
+            <span className="text-ink tabular-nums">{step}</span>
+            <span>{label}</span>
+          </li>
+        ))}
+      </ol>
+
       {combos.length > 0 ? (
         <details className="border-line mt-8 border-y py-4">
           <summary className="focus-ring flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 font-medium [&::-webkit-details-marker]:hidden">
@@ -212,11 +231,11 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
               +
             </span>
           </summary>
-          <div className="mt-3 grid gap-px overflow-hidden rounded-lg border border-white/14 bg-white/14 sm:grid-cols-2">
+          <div className="mt-3 grid gap-px overflow-hidden rounded-[16px] border border-white/14 bg-white/14 sm:grid-cols-2">
             {combos.map((combo) => (
               <button
                 aria-pressed={presetKey === combo.key}
-                className="focus-ring bg-canvas aria-pressed:bg-surface-raised hover:bg-surface min-h-28 p-4 text-left transition-colors duration-200 ease-out disabled:opacity-50"
+                className="focus-ring decision-tile bg-canvas aria-pressed:bg-surface-raised hover:bg-surface min-h-28 p-4 text-left disabled:opacity-50"
                 key={combo.key}
                 onClick={() => selectPreset(combo)}
                 type="button"
@@ -234,7 +253,7 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
       <section className="mt-10" aria-labelledby="module-heading">
         <div className="flex flex-wrap items-end justify-between gap-4">
           <div>
-            <h2 className="text-xl font-medium" id="module-heading">
+            <h2 className="text-xl font-normal tracking-[-0.02em]" id="module-heading">
               1. Pilih lensa
             </h2>
             <p className="text-ink-muted mt-1 text-sm">Satu lensa sudah cukup untuk mulai.</p>
@@ -257,12 +276,12 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
             />
           </label>
         </div>
-        <div className="border-line mt-5 overflow-hidden rounded-lg border">
+        <div className="border-line mt-5 overflow-hidden rounded-[16px] border">
           {modules.map((module) => {
             const selected = selectedKeys.includes(module.key);
             return (
               <label
-                className={`focus-within:ring-frost relative flex min-h-28 cursor-pointer gap-4 border-b p-4 transition-colors duration-200 ease-out last:border-b-0 focus-within:z-10 focus-within:ring-2 sm:p-5 ${selected ? "border-line bg-surface-raised" : "border-line bg-canvas hover:bg-surface"}`}
+                className={`focus-within:ring-frost decision-tile relative flex min-h-28 cursor-pointer gap-4 border-b p-4 last:border-b-0 focus-within:z-10 focus-within:ring-2 sm:p-5 ${selected ? "border-line bg-surface-raised" : "border-line bg-canvas hover:bg-surface"}`}
                 key={module.key}
               >
                 <input
@@ -294,14 +313,14 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
       </section>
 
       <section className="mt-10" aria-labelledby="mode-heading">
-        <h2 className="text-xl font-medium" id="mode-heading">
+        <h2 className="text-xl font-normal tracking-[-0.02em]" id="mode-heading">
           2. Pilih kedalaman
         </h2>
-        <div className="border-line mt-5 grid overflow-hidden rounded-lg border sm:grid-cols-3">
+        <div className="border-line mt-5 grid overflow-hidden rounded-[16px] border sm:grid-cols-3">
           {modes.map((profile) => (
             <button
               aria-pressed={mode === profile.internalMode}
-              className="focus-ring border-line bg-canvas aria-pressed:bg-surface-raised hover:bg-surface min-h-32 border-b p-4 text-left transition-colors duration-200 ease-out last:border-b-0 disabled:cursor-not-allowed disabled:opacity-50 sm:border-r sm:border-b-0 sm:last:border-r-0"
+              className="focus-ring decision-tile border-line bg-canvas aria-pressed:bg-surface-raised hover:bg-surface min-h-32 border-b p-4 text-left last:border-b-0 disabled:cursor-not-allowed disabled:opacity-50 sm:border-r sm:border-b-0 sm:last:border-r-0"
               disabled={!profile.isSelectable}
               key={profile.internalMode}
               onClick={() => {
@@ -332,7 +351,7 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
       </section>
 
       {modules.some((module) => selectedKeys.includes(module.key) && module.isExperimental) ? (
-        <label className="border-aperture-soft bg-aperture-soft text-ink mt-6 flex items-start gap-3 rounded-[2px] border p-4 text-sm leading-6">
+        <label className="border-aperture-soft bg-aperture-soft text-ink mt-6 flex items-start gap-3 rounded-[12px] border p-4 text-sm leading-6">
           <input
             checked={experimentalAcknowledged}
             className="accent-aperture mt-1 h-5 w-5"
@@ -347,38 +366,40 @@ export function ModularStartForm({ initialModuleKey }: { initialModuleKey?: stri
         </label>
       ) : null}
 
-      <aside className="lens-glow bg-surface mt-10 border-y border-white/20 px-4 py-4 sm:flex sm:items-center sm:justify-between sm:gap-8 sm:px-5">
-        <div aria-live="polite">
-          <p className="mono-label text-ink">Pilihanmu</p>
-          {estimating ? (
-            <p className="text-ink-muted mt-2">Menghitung pilihan…</p>
-          ) : estimate ? (
-            <>
-              <p className="mt-2 text-xl font-semibold tabular-nums">
-                {selectedKeys.length} lensa · {estimate.itemCount} pertanyaan · sekitar{" "}
-                {estimate.estimatedMinutes} menit
+      <aside className="lens-glow fixed inset-x-0 bottom-0 z-20 border-t border-white/20 px-4 py-4 sm:static sm:mt-10 sm:border-y sm:px-5">
+        <div className="mx-auto flex max-w-4xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
+          <div aria-live="polite" className="min-w-0">
+            <p className="mono-label text-ink">Pilihanmu</p>
+            {estimating ? (
+              <p className="text-ink-muted mt-2">Menghitung pilihan…</p>
+            ) : estimate ? (
+              <>
+                <p className="mt-2 text-lg font-normal tabular-nums sm:text-xl">
+                  {selectedKeys.length} lensa · {estimate.itemCount} pertanyaan · sekitar{" "}
+                  {estimate.estimatedMinutes} menit
+                </p>
+                <p className="text-ink-muted mt-1 max-w-2xl text-xs leading-5">
+                  {estimate.disclaimer}
+                </p>
+              </>
+            ) : (
+              <p className="text-ink-muted mt-2">Pilih lensa untuk melihat estimasi.</p>
+            )}
+            {error ? (
+              <p className="text-danger mt-3 text-sm" role="alert">
+                {error}
               </p>
-              <p className="text-ink-muted mt-1 max-w-2xl text-xs leading-5">
-                {estimate.disclaimer}
-              </p>
-            </>
-          ) : (
-            <p className="text-ink-muted mt-2">Pilih lensa untuk melihat estimasi.</p>
-          )}
-          {error ? (
-            <p className="text-danger mt-3 text-sm" role="alert">
-              {error}
-            </p>
-          ) : null}
+            ) : null}
+          </div>
+          <Button
+            className="w-full shrink-0 sm:w-auto"
+            disabled={!estimate || estimating}
+            onClick={continueToReview}
+            type="button"
+          >
+            Tinjau pilihan
+          </Button>
         </div>
-        <Button
-          className="mt-5 w-full shrink-0 sm:mt-0 sm:w-auto"
-          disabled={!estimate || estimating}
-          onClick={continueToReview}
-          type="button"
-        >
-          Tinjau pilihan
-        </Button>
       </aside>
     </div>
   );

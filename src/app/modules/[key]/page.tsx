@@ -22,7 +22,7 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
   return (
     <section className="container-shell py-16 sm:py-24">
       <Link
-        className="focus-ring text-ink-muted hover:text-ink inline-flex min-h-11 items-center rounded-md text-sm transition-colors"
+        className="focus-ring ui-transition text-ink-muted hover:text-ink inline-flex min-h-11 items-center rounded-[12px] text-sm font-medium tracking-[-0.01em]"
         href="/modules"
       >
         ← Kembali ke katalog
@@ -74,7 +74,7 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
         </section>
 
         <section
-          className="border-lens/25 bg-lens-soft mt-10 rounded-lg border p-6"
+          className="border-lens/25 bg-lens-soft mt-10 rounded-[16px] border p-6"
           aria-labelledby="boundary-heading"
         >
           <h2 className="font-semibold" id="boundary-heading">
@@ -94,7 +94,7 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
             Pilih modul ini
           </Link>
         ) : (
-          <div className="border-aperture/50 bg-aperture-soft/70 text-ink mt-8 rounded-md border p-5">
+          <div className="border-aperture/50 bg-aperture-soft/70 text-ink mt-8 rounded-[16px] border p-5">
             <h2 className="font-semibold">Belum dapat dipilih</h2>
             <p className="mt-2 text-sm leading-6">
               {catalogModule.availabilityReason ?? "Modul masih berada dalam review."}

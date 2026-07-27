@@ -48,7 +48,7 @@ export function Dialog({
       ref={ref}
       aria-labelledby={titleId}
       className={cn(
-        "border-line bg-surface-raised text-ink backdrop:bg-canvas/80 relative m-auto max-w-md rounded-lg border p-6 backdrop:backdrop-blur-sm",
+        "border-line bg-surface-raised text-ink backdrop:bg-canvas/80 relative m-auto max-w-md rounded-[16px] border p-6",
         className,
       )}
       onCancel={(event) => {
@@ -80,7 +80,7 @@ export function Dialog({
       <button
         type="button"
         onClick={onClose}
-        className="focus-ring text-ink-muted hover:bg-lens-soft hover:text-ink absolute top-2 right-2 inline-flex min-h-12 min-w-12 items-center justify-center rounded-md"
+        className="focus-ring pressable text-ink-muted hover:bg-lens-soft hover:text-ink absolute top-2 right-2 inline-flex min-h-12 min-w-12 items-center justify-center rounded-[12px]"
         aria-label="Tutup dialog"
       >
         <span aria-hidden="true">✕</span>

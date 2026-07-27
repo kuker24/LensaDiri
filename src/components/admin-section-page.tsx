@@ -19,7 +19,7 @@ export function AdminSectionPage({
         aria-label="Jejak navigasi"
         className="text-ink-muted mb-6 font-mono text-xs tracking-[-0.02em]"
       >
-        <Link className="focus-ring quiet-link rounded-[2px]" href="/admin">
+        <Link className="focus-ring quiet-link rounded-[12px]" href="/admin">
           Admin
         </Link>
         <span className="mx-2">/</span>
@@ -32,7 +32,7 @@ export function AdminSectionPage({
         <p className="text-ink-muted mt-2 max-w-2xl leading-7">{description}</p>
       </div>
 
-      <section className="border-line bg-surface mt-8 overflow-hidden rounded-[10px] border">
+      <section className="border-line bg-surface mt-8 overflow-hidden rounded-[16px] border">
         <div className="border-line border-b px-5 py-3">
           <p className="mono-label text-ink">Ringkasan</p>
         </div>

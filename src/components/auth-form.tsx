@@ -56,14 +56,14 @@ export function AuthForm({ mode }: AuthFormProps) {
 
   if (registrationAccepted) {
     return (
-      <div className="border-success/30 bg-success-soft rounded-lg border p-5" role="status">
-        <p className="text-success font-mono text-[0.65rem] tracking-[0.1em] uppercase">Berhasil</p>
+      <div className="border-success/30 bg-success-soft rounded-[16px] border p-5" role="status">
+        <p className="text-success mono-label">Berhasil</p>
         <h2 className="mt-3 text-xl font-medium">Pendaftaran diterima</h2>
         <p className="text-ink-muted mt-2 leading-7">
           Jika email belum terdaftar, akun sudah dibuat. Masuk untuk melanjutkan.
         </p>
         <Link
-          className="focus-ring quiet-link mt-5 inline-flex min-h-11 items-center rounded-[2px] font-medium"
+          className="focus-ring quiet-link mt-5 inline-flex min-h-11 items-center rounded-[12px] font-medium"
           href="/login"
         >
           Masuk sekarang
@@ -104,7 +104,7 @@ export function AuthForm({ mode }: AuthFormProps) {
       </div>
       {error ? (
         <p
-          className="border-danger/30 bg-danger-soft text-danger rounded-[2px] border px-4 py-3 text-sm"
+          className="border-danger/30 bg-danger-soft text-danger rounded-[12px] border px-4 py-3 text-sm"
           role="alert"
         >
           {error}

@@ -11,7 +11,7 @@ export default function ContactPage() {
           password, token, jawaban assessment, hasil private, atau data sensitif melalui issue
           publik.
         </p>
-        <div className="bg-line mt-12 grid gap-px overflow-hidden rounded-lg border border-white/12 sm:grid-cols-2">
+        <div className="bg-line mt-12 grid gap-px overflow-hidden rounded-[16px] border border-white/12 sm:grid-cols-2">
           <section className="bg-surface p-7">
             <h2 className="text-ink text-xl font-medium">Dukungan produk</h2>
             <p className="text-ink-muted mt-3 leading-7">
