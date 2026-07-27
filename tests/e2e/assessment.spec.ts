@@ -36,7 +36,7 @@ test("modular selection estimates, starts, pauses, resumes, and completes", asyn
   await expect(page.getByRole("heading", { name: "RIASEC" })).toBeVisible();
   await expect(page.getByText(/Confidence keseluruhan/u)).toBeVisible();
   // §17.2: session meta remains available through explicit progressive disclosure.
-  await page.getByText("Detail hasil dan cara membaca confidence").click();
+  await page.getByText("Detail & confidence").click();
   await expect(page.getByRole("term").filter({ hasText: "Mode" })).toBeVisible();
   await expect(page.getByText("Quick", { exact: true })).toBeVisible();
   await expect(page.getByText(/Versi penilaian/u)).toBeVisible();
