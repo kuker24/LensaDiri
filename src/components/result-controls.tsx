@@ -81,7 +81,14 @@ export function ResultControls({ token }: { token: string }) {
           download
           href={`/api/result/export/${encodeURIComponent(token)}`}
         >
-          Unduh data (JSON)
+          Unduh laporan (PDF)
+        </a>
+        <a
+          className={getButtonClassName("ghost", "sm")}
+          download
+          href={`/api/result/export/${encodeURIComponent(token)}?format=json`}
+        >
+          Data JSON
         </a>
         <a className={getButtonClassName("secondary", "sm")} href="/start">
           Tes ulang
