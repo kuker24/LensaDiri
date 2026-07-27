@@ -4,7 +4,30 @@ import Link from "next/link";
 import { DashboardOpenButton } from "@/components/dashboard-open-button";
 import { getCurrentSession } from "@/server/current-session";
 import { listAccountActiveSessions } from "@/server/repositories/dashboard";
-import { Button } from "@/components/ui/button";
+import { getButtonClassName } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+
+const moduleLabels: Record<string, string> = {
+  attachment: "Refleksi Attachment",
+  enneagram: "Lensa Motivasi",
+  instinct: "Varian Instingtual",
+  psychosophy: "Psychosophy",
+  riasec: "Minat Karier RIASEC",
+  socionics_communication: "Komunikasi Socionics",
+  temperament: "Temperamen",
+  three_center: "Pola Tiga Pusat",
+  trait_profile: "Profil Trait",
+  type_16: "16-Type",
+};
+
+const sessionStatusLabels: Record<string, string> = {
+  active: "Berjalan",
+  paused: "Dijeda",
+};
+
+function formatModuleKey(key: string): string {
+  return moduleLabels[key] ?? "Lensa reflektif";
+}
 
 export default async function DashboardSessionsPage() {
   const session = await getCurrentSession();
@@ -13,47 +36,60 @@ export default async function DashboardSessionsPage() {
   const sessions = await listAccountActiveSessions(session.accountId);
 
   return (
-    <div className="container-shell py-12">
-      <nav aria-label="Breadcrumb" className="text-ink-muted mb-6 text-sm">
-        <Link className="hover:text-ink underline" href="/dashboard">
-          Dashboard
+    <div className="task-shell">
+      <nav
+        aria-label="Jejak navigasi"
+        className="text-ink-muted mb-6 font-mono text-xs tracking-[-0.02em]"
+      >
+        <Link className="focus-ring quiet-link rounded-[12px]" href="/dashboard">
+          Ruang pribadi
         </Link>
         <span className="mx-2">/</span>
         <span>Sesi aktif</span>
       </nav>
 
-      <h1 className="font-display text-3xl font-semibold">Sesi aktif</h1>
+      <h1 className="text-3xl font-normal tracking-[-0.03em]">Sesi aktif</h1>
       <p className="text-ink-muted mt-2 mb-8 leading-7">
         Sesi yang masih berjalan dan dapat dilanjutkan.
       </p>
 
       {sessions.length === 0 ? (
-        <div className="border-line bg-surface rounded-lg border p-8 text-center">
-          <p className="text-ink-muted text-lg">Tidak ada sesi aktif.</p>
-          <Link className="mt-4 inline-block" href="/start">
-            <Button>Mulai eksplorasi</Button>
-          </Link>
+        <div className="border-line bg-surface rounded-[16px] border p-8 text-center">
+          <p className="text-ink text-lg font-normal">Belum ada sesi aktif.</p>
+          <p className="text-ink-muted mx-auto mt-2 max-w-md leading-7">
+            Mulai dari satu lensa — kamu bisa menjeda kapan saja.
+          </p>
+          <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
+            <Link className={getButtonClassName("primary", "md")} href="/start/modules">
+              Mulai asesmen
+            </Link>
+            <Link className={getButtonClassName("secondary", "md")} href="/method">
+              Pelajari metode
+            </Link>
+          </div>
         </div>
       ) : (
-        <ul className="space-y-4">
+        <ul className="divide-y divide-white/12 border-y border-white/12">
           {sessions.map((active) => (
-            <li
-              className="border-line bg-surface flex flex-wrap items-center justify-between gap-4 rounded-lg border p-5"
-              key={active.id}
-            >
-              <div>
-                <p className="font-semibold capitalize">
-                  {active.selectionType.replaceAll("_", " ")} · {active.mode}
-                </p>
-                <p className="text-ink-muted text-sm">
-                  {active.moduleKeys.join(", ")} · {active.answeredCount} / {active.totalCount}{" "}
-                  terjawab
-                </p>
-                <p className="text-ink-muted text-xs">
-                  Segmen {active.currentSegmentIndex} dari {active.segmentCount}
-                </p>
+            <li className="row-hover bg-surface/40 py-5" key={active.id}>
+              <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
+                <div className="min-w-0 flex-1">
+                  <p className="font-normal capitalize">
+                    {active.moduleKeys.map(formatModuleKey).join(" · ")}
+                  </p>
+                  <p className="text-ink-muted mt-1 text-sm tabular-nums">
+                    {active.answeredCount}/{active.totalCount} · Bagian {active.currentSegmentIndex}
+                    /{active.segmentCount} · {sessionStatusLabels[active.status] ?? "Berjalan"}
+                  </p>
+                  <Progress
+                    aria-label={`${active.answeredCount} dari ${active.totalCount} pertanyaan terjawab`}
+                    className="mt-3 max-w-xl"
+                    max={active.totalCount}
+                    value={active.answeredCount}
+                  />
+                </div>
+                <DashboardOpenButton id={active.id} kind="session" />
               </div>
-              <DashboardOpenButton id={active.id} kind="session" />
             </li>
           ))}
         </ul>

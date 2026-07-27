@@ -46,7 +46,7 @@ export default async function CombosPage() {
       </header>
 
       {combos.length === 0 ? (
-        <p className="border-line bg-surface text-ink-muted mt-10 rounded-lg border p-6">
+        <p className="border-line bg-surface text-ink-muted mt-10 rounded-[16px] border p-6">
           Belum ada preset yang memenuhi publication gate.
         </p>
       ) : (
@@ -83,7 +83,7 @@ export default async function CombosPage() {
                 >
                   {combo.moduleKeys.map((key) => (
                     <li
-                      className="border-line bg-mist text-ink-muted rounded-md border px-3 py-1 text-sm"
+                      className="border-line bg-mist text-ink-muted rounded-[12px] border px-3 py-1.5 text-sm"
                       key={key}
                     >
                       {names.get(key) ?? key.replaceAll("_", " ")}
@@ -92,7 +92,7 @@ export default async function CombosPage() {
                 </ul>
               </div>
               <Link
-                className="focus-ring text-aperture hover:text-ink inline-flex min-h-11 items-center rounded-md font-medium transition-colors"
+                className="focus-ring ui-transition text-ink hover:text-ink-muted inline-flex min-h-11 items-center rounded-[12px] text-sm font-medium tracking-[-0.01em]"
                 href="/start/modules"
               >
                 Pilih preset <span aria-hidden="true">↗</span>

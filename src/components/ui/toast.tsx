@@ -54,7 +54,7 @@ export function ToastProvider({ children }: { children: ReactNode }) {
           <div
             key={item.id}
             className={cn(
-              "toast-motion pointer-events-auto rounded-md border px-4 py-2.5 text-sm",
+              "toast-motion pointer-events-auto rounded-[16px] border px-4 py-2.5 text-sm",
               toneStyles[item.tone],
             )}
           >

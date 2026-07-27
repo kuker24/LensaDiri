@@ -22,7 +22,7 @@ export default function ForgotPasswordPage() {
           <AccountRecoveryForm mode="forgot" />
         </div>
         <Link
-          className="focus-ring quiet-link mt-6 inline-flex min-h-11 items-center rounded-[2px] font-medium"
+          className="focus-ring quiet-link mt-6 inline-flex min-h-11 items-center rounded-[12px] font-medium"
           href="/login"
         >
           ← Kembali masuk

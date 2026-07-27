@@ -1,0 +1,33 @@
+# LensaDiri frontend MCP stack (minimal + relevant)
+# shadcn  = foundation + registries in components.json (@animate-ui, @aceternity)
+# magicui = landing motion primitives
+# playwright = browser QA / screenshots
+# Docs: .pi/FRONTEND_MCP_SETUP_2026-07-27.md
+#
+# Playwright uses Chrome for Testing via:
+#   ln -sfn "$(find ~/.cache/ms-playwright -path '*/chrome-linux64/chrome' | sort -V | tail -1)" \
+#     ~/.local/bin/playwright-chrome
+
+[mcp_servers.shadcn]
+command = "npx"
+args = ["-y", "shadcn@latest", "mcp"]
+enabled = true
+startup_timeout_sec = 90
+
+[mcp_servers.magicui]
+command = "npx"
+args = ["-y", "@magicuidesign/mcp@latest"]
+enabled = true
+startup_timeout_sec = 90
+
+[mcp_servers.playwright]
+command = "npx"
+args = [
+    "-y",
+    "@playwright/mcp@latest",
+    "--executable-path",
+    "${HOME}/.local/bin/playwright-chrome",
+    "--headless",
+]
+enabled = true
+startup_timeout_sec = 90

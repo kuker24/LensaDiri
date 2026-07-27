@@ -1,5 +1,7 @@
 import Link from "next/link";
 
+import { BrandMark } from "@/components/brand-mark";
+
 const footerLinks = [
   ["Metode", "/method"],
   ["Privasi", "/privacy"],
@@ -13,11 +15,9 @@ export function SiteFooter() {
       <div className="container-shell py-8 sm:py-10">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-2.5">
-            <span aria-hidden="true" className="text-ink mt-0.5 text-xs">
-              ◆
-            </span>
+            <BrandMark className="text-ink mt-0.5 h-5 w-5" />
             <div>
-              <p className="font-mono text-xs tracking-[-0.02em]">LensaDiri</p>
+              <p className="text-sm font-semibold tracking-[-0.02em]">LensaDiri</p>
               <p className="text-ink-muted mt-1 max-w-sm text-sm leading-6">
                 Banyak lensa. Tanpa label mutlak.
               </p>
@@ -26,7 +26,7 @@ export function SiteFooter() {
           <nav aria-label="Navigasi footer" className="flex flex-wrap gap-x-5 gap-y-2">
             {footerLinks.map(([label, href]) => (
               <Link
-                className="focus-ring text-ink-muted hover:text-ink rounded-[2px] py-2 font-mono text-[0.625rem] tracking-[-0.02em] uppercase transition-colors"
+                className="focus-ring ui-transition text-ink-muted hover:text-ink inline-flex min-h-11 items-center rounded-[12px] py-2 text-sm font-medium"
                 href={href}
                 key={href}
               >
@@ -35,7 +35,7 @@ export function SiteFooter() {
             ))}
           </nav>
         </div>
-        <div className="text-ink-muted mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-white/12 pt-4 font-mono text-[0.625rem] tracking-[-0.02em] uppercase">
+        <div className="text-ink-muted mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-white/12 pt-4 text-xs font-medium">
           <span>Privacy-first · Indonesia</span>
           <span>Bukan diagnosis klinis</span>
         </div>

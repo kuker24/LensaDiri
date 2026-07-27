@@ -1,3 +1,7 @@
+"use client";
+
+import { BorderBeam } from "@/components/ui/border-beam";
+
 const sampleScores = [
   ["Keterbukaan", 82],
   ["Keteraturan", 64],
@@ -12,13 +16,14 @@ export function ReflectionPass() {
   return (
     <aside
       aria-label="Ilustrasi cara membaca hasil"
-      className="lens-glow relative overflow-hidden rounded-[10px] border border-white/20 p-8 sm:p-10"
+      className="lens-glow relative overflow-hidden rounded-[16px] border border-white/20 p-8 sm:p-10"
     >
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 bg-[url(/media/design2/panel-void-detail.jpg)] bg-cover bg-center opacity-35"
       />
       <div aria-hidden="true" className="pointer-events-none absolute inset-0 bg-black/55" />
+      <BorderBeam size={90} duration={12} borderWidth={1} />
 
       <div className="relative">
         <div className="flex items-start justify-between gap-4">
@@ -28,7 +33,7 @@ export function ReflectionPass() {
               Baca sebagai spektrum
             </p>
           </div>
-          <span className="mono-label text-ink shrink-0 rounded-[2px] border border-white/20 bg-black/40 px-3 py-1.5">
+          <span className="mono-label text-ink shrink-0 rounded-[12px] border border-white/20 bg-black/40 px-3 py-1.5">
             ilustrasi
           </span>
         </div>
@@ -70,7 +75,7 @@ export function ReflectionPass() {
           </div>
           <div>
             <p className="mono-label text-ink-muted">Kontrol</p>
-            <p className="mt-2">Private sampai dibagikan</p>
+            <p className="mt-2">Privat sampai dibagikan</p>
           </div>
         </div>
       </div>

@@ -1,3 +1,5 @@
+import { Spotlight } from "@/components/ui/spotlight";
+
 export function HeroAmbient() {
   return (
     <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-20 overflow-hidden">
@@ -21,6 +23,7 @@ export function HeroAmbient() {
       </video>
       <div className="absolute inset-0 bg-linear-to-r from-black/84 via-black/42 to-black/24" />
       <div className="absolute inset-0 bg-linear-to-t from-black/55 via-transparent to-black/30" />
+      <Spotlight className="-top-40 left-0 md:-top-20 md:left-20" fill="white" />
     </div>
   );
 }

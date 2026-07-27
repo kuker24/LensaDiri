@@ -27,18 +27,26 @@ Frozen work: routes, APIs, DTOs, database schema, repositories, authorization, p
 
 ## Chronology
 
-| Date       | Commit    | Work                                                                                                                           |
-| ---------- | --------- | ------------------------------------------------------------------------------------------------------------------------------ |
-| 2026-07-26 | `e1d97fc` | Established the first midnight redesign foundation, semantic tokens, shared primitives, and shell.                             |
-| 2026-07-26 | `e25e267` | Redesigned public information surfaces.                                                                                        |
-| 2026-07-26 | `263bc4d` | Redesigned authentication and account-recovery surfaces.                                                                       |
-| 2026-07-26 | `3adcb93` | Redesigned assessment flow surfaces.                                                                                           |
-| 2026-07-27 | `2a9ad84` | Redesigned private/shared result surfaces.                                                                                     |
-| 2026-07-27 | `333ff8f` | Aligned composition to the Refero midnight reference across route groups.                                                      |
-| 2026-07-27 | `72a4616` | Added muted ambient landing hero video and poster fallback.                                                                    |
-| 2026-07-27 | `982067b` | Applied the final Design2 portal direction across shell, landing, composer, results, recovery, copy, media, and tests.         |
-| 2026-07-27 | `3805c67` | Polished full product shell: cinematic motion foundation, shorter UI copy, auth/assessment/result/dashboard/admin consistency. |
-| 2026-07-27 | `9e638ec` | E2E assertion alignment + green CI for polish (Quality + Database/browser).                                                    |
+| Date       | Commit    | Work                                                                                                                                                                                                |
+| ---------- | --------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 2026-07-26 | `e1d97fc` | Established the first midnight redesign foundation, semantic tokens, shared primitives, and shell.                                                                                                  |
+| 2026-07-26 | `e25e267` | Redesigned public information surfaces.                                                                                                                                                             |
+| 2026-07-26 | `263bc4d` | Redesigned authentication and account-recovery surfaces.                                                                                                                                            |
+| 2026-07-26 | `3adcb93` | Redesigned assessment flow surfaces.                                                                                                                                                                |
+| 2026-07-27 | `2a9ad84` | Redesigned private/shared result surfaces.                                                                                                                                                          |
+| 2026-07-27 | `333ff8f` | Aligned composition to the Refero midnight reference across route groups.                                                                                                                           |
+| 2026-07-27 | `72a4616` | Added muted ambient landing hero video and poster fallback.                                                                                                                                         |
+| 2026-07-27 | `982067b` | Applied the final Design2 portal direction across shell, landing, composer, results, recovery, copy, media, and tests.                                                                              |
+| 2026-07-27 | `3805c67` | Polished full product shell: cinematic motion foundation, shorter UI copy, auth/assessment/result/dashboard/admin consistency.                                                                      |
+| 2026-07-27 | `9e638ec` | E2E assertion alignment + green CI for polish (Quality + Database/browser).                                                                                                                         |
+| 2026-07-27 | `working` | Systematic Phase 1–6 audit & polish pass on `design/opendesign-iteration`: tokens, radii, focus states, public/auth/test/result alignment.                                                          |
+| 2026-07-27 | `working` | Design-review fix-all: primary CTA edge, start single-path + sticky estimate rail, assessment exit label, result sticky subnav, homepage close CTA, Indonesian chrome, auth/dashboard empty polish. |
+| 2026-07-27 | `working` | Enhanced-prompt implement-all: runner sticky progress + calm Likert/actions, result reading hierarchy/spectrum bars, shared/public-safe polish, review step stamp, frost progress hairline.         |
+| 2026-07-27 | `working` | Emil motion pass: token cohesion (`ui-transition`/`pressable`/`decision-tile`), Likert no-scale, marketing reveal/spectrum trim, dialog/toast transitions, reduced-motion color-only. Formal `/review-animations` Approve. |
+| 2026-07-27 | `working` | Impeccable check-all+fix: radius tokens (2/10/20), CTA frost/token borders, no decorative menu shadow, Indonesian jargon/clarify, footer/brand touch 44px, method/modules/privacy copy. |
+| 2026-07-27 | `working` | Soft Product type/shape: Plus Jakarta Sans; mono meta-only; CTA sentence-case sans; radii control 12 / panel 16 / shell 20. Brainstorm: `.pi/BRAINSTORM_TYPE_RADIUS_2026-07-27.md`. |
+| 2026-07-27 | `working` | Frontend MCP stack: shadcn + Animate/Aceternity registries + Magic UI + Playwright. Docs: `.pi/FRONTEND_MCP_SETUP_2026-07-27.md`. |
+| 2026-07-27 | `working` | Soft Product polish 1→2: Magic UI blur-fade, border-beam (frost), animated-shiny-text; Aceternity spotlight; wired home/start/login; motion dep; reduced-motion via useSyncExternalStore. lint+typecheck green. Playwright MCP screenshot blocked (chrome binary missing; chromium cache present). |
 
 The first midnight direction was not deleted from project history. It was moved intact to `Design.md/Design1/`; Design2 became canonical.
 

@@ -25,6 +25,24 @@ import { Progress } from "@/components/ui/progress";
 
 const labels = ["Sangat tidak sesuai", "Tidak sesuai", "Netral", "Sesuai", "Sangat sesuai"];
 
+const moduleLabels: Record<string, string> = {
+  attachment: "Refleksi Attachment",
+  enneagram: "Lensa Motivasi",
+  instinct: "Varian Instingtual",
+  psychosophy: "Psychosophy",
+  riasec: "Minat Karier RIASEC",
+  socionics_communication: "Komunikasi Socionics",
+  temperament: "Temperamen",
+  three_center: "Pola Tiga Pusat",
+  trait_profile: "Profil Trait",
+  type_16: "16-Type",
+};
+
+function formatModuleKey(key: string | null | undefined): string {
+  if (!key) return "Lensa";
+  return moduleLabels[key] ?? key.replaceAll("_", " ");
+}
+
 function LikertSelector({
   answer,
   disabled,
@@ -37,7 +55,7 @@ function LikertSelector({
   onAnswer: (value: number) => void;
 }) {
   return (
-    <fieldset aria-labelledby={labelId} className="mt-8 grid gap-2.5">
+    <fieldset aria-labelledby={labelId} className="mt-8 grid gap-2">
       <legend className="sr-only">Pilih tingkat kesesuaian</legend>
       {labels.map((label, itemIndex) => {
         const value = itemIndex + 1;
@@ -45,16 +63,16 @@ function LikertSelector({
         return (
           <button
             aria-pressed={selected}
-            className="likert-option focus-ring group border-line bg-surface text-ink aria-pressed:border-frost/55 aria-pressed:bg-lens-soft flex min-h-14 items-center rounded-[2px] border px-4 text-left font-medium hover:border-white/35"
+            className="likert-option focus-ring group border-line bg-surface text-ink aria-pressed:border-frost/70 aria-pressed:bg-lens-soft flex min-h-14 items-center rounded-[12px] border px-4 text-left font-normal hover:border-white/35"
             disabled={disabled}
             key={label}
             onClick={() => onAnswer(value)}
             type="button"
           >
-            <span className="border-line bg-canvas text-ink-muted group-aria-pressed:border-frost/55 group-aria-pressed:bg-charcoal group-aria-pressed:text-ink mr-3.5 inline-grid h-7 w-7 shrink-0 place-items-center rounded-[2px] border font-mono text-xs tabular-nums transition-colors duration-200 ease-out">
+            <span className="border-line bg-canvas text-ink-muted group-aria-pressed:border-frost/70 group-aria-pressed:bg-charcoal group-aria-pressed:text-ink ui-transition mr-3.5 inline-grid h-7 w-7 shrink-0 place-items-center rounded-[12px] border font-mono text-xs tabular-nums">
               {value}
             </span>
-            {label}
+            <span className="leading-6">{label}</span>
           </button>
         );
       })}
@@ -126,10 +144,11 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
 
   if (!question) return null;
   return (
-    <section className="container-shell py-10 sm:py-16">
+    <section className="task-shell !py-8 sm:!py-14">
       <div className="mx-auto max-w-3xl">
-        <div className="border-aperture/25 bg-aperture-soft text-ink rounded-lg border p-5">
-          <h1 className="text-xl font-medium tracking-[-0.02em]">
+        <div className="border-line bg-surface rounded-[16px] border p-5 sm:p-6">
+          <p className="mono-label text-ink">Pertanyaan tambahan</p>
+          <h1 className="mt-3 text-xl font-normal tracking-[-0.02em] sm:text-2xl">
             Perjelas pola yang masih berdekatan
           </h1>
           <p className="text-ink-muted mt-2 text-sm leading-6">
@@ -137,24 +156,24 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
             dengan catatan kualitas.
           </p>
         </div>
-        <div className="text-ink-muted mt-6 flex items-center justify-between gap-4 text-sm">
-          <span className="tabular-nums">
-            Clarifier {index + 1} dari {clarifier.totalCount}
-          </span>
-          <span className="tabular-nums">{answeredCount} tersimpan</span>
+        <div className="sticky top-14 z-10 mt-6 border-b border-white/12 bg-[rgb(0_0_0_/_0.9)] py-3 backdrop-blur-md">
+          <div className="text-ink-muted flex items-center justify-between gap-4 font-mono text-xs tracking-[-0.02em]">
+            <span className="tabular-nums">
+              Clarifier {index + 1} / {clarifier.totalCount}
+            </span>
+            <span className="tabular-nums">{answeredCount} tersimpan</span>
+          </div>
+          <Progress
+            aria-label="Progres clarifier"
+            className="mt-3"
+            max={clarifier.totalCount}
+            value={answeredCount}
+          />
         </div>
-        <Progress
-          aria-label="Progres clarifier"
-          className="mt-3"
-          max={clarifier.totalCount}
-          value={answeredCount}
-        />
-        <article className="border-line bg-surface mt-8 rounded-lg border p-6 sm:p-10">
-          <p className="text-aperture font-mono text-xs tracking-[0.08em] uppercase">
-            {question.moduleKey.replaceAll("_", " ")}
-          </p>
+        <article className="border-line bg-surface mt-6 rounded-[16px] border p-6 sm:p-9">
+          <p className="mono-label text-ink-muted">{formatModuleKey(question.moduleKey)}</p>
           <h2
-            className="mt-3 text-2xl leading-tight font-medium tracking-[-0.025em] outline-none sm:text-3xl"
+            className="mt-3 text-2xl leading-snug font-normal tracking-[-0.025em] outline-none sm:text-3xl"
             id="clarifier-question"
             ref={questionHeadingRef}
             tabIndex={-1}
@@ -172,8 +191,9 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
               {error}
             </p>
           ) : null}
-          <div className="mt-8 flex flex-wrap items-center justify-between gap-3">
+          <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
             <Button
+              className="w-full sm:w-auto"
               disabled={index === 0 || pending}
               onClick={() => {
                 setIndex(index - 1);
@@ -184,8 +204,9 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
             >
               Kembali
             </Button>
-            <div className="flex flex-wrap gap-3">
+            <div className="flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
               <Button
+                className="w-full sm:w-auto"
                 disabled={pending}
                 onClick={() => resolve("skip")}
                 type="button"
@@ -194,11 +215,17 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
                 Lewati clarifier
               </Button>
               {answeredCount === clarifier.totalCount ? (
-                <Button disabled={pending} onClick={() => resolve("complete")} type="button">
+                <Button
+                  className="w-full sm:w-auto"
+                  disabled={pending}
+                  onClick={() => resolve("complete")}
+                  type="button"
+                >
                   Lihat hasil
                 </Button>
               ) : (
                 <Button
+                  className="w-full sm:w-auto"
                   disabled={index === clarifier.totalCount - 1 || pending}
                   onClick={() => {
                     setIndex(index + 1);
@@ -213,6 +240,9 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
             </div>
           </div>
         </article>
+        <p className="text-ink-muted mt-5 text-center text-sm leading-6">
+          Jawaban tersimpan per item. Ini bukan ujian.
+        </p>
       </div>
     </section>
   );
@@ -359,7 +389,7 @@ export function TestRunner({ token }: { token: string }) {
   if (clarifier) return <ClarifierRunner clarifier={clarifier} token={token} />;
   if (error && !session) {
     return (
-      <div className="container-shell">
+      <div className="task-shell">
         <RecoveryPanel
           description={error}
           eyebrow="Sesi tidak tersedia"
@@ -371,71 +401,79 @@ export function TestRunner({ token }: { token: string }) {
     );
   }
   if (!session || !question) {
-    return <p className="text-ink-muted py-20 text-center">Memuat assessment…</p>;
+    return (
+      <p className="text-ink-muted task-shell py-20 text-center font-mono text-xs tracking-[-0.02em] uppercase">
+        Memuat pertanyaan…
+      </p>
+    );
   }
 
   const modular = session.isModular;
   return (
-    <section className="task-shell !py-10 sm:!py-16">
+    <section className="task-shell !py-8 sm:!py-14">
       <div className="mx-auto max-w-3xl">
-        <div className="text-ink-muted flex flex-wrap items-center justify-between gap-4 font-mono text-xs tracking-[-0.02em]">
-          <span className="tabular-nums">
-            {index + 1} / {session.totalCount}
-          </span>
-          <span aria-live="polite" className="tabular-nums">
-            {saveStatus === "saving" ? "Menyimpan…" : `${answeredCount} tersimpan`}
-          </span>
-        </div>
-        <Progress
-          aria-label="Progres assessment"
-          className="mt-3"
-          max={session.totalCount}
-          value={answeredCount}
-        />
-        {modular && question.segmentIndex ? (
-          <div className="border-line bg-surface mt-4 flex flex-wrap items-center justify-between gap-3 rounded-[10px] border px-4 py-3 text-sm">
+        <div className="sticky top-14 z-10 border-b border-white/12 bg-[rgb(0_0_0_/_0.9)] py-3 backdrop-blur-md">
+          <div className="text-ink-muted flex flex-wrap items-center justify-between gap-3 font-mono text-xs tracking-[-0.02em]">
             <span className="tabular-nums">
-              Bagian {question.segmentIndex}/{session.segmentCount ?? 1} · {segmentAnswered}/
-              {segmentQuestions.length}
+              Pertanyaan {index + 1} / {session.totalCount}
             </span>
-            {session.status !== "paused" ? (
-              <Button
-                disabled={pending}
-                onClick={togglePause}
-                size="sm"
-                type="button"
-                variant="secondary"
-              >
-                Jeda
-              </Button>
-            ) : null}
+            <span aria-live="polite" className="tabular-nums">
+              {saveStatus === "saving" ? "Menyimpan…" : `${answeredCount} tersimpan`}
+            </span>
           </div>
-        ) : null}
+          <Progress
+            aria-label="Progres assessment"
+            className="mt-3"
+            max={session.totalCount}
+            value={answeredCount}
+          />
+          {modular && question.segmentIndex ? (
+            <div className="mt-3 flex flex-wrap items-center justify-between gap-3 text-sm">
+              <span className="text-ink-muted tabular-nums">
+                Bagian {question.segmentIndex}/{session.segmentCount ?? 1} · {segmentAnswered}/
+                {segmentQuestions.length}
+                {question.moduleKey ? ` · ${formatModuleKey(question.moduleKey)}` : ""}
+              </span>
+              {session.status !== "paused" ? (
+                <Button
+                  disabled={pending}
+                  onClick={togglePause}
+                  size="sm"
+                  type="button"
+                  variant="secondary"
+                >
+                  Jeda
+                </Button>
+              ) : null}
+            </div>
+          ) : null}
+        </div>
         {session.status === "paused" ? (
-          <div className="border-line bg-lens-soft mt-8 rounded-[20px] border p-6 text-center">
+          <div className="border-line bg-lens-soft mt-8 rounded-[16px] border p-8 text-center sm:p-10">
+            <p className="mono-label text-ink">Dijeda</p>
             <h1
-              className="text-ink text-xl font-normal tracking-[-0.02em] outline-none"
+              className="text-ink mt-4 text-2xl font-normal tracking-[-0.02em] outline-none"
               ref={pausedHeadingRef}
               tabIndex={-1}
             >
               Sesi dijeda
             </h1>
-            <p className="text-ink-muted mt-2 text-sm leading-6">
-              Progres tersimpan. Lanjutkan saat siap.
+            <p className="text-ink-muted mx-auto mt-3 max-w-md text-sm leading-6">
+              Progres tersimpan. Lanjutkan saat siap — ini bukan ujian.
             </p>
-            <Button className="mt-5" onClick={togglePause} type="button">
+            <Button className="mt-6" onClick={togglePause} type="button">
               Lanjutkan
             </Button>
           </div>
         ) : (
-          <article className="border-line bg-surface mt-8 rounded-[20px] border p-6 sm:p-10">
+          <article className="border-line bg-surface mt-6 rounded-[16px] border p-6 sm:p-9">
             {modular ? (
-              <p className="mono-label text-ink-muted">
-                {(question.moduleKey ?? "").replaceAll("_", " ")}
-              </p>
-            ) : null}
+              <p className="mono-label text-ink-muted">{formatModuleKey(question.moduleKey)}</p>
+            ) : (
+              <p className="mono-label text-ink-muted">Eksplorasi</p>
+            )}
             <h1
-              className="mt-3 text-2xl leading-tight font-normal tracking-[-0.025em] outline-none sm:text-3xl"
+              className="mt-3 text-2xl leading-snug font-normal tracking-[-0.025em] outline-none sm:text-3xl"
               id="assessment-question"
               ref={questionHeadingRef}
               tabIndex={-1}
@@ -453,8 +491,9 @@ export function TestRunner({ token }: { token: string }) {
                 {error}
               </p>
             ) : null}
-            <div className="mt-8 flex items-center justify-between gap-3">
+            <div className="mt-8 flex flex-col-reverse gap-3 sm:flex-row sm:items-center sm:justify-between">
               <Button
+                className="w-full sm:w-auto"
                 disabled={index === 0 || pending}
                 onClick={() => {
                   setIndex(index - 1);
@@ -466,11 +505,17 @@ export function TestRunner({ token }: { token: string }) {
                 Kembali
               </Button>
               {answeredCount === session.totalCount ? (
-                <Button disabled={pending} onClick={finish} type="button">
+                <Button
+                  className="w-full sm:w-auto"
+                  disabled={pending}
+                  onClick={finish}
+                  type="button"
+                >
                   Lihat hasil
                 </Button>
               ) : (
                 <Button
+                  className="w-full sm:w-auto"
                   disabled={index === session.totalCount - 1 || pending}
                   onClick={() => {
                     setIndex(index + 1);
@@ -485,6 +530,9 @@ export function TestRunner({ token }: { token: string }) {
             </div>
           </article>
         )}
+        <p className="text-ink-muted mt-5 text-center text-sm leading-6">
+          Jawaban tersimpan per item. Kamu bisa menjeda kapan saja.
+        </p>
       </div>
     </section>
   );

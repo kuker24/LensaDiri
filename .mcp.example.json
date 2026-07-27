@@ -1,16 +1,34 @@
 {
   "mcpServers": {
+    "shadcn": {
+      "command": "npx",
+      "args": ["-y", "shadcn@latest", "mcp"],
+      "startup_timeout_sec": 60
+    },
+    "magicui": {
+      "command": "npx",
+      "args": ["-y", "@magicuidesign/mcp@latest"],
+      "startup_timeout_sec": 60
+    },
+    "playwright": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "@playwright/mcp@latest",
+        "--executable-path",
+        "<PATH_TO_PLAYWRIGHT_CHROME_OR_~/.local/bin/playwright-chrome>",
+        "--headless"
+      ],
+      "startup_timeout_sec": 90
+    },
     "filesystem-lensadiri": {
       "command": "npx",
       "args": [
         "-y",
         "@modelcontextprotocol/server-filesystem",
         "<ABSOLUTE_PATH_TO_LENSADIRI_REPOSITORY>"
-      ]
-    },
-    "playwright": {
-      "command": "npx",
-      "args": ["-y", "@playwright/mcp@latest"]
+      ],
+      "disabled": true
     },
     "github-optional": {
       "command": "npx",

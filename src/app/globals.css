@@ -1,8 +1,12 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:is(.dark *));
+
 @theme {
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  /* Soft Product: Plus Jakarta Sans for UI/display; mono only for meta/data */
+  --font-sans: var(--font-plus-jakarta), ui-sans-serif, system-ui, -apple-system, "Segoe UI",
+    sans-serif;
+  --font-display: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 
   --color-canvas: #000000;
@@ -32,17 +36,22 @@
   --color-aperture-on-dark: #e2e2e2;
   --color-nav: rgb(0 0 0 / 0.55);
 
-  --radius-sm: 0.125rem;
-  --radius-md: 0.125rem;
-  --radius-lg: 0.625rem;
-  --radius-pill: 0.125rem;
+  /* Soft Product radii: control ~12px, panel ~16px, shell ~20px */
+  --radius-sm: 0.5rem;
+  --radius-md: 0.75rem;
+  --radius-lg: 1rem;
+  --radius-xl: 1.25rem;
+  --radius-pill: 9999px;
   --shadow-surface: none;
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
   --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
   --ease-in-out: cubic-bezier(0.77, 0, 0.175, 1);
   --duration-press: 140ms;
   --duration-ui: 180ms;
-  --duration-reveal: 700ms;
+  /* Marketing entry only — task UI stays on --duration-ui */
+  --duration-reveal: 480ms;
+  --duration-spectrum: 450ms;
+  --duration-film: 700ms;
 }
 
 :root {
@@ -83,8 +92,9 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans);
-  font-feature-settings: "liga" 0;
-  line-height: 1.6;
+  font-feature-settings: "ss01" on, "cv11" on;
+  line-height: 1.65;
+  letter-spacing: -0.011em;
   text-rendering: optimizeLegibility;
 }
 
@@ -133,7 +143,7 @@ p {
 
 .surface-panel {
   border: 1px solid var(--hairline);
-  border-radius: var(--radius-lg);
+  border-radius: var(--radius-lg); /* 16px Soft Product panel */
   background: var(--surface);
 }
 
@@ -145,9 +155,27 @@ p {
 
 .auth-panel {
   overflow: hidden;
-  border: 1px solid rgb(255 255 255 / 0.14);
+  border: 1px solid rgb(226 226 226 / 0.18);
   border-radius: 1.25rem;
   background: var(--surface);
+}
+
+/* Shared task-surface transitions — one motion language */
+.ui-transition {
+  transition:
+    color var(--duration-ui) var(--ease-out),
+    background-color var(--duration-ui) var(--ease-out),
+    border-color var(--duration-ui) var(--ease-out),
+    opacity var(--duration-ui) var(--ease-out);
+}
+
+.ui-transition-transform {
+  transition:
+    color var(--duration-ui) var(--ease-out),
+    background-color var(--duration-ui) var(--ease-out),
+    border-color var(--duration-ui) var(--ease-out),
+    opacity var(--duration-ui) var(--ease-out),
+    transform var(--duration-press) var(--ease-out);
 }
 
 .quiet-link {
@@ -155,8 +183,10 @@ p {
   transition: color var(--duration-ui) var(--ease-out);
 }
 
-.quiet-link:hover {
-  color: var(--color-ink);
+@media (hover: hover) and (pointer: fine) {
+  .quiet-link:hover {
+    color: var(--color-ink);
+  }
 }
 
 .row-hover {
@@ -171,7 +201,16 @@ p {
   }
 }
 
+/* High-frequency runner options: color only — no scale */
 .likert-option {
+  transition:
+    color var(--duration-ui) var(--ease-out),
+    background-color var(--duration-ui) var(--ease-out),
+    border-color var(--duration-ui) var(--ease-out);
+}
+
+/* Occasional decision tiles (module/mode/preset): light press feedback */
+.decision-tile {
   transition:
     color var(--duration-ui) var(--ease-out),
     background-color var(--duration-ui) var(--ease-out),
@@ -179,8 +218,26 @@ p {
     transform var(--duration-press) var(--ease-out);
 }
 
-.likert-option:active:not(:disabled) {
-  transform: scale(0.99);
+.decision-tile:active:not(:disabled) {
+  transform: scale(0.98);
+}
+
+/* Primary controls: press scale only (no hover lift — task chrome is high-frequency) */
+.pressable {
+  transition:
+    color var(--duration-ui) var(--ease-out),
+    background-color var(--duration-ui) var(--ease-out),
+    border-color var(--duration-ui) var(--ease-out),
+    opacity var(--duration-ui) var(--ease-out),
+    transform var(--duration-press) var(--ease-out);
+}
+
+.pressable:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.pressable:disabled {
+  transform: none;
 }
 
 .lens-glow {
@@ -215,14 +272,15 @@ p {
 
 .section-stamp {
   color: var(--color-ink);
-  font-family: var(--font-sans);
+  font-family: var(--font-display);
   font-size: clamp(2.5rem, 8vw, 5rem);
-  font-weight: 400;
-  line-height: 0.78;
-  letter-spacing: 0;
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
   text-transform: none;
 }
 
+/* Meta / evidence / instrumentation only — not CTAs */
 .mono-label {
   font-family: var(--font-mono);
   font-size: 0.625rem;
@@ -232,10 +290,10 @@ p {
 
 .nav-link {
   position: relative;
-  font-family: var(--font-mono);
-  font-size: 0.75rem;
-  font-weight: 400;
-  letter-spacing: -0.02em;
+  font-family: var(--font-sans);
+  font-size: 0.875rem;
+  font-weight: 500;
+  letter-spacing: -0.01em;
   text-transform: none;
 }
 
@@ -263,11 +321,11 @@ p {
 }
 
 .display-stack {
-  font-family: var(--font-sans);
+  font-family: var(--font-display);
   font-style: normal;
-  font-weight: 400;
-  line-height: 0.78;
-  letter-spacing: 0;
+  font-weight: 500;
+  line-height: 0.95;
+  letter-spacing: -0.03em;
 }
 
 .display-underline {
@@ -277,9 +335,9 @@ p {
 }
 
 .display-italic {
-  font-family: var(--font-sans);
+  font-family: var(--font-display);
   font-style: normal;
-  font-weight: 400;
+  font-weight: 500;
 }
 
 .hairline {
@@ -305,8 +363,7 @@ p {
   background-position: center;
   background-size: cover;
   transform: scale(1.04);
-  transition: transform 1.1s var(--ease-out-expo);
-  will-change: transform;
+  transition: transform var(--duration-film) var(--ease-out-expo);
 }
 
 .film-strip:has(.reveal[data-in-view="true"]) .film-strip-media,
@@ -338,14 +395,14 @@ p {
   transition:
     opacity var(--duration-reveal) var(--ease-out-expo),
     transform var(--duration-reveal) var(--ease-out-expo),
-    filter calc(var(--duration-reveal) * 0.85) var(--ease-out-expo);
+    filter calc(var(--duration-reveal) * 0.75) var(--ease-out-expo);
   transition-delay: var(--reveal-delay);
 }
 
 .reveal[data-motion="ready"]:not([data-in-view="true"]) {
   opacity: 0;
-  transform: translate3d(0, 18px, 0);
-  filter: blur(4px);
+  transform: translate3d(0, 12px, 0);
+  filter: blur(2px);
 }
 
 .reveal[data-in-view="true"] {
@@ -365,64 +422,65 @@ p {
   }
 
   .hero-entrance > *:nth-child(1) {
-    animation-delay: 40ms;
+    animation-delay: 0ms;
   }
 
   .hero-entrance > *:nth-child(2) {
-    animation-delay: 110ms;
+    animation-delay: 50ms;
   }
 
   .hero-entrance > *:nth-child(3) {
-    animation-delay: 180ms;
+    animation-delay: 100ms;
   }
 
   .hero-entrance > *:nth-child(4) {
-    animation-delay: 240ms;
+    animation-delay: 150ms;
   }
 
   .hero-entrance > *:nth-child(5) {
-    animation-delay: 300ms;
+    animation-delay: 200ms;
   }
 
   .hero-entrance > *:nth-child(6) {
-    animation-delay: 360ms;
+    animation-delay: 250ms;
   }
 
+  /* Landing only — never put ambient loops on task surfaces */
   .hero-ambient-video {
     animation: ambient-drift 28s var(--ease-in-out) infinite alternate;
   }
 
   .spectrum-mark {
     transform-origin: left center;
-    animation: spectrum-draw 900ms var(--ease-out-expo) both;
+    animation: spectrum-draw var(--duration-spectrum) var(--ease-out-expo) both;
   }
 
   .spectrum-row:nth-child(1) .spectrum-mark {
-    animation-delay: 120ms;
+    animation-delay: 40ms;
   }
 
   .spectrum-row:nth-child(2) .spectrum-mark {
-    animation-delay: 180ms;
+    animation-delay: 90ms;
   }
 
   .spectrum-row:nth-child(3) .spectrum-mark {
-    animation-delay: 240ms;
+    animation-delay: 140ms;
   }
 
   .spectrum-row:nth-child(4) .spectrum-mark {
-    animation-delay: 300ms;
+    animation-delay: 190ms;
   }
 
   .spectrum-row:nth-child(5) .spectrum-mark {
-    animation-delay: 360ms;
+    animation-delay: 240ms;
   }
 }
 
 @keyframes hero-rise {
   from {
     opacity: 0;
-    transform: translate3d(0, 16px, 0);
-    filter: blur(6px);
+    transform: translate3d(0, 12px, 0);
+    filter: blur(2px);
   }
 
   to {
@@ -444,8 +502,8 @@ p {
 
 @keyframes spectrum-draw {
   from {
-    transform: scaleX(0.08);
-    opacity: 0.35;
+    transform: scaleX(0.12);
+    opacity: 0.4;
   }
 
   to {
@@ -454,12 +512,13 @@ p {
   }
 }
 
+/* Interruptible toast entry — transitions retarget; keyframes do not */
 .toast-motion {
   opacity: 1;
   transform: translateY(0);
   transition:
-    opacity 180ms var(--ease-out),
-    transform 180ms var(--ease-out);
+    opacity var(--duration-ui) var(--ease-out),
+    transform var(--duration-ui) var(--ease-out);
 
   @starting-style {
     opacity: 0;
@@ -467,33 +526,41 @@ p {
   }
 }
 
+/* Modal: centered origin OK; transition + starting-style for interruptibility */
+dialog {
+  opacity: 0;
+  transform: scale(0.97);
+  transition:
+    opacity var(--duration-ui) var(--ease-out),
+    transform var(--duration-ui) var(--ease-out),
+    overlay var(--duration-ui) var(--ease-out) allow-discrete,
+    display var(--duration-ui) var(--ease-out) allow-discrete;
+}
+
 dialog[open] {
-  animation: dialog-in 180ms var(--ease-out);
+  opacity: 1;
+  transform: scale(1);
+
+  @starting-style {
+    opacity: 0;
+    transform: scale(0.97);
+  }
+}
+
+dialog::backdrop {
+  background: rgb(0 0 0 / 0.55);
+  opacity: 0;
+  transition:
+    opacity var(--duration-ui) var(--ease-out),
+    overlay var(--duration-ui) var(--ease-out) allow-discrete,
+    display var(--duration-ui) var(--ease-out) allow-discrete;
 }
 
 dialog[open]::backdrop {
-  animation: backdrop-in 160ms var(--ease-out);
-}
+  opacity: 1;
 
-@keyframes dialog-in {
-  from {
+  @starting-style {
     opacity: 0;
-    transform: scale(0.98);
-  }
-
-  to {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-@keyframes backdrop-in {
-  from {
-    opacity: 0;
-  }
-
-  to {
-    opacity: 1;
   }
 }
 
@@ -504,39 +571,63 @@ dialog[open]::backdrop {
   }
 }
 
-@media (hover: hover) and (pointer: fine) {
-  .pressable:hover {
-    transform: translateY(-1px);
-  }
-}
-
 @media (prefers-reduced-motion: reduce) {
   html {
     scroll-behavior: auto;
   }
 
+  /* Kill movement; keep short color/opacity for state comprehension (Emil: gentler, not zero) */
   *,
   *::before,
   *::after {
     scroll-behavior: auto !important;
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
   }
 
   .toast-motion,
   .pressable,
+  .decision-tile,
   .reveal,
   .film-strip-media,
-  .hero-entrance > * {
+  .hero-entrance > *,
+  dialog,
+  dialog[open],
+  dialog::backdrop {
     transform: none !important;
     filter: none !important;
-    opacity: 1 !important;
   }
 
   .toast-motion,
-  .pressable {
-    transition-property: opacity, color, background-color, border-color;
+  .reveal,
+  .hero-entrance > *,
+  dialog[open],
+  dialog[open]::backdrop {
+    opacity: 1 !important;
+  }
+
+  .pressable,
+  .decision-tile,
+  .likert-option,
+  .ui-transition,
+  .ui-transition-transform,
+  .quiet-link,
+  .row-hover,
+  .nav-link::after {
+    transition-property: color, background-color, border-color, opacity !important;
+    transition-duration: 120ms !important;
+    transition-timing-function: var(--ease-out) !important;
+  }
+
+  .pressable:active:not(:disabled),
+  .decision-tile:active:not(:disabled) {
+    transform: none !important;
+  }
+
+  .film-strip-media,
+  .spectrum-mark {
+    transition: none !important;
+    animation: none !important;
   }
 
   .hero-ambient-video {
@@ -548,6 +639,45 @@ dialog[open]::backdrop {
   }
 
   .nav-link::after {
-    transition: none;
+    transition: none !important;
+  }
+}
+
+@theme inline {
+  --animate-shiny-text: shiny-text 8s infinite;
+  --animate-spotlight: spotlight 2s ease 0.65s 1 forwards;
+
+  @keyframes shiny-text {
+    0%,
+    90%,
+    100% {
+      background-position: calc(-100% - var(--shiny-width)) 0;
+    }
+    30%,
+    60% {
+      background-position: calc(100% + var(--shiny-width)) 0;
+    }
+  }
+
+  @keyframes spotlight {
+    0% {
+      opacity: 0;
+      transform: translate(-72%, -62%) scale(0.5);
+    }
+    100% {
+      opacity: 1;
+      transform: translate(-50%, -40%) scale(1);
+    }
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .animate-shiny-text,
+  .animate-spotlight {
+    animation: none !important;
+  }
+
+  .animate-spotlight {
+    display: none !important;
   }
 }

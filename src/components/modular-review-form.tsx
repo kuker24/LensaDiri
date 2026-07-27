@@ -52,8 +52,8 @@ export function ModularReviewForm() {
 
   return (
     <div className="mx-auto max-w-3xl">
-      <p className="mono-label text-ink">Tinjau / persetujuan</p>
-      <h1 className="mt-5 text-4xl font-medium tracking-[-0.035em] sm:text-6xl">
+      <p className="mono-label text-ink">03 · Tinjau</p>
+      <h1 className="mt-5 text-4xl font-normal tracking-[-0.035em] sm:text-5xl">
         Siap memulai eksplorasi?
       </h1>
       <p className="text-ink-muted mt-4 leading-7">
@@ -62,31 +62,37 @@ export function ModularReviewForm() {
       </p>
 
       {estimate ? (
-        <div className="bg-surface mt-10 overflow-hidden rounded-lg border border-white/14">
+        <div className="bg-surface mt-10 overflow-hidden rounded-[16px] border border-white/18">
           <div className="border-line grid gap-5 border-b p-6 sm:grid-cols-3">
             <div>
-              <p className="text-ink-muted text-sm">Kedalaman</p>
-              <p className="mt-1 text-lg font-semibold">{estimate.publicMode}</p>
+              <p className="text-ink-muted font-mono text-[0.625rem] tracking-[-0.02em] uppercase">
+                Kedalaman
+              </p>
+              <p className="mt-1 text-lg font-normal">{estimate.publicMode}</p>
             </div>
             <div>
-              <p className="text-ink-muted text-sm">Jumlah</p>
-              <p className="mt-1 text-lg font-semibold tabular-nums">
+              <p className="text-ink-muted font-mono text-[0.625rem] tracking-[-0.02em] uppercase">
+                Jumlah
+              </p>
+              <p className="mt-1 text-lg font-normal tabular-nums">
                 {estimate.itemCount} pertanyaan
               </p>
             </div>
             <div>
-              <p className="text-ink-muted text-sm">Durasi</p>
-              <p className="mt-1 text-lg font-semibold tabular-nums">
+              <p className="text-ink-muted font-mono text-[0.625rem] tracking-[-0.02em] uppercase">
+                Durasi
+              </p>
+              <p className="mt-1 text-lg font-normal tabular-nums">
                 ± {estimate.estimatedMinutes} menit
               </p>
             </div>
           </div>
           <div className="p-6">
-            <h2 className="font-semibold">Lensa dipilih</h2>
+            <h2 className="font-normal">Lensa dipilih</h2>
             <ul className="mt-3 flex flex-wrap gap-2">
               {modules.map((module) => (
                 <li
-                  className="border-lens/30 bg-lens-soft text-aperture rounded-md border px-3 py-1.5 text-sm"
+                  className="border-line bg-lens-soft text-ink rounded-[12px] border px-3 py-1.5 text-sm"
                   key={module.key}
                 >
                   {module.publicName}
@@ -98,13 +104,13 @@ export function ModularReviewForm() {
         </div>
       ) : null}
 
-      <div className="border-aperture-soft bg-aperture-soft mt-8 space-y-3 rounded-lg border p-5 text-sm leading-6">
+      <div className="border-aperture-soft bg-aperture-soft mt-8 space-y-3 rounded-[16px] border p-5 text-sm leading-6">
         <p>Jawaban hanya dipakai untuk penilaian dan refleksi dari lensa yang dipilih.</p>
         <p>Skor utama dihitung di server. Hubungan antar-lensa tidak mengubah skor tiap lensa.</p>
         <p>Hasil tetap privat sampai kamu membuat tautan berbagi.</p>
         <p>Kamu dapat menghapus hasil dan jawaban terkait.</p>
       </div>
-      <label className="border-line bg-surface mt-5 flex items-start gap-3 rounded-lg border p-5 text-sm leading-6">
+      <label className="border-line bg-surface mt-5 flex items-start gap-3 rounded-[16px] border p-5 text-sm leading-6">
         <input
           checked={consent}
           className="accent-lens mt-1 h-5 w-5"

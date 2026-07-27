@@ -43,7 +43,7 @@ export default async function BlogPostPage({ params }: { params: Promise<{ slug:
   return (
     <article className="prose-shell py-16 sm:py-24">
       <Link
-        className="focus-ring text-ink-muted hover:text-ink inline-flex min-h-11 items-center rounded-md text-sm transition-colors"
+        className="focus-ring ui-transition text-ink-muted hover:text-ink inline-flex min-h-11 items-center rounded-[12px] text-sm font-medium tracking-[-0.01em]"
         href="/blog"
       >
         ← Kembali ke catatan

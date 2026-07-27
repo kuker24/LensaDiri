@@ -20,7 +20,7 @@ export default async function DashboardPrivacyPage() {
 
   return (
     <div className="task-shell">
-      <Link className="focus-ring quiet-link rounded-[2px] text-sm font-medium" href="/dashboard">
+      <Link className="focus-ring quiet-link rounded-[12px] text-sm font-medium" href="/dashboard">
         ← Ruang pribadi
       </Link>
       <header className="mt-6 max-w-3xl">
@@ -38,7 +38,7 @@ export default async function DashboardPrivacyPage() {
         <div className="mt-5 space-y-4">
           {policies.map((policy) => (
             <article
-              className="border-line bg-surface rounded-md border p-6"
+              className="border-line bg-surface rounded-[16px] border p-6"
               key={`${policy.consentType}-${policy.version}`}
             >
               <div className="flex flex-wrap items-center justify-between gap-3">
@@ -84,7 +84,7 @@ export default async function DashboardPrivacyPage() {
       </section>
 
       <section
-        className="border-lens/15 bg-lens-soft/55 mt-10 max-w-4xl rounded-md border p-6"
+        className="border-lens/15 bg-lens-soft/55 mt-10 max-w-4xl rounded-[16px] border p-6"
         aria-labelledby="retention-heading"
       >
         <h2 className="text-xl font-semibold" id="retention-heading">
@@ -98,7 +98,7 @@ export default async function DashboardPrivacyPage() {
       </section>
 
       <section
-        className="border-danger/30 bg-danger-soft mt-10 max-w-4xl rounded-md border p-6 sm:p-8"
+        className="border-danger/30 bg-danger-soft mt-10 max-w-4xl rounded-[16px] border p-6 sm:p-8"
         aria-labelledby="delete-account-title"
       >
         <h2 className="text-danger text-2xl font-semibold" id="delete-account-title">
