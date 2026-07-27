@@ -5,7 +5,11 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import type { AssessmentModuleDefinition } from "@/lib/assessment/catalog";
-import { getAssessmentCatalog, getComboCatalog, startModularAssessment } from "@/lib/assessment/client";
+import {
+  getAssessmentCatalog,
+  getComboCatalog,
+  startModularAssessment,
+} from "@/lib/assessment/client";
 import { estimateAssessment, type AssessmentEstimate } from "@/lib/assessment/estimate";
 import { loadAssessmentSelection } from "@/lib/assessment/selection-storage";
 import { Button, getButtonClassName } from "@/components/ui/button";
