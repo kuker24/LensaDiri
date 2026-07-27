@@ -5,12 +5,8 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import type { AssessmentModuleDefinition } from "@/lib/assessment/catalog";
-import {
-  estimateModularAssessment,
-  getAssessmentCatalog,
-  startModularAssessment,
-} from "@/lib/assessment/client";
-import type { AssessmentEstimate } from "@/lib/assessment/estimate";
+import { getAssessmentCatalog, getComboCatalog, startModularAssessment } from "@/lib/assessment/client";
+import { estimateAssessment, type AssessmentEstimate } from "@/lib/assessment/estimate";
 import { loadAssessmentSelection } from "@/lib/assessment/selection-storage";
 import { Button, getButtonClassName } from "@/components/ui/button";
 
@@ -28,9 +24,20 @@ export function ModularReviewForm() {
       Promise.resolve().then(() => setError("Pilihan tidak ditemukan. Pilih lensa kembali."));
       return;
     }
-    Promise.all([estimateModularAssessment(selection), getAssessmentCatalog()])
-      .then(([assessmentEstimate, catalog]) => {
-        setEstimate(assessmentEstimate);
+    // Pure local estimate from catalog — same engine as server start validation,
+    // without depending on /api/assessment/estimate (rate-limit DB can fail closed).
+    Promise.all([getAssessmentCatalog(), getComboCatalog()])
+      .then(([catalog, combos]) => {
+        const result = estimateAssessment(selection, catalog.modules, combos, catalog.modes, {
+          provisionalPrecisionEnabled: catalog.modes.some(
+            (profile) => profile.provisionalPrecision !== null,
+          ),
+        });
+        if (!result.success) {
+          setError("Pilihan tidak lagi tersedia. Periksa katalog kembali.");
+          return;
+        }
+        setEstimate(result.estimate);
         setModules(catalog.modules.filter((module) => selection.moduleKeys.includes(module.key)));
       })
       .catch(() => setError("Pilihan tidak lagi tersedia. Periksa katalog kembali."));

@@ -1,4 +1,4 @@
-import { describe, expect, it, vi } from "vitest";
+import { beforeEach, describe, expect, it, vi } from "vitest";
 
 import { DatabaseError, mapDatabaseError } from "@/lib/db/errors";
 import { getDatabaseFailureStatus } from "@/server/http";
@@ -41,11 +41,79 @@ vi.mock("@/server/repositories/catalog", () => ({
   listAssessmentModeProfiles: () => Promise.resolve([]),
 }));
 
+const mockModule = {
+  category: "career",
+  defaultOrder: 50,
+  description: "RIASEC",
+  evidenceTier: "B",
+  isExperimental: false,
+  isSelectable: true,
+  key: "riasec",
+  minimumAge: 15,
+  modeQuota: { deep: 50, quick: 20, standard: 35 },
+  publicName: "RIASEC",
+  releaseDisposition: "RELEASE_READY",
+  status: "published",
+  version: "1.0.0",
+};
+
+const mockMode = {
+  description: "Quick",
+  internalMode: "quick",
+  isSelectable: true,
+  maxItemsPerSegment: 120,
+  provisionalPrecision: null,
+  publicName: "Quick",
+  secondsPerItem: 12,
+  singleModuleItems: { max: 40, min: 20 },
+  targetItems: { max: 60, min: 50 },
+};
+
+vi.mock("@/server/repositories/catalog-cache", () => ({
+  isFeatureEnabledBatch: () =>
+    Promise.resolve({
+      FEATURE_COMPLEX_MODE: true,
+      FEATURE_MODULAR_COMPOSER: true,
+      FEATURE_PROVISIONAL_PRECISION: true,
+    }),
+  listAssessmentModeProfilesFromCache: () => Promise.resolve([mockMode]),
+  listCatalogModulesFromCache: () => Promise.resolve([mockModule]),
+  listComboPresetsFromCache: () => Promise.resolve([]),
+}));
+
+vi.mock("@/server/repositories/blueprints", () => ({
+  getMinimumModuleCoverage: () => ({}),
+  loadComposerCandidates: () => Promise.resolve([]),
+}));
+
+const mockStartAssessment = vi.fn();
+vi.mock("@/server/services/assessment", () => ({
+  startAssessment: (...args: unknown[]) => mockStartAssessment(...args),
+}));
+
+vi.mock("@/server/current-session", () => ({
+  getCurrentSession: () => Promise.resolve(null),
+}));
+
+vi.mock("@/lib/security/tokens", async (importOriginal) => {
+  const actual = await importOriginal<typeof import("@/lib/security/tokens")>();
+  return {
+    ...actual,
+    generateOpaqueToken: () => "a".repeat(43),
+    hashOpaqueToken: () => "b".repeat(64),
+  };
+});
+
 // Imports of the POST routes for testing
 import { POST as estimatePost } from "@/app/api/assessment/estimate/route";
 import { POST as startPost } from "@/app/api/assessment/start/route";
 
 describe("rate limiter DB timeout and lock safety mapping", () => {
+  beforeEach(() => {
+    mockConsumeRateLimit.mockReset();
+    mockStartAssessment.mockReset();
+  });
+
   it("maps Postgres query_canceled (57014) to DatabaseError('unavailable')", () => {
     const pgError = { name: "PostgresError", code: "57014" };
     const mapped = mapDatabaseError(pgError);
@@ -62,8 +130,7 @@ describe("rate limiter DB timeout and lock safety mapping", () => {
     expect(getDatabaseFailureStatus(mapped)).toBe(503);
   });
 
-  it("gracefully returns service_temporarily_busy for estimate API on rate limiter timeout", async () => {
-    // Simulate query cancellation / unavailable error during consumeRateLimit
+  it("fail-opens estimate API when rate limiter times out so preview stays available", async () => {
     mockConsumeRateLimit.mockRejectedValueOnce(new DatabaseError("unavailable"));
 
     const request = new Request("http://localhost:3000/api/assessment/estimate", {
@@ -80,19 +147,16 @@ describe("rate limiter DB timeout and lock safety mapping", () => {
     });
 
     const response = await estimatePost(request);
-    expect(response.status).toBe(503);
+    expect(response.status).toBe(200);
 
     const body = await response.json();
-    expect(body).toEqual({
-      success: false,
-      error: { code: "service_temporarily_busy" },
-      message: "Sistem sedang sibuk. Coba lagi beberapa saat.",
-    });
+    expect(body.success).toBe(true);
+    expect(body.data.itemCount).toBeGreaterThan(0);
   });
 
-  it("fail-closed with rate_limit_unavailable for start API on rate limiter timeout", async () => {
-    // Simulate query cancellation / unavailable error during consumeRateLimit
+  it("fail-opens start API when rate limiter times out so legitimate starts are not blocked", async () => {
     mockConsumeRateLimit.mockRejectedValueOnce(new DatabaseError("unavailable"));
+    mockStartAssessment.mockResolvedValueOnce({ kind: "modular", success: true });
 
     const request = new Request("http://localhost:3000/api/assessment/start", {
       body: JSON.stringify({
@@ -110,13 +174,12 @@ describe("rate limiter DB timeout and lock safety mapping", () => {
     });
 
     const response = await startPost(request);
-    expect(response.status).toBe(503);
-
+    expect(response.status).toBe(201);
     const body = await response.json();
     expect(body).toEqual({
-      success: false,
-      error: { code: "rate_limit_unavailable" },
-      message: "Permintaan belum dapat diproses. Coba lagi beberapa saat.",
+      success: true,
+      data: { flow: "modular", token: "a".repeat(43) },
     });
+    expect(mockStartAssessment).toHaveBeenCalledOnce();
   });
 });

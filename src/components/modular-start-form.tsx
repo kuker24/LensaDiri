@@ -12,12 +12,14 @@ import type {
 } from "@/lib/assessment/catalog";
 import { isPubliclyAvailableModule } from "@/lib/assessment/catalog";
 import {
-  estimateModularAssessment,
   getAssessmentCatalog,
   getComboCatalog,
   type AssessmentCatalog,
 } from "@/lib/assessment/client";
-import type { AssessmentEstimate } from "@/lib/assessment/estimate";
+import {
+  estimateAssessment,
+  type AssessmentEstimate,
+} from "@/lib/assessment/estimate";
 import { saveAssessmentSelection } from "@/lib/assessment/selection-storage";
 import { RecoveryPanel } from "@/components/recovery-panel";
 import { Badge } from "@/components/ui/badge";
@@ -35,25 +37,15 @@ const tierLabels: Record<string, string> = {
 
 const errorLabels: Record<string, string> = {
   age_restricted: "Pilihan ini memiliki batas usia yang belum terpenuhi.",
-  assessment_service_busy: "Permintaan belum dapat diproses. Coba lagi beberapa saat.",
   coverage_unavailable: "Jumlah pertanyaan melebihi kapasitas kedalaman yang dipilih.",
   experimental_acknowledgment_required: "Konfirmasi lensa eksperimental sebelum melanjutkan.",
-  feature_unavailable: "Asesmen dengan beberapa lensa belum tersedia.",
   invalid_module_count: "Pilih satu lensa atau beberapa lensa untuk kombinasi.",
   mode_unavailable: "Kedalaman ini belum tersedia.",
   module_unavailable: "Salah satu lensa belum tersedia.",
   preset_mismatch: "Isi pilihan siap pakai tidak sesuai katalog terbaru.",
   preset_unavailable: "Pilihan siap pakai ini belum tersedia.",
-  rate_limit_unavailable: "Permintaan belum dapat diproses. Coba lagi beberapa saat.",
-  request_failed: "Estimasi belum dapat dihitung. Coba lagi.",
   selection_type_mismatch: "Pilihan lensa dan jenis eksplorasi tidak cocok.",
-  service_temporarily_busy: "Sistem sedang sibuk. Coba lagi beberapa saat.",
 };
-
-function publicError(error: unknown): string {
-  const code = error instanceof Error ? error.message : "request_failed";
-  return errorLabels[code] ?? errorLabels.request_failed!;
-}
 
 function pickInitialModuleKeys(
   modules: readonly AssessmentModuleDefinition[],
@@ -64,6 +56,26 @@ function pickInitialModuleKeys(
   );
   const first = initial ?? modules.find(isPubliclyAvailableModule);
   return first ? [first.key] : [];
+}
+
+function localEstimate(
+  selection: AssessmentSelectionInput,
+  modules: readonly AssessmentModuleDefinition[],
+  combos: readonly ComboPresetDefinition[],
+  modes: readonly AssessmentModeProfile[],
+): { estimate: AssessmentEstimate | null; error: string | null } {
+  const result = estimateAssessment(selection, modules, combos, modes, {
+    // Preview only — precision numbers come from mode profiles when configured.
+    // Server start/scoring still own authoritative provenance and feature flags.
+    provisionalPrecisionEnabled: modes.some((profile) => profile.provisionalPrecision !== null),
+  });
+  if (result.success) {
+    return { estimate: result.estimate, error: null };
+  }
+  return {
+    estimate: null,
+    error: errorLabels[result.code] ?? "Pilihan belum dapat dihitung. Periksa usia dan lensa.",
+  };
 }
 
 export function ModularStartForm({
@@ -89,12 +101,8 @@ export function ModularStartForm({
   const [mode, setMode] = useState<AssessmentMode>("standard");
   const [age, setAge] = useState<number | null>(18);
   const [experimentalAcknowledged, setExperimentalAcknowledged] = useState(false);
-  const [estimate, setEstimate] = useState<AssessmentEstimate | null>(null);
-  const [error, setError] = useState<string | null>(null);
+  const [catalogError, setCatalogError] = useState<string | null>(null);
   const [loading, setLoading] = useState(() => !hasServerCatalog);
-  const [estimating, setEstimating] = useState(
-    () => pickInitialModuleKeys(initialCatalog?.modules ?? [], initialModuleKey).length > 0,
-  );
   const [catalogRequest, setCatalogRequest] = useState(0);
 
   useEffect(() => {
@@ -112,13 +120,11 @@ export function ModularStartForm({
         setModes(catalog.modes);
         setCombos(comboCatalog);
         const nextKeys = pickInitialModuleKeys(catalog.modules, initialModuleKey);
-        setEstimate(null);
-        setError(null);
-        setEstimating(nextKeys.length > 0);
+        setCatalogError(null);
         setSelectedKeys(nextKeys);
       })
       .catch(() => {
-        if (active) setError("Katalog modular belum dapat dimuat.");
+        if (active) setCatalogError("Katalog modular belum dapat dimuat.");
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -148,36 +154,18 @@ export function ModularStartForm({
     };
   }, [age, combos, experimentalAcknowledged, mode, presetKey, selectedKeys]);
 
-  useEffect(() => {
-    if (!selection) return;
+  // Pure client estimate from catalog quotas — avoids flaky /api/assessment/estimate
+  // (rate-limit DB timeout) so the picker stays usable offline of that path.
+  const { estimate, error: selectionError } = useMemo(() => {
+    if (!selection || modules.length === 0 || modes.length === 0) {
+      return { estimate: null, error: null as string | null };
+    }
+    return localEstimate(selection, modules, combos, modes);
+  }, [combos, modes, modules, selection]);
 
-    let active = true;
-    const timeout = window.setTimeout(() => {
-      estimateModularAssessment(selection)
-        .then((value) => {
-          if (active) setEstimate(value);
-        })
-        .catch((caught) => {
-          if (active) setError(publicError(caught));
-        })
-        .finally(() => {
-          if (active) setEstimating(false);
-        });
-    }, 250);
-    return () => {
-      active = false;
-      window.clearTimeout(timeout);
-    };
-  }, [selection]);
-
-  function prepareEstimate(hasSelection = selectedKeys.length > 0) {
-    setEstimate(null);
-    setError(null);
-    setEstimating(hasSelection);
-  }
+  const error = catalogError ?? selectionError;
 
   function updateSelection(nextKeys: string[]) {
-    prepareEstimate(nextKeys.length > 0);
     setSelectedKeys(nextKeys);
   }
 
@@ -215,12 +203,12 @@ export function ModularStartForm({
     );
   }
 
-  if (error && modules.length === 0) {
+  if (catalogError && modules.length === 0) {
     return (
       <RecoveryPanel
         description="Katalog lensa belum dapat dihubungi. Coba lagi tanpa kehilangan pilihan sebelumnya."
         onRetry={() => {
-          setError(null);
+          setCatalogError(null);
           setLoading(true);
           setCatalogRequest((request) => request + 1);
         }}
@@ -306,7 +294,6 @@ export function ModularStartForm({
               max={99}
               min={13}
               onChange={(event) => {
-                prepareEstimate();
                 setAge(event.target.value ? Number(event.target.value) : null);
               }}
               placeholder="13+"
@@ -364,7 +351,6 @@ export function ModularStartForm({
               disabled={!profile.isSelectable}
               key={profile.internalMode}
               onClick={() => {
-                prepareEstimate();
                 setMode(profile.internalMode);
               }}
               type="button"
@@ -396,7 +382,6 @@ export function ModularStartForm({
             checked={experimentalAcknowledged}
             className="accent-aperture mt-1 h-5 w-5"
             onChange={(event) => {
-              prepareEstimate();
               setExperimentalAcknowledged(event.target.checked);
             }}
             type="checkbox"
@@ -410,9 +395,7 @@ export function ModularStartForm({
         <div className="mx-auto flex max-w-4xl flex-col gap-4 sm:flex-row sm:items-center sm:justify-between sm:gap-8">
           <div aria-live="polite" className="min-w-0">
             <p className="mono-label text-ink">Pilihanmu</p>
-            {estimating ? (
-              <p className="text-ink-muted mt-2">Menghitung pilihan…</p>
-            ) : estimate ? (
+            {estimate ? (
               <>
                 <p className="mt-2 text-lg font-normal tabular-nums sm:text-xl">
                   {selectedKeys.length} lensa · {estimate.itemCount} pertanyaan · sekitar{" "}
@@ -433,7 +416,7 @@ export function ModularStartForm({
           </div>
           <Button
             className="w-full shrink-0 sm:w-auto"
-            disabled={!estimate || estimating}
+            disabled={!estimate}
             onClick={continueToReview}
             type="button"
           >
