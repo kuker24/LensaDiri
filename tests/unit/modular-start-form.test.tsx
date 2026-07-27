@@ -120,6 +120,23 @@ beforeEach(() => {
 
 afterEach(cleanup);
 
+const serverCatalog = {
+  modes: [
+    {
+      description: "Mode normal",
+      internalMode: "standard" as const,
+      isSelectable: true,
+      maxItemsPerSegment: 120,
+      provisionalPrecision: null,
+      publicName: "Normal" as const,
+      secondsPerItem: 12,
+      singleModuleItems: { max: 70, min: 40 },
+      targetItems: { max: 90, min: 80 },
+    },
+  ],
+  modules,
+};
+
 describe("ModularStartForm", () => {
   test("menawarkan retry saat katalog gagal dimuat", async () => {
     mocks.getCatalog.mockRejectedValueOnce(new Error("service_unavailable"));
@@ -132,6 +149,22 @@ describe("ModularStartForm", () => {
 
     expect(await screen.findByRole("checkbox", { name: /Profil Trait/u })).toBeChecked();
     expect(mocks.getCatalog).toHaveBeenCalledTimes(2);
+  });
+
+  test("merender katalog server tanpa skeleton atau fetch client", async () => {
+    mocks.estimate.mockReturnValue(new Promise(() => undefined));
+    render(
+      <ModularStartForm
+        initialCatalog={serverCatalog}
+        initialCombos={[]}
+        initialModuleKey="type_16"
+      />,
+    );
+
+    expect(screen.getByRole("checkbox", { name: /16-Type Jungian-inspired/u })).toBeChecked();
+    expect(screen.queryByText("Memuat pilihan lensa…")).not.toBeInTheDocument();
+    expect(mocks.getCatalog).not.toHaveBeenCalled();
+    expect(mocks.getCombos).not.toHaveBeenCalled();
   });
 
   test("memilih initial module yang valid", async () => {

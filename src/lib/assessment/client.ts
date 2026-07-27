@@ -18,13 +18,35 @@ import type { AssessmentEstimate } from "@/lib/assessment/estimate";
 
 type Envelope<T> = { success: true; data: T } | { success: false; error: { code: string } };
 
-async function getEnvelope<T>(path: string): Promise<T> {
-  const response = await fetch(path, { cache: "no-store", credentials: "same-origin" });
-  const payload = (await response.json().catch(() => null)) as Envelope<T> | null;
-  if (!response.ok || !payload?.success) {
-    throw new AuthApiError(payload && !payload.success ? payload.error.code : "request_failed");
+const CATALOG_FETCH_TIMEOUT_MS = 12_000;
+
+async function getEnvelope<T>(path: string, options?: { timeoutMs?: number }): Promise<T> {
+  const timeoutMs = options?.timeoutMs;
+  const controller = timeoutMs === undefined ? null : new AbortController();
+  const timeout =
+    controller && timeoutMs !== undefined
+      ? window.setTimeout(() => controller.abort(), timeoutMs)
+      : null;
+  try {
+    const response = await fetch(path, {
+      cache: "no-store",
+      credentials: "same-origin",
+      ...(controller ? { signal: controller.signal } : {}),
+    });
+    const payload = (await response.json().catch(() => null)) as Envelope<T> | null;
+    if (!response.ok || !payload?.success) {
+      throw new AuthApiError(payload && !payload.success ? payload.error.code : "request_failed");
+    }
+    return payload.data;
+  } catch (error) {
+    if (error instanceof AuthApiError) throw error;
+    if (error instanceof DOMException && error.name === "AbortError") {
+      throw new AuthApiError("request_failed");
+    }
+    throw new AuthApiError("request_failed");
+  } finally {
+    if (timeout !== null) window.clearTimeout(timeout);
   }
-  return payload.data;
 }
 
 export type AssessmentCatalog = {
@@ -50,11 +72,13 @@ export async function startModularAssessment(selection: AssessmentSelectionInput
 }
 
 export function getAssessmentCatalog(): Promise<AssessmentCatalog> {
-  return getEnvelope("/api/modules");
+  return getEnvelope("/api/modules", { timeoutMs: CATALOG_FETCH_TIMEOUT_MS });
 }
 
 export async function getComboCatalog(): Promise<ComboPresetDefinition[]> {
-  const data = await getEnvelope<{ combos: ComboPresetDefinition[] }>("/api/combos");
+  const data = await getEnvelope<{ combos: ComboPresetDefinition[] }>("/api/combos", {
+    timeoutMs: CATALOG_FETCH_TIMEOUT_MS,
+  });
   return data.combos;
 }
 
