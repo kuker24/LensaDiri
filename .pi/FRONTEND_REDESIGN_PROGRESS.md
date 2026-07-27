@@ -1,7 +1,7 @@
 # Frontend Redesign Progress
 
 > Canonical work log for the approved frontend-only redesign started on 2026-07-26.
-> Implementation pin: `982067b33f841b1a5b2c0bd79ce46eaba10a7a20`.
+> Implementation pin: `982067b` Design2 portal; polish pin `9e638ec` (2026-07-27).
 > Production: https://lensadiri.vercel.app.
 
 ## Scope Contract
@@ -27,16 +27,18 @@ Frozen work: routes, APIs, DTOs, database schema, repositories, authorization, p
 
 ## Chronology
 
-| Date       | Commit    | Work                                                                                                                   |
-| ---------- | --------- | ---------------------------------------------------------------------------------------------------------------------- |
-| 2026-07-26 | `e1d97fc` | Established the first midnight redesign foundation, semantic tokens, shared primitives, and shell.                     |
-| 2026-07-26 | `e25e267` | Redesigned public information surfaces.                                                                                |
-| 2026-07-26 | `263bc4d` | Redesigned authentication and account-recovery surfaces.                                                               |
-| 2026-07-26 | `3adcb93` | Redesigned assessment flow surfaces.                                                                                   |
-| 2026-07-27 | `2a9ad84` | Redesigned private/shared result surfaces.                                                                             |
-| 2026-07-27 | `333ff8f` | Aligned composition to the Refero midnight reference across route groups.                                              |
-| 2026-07-27 | `72a4616` | Added muted ambient landing hero video and poster fallback.                                                            |
-| 2026-07-27 | `982067b` | Applied the final Design2 portal direction across shell, landing, composer, results, recovery, copy, media, and tests. |
+| Date       | Commit    | Work                                                                                                                           |
+| ---------- | --------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| 2026-07-26 | `e1d97fc` | Established the first midnight redesign foundation, semantic tokens, shared primitives, and shell.                             |
+| 2026-07-26 | `e25e267` | Redesigned public information surfaces.                                                                                        |
+| 2026-07-26 | `263bc4d` | Redesigned authentication and account-recovery surfaces.                                                                       |
+| 2026-07-26 | `3adcb93` | Redesigned assessment flow surfaces.                                                                                           |
+| 2026-07-27 | `2a9ad84` | Redesigned private/shared result surfaces.                                                                                     |
+| 2026-07-27 | `333ff8f` | Aligned composition to the Refero midnight reference across route groups.                                                      |
+| 2026-07-27 | `72a4616` | Added muted ambient landing hero video and poster fallback.                                                                    |
+| 2026-07-27 | `982067b` | Applied the final Design2 portal direction across shell, landing, composer, results, recovery, copy, media, and tests.         |
+| 2026-07-27 | `3805c67` | Polished full product shell: cinematic motion foundation, shorter UI copy, auth/assessment/result/dashboard/admin consistency. |
+| 2026-07-27 | `9e638ec` | E2E assertion alignment + green CI for polish (Quality + Database/browser).                                                    |
 
 The first midnight direction was not deleted from project history. It was moved intact to `Design.md/Design1/`; Design2 became canonical.
 
@@ -139,11 +141,11 @@ Temporary visual artifacts used during review:
 
 ### CI Follow-up
 
-- GitHub Actions run: https://github.com/kuker24/LensaDiri/actions/runs/30226141031.
-- `Quality and build`: pass, including format, lint, typecheck, unit, build, audit, and whitespace checks.
-- Disposable database setup/reset, seed replay, drift test, integration tests, and pgTAP passed before browser execution.
-- Browser job exposed stale Design1/browser contracts: lavender focus instead of Design2 frost, opaque task glow instead of the implemented 70% charcoal surface, old `Password` labels after Indonesian localization, and raw `textContent` spacing across the stacked hero heading.
-- Current follow-up updates those expectations in `tests/e2e/accessibility.spec.ts`, `tests/e2e/auth.spec.ts`, `tests/e2e/account-recovery.spec.ts`, and `tests/e2e/smoke.spec.ts`; application behavior is unchanged.
+- Earlier Design2 CI exposed stale browser contracts (Design1 colors, English labels, hero spacing). Assertions were updated progressively.
+- Polish CI run: https://github.com/kuker24/LensaDiri/actions/runs/30229072056 @ `9e638ec`.
+- `Quality and build`: **PASS**.
+- `Database and browser tests`: **PASS** (seed replay, drift, integration, pgTAP, Playwright desktop + mobile, accessibility).
+- Production Vercel deployment for `9e638ec`: success; health 200; public smoke 10/10; landing retains `Kenali pola dirimu`.
 
 ## Tooling Limits Encountered
 

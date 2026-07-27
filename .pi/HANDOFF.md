@@ -3,7 +3,7 @@
 > **Final hobby release baseline:** `main` @ **`c535a6b`** | tag **`v1.0.0-hobby-final`** | 2026-07-26
 > Product freeze baseline: `ab2fcdc` | eng baseline: `v0.9.0-hobby-modular`
 > **Freeze reopened:** 2026-07-26 for an approved frontend-only total redesign. Backend/domain remains frozen.
-> **Design2 implementation:** `982067b` | production live 2026-07-27
+> **Design2 implementation:** `982067b` | polish live `9e638ec` | 2026-07-27
 
 ## Status: DESIGN2 LIVE / FRONTEND MAINTENANCE
 
@@ -15,7 +15,7 @@ Clinical / psychometric / WCAG cert: **never claim.**
 | ----------------------------------- | ---------------------------------------- |
 | Hobby modular engineering           | **100% closed**                          |
 | Final hobby release tag             | **`v1.0.0-hobby-final` @ `c535a6b`**     |
-| Frontend redesign                   | **COMPLETE** - Design2 live              |
+| Frontend redesign                   | **COMPLETE** - Design2 live + polish     |
 | Full PRD product                    | **Stops ~75%** - not 100%                |
 | Backend/domain scope                | **FROZEN** - maintenance triggers only   |
 | Clinical / psychometric / WCAG cert | **Never claim**                          |
@@ -25,8 +25,9 @@ Clinical / psychometric / WCAG cert: **never claim.**
 
 | Field         | Value                                             |
 | ------------- | ------------------------------------------------- |
-| SHA           | `982067b33f841b1a5b2c0bd79ce46eaba10a7a20`        |
-| Short         | `982067b`                                         |
+| SHA           | `9e638ec9a2fa6b77de63e34c8bef9d5eb4cc80f7`        |
+| Short         | `9e638ec`                                         |
+| Design2 base  | `982067b` (portal redesign)                       |
 | Baseline tag  | `v1.0.0-hobby-final` @ `c535a6b`                  |
 | URL           | https://lensadiri.vercel.app                      |
 | Migrations    | Local==Remote through `202607290001`              |
@@ -40,6 +41,7 @@ Clinical / psychometric / WCAG cert: **never claim.**
 ## Redesign Outcome
 
 - Design2 monochrome portal shell, cinematic landing media, route-aware chrome, and calm task surfaces are live.
+- Follow-up polish (`3805c67`+) adds cinematic motion foundation, shorter UI copy, and shell consistency across auth/assessment/result/dashboard/admin.
 - Composer is linear and result reports are synthesis-first with technical detail behind progressive disclosure.
 - Branded loading, error, not-found, catalog, session, and result recovery states are implemented.
 - Indonesian UI jargon cleanup and shared button/badge/progress geometry cleanup are complete.

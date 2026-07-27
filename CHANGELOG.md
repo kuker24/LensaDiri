@@ -6,7 +6,7 @@ Honest scope: entries mark **engineering / product** posture. Nothing here claim
 
 ## Unreleased
 
-**Status:** Design2 frontend redesign is live from implementation commit `982067b` (2026-07-27). Backend/domain remains maintenance-only. Preserve routes, APIs, DTOs, scoring, privacy, authorization, and legacy compatibility. No paid residual services, AI ON, Full Spectrum over-cap, WCAG/psychometric cert claims, or unreviewed publish.
+**Status:** Design2 frontend redesign is live (`982067b`) with cinematic motion polish on `9e638ec` (2026-07-27). Backend/domain remains maintenance-only. Preserve routes, APIs, DTOs, scoring, privacy, authorization, and legacy compatibility. No paid residual services, AI ON, Full Spectrum over-cap, WCAG/psychometric cert claims, or unreviewed publish.
 
 ### Design2 portal redesign
 
@@ -19,6 +19,14 @@ Honest scope: entries mark **engineering / product** posture. Nothing here claim
 - Preserved backend, API, scoring, authorization, privacy, sharing allowlist, and legacy behavior.
 - Deployed `982067b`: Vercel success, production health 200, readonly smoke 8/8, Design2 media 200.
 - Full chronology and evidence: `.pi/FRONTEND_REDESIGN_PROGRESS.md`.
+
+### Design2 cinematic polish (2026-07-27)
+
+- Added CSS motion foundation: hero entrance, ambient video drift, progressive `Reveal`, spectrum bar draw, film-strip settle; reduced-motion safe.
+- Shortened UI chrome copy; consistent task shell across auth, start, assessment, result, dashboard, and admin.
+- Polished nav frost/blur, likert press feedback, monochrome focus rings, and Design2 radii.
+- E2E assertions aligned to polished copy; CI Quality + Database/browser green on `9e638ec`.
+- Production smoke 10/10; health 200; Vercel Production deploy `9e638ec`.
 
 ## [v1.0.0-hobby-final] - 2026-07-26
 

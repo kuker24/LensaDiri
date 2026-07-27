@@ -1,14 +1,15 @@
 # Engineering Evidence
 
 > **Final hobby release baseline:** `main` @ **`c535a6b`** | tag **`v1.0.0-hobby-final`** | 2026-07-26
-> **Design2 implementation:** `982067b` | production live 2026-07-27
+> **Design2 implementation:** `982067b` | polish pin `9e638ec` | 2026-07-27
 > Status: **DESIGN2 LIVE / FRONTEND MAINTENANCE** | backend/domain frozen
 
 ## Release pin
 
 | Check                          | Result                                     |
 | ------------------------------ | ------------------------------------------ |
-| Production implementation SHA  | `982067b33f841b1a5b2c0bd79ce46eaba10a7a20` |
+| Production implementation SHA  | `9e638ec9a2fa6b77de63e34c8bef9d5eb4cc80f7` |
+| Design2 base SHA               | `982067b33f841b1a5b2c0bd79ce46eaba10a7a20` |
 | Baseline tag                   | `v1.0.0-hobby-final` @ `c535a6b`           |
 | Product freeze baseline        | `ab2fcdc` (docs pin #51 on top)            |
 | Eng baseline tag               | `v0.9.0-hobby-modular`                     |
@@ -16,11 +17,11 @@
 | Hobby project finalization     | **100% complete**                          |
 | Full PRD product               | **~75%** - stops here honestly             |
 | Mode                           | **DESIGN2 LIVE / FRONTEND MAINTENANCE**    |
-| Frontend redesign              | **COMPLETE** - production live             |
+| Frontend redesign              | **COMPLETE** + motion polish live          |
 | `GET /api/health`              | `200` `{"status":"ok"}`                    |
 | `npm audit --audit-level=high` | **0**                                      |
-| Tree at implementation deploy  | clean / = origin/main at `982067b`         |
-| Smoke readonly                 | PASS                                       |
+| Tree at polish deploy          | clean / = origin/main at `9e638ec`         |
+| Smoke readonly                 | PASS (10/10 public paths)                  |
 | Modes                          | quick/standard/deep selectable             |
 | Modules                        | 10                                         |
 | Combos                         | 5 (deep pilot; full_spectrum draft)        |
@@ -63,19 +64,20 @@
 
 ## Design2 Verification
 
-| Check                        | Result                                                                                                      |
-| ---------------------------- | ----------------------------------------------------------------------------------------------------------- |
-| Local format/lint/typecheck  | PASS                                                                                                        |
-| Unit tests                   | 170 PASS                                                                                                    |
-| Production build             | PASS                                                                                                        |
-| Dependency audit             | 0 vulnerabilities                                                                                           |
-| Responsive visual QA         | PASS on desktop and 393px mobile                                                                            |
-| Vercel deployment `982067b`  | SUCCESS                                                                                                     |
-| Production readonly smoke    | 8/8 PASS                                                                                                    |
-| Production health            | HTTP 200                                                                                                    |
-| Design2 media                | HTTP 200 `video/mp4`                                                                                        |
-| CI Quality and build         | PASS                                                                                                        |
-| CI DB/seed/integration/pgTAP | PASS before browser step                                                                                    |
-| CI browser follow-up         | Stale Design1 color/opacity, localized-label, and stacked-heading assertions corrected in current follow-up |
+| Check                       | Result                                                                                                                     |
+| --------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| Local format/lint/typecheck | PASS                                                                                                                       |
+| Unit tests                  | 170 PASS                                                                                                                   |
+| Production build            | PASS                                                                                                                       |
+| Dependency audit            | 0 vulnerabilities                                                                                                          |
+| Responsive visual QA        | PASS on desktop and 393px mobile                                                                                           |
+| Vercel deployment `9e638ec` | SUCCESS (Production deployment id `5615738055`)                                                                            |
+| Production readonly smoke   | 10/10 PASS (`/api/health`, `/`, `/modules`, `/combos`, `/start`, `/privacy`, `/terms`, `/disclaimer`, `/login`, `/method`) |
+| Production health           | HTTP 200 `{"status":"ok"}`                                                                                                 |
+| Design2 media               | HTTP 200 hero ambient video                                                                                                |
+| Landing copy                | Contains `Kenali pola dirimu`                                                                                              |
+| CI run                      | https://github.com/kuker24/LensaDiri/actions/runs/30229072056 — **success**                                                |
+| CI Quality and build        | PASS                                                                                                                       |
+| CI Database and browser     | PASS (integration, pgTAP, seed, Playwright desktop + mobile, accessibility)                                                |
 
 Detailed chronology and evidence: `.pi/FRONTEND_REDESIGN_PROGRESS.md`.
