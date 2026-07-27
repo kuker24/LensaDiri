@@ -97,7 +97,10 @@ export async function POST(request: Request): Promise<NextResponse> {
   const correlationId = crypto.randomUUID();
   const startedAt = process.hrtime.bigint();
 
-  let limited: Awaited<ReturnType<typeof consumeRateLimit>>;
+  let limited: Awaited<ReturnType<typeof consumeRateLimit>> = {
+    allowed: true,
+    retryAfterSeconds: 0,
+  };
   try {
     limited = await consumeRateLimit(
       getRequestRateLimitIdentity(request),
@@ -105,21 +108,16 @@ export async function POST(request: Request): Promise<NextResponse> {
       environment.rateLimitSecret,
     );
   } catch {
+    // Fail-open when rate-limit storage is unavailable so legitimate starts are
+    // not blocked by lock contention. Explicit rate_limited responses still apply
+    // when the counter is readable and over the cap.
     logOperationalEvent({
       correlationId,
       durationMs: elapsedMilliseconds(startedAt),
       errorCode: "rate_limit_unavailable",
       operation: "assessment_start",
-      status: "failure",
+      status: "rejected",
     });
-    return NextResponse.json(
-      {
-        success: false,
-        error: { code: "rate_limit_unavailable" },
-        message: "Permintaan belum dapat diproses. Coba lagi beberapa saat.",
-      },
-      { headers: noStoreHeaders, status: 503 },
-    );
   }
   if (!limited.allowed) {
     logOperationalEvent({

@@ -38,27 +38,21 @@ async function loadEstimateContext(
   precisionEnabled: boolean;
 }> {
   const startCatalog = process.hrtime.bigint();
-  const modules = await listCatalogModulesFromCache();
-  const combos = await listComboPresetsFromCache();
-  const modeProfiles = await listAssessmentModeProfilesFromCache();
-  const featureFlags = await isFeatureEnabledBatch([
-    "FEATURE_MODULAR_COMPOSER",
-    "FEATURE_PROVISIONAL_PRECISION",
-    "FEATURE_COMPLEX_MODE",
+  const [modules, combos, modeProfiles, featureFlags, candidates] = await Promise.all([
+    listCatalogModulesFromCache(),
+    listComboPresetsFromCache(),
+    listAssessmentModeProfilesFromCache(),
+    isFeatureEnabledBatch([
+      "FEATURE_MODULAR_COMPOSER",
+      "FEATURE_PROVISIONAL_PRECISION",
+      "FEATURE_COMPLEX_MODE",
+    ]),
+    loadComposerCandidates(moduleKeys),
   ]);
   logOperationalEvent({
     correlationId,
     durationMs: elapsedMilliseconds(startCatalog),
     operation: "estimate_catalog_queries",
-    status: "success",
-  });
-
-  const startCandidates = process.hrtime.bigint();
-  const candidates = await loadComposerCandidates(moduleKeys);
-  logOperationalEvent({
-    correlationId,
-    durationMs: elapsedMilliseconds(startCandidates),
-    operation: "estimate_composer_candidates",
     status: "success",
   });
 
@@ -94,7 +88,10 @@ export async function POST(request: Request): Promise<NextResponse> {
   }
 
   const startRateLimit = process.hrtime.bigint();
-  let limited: Awaited<ReturnType<typeof consumeRateLimit>>;
+  let limited: Awaited<ReturnType<typeof consumeRateLimit>> = {
+    allowed: true,
+    retryAfterSeconds: 0,
+  };
   try {
     limited = await consumeRateLimit(
       getRequestRateLimitIdentity(request),
@@ -108,21 +105,16 @@ export async function POST(request: Request): Promise<NextResponse> {
       status: limited.allowed ? "success" : "rate_limited",
     });
   } catch {
+    // Fail-open for estimate only: preview math must stay available when the
+    // rate-limit table is contended. Start/complete still fail closed.
     logOperationalEvent({
       correlationId,
       durationMs: elapsedMilliseconds(startRateLimit),
       errorCode: "rate_limiter_error",
       operation: "estimate_rate_limit",
-      status: "failure",
+      // Fail-open continues; mark as rejected so ops still sees the degraded path.
+      status: "rejected",
     });
-    return NextResponse.json(
-      {
-        success: false,
-        error: { code: "service_temporarily_busy" },
-        message: "Sistem sedang sibuk. Coba lagi beberapa saat.",
-      },
-      { headers: noStoreHeaders, status: 503 },
-    );
   }
 
   if (!limited.allowed) {
