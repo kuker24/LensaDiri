@@ -1,10 +1,11 @@
-# Project Handoff - frontend redesign active
+# Project Handoff - Design2 live
 
-> **Final hobby release:** `main` @ **`c535a6b`** | tag **`v1.0.0-hobby-final`** | 2026-07-26
+> **Final hobby release baseline:** `main` @ **`c535a6b`** | tag **`v1.0.0-hobby-final`** | 2026-07-26
 > Product freeze baseline: `ab2fcdc` | eng baseline: `v0.9.0-hobby-modular`
 > **Freeze reopened:** 2026-07-26 for an approved frontend-only total redesign. Backend/domain remains frozen.
+> **Design2 implementation:** `982067b` | production live 2026-07-27
 
-## Status: FRONTEND REDESIGN / BACKEND MAINTENANCE
+## Status: DESIGN2 LIVE / FRONTEND MAINTENANCE
 
 Hobby project **engineering + release finalization: 100% complete.**
 Full PRD product still **stops honestly at ~75%** (external residual only).
@@ -14,19 +15,19 @@ Clinical / psychometric / WCAG cert: **never claim.**
 | ----------------------------------- | ---------------------------------------- |
 | Hobby modular engineering           | **100% closed**                          |
 | Final hobby release tag             | **`v1.0.0-hobby-final` @ `c535a6b`**     |
-| Frontend redesign                   | **ACTIVE** - approved total UI/UX pass   |
+| Frontend redesign                   | **COMPLETE** - Design2 live              |
 | Full PRD product                    | **Stops ~75%** - not 100%                |
 | Backend/domain scope                | **FROZEN** - maintenance triggers only   |
 | Clinical / psychometric / WCAG cert | **Never claim**                          |
 | AI narrative                        | **OFF** unless #45 reopened with funding |
 
-## Release pin
+## Design2 Implementation Pin
 
 | Field         | Value                                             |
 | ------------- | ------------------------------------------------- |
-| SHA           | `c535a6bd04140d079bf2f34289f0be5031637830`        |
-| Short         | `c535a6b`                                         |
-| Tag           | `v1.0.0-hobby-final`                              |
+| SHA           | `982067b33f841b1a5b2c0bd79ce46eaba10a7a20`        |
+| Short         | `982067b`                                         |
+| Baseline tag  | `v1.0.0-hobby-final` @ `c535a6b`                  |
 | URL           | https://lensadiri.vercel.app                      |
 | Migrations    | Local==Remote through `202607290001`              |
 | Flags         | Composer / Complex / provisional precision **ON** |
@@ -36,9 +37,17 @@ Clinical / psychometric / WCAG cert: **never claim.**
 | Combos        | 5 public; `deep_self_discovery` pilot             |
 | Full Spectrum | **draft** (DECIDED multi-session; #42 closed)     |
 
-## In scope (only - reactive maintenance)
+## Redesign Outcome
 
-Approved exception: total frontend visual/UX redesign may change presentation, layout, copy, and semantic UI while preserving routes, APIs, DTOs, scoring, privacy, authorization, and legacy compatibility.
+- Design2 monochrome portal shell, cinematic landing media, route-aware chrome, and calm task surfaces are live.
+- Composer is linear and result reports are synthesis-first with technical detail behind progressive disclosure.
+- Branded loading, error, not-found, catalog, session, and result recovery states are implemented.
+- Indonesian UI jargon cleanup and shared button/badge/progress geometry cleanup are complete.
+- Full chronology, route coverage, media inventory, verification, deployment, and known limits: `.pi/FRONTEND_REDESIGN_PROGRESS.md`.
+
+## In Scope (reactive maintenance only)
+
+The approved redesign exception is complete. Further work requires a concrete regression, accessibility, security, dependency, health, monitoring, retention, backup, or separately approved frontend request.
 
 | Work                     | Notes                                      |
 | ------------------------ | ------------------------------------------ |
@@ -52,9 +61,9 @@ Approved exception: total frontend visual/UX redesign may change presentation, l
 Trigger only: CVE | critical dep | health fail | monitor alert | retention | backup risk | regression.
 Every change: **small PR | CI green | clear rollback | health 200**.
 
-## Out of scope (hard ban)
+## Out Of Scope (hard ban)
 
-- Large product features, new modules, scoring engines, major UI redesign
+- Large product features, new modules, scoring engines, or another unapproved total redesign
 - Paid services / bought email|LLM|auditor for residual close
 - Enable `FEATURE_AI_NARRATIVE` without funded consent/provider/fallback
 - WCAG or psychometric **certification claims** without external evidence
@@ -94,3 +103,4 @@ Index: `docs/deployment/RESIDUAL_HOBBY_CLOSE.md`.
 - Rollback: `docs/deployment/RELEASE_ROLLBACK.md`
 - Backup: `docs/operations/BACKUP_RESTORE_RUNBOOK.md`
 - Changelog: `CHANGELOG.md`
+- Frontend redesign log: `.pi/FRONTEND_REDESIGN_PROGRESS.md`

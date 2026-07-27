@@ -27,13 +27,13 @@ test("account lifecycle registers, logs in, rejects wrong deletion password, the
 
   await page.goto("/register");
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill(password);
+  await page.getByLabel(/password|kata sandi/i).fill(password);
   await page.getByRole("button", { name: "Buat akun" }).click();
   await expect(page.getByRole("heading", { name: "Pendaftaran diterima" })).toBeVisible();
 
   await page.getByRole("link", { name: "Masuk sekarang" }).click();
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill(password);
+  await page.getByLabel(/password|kata sandi/i).fill(password);
   await page.getByRole("button", { name: "Masuk", exact: true }).click();
   await expect(page).toHaveURL(/\/dashboard$/u);
   await expect(
@@ -58,7 +58,7 @@ test("account lifecycle registers, logs in, rejects wrong deletion password, the
   await page.goto("/dashboard");
   await expect(page).toHaveURL(/\/login$/u);
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill(password);
+  await page.getByLabel(/password|kata sandi/i).fill(password);
   await page.getByRole("button", { name: "Masuk", exact: true }).click();
   await expect(page.getByText("Email atau password tidak cocok.")).toBeVisible();
 });

@@ -30,7 +30,7 @@ test("email verification and password reset stay single-use and revoke sessions"
 
   await page.goto("/register");
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill(oldPassword);
+  await page.getByLabel(/password|kata sandi/i).fill(oldPassword);
   await page.getByRole("button", { name: "Buat akun" }).click();
   await expect(page.getByRole("heading", { name: "Pendaftaran diterima" })).toBeVisible();
 
@@ -48,7 +48,7 @@ test("email verification and password reset stay single-use and revoke sessions"
 
   await page.goto("/login");
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill(oldPassword);
+  await page.getByLabel(/password|kata sandi/i).fill(oldPassword);
   await page.getByRole("button", { name: "Masuk", exact: true }).click();
   await expect(page).toHaveURL(/\/dashboard$/u);
 
@@ -67,10 +67,10 @@ test("email verification and password reset stay single-use and revoke sessions"
   await page.goto("/dashboard");
   await expect(page).toHaveURL(/\/login$/u);
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel("Password").fill(oldPassword);
+  await page.getByLabel(/password|kata sandi/i).fill(oldPassword);
   await page.getByRole("button", { name: "Masuk", exact: true }).click();
   await expect(page.getByText("Email atau password tidak cocok.")).toBeVisible();
-  await page.getByLabel("Password").fill(newPassword);
+  await page.getByLabel(/password|kata sandi/i).fill(newPassword);
   await page.getByRole("button", { name: "Masuk", exact: true }).click();
   await expect(page).toHaveURL(/\/dashboard$/u);
 

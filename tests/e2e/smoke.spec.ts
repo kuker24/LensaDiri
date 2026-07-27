@@ -3,7 +3,9 @@ import { expect, test } from "@playwright/test";
 test("landing page exposes the core trust proposition", async ({ page }) => {
   await page.goto("/");
 
-  await expect(page.getByRole("heading", { level: 1 })).toContainText("Kenali pola dirimu");
+  await expect(page.getByRole("heading", { level: 1 })).toHaveAccessibleName(
+    /Kenali pola dirimu lewat banyak lensa\./u,
+  );
   await expect(page.getByRole("link", { name: "Mulai eksplorasi" })).toBeVisible();
   await expect(page.locator("main").getByText("Bukan diagnosis klinis")).toBeVisible();
 });

@@ -65,16 +65,16 @@ test("keyboard focus treatment remains visible across primary surfaces", async (
 
   const lightControl = page.getByRole("link", { name: "Pelajari metode" });
   await lightControl.focus();
-  await expect(lightControl).toHaveCSS("outline-color", "rgb(225, 189, 255)");
+  await expect(lightControl).toHaveCSS("outline-color", "rgb(226, 226, 226)");
 
   await page.goto("/start/modules");
   const firstModuleCheckbox = page.getByRole("checkbox").first();
   await firstModuleCheckbox.focus();
-  await expect(firstModuleCheckbox.locator("..")).toHaveCSS("--tw-ring-color", "#e1bdff");
+  await expect(firstModuleCheckbox.locator("..")).toHaveCSS("--tw-ring-color", "#e2e2e2");
   const darkControl = page.getByRole("button", { name: "Tinjau pilihan" });
   await expect(darkControl).toBeEnabled();
   await darkControl.focus();
-  await expect(darkControl).toHaveCSS("outline-color", "rgb(225, 189, 255)");
+  await expect(darkControl).toHaveCSS("outline-color", "rgb(226, 226, 226)");
 });
 
 test("authentication controls have labels and mobile-safe font size", async ({ page }) => {
@@ -145,7 +145,7 @@ test("glow preserves explicit hero and product surface backgrounds", async ({ pa
   expect(await backgroundPixel(".lens-glow")).toEqual([17, 17, 17, 179]);
 
   await page.goto("/start/modules");
-  expect(await backgroundPixel("aside.lens-glow")).toEqual([17, 17, 17, 255]);
+  expect(await backgroundPixel("aside.lens-glow")).toEqual([17, 17, 17, 179]);
 });
 
 test("result loading and failure states keep a single page heading", async ({ page }) => {

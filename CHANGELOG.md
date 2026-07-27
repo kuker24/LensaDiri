@@ -4,16 +4,21 @@ All notable releases of LensaDiri. Dates are UTC calendar days of the release ta
 
 Honest scope: entries mark **engineering / product** posture. Nothing here claims clinical diagnosis, psychometric validation, or third-party WCAG certification.
 
-## Unreleased (frontend redesign)
+## Unreleased
 
-**Status:** product freeze explicitly reopened on 2026-07-26 for a **frontend-only total redesign**. Backend/domain remains maintenance-only. Preserve routes, APIs, DTOs, scoring, privacy, authorization, and legacy compatibility. No paid residual services, AI ON, Full Spectrum over-cap, WCAG/psychometric cert claims, or unreviewed publish.
+**Status:** Design2 frontend redesign is live from implementation commit `982067b` (2026-07-27). Backend/domain remains maintenance-only. Preserve routes, APIs, DTOs, scoring, privacy, authorization, and legacy compatibility. No paid residual services, AI ON, Full Spectrum over-cap, WCAG/psychometric cert claims, or unreviewed publish.
 
-### Midnight Reflection Observatory foundation
+### Design2 portal redesign
 
-- Added canonical `PRODUCT.md` and `DESIGN.md` for the approved redesign.
-- Replaced the light violet/aqua foundation with near-black, rationed signal-violet, Lora italic display, JetBrains Mono orientation labels, hairline surfaces, and a frosted navigation.
-- Redesigned landing, site shell, footer, and shared UI primitives without changing backend/API/scoring behavior.
-- Updated design-token contrast and browser assertions to the new semantic palette.
+- Added canonical `PRODUCT.md` and `DESIGN.md`; archived the intermediate midnight source under `Design.md/Design1/` and made `Design.md/Design2/` current.
+- Shipped a monochrome gallery shell, cinematic full-bleed landing media, route-aware chrome, mobile navigation, and focused auth/assessment surfaces.
+- Added branded loading, error, not-found, catalog, session, and result recovery states.
+- Distilled composer flow; reordered private results around reflection/actions; moved technical detail into progressive disclosure.
+- Localized user-facing jargon across auth, account, composer, result, privacy, dashboard, and operator surfaces.
+- Removed violet CTA/pill residue; normalized buttons, badges, progress, focus rings, and product geometry to Design2.
+- Preserved backend, API, scoring, authorization, privacy, sharing allowlist, and legacy behavior.
+- Deployed `982067b`: Vercel success, production health 200, readonly smoke 8/8, Design2 media 200.
+- Full chronology and evidence: `.pi/FRONTEND_REDESIGN_PROGRESS.md`.
 
 ## [v1.0.0-hobby-final] - 2026-07-26
 
