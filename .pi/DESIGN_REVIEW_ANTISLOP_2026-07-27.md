@@ -1,7 +1,7 @@
 # Design review → MCP → enhance-prompt → impeccable anti-slop (FINAL)
 
-**Date:** 2026-07-27  
-**Branch:** `design/opendesign-iteration` → merge `main` for production  
+**Date:** 2026-07-27
+**Branch:** `design/opendesign-iteration` → merge `main` for production
 **Scope:** frontend-only Soft Product final pass (`/` + `/start` + shared motion primitives)
 
 ## Skill pipeline (completed)

@@ -1,8 +1,8 @@
 # Brainstorm — Tipografi & bentuk UI yang lebih lembut
 
-**Tanggal:** 2026-07-27  
-**Status:** keputusan dikunci + diimplementasi (Soft Product)  
-**Scope:** frontend-only; monochrome Design2 tetap; backend frozen  
+**Tanggal:** 2026-07-27
+**Status:** keputusan dikunci + diimplementasi (Soft Product)
+**Scope:** frontend-only; monochrome Design2 tetap; backend frozen
 **Pemicu:** pengguna merasa huruf kaku; tombol & UI terlalu petak/lancip
 
 ---
@@ -47,7 +47,7 @@ Warna monokrom (void / bone / charcoal / frost / ash) **bisa tetap**. Yang diges
 | **Radius**         | control **10–12px**, input **10px**, card/panel **16px**, shell besar **20–24px**, badge **999px** (pill) opsional |
 | **Hero**           | Line-height longgar (~0.95–1.05), bukan 0.78 monumental-kaku                                                       |
 
-**Pro:** langsung meredakan “petak lancip”; cocok brand LensaDiri.  
+**Pro:** langsung meredakan “petak lancip”; cocok brand LensaDiri.
 **Kontra:** menjauh dari literal Design2/MekaVerse; perlu update catatan Design2.
 
 ---
@@ -64,7 +64,7 @@ Warna monokrom (void / bone / charcoal / frost / ash) **bisa tetap**. Yang diges
 | **Tombol**  | Sans medium, sentence case, radius **12px**                 |
 | **Radius**  | control 12px, card 16–20px                                  |
 
-**Pro:** paling “tidak kaku” secara emosional; kontras display/body.  
+**Pro:** paling “tidak kaku” secara emosional; kontras display/body.
 **Kontra:** serif di dark UI butuh hati-hati (contrast, size); lebih banyak token type; Lora pernah di-remove di redesign — perlu sadar regress history.
 
 ---
@@ -80,7 +80,7 @@ Warna monokrom (void / bone / charcoal / frost / ash) **bisa tetap**. Yang diges
 | **Radius** | control **8px** (bukan 2), card **12–16**, large **20**       |
 | **Hero**   | Sedikit longgar line-height; keep weight 400                  |
 
-**Pro:** minimal drift dari kontrak Design2; effort rendah.  
+**Pro:** minimal drift dari kontrak Design2; effort rendah.
 **Kontra:** mungkin masih terasa agak kaku jika yang diinginkan benar-benar soft product.
 
 ---
@@ -144,10 +144,10 @@ Warna monokrom (void / bone / charcoal / frost / ash) **bisa tetap**. Yang diges
 
 Untuk keluhan _“huruf kaku + petak sudut lancip”_ pada produk refleksi Indonesia:
 
-→ **Arah A (Soft Product)**  
-→ Plus Jakarta Sans (display+UI)  
-→ JetBrains Mono hanya meta  
-→ control radius **12px**, panel **16px**, large **20px**  
+→ **Arah A (Soft Product)**
+→ Plus Jakarta Sans (display+UI)
+→ JetBrains Mono hanya meta
+→ control radius **12px**, panel **16px**, large **20px**
 → CTA sentence case, weight medium
 
 ## Keputusan terkunci (2026-07-27)

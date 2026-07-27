@@ -1,7 +1,7 @@
 # Motion review — Emil Kowalski standards
 
-Date: 2026-07-27  
-Branch: `design/opendesign-iteration`  
+Date: 2026-07-27
+Branch: `design/opendesign-iteration`
 Skills: `emil-design-eng`, `inb-emilkowalski-motion`, `review-animations`
 
 ## What shipped

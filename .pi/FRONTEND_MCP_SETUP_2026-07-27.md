@@ -1,7 +1,7 @@
 # Frontend MCP setup — LensaDiri
 
-**Tanggal:** 2026-07-27  
-**Skill:** `frontend-mcp-setup`  
+**Tanggal:** 2026-07-27
+**Skill:** `frontend-mcp-setup`
 **Prinsip:** stack **minimal + relevan** (bukan pasang semua MCP)
 
 ---

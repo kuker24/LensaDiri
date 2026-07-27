@@ -4,10 +4,10 @@ Generated via `/inb-enhance-prompt` vocabulary + design-review evidence (browser
 
 ## Product / scene
 
-**Surface:** marketing homepage `/` + entry `/start` (task shell).  
-**Register:** product-serving brand portal (Design2 monochrome gallery).  
-**Scene sentence:** An Indonesian adult opens a quiet night portal; the HUD is featherweight over cinematic world art, then task UI goes calm for choosing a path.  
-**Color strategy:** restrained monochrome chrome; chromatic color only inside media.  
+**Surface:** marketing homepage `/` + entry `/start` (task shell).
+**Register:** product-serving brand portal (Design2 monochrome gallery).
+**Scene sentence:** An Indonesian adult opens a quiet night portal; the HUD is featherweight over cinematic world art, then task UI goes calm for choosing a path.
+**Color strategy:** restrained monochrome chrome; chromatic color only inside media.
 **Voice:** quiet, precise, intimate Indonesian; no clinical certainty, no quiz kitsch, no SaaS hype.
 
 ## Visual system (locked)
@@ -36,19 +36,19 @@ Generated via `/inb-enhance-prompt` vocabulary + design-review evidence (browser
 
 ### Defects to fix (priority)
 
-1. **P0 — Content-gated scroll reveal**  
+1. **P0 — Content-gated scroll reveal**
    `BlurFade` with `inView` starts at `opacity: 0` / blur until IntersectionObserver fires. Full-page capture and fast scroll show film-strip **media without copy**. Violates Impeccable: reveal must enhance an already-visible default.
 
-2. **P1 — Gradient-text micro-label tell**  
+2. **P1 — Gradient-text micro-label tell**
    `AnimatedShinyText` uses `bg-clip-text` + linear gradient shimmer on the hero eyebrow. Absolute ban: gradient text. Prefer solid frost mono-label (optional opacity sheen without clipping text fill).
 
-3. **P1 — Numbered scaffolding density**  
+3. **P1 — Numbered scaffolding density**
    Process steps `01–03` earn numbers (true sequence). Lens catalog rows re-number `01–03` as decoration → AI section-factory habit. Drop decorative indices on non-sequence lists.
 
-4. **P2 — Mono-label overuse**  
+4. **P2 — Mono-label overuse**
    Trust principle titles use `mono-label` (tiny uppercase) as H3 voice. Keep mono for instrumentation only; trust titles should read as human product language.
 
-5. **P2 — DESIGN.md drift**  
+5. **P2 — DESIGN.md drift**
    Docs still say Inter + 2px control radii; code is Plus Jakarta + Soft Product radii. Sync docs to code.
 
 ### Explicit non-goals (anti-slop)
