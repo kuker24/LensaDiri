@@ -83,7 +83,12 @@ test("account lifecycle registers, logs in, rejects wrong deletion password, the
   await expect(page.getByText("Kata sandi tidak cocok. Akun belum dihapus.")).toBeVisible();
 
   await page.getByLabel("Kata sandi saat ini").fill(password);
+  const deletionResponse = page.waitForResponse(
+    (response) =>
+      response.url().endsWith("/api/account/delete") && response.request().method() === "POST",
+  );
   await deleteButton.click();
+  expect((await deletionResponse).status()).toBe(200);
   await expect(page).toHaveURL(/\/?account=deleted$/u);
 
   await page.goto("/dashboard");

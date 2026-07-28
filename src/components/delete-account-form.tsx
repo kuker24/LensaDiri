@@ -1,13 +1,11 @@
 "use client";
 
-import { useRouter } from "next/navigation";
 import { type FormEvent, useState } from "react";
 
 import { AuthApiError, postAuthenticatedMutation } from "@/lib/auth/client";
 import { Input, Label } from "@/components/ui/input";
 
 export function DeleteAccountForm() {
-  const router = useRouter();
   const [confirmation, setConfirmation] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
@@ -23,7 +21,7 @@ export function DeleteAccountForm() {
         confirmation,
         password: String(formData.get("password") ?? ""),
       });
-      router.push("/?account=deleted");
+      window.location.assign("/?account=deleted");
     } catch (caught) {
       const code = caught instanceof AuthApiError ? caught.code : "service_unavailable";
       setError(
