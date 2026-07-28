@@ -147,7 +147,7 @@ test("module detail preserves valid selection and invalid query falls back", asy
   await expect(page.getByRole("checkbox", { name: /Profil Trait/u })).toBeChecked();
 });
 
-test("hero and product surfaces preserve explicit backgrounds", async ({ page }) => {
+test("homepage and product surfaces preserve explicit backgrounds", async ({ page }) => {
   async function backgroundPixel(selector: string) {
     return page.locator(selector).evaluate((element) => {
       const canvas = document.createElement("canvas");
@@ -160,10 +160,7 @@ test("hero and product surfaces preserve explicit backgrounds", async ({ page })
   }
 
   await page.goto("/");
-  await expect(page.locator(".portal-lens > div").first()).toHaveCSS(
-    "background-image",
-    /radial-gradient/u,
-  );
+  expect(await backgroundPixel(".lens-glow")).toEqual([17, 17, 17, 179]);
 
   await page.goto("/start/modules");
   expect(await backgroundPixel("aside.lens-glow")).toEqual([17, 17, 17, 179]);
