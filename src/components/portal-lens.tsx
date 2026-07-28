@@ -468,7 +468,7 @@ export function PortalLens({ className }: PortalLensProps) {
       aria-hidden="true"
       className={
         className ??
-        "relative isolate min-h-[22rem] w-full overflow-hidden rounded-[20px] sm:min-h-[26rem] lg:min-h-[28rem]"
+        "portal-lens relative isolate min-h-[22rem] w-full overflow-hidden rounded-[20px] sm:min-h-[26rem] lg:min-h-[28rem]"
       }
     >
       <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_70%_55%_at_58%_42%,#243656_0%,#101828_48%,#070a12_100%)]" />

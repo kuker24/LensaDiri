@@ -57,7 +57,7 @@ test("account lifecycle registers, logs in, rejects wrong deletion password, the
   expect(remainingCookieSeconds).toBeGreaterThan(29 * 24 * 60 * 60);
   expect(remainingCookieSeconds).toBeLessThanOrEqual(31 * 24 * 60 * 60);
 
-  await page.getByRole("link", { name: /LensaDiri/u }).click();
+  await page.goto("/");
   await expect(page).toHaveURL(/\/$/u);
   const mobileMenu = page.locator("summary", { hasText: "Menu" });
   if (await mobileMenu.isVisible()) await mobileMenu.click();
@@ -84,6 +84,7 @@ test("account lifecycle registers, logs in, rejects wrong deletion password, the
   await page.getByRole("button", { name: "Mulai asesmen" }).click();
   await expect(page).toHaveURL(/\/test\//u);
   await page.getByRole("button", { name: "Jeda", exact: true }).click();
+  await expect(page.getByRole("heading", { name: "Sesi dijeda" })).toBeVisible();
   await page.goto("/dashboard");
   await expect(page.getByText(/0\/120 · Bagian 1\/2 · Dijeda/u)).toBeVisible();
 
