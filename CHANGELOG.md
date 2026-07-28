@@ -6,7 +6,17 @@ Honest scope: entries mark **engineering / product** posture. Nothing here claim
 
 ## Unreleased
 
-**Status:** Design2 frontend redesign is live (`982067b`) with cinematic motion polish on `9e638ec` (2026-07-27). Backend/domain remains maintenance-only. Preserve routes, APIs, DTOs, scoring, privacy, authorization, and legacy compatibility. No paid residual services, AI ON, Full Spectrum over-cap, WCAG/psychometric cert claims, or unreviewed publish.
+**Status:** Dashboard/auth reliability is closed in `main@3ce060a` (2026-07-28). Design2 remains live. Operating mode is **maintenance only**. Backend/domain remains frozen. Preserve routes, APIs, DTOs, scoring, privacy, authorization, and legacy compatibility. No paid residual services, AI ON, Full Spectrum over-cap, WCAG/psychometric cert claims, unreviewed publish, or new feature queue.
+
+### Dashboard/auth reliability closure (2026-07-28)
+
+- Squash-merged PR [#65](https://github.com/kuker24/LensaDiri/pull/65) into `main` as `3ce060a015b331d2799861d7a466b5663bd4af86` after merge state `CLEAN`.
+- Removed duplicate dashboard session lookup, serialized dashboard reads for the production single-connection pool, and surfaced DB failures through recoverable dashboard boundaries instead of treating them as logout.
+- Preserved the secure 30-day session-cookie contract; added safe operational telemetry without token, account, answer, or result data.
+- PR CI [30369143103](https://github.com/kuker24/LensaDiri/actions/runs/30369143103) and post-merge `main` CI [30370036507](https://github.com/kuker24/LensaDiri/actions/runs/30370036507) passed Quality/build, audit with 0 vulnerabilities, disposable DB, integration, pgTAP, seed replay, Playwright desktop/Pixel 5, and accessibility.
+- Vercel Preview and production deployment passed. [Manual post-deploy evidence](https://github.com/kuker24/LensaDiri/pull/65#issuecomment-5106109050) records production desktop login → dashboard → home → dashboard → reload without logout, followed by hard-delete of the throwaway account.
+- Production liveness [30371184573](https://github.com/kuker24/LensaDiri/actions/runs/30371184573) passed; `/api/health` returned HTTP 200 with `{"status":"ok"}`.
+- No DB, migration, environment, feature-flag, scoring, or product-feature changes. Returned to maintenance-only operation.
 
 ### Design2 portal redesign
 
