@@ -1,10 +1,15 @@
+import crypto from "node:crypto";
+
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { DashboardOpenButton } from "@/components/dashboard-open-button";
 import { LogoutButton } from "@/components/logout-button";
 import { getButtonClassName } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { DatabaseError } from "@/lib/db/errors";
 import { getCurrentSession } from "@/server/current-session";
+import { elapsedMilliseconds, logOperationalEvent } from "@/server/observability";
 import {
   listAccountActiveSessions,
   listAccountDashboardResults,
@@ -34,12 +39,31 @@ function formatModuleKey(key: string): string {
 
 export default async function DashboardPage() {
   const session = await getCurrentSession();
-  const [activeSessions, results] = session
-    ? await Promise.all([
-        listAccountActiveSessions(session.accountId),
-        listAccountDashboardResults(session.accountId),
-      ])
-    : [[], []];
+  if (!session) redirect("/login");
+
+  const correlationId = crypto.randomUUID();
+  const startedAt = process.hrtime.bigint();
+  let activeSessions: Awaited<ReturnType<typeof listAccountActiveSessions>>;
+  let results: Awaited<ReturnType<typeof listAccountDashboardResults>>;
+  try {
+    activeSessions = await listAccountActiveSessions(session.accountId);
+    results = await listAccountDashboardResults(session.accountId);
+    logOperationalEvent({
+      correlationId,
+      durationMs: elapsedMilliseconds(startedAt),
+      operation: "dashboard_read",
+      status: "success",
+    });
+  } catch (error) {
+    logOperationalEvent({
+      correlationId,
+      durationMs: elapsedMilliseconds(startedAt),
+      errorCode: error instanceof DatabaseError ? "database_error" : undefined,
+      operation: "dashboard_read",
+      status: "error",
+    });
+    throw error;
+  }
 
   return (
     <div className="task-shell">

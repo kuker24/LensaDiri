@@ -7,6 +7,7 @@ import {
   createSessionCookie,
   getSessionCookieName,
   isSessionActive,
+  SESSION_DURATION_MS,
 } from "@/lib/auth/session";
 import { getSafeRedirectPath } from "@/lib/auth/redirect";
 
@@ -50,6 +51,15 @@ describe("internal authentication primitives", () => {
     expect(developmentCookie.options.secure).toBe(false);
     expect(productionCookie.options.secure).toBe(true);
     expect(createClearedSessionCookie(false).options.maxAge).toBe(0);
+  });
+
+  it("keeps account sessions for 30 days", () => {
+    const now = Date.now();
+    const cookie = createSessionCookie("token", new Date(now + SESSION_DURATION_MS), true);
+
+    expect(cookie.options.maxAge).toBeGreaterThanOrEqual(30 * 24 * 60 * 60 - 1);
+    expect(cookie.options.maxAge).toBeLessThanOrEqual(30 * 24 * 60 * 60);
+    expect(cookie.options.expires.getTime()).toBe(now + SESSION_DURATION_MS);
   });
 
   it("allows internal redirects only", () => {

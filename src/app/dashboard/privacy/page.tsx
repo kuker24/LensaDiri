@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { ConsentDecisionControl } from "@/components/consent-decision-control";
 import { DeleteAccountForm } from "@/components/delete-account-form";
@@ -16,7 +17,8 @@ const consentLabels = {
 
 export default async function DashboardPrivacyPage() {
   const session = await getCurrentSession();
-  const policies = session ? await listAccountConsentPolicies(session.accountId) : [];
+  if (!session) redirect("/login");
+  const policies = await listAccountConsentPolicies(session.accountId);
 
   return (
     <div className="task-shell">

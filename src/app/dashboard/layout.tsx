@@ -1,8 +1,5 @@
 import type { Metadata } from "next";
 import type { ReactNode } from "react";
-import { redirect } from "next/navigation";
-
-import { getCurrentSession } from "@/server/current-session";
 
 export const metadata: Metadata = {
   title: "Dashboard",
@@ -11,11 +8,7 @@ export const metadata: Metadata = {
 
 export const dynamic = "force-dynamic";
 
-export default async function DashboardLayout({ children }: Readonly<{ children: ReactNode }>) {
-  const session = await getCurrentSession();
-  if (!session) {
-    redirect("/login");
-  }
-
+export default function DashboardLayout({ children }: Readonly<{ children: ReactNode }>) {
+  // Auth stays in each page so same-segment loading/error boundaries cover DB waits.
   return <>{children}</>;
 }
