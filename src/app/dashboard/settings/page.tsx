@@ -1,4 +1,11 @@
-export default function DashboardSettingsPage() {
+import { redirect } from "next/navigation";
+
+import { getCurrentSession } from "@/server/current-session";
+
+export default async function DashboardSettingsPage() {
+  const session = await getCurrentSession();
+  if (!session) redirect("/login");
+
   return (
     <div className="task-shell">
       <p className="mono-label text-ink">Akun</p>

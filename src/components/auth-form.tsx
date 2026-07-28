@@ -42,7 +42,6 @@ export function AuthForm({ mode }: AuthFormProps) {
       });
       if (isLogin) {
         router.push("/dashboard");
-        router.refresh();
       } else {
         setRegistrationAccepted(true);
       }

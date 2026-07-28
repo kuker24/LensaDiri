@@ -23,6 +23,8 @@ export function getDatabase(): Sql {
     // Fail before the bounded assessment/session route paths exhaust their wall-clock deadlines.
     connect_timeout: 3,
     idle_timeout: 15,
+    // One connection per serverless instance protects the hobby pool budget.
+    // Independent production queries must be serialized instead of using Promise.all.
     max: environment.isProduction ? 1 : 10,
     // Connection parameters sent as startup options for every session.
     connection: {

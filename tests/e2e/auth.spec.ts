@@ -3,8 +3,16 @@ import { expect, test } from "@playwright/test";
 test("protected dashboard redirects guests and auth forms support keyboard focus", async ({
   page,
 }) => {
-  await page.goto("/dashboard");
-  await expect(page).toHaveURL(/\/login$/u);
+  for (const path of [
+    "/dashboard",
+    "/dashboard/privacy",
+    "/dashboard/results",
+    "/dashboard/sessions",
+    "/dashboard/settings",
+  ]) {
+    await page.goto(path);
+    await expect(page).toHaveURL(/\/login$/u);
+  }
 
   await page.keyboard.press("Tab");
   await expect(page.getByRole("link", { name: "Lewati ke konten utama" })).toBeFocused();
@@ -35,6 +43,29 @@ test("account lifecycle registers, logs in, rejects wrong deletion password, the
   await page.getByLabel("Email").fill(email);
   await page.getByLabel(/password|kata sandi/i).fill(password);
   await page.getByRole("button", { name: "Masuk", exact: true }).click();
+  await expect(page).toHaveURL(/\/dashboard$/u);
+  await expect(page.getByRole("heading", { name: "Sesi, hasil, kontrol data" })).toBeVisible();
+
+  const sessionCookie = (await page.context().cookies()).find(
+    (cookie) => cookie.name === "lensadiri_session",
+  );
+  expect(sessionCookie?.httpOnly).toBe(true);
+  expect(sessionCookie?.sameSite).toBe("Lax");
+  const remainingCookieSeconds = (sessionCookie?.expires ?? 0) - Date.now() / 1_000;
+  expect(remainingCookieSeconds).toBeGreaterThan(29 * 24 * 60 * 60);
+  expect(remainingCookieSeconds).toBeLessThanOrEqual(31 * 24 * 60 * 60);
+
+  await page.getByRole("link", { name: /LensaDiri/u }).click();
+  await expect(page).toHaveURL(/\/$/u);
+  const mobileMenu = page.locator("summary", { hasText: "Menu" });
+  if (await mobileMenu.isVisible()) await mobileMenu.click();
+  const publicAccountLink = page.getByRole("link", { name: "Dashboard", exact: true });
+  await expect(publicAccountLink.first()).toBeVisible();
+  await publicAccountLink.first().click();
+  await expect(page).toHaveURL(/\/dashboard$/u);
+  await expect(page.getByRole("heading", { name: "Sesi, hasil, kontrol data" })).toBeVisible();
+
+  await page.reload();
   await expect(page).toHaveURL(/\/dashboard$/u);
   await expect(page.getByRole("heading", { name: "Sesi, hasil, kontrol data" })).toBeVisible();
 

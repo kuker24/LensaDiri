@@ -14,6 +14,8 @@ export type OperationalEvent = {
     | "assessment_answer_save"
     | "assessment_complete"
     | "assessment_start"
+    | "current_session"
+    | "dashboard_read"
     | "estimate_catalog_queries"
     | "estimate_composer_candidates"
     | "estimate_computation"

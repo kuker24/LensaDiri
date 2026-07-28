@@ -115,8 +115,11 @@ export function SiteHeader({ family }: { family: RouteFamily }) {
             >
               <NavigationLinks items={items} pathname={pathname} />
               {family === "public" ? (
-                <Link className="focus-ring min-h-11 px-3 py-3 text-sm font-medium" href="/login">
-                  Masuk
+                <Link
+                  className="focus-ring min-h-11 px-3 py-3 text-sm font-medium"
+                  href="/dashboard"
+                >
+                  Dashboard
                 </Link>
               ) : null}
             </nav>
@@ -124,10 +127,10 @@ export function SiteHeader({ family }: { family: RouteFamily }) {
           {family === "public" ? (
             <>
               <Link
-                href="/login"
+                href="/dashboard"
                 className={cn(getButtonClassName("secondary", "sm"), "hidden md:inline-flex")}
               >
-                Masuk
+                Dashboard
               </Link>
               <Link href="/start" className={getButtonClassName("primary", "sm")}>
                 Mulai
