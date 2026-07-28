@@ -25,7 +25,7 @@ const lenses = [
 
 const steps = [
   ["01", "Pilih kedalaman", "Singkat, atau susun beberapa lensa."],
-  ["02", "Jawab apa adanya", "Progress tersimpan. Tidak perlu sempurna."],
+  ["02", "Jawab apa adanya", "Progres tersimpan. Tidak perlu sempurna."],
   ["03", "Baca sebagai pola", "Kecenderungan, keyakinan, dan batasan."],
 ] as const;
 
@@ -73,7 +73,6 @@ export default function HomePage() {
                 Metode
               </Link>
             </div>
-            <p className="text-ink-muted mt-6 text-sm">Bukan diagnosis klinis.</p>
           </div>
 
           <BlurFade delay={0.12} className="lg:justify-self-stretch">
@@ -91,7 +90,7 @@ export default function HomePage() {
         <div className="film-strip-scrim" />
         <div className="container-shell section-band">
           <BlurFade inView>
-            <p className="section-stamp text-ink max-w-full overflow-hidden">Cara melihat</p>
+            <h2 className="section-stamp text-ink max-w-full overflow-hidden">Cara melihat</h2>
           </BlurFade>
           <BlurFade inView delay={0.08} className="mt-12 border-t border-white/20">
             {steps.map(([number, title, description]) => (
@@ -100,9 +99,9 @@ export default function HomePage() {
                 key={number}
               >
                 <p className="text-ink/70 font-mono text-sm tabular-nums">{number}</p>
-                <h2 className="text-ink text-xl font-normal tracking-[-0.02em] sm:text-2xl">
+                <h3 className="text-ink text-xl font-normal tracking-[-0.02em] sm:text-2xl">
                   {title}
-                </h2>
+                </h3>
                 <p className="text-ink-muted max-w-xl leading-7">{description}</p>
               </article>
             ))}

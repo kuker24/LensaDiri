@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getCurrentSession } from "@/server/current-session";
+import { constructLabels, moduleLabels } from "@/server/export/pdf-labels";
 import { getPrivateResultByToken } from "@/server/services/assessment";
 import { getButtonClassName } from "@/components/ui/button";
 
@@ -14,6 +15,7 @@ export default async function ResultModuleDetailPage({
   const session = await getCurrentSession();
   if (!session) redirect("/login");
   const { token, moduleKey } = await params;
+  const moduleName = moduleLabels[moduleKey] ?? "Lensa reflektif";
 
   const result = await getPrivateResultByToken(token);
   if (!result) {
@@ -37,21 +39,21 @@ export default async function ResultModuleDetailPage({
         <Link className="focus-ring quiet-link rounded-[12px]" href="/dashboard/results">
           Hasil
         </Link>
-        <span className="mx-2">/</span>
+        <span aria-hidden="true" className="mx-2">
+          /
+        </span>
         <Link className="focus-ring quiet-link rounded-[12px]" href={`/result/${token}`}>
           Hasil #{token.slice(0, 8)}
         </Link>
-        <span className="mx-2">/</span>
-        <span>{moduleKey.replaceAll("_", " ")}</span>
+        <span aria-hidden="true" className="mx-2">
+          /
+        </span>
+        <span>{moduleName}</span>
       </nav>
 
-      <h1 className="text-3xl font-normal tracking-[-0.03em] capitalize">
-        Detail modul: {moduleKey.replaceAll("_", " ")}
-      </h1>
+      <h1 className="text-3xl font-normal tracking-[-0.03em]">Detail lensa: {moduleName}</h1>
 
-      <p className="text-ink-muted mt-2 mb-8 leading-7">
-        Skor dan interpretasi per construct untuk lensa ini.
-      </p>
+      <p className="text-ink-muted mt-2 mb-8 leading-7">Skor per dimensi untuk lensa ini.</p>
 
       <div className="border-line bg-surface rounded-[16px] border p-6">
         <h2 className="text-lg font-normal">Ringkasan skor</h2>
@@ -62,7 +64,7 @@ export default async function ResultModuleDetailPage({
                 className="flex justify-between gap-4 text-sm"
                 key={`${score.constructKey}-${score.facetKey}`}
               >
-                <span className="capitalize">{score.constructKey.replaceAll("_", " ")}</span>
+                <span>{constructLabels[score.constructKey] ?? "Dimensi reflektif"}</span>
                 <strong>{score.normalizedScore.toFixed(1)}</strong>
               </li>
             ))}
@@ -72,7 +74,7 @@ export default async function ResultModuleDetailPage({
             {result.kind === "legacy" &&
               result.scores.map((score) => (
                 <li className="flex justify-between gap-4 text-sm" key={score.constructKey}>
-                  <span className="capitalize">{score.constructKey.replaceAll("_", " ")}</span>
+                  <span>{constructLabels[score.constructKey] ?? "Dimensi reflektif"}</span>
                   <strong>{score.normalizedScore.toFixed(1)}</strong>
                 </li>
               ))}

@@ -6,7 +6,7 @@ import { StartAssessmentForm } from "@/components/start-assessment-form";
 import type { AssessmentMode } from "@/server/repositories/assessment";
 
 export const metadata: Metadata = {
-  title: "Consent Assessment",
+  title: "Persetujuan Asesmen",
   robots: { follow: false, index: false },
 };
 
@@ -24,7 +24,7 @@ export default async function ConsentPage({
         <h1 className="mt-4 text-3xl font-normal tracking-[-0.03em]">Persetujuan pemrosesan</h1>
         <ul className="text-ink-muted mt-6 space-y-3 leading-7">
           <li>Jawaban hanya untuk menghitung hasil refleksi.</li>
-          <li>Skor dihitung di server, bukan di browser.</li>
+          <li>Skor dihitung di server, bukan di peramban.</li>
           <li>Token acak membuka sesi dan hasil.</li>
           <li>Kamu dapat menghapus hasil beserta jawabannya.</li>
         </ul>

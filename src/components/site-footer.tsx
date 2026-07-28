@@ -5,8 +5,9 @@ import { BrandMark } from "@/components/brand-mark";
 const footerLinks = [
   ["Metode", "/method"],
   ["Privasi", "/privacy"],
-  ["Disclaimer", "/disclaimer"],
+  ["Batas penggunaan", "/disclaimer"],
   ["Ketentuan", "/terms"],
+  ["Kontak", "/contact"],
 ] as const;
 
 export function SiteFooter() {
@@ -36,7 +37,7 @@ export function SiteFooter() {
           </nav>
         </div>
         <div className="text-ink-muted mt-8 flex flex-wrap items-center justify-between gap-3 border-t border-white/12 pt-4 text-xs font-medium">
-          <span>Privacy-first · Indonesia</span>
+          <span>Privat sejak awal · Indonesia</span>
           <span>Bukan diagnosis klinis</span>
         </div>
       </div>

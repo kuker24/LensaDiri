@@ -113,9 +113,6 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
           {result.title}
         </h1>
         <p className="text-ink-muted mt-5 max-w-2xl leading-7">{result.disclaimer}</p>
-        <p className="text-ink-muted mt-4 font-mono text-xs tracking-[-0.02em] uppercase">
-          Public-safe · tanpa skor internal
-        </p>
       </header>
       <div className="mt-10 space-y-8">
         {result.modules.map((module) => (

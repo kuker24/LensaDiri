@@ -45,7 +45,7 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
                 : catalogModule.status === "pilot"
                   ? "Beta terbatas"
                   : "Siap dirilis"
-              : catalogModule.releaseDisposition?.replaceAll("_", " ")}
+              : "Belum tersedia"}
           </Badge>
           <Badge tone="neutral">Usia minimum {catalogModule.minimumAge}</Badge>
         </div>
@@ -91,13 +91,13 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
             className={`${getButtonClassName("primary", "md")} mt-8`}
             href={`/start/modules?module=${encodeURIComponent(catalogModule.key)}`}
           >
-            Pilih modul ini
+            Pilih lensa ini
           </Link>
         ) : (
           <div className="border-aperture/50 bg-aperture-soft/70 text-ink mt-8 rounded-[16px] border p-5">
             <h2 className="font-semibold">Belum dapat dipilih</h2>
             <p className="mt-2 text-sm leading-6">
-              {catalogModule.availabilityReason ?? "Modul masih berada dalam review."}
+              {catalogModule.availabilityReason ?? "Lensa masih dalam peninjauan."}
             </p>
           </div>
         )}

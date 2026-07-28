@@ -25,27 +25,30 @@ export default async function ResultSharePage({ params }: { params: Promise<{ to
         <Link className="focus-ring quiet-link rounded-[12px]" href="/dashboard/results">
           Hasil
         </Link>
-        <span className="mx-2">/</span>
+        <span aria-hidden="true" className="mx-2">
+          /
+        </span>
         <Link className="focus-ring quiet-link rounded-[12px]" href={`/result/${token}`}>
           Hasil #{token.slice(0, 8)}
         </Link>
-        <span className="mx-2">/</span>
+        <span aria-hidden="true" className="mx-2">
+          /
+        </span>
         <span>Bagikan</span>
       </nav>
 
       <h1 className="text-3xl font-normal tracking-[-0.03em]">Kontrol berbagi</h1>
       <p className="text-ink-muted mt-2 mb-8 leading-7">
-        Hasilmu bersifat privat secara default. Kamu bisa membuat link share yang bisa dicabut
+        Hasilmu bersifat privat secara bawaan. Kamu bisa membuat tautan berbagi yang dapat dicabut
         sewaktu-waktu.
       </p>
 
       <div className="border-line bg-surface rounded-[16px] border p-6">
         <p className="text-lg font-normal">
-          Hasil dengan token: {token.slice(0, 8)}... (detail share lihat di dashboard)
+          Hasil dengan token: {token.slice(0, 8)}... (kontrol berbagi tersedia di halaman hasil)
         </p>
         <p className="text-ink-muted mt-2 text-sm">
-          Fitur share token management tersedia di endpoint API. Dashboard akan menampilkan
-          ringkasan share token.
+          Kembali ke halaman hasil untuk membuat atau mencabut tautan berbagi.
         </p>
       </div>
 

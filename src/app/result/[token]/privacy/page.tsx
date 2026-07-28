@@ -29,11 +29,15 @@ export default async function ResultPrivacyPage({
         <Link className="focus-ring quiet-link rounded-[12px]" href="/dashboard/results">
           Hasil
         </Link>
-        <span className="mx-2">/</span>
+        <span aria-hidden="true" className="mx-2">
+          /
+        </span>
         <Link className="focus-ring quiet-link rounded-[12px]" href={`/result/${token}`}>
           Hasil #{token.slice(0, 8)}
         </Link>
-        <span className="mx-2">/</span>
+        <span aria-hidden="true" className="mx-2">
+          /
+        </span>
         <span>Privasi</span>
       </nav>
 
@@ -54,8 +58,8 @@ export default async function ResultPrivacyPage({
           <li>
             <strong>Akses privat:</strong>{" "}
             <span className="text-ink-muted">
-              Hasil hanya dapat dibuka melalui token privat atau link berbagi yang kamu buat secara
-              eksplisit.
+              Hasil hanya dapat dibuka melalui token privat atau tautan berbagi yang kamu buat
+              secara eksplisit.
             </span>
           </li>
         </ul>

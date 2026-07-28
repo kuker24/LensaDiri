@@ -28,12 +28,13 @@ export default async function ModulesPage() {
   return (
     <section className="task-shell">
       <header className="max-w-3xl">
-        <p className="mono-label text-ink">Katalog · 10 lensa</p>
+        <p className="mono-label text-ink">Katalog lensa</p>
         <h1 className="mt-5 text-4xl font-normal tracking-[-0.035em] sm:text-6xl">
           Pilih lensa yang relevan
         </h1>
         <p className="text-ink-muted mt-5 leading-7">
-          Tiap modul punya item & skor sendiri. Belum direview = roadmap, tidak bisa dipilih.
+          Setiap lensa memiliki pertanyaan dan penilaian sendiri. Lensa yang belum ditinjau belum
+          dapat dipilih.
         </p>
       </header>
 

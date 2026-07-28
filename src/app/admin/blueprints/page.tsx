@@ -11,16 +11,16 @@ export default async function AdminBlueprintsPage() {
   const inventory = await listAdminBlueprintInventory();
   return (
     <AdminSectionPage
-      description="Inventori blueprint sesi immutable per mode (bukan CMS template). Blueprint dibuat per assessment."
+      description="Inventaris cetak biru sesi tetap per mode. Cetak biru dibuat untuk setiap asesmen."
       items={
         inventory.length > 0
           ? inventory.map((row) => ({
               label: `mode ${row.mode}`,
-              value: `${row.blueprintCount} blueprint`,
+              value: `${row.blueprintCount} cetak biru`,
             }))
           : []
       }
-      title="Blueprint"
+      title="Cetak Biru"
     />
   );
 }

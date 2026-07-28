@@ -8,11 +8,23 @@ const publicRoutes = [
   "/contact",
   "/terms",
   "/blog",
+  "/blog/cara-membaca-confidence-tanpa-menganggapnya-kepastian",
+  "/blog/mengapa-setiap-lensa-harus-punya-scoring-independen",
+  "/blog/privasi-hasil-dan-share-yang-dapat-dicabut",
   "/method",
   "/privacy",
+  "/disclaimer",
   "/start",
+  "/start/consent?mode=quick",
+  "/start/consent?mode=standard",
+  "/start/modules",
+  "/start/review",
   "/login",
   "/register",
+  "/forgot-password",
+  "/reset-password",
+  "/verify-email",
+  "/modules/type_16",
 ] as const;
 
 for (const route of publicRoutes) {
@@ -114,13 +126,13 @@ test("module catalog exposes all ten release-ready lenses with detail navigation
 
 test("module detail preserves valid selection and invalid query falls back", async ({ page }) => {
   await page.goto("/modules/type_16");
-  const chooseModule = page.getByRole("link", { name: "Pilih modul ini" });
+  const chooseModule = page.getByRole("link", { name: "Pilih lensa ini" });
   await expect(chooseModule).toHaveAttribute("href", "/start/modules?module=type_16");
   await chooseModule.click();
   await expect(page.getByRole("checkbox", { name: /16-Type Jungian-inspired/u })).toBeChecked();
 
   await page.goto("/modules/socionics_communication");
-  await page.getByRole("link", { name: "Pilih modul ini" }).click();
+  await page.getByRole("link", { name: "Pilih lensa ini" }).click();
   await expect(page.getByRole("checkbox", { name: /Komunikasi Socionics/u })).toBeChecked();
   await expect(
     page.getByText("Aku memahami lensa eksperimental yang dipilih belum memiliki validasi formal"),

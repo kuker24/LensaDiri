@@ -4,7 +4,20 @@ import Link from "next/link";
 import { DashboardOpenButton } from "@/components/dashboard-open-button";
 import { getCurrentSession } from "@/server/current-session";
 import { listAccountDashboardResults } from "@/server/repositories/dashboard";
-import { Button } from "@/components/ui/button";
+import { getButtonClassName } from "@/components/ui/button";
+
+const moduleLabels: Record<string, string> = {
+  attachment: "Refleksi Attachment",
+  enneagram: "Lensa Motivasi",
+  instinct: "Varian Instingtual",
+  psychosophy: "Psychosophy",
+  riasec: "Minat Karier RIASEC",
+  socionics_communication: "Komunikasi Socionics",
+  temperament: "Temperamen",
+  three_center: "Pola Tiga Pusat",
+  trait_profile: "Profil Trait",
+  type_16: "16-Type",
+};
 
 export default async function DashboardResultsPage() {
   const session = await getCurrentSession();
@@ -21,7 +34,9 @@ export default async function DashboardResultsPage() {
         <Link className="focus-ring quiet-link rounded-[12px]" href="/dashboard">
           Ruang pribadi
         </Link>
-        <span className="mx-2">/</span>
+        <span aria-hidden="true" className="mx-2">
+          /
+        </span>
         <span>Semua hasil</span>
       </nav>
 
@@ -31,8 +46,8 @@ export default async function DashboardResultsPage() {
       {results.length === 0 ? (
         <div className="border-line bg-surface rounded-[16px] border p-8 text-center">
           <p className="text-ink-muted text-lg">Belum ada hasil tersimpan.</p>
-          <Link className="mt-4 inline-block" href="/start">
-            <Button>Mulai tes</Button>
+          <Link className={`${getButtonClassName("primary", "md")} mt-4`} href="/start">
+            Mulai asesmen
           </Link>
         </div>
       ) : (
@@ -41,7 +56,11 @@ export default async function DashboardResultsPage() {
             <li className="row-hover bg-surface/40 py-5" key={res.id}>
               <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
                 <div>
-                  <p className="font-normal capitalize">{res.moduleKeys.join(" · ")}</p>
+                  <p className="font-normal">
+                    {res.moduleKeys
+                      .map((key) => moduleLabels[key] ?? "Lensa reflektif")
+                      .join(" · ")}
+                  </p>
                   <p className="text-ink-muted mt-1 text-sm">
                     {new Intl.DateTimeFormat("id-ID", { dateStyle: "medium" }).format(
                       new Date(res.createdAt),
