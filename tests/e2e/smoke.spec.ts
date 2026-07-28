@@ -13,7 +13,7 @@ test("landing page exposes the core trust proposition", async ({ page }) => {
       .getByRole("link", { name: /Mulai eksplorasi/u })
       .first(),
   ).toBeVisible();
-  await expect(page.locator("main").getByText("Bukan diagnosis klinis")).toBeVisible();
+  await expect(page.getByText("Bukan diagnosis klinis", { exact: true })).toHaveCount(1);
 });
 
 test("public information pages are reachable", async ({ page }) => {

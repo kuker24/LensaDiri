@@ -11,12 +11,12 @@ export default async function AdminScoringVersionsPage() {
   const rows = listAdminScoringRegistry();
   return (
     <AdminSectionPage
-      description="Registry scoring independen di kode (sumber kebenaran engine). Bandingkan dengan scoring_version di versi modul."
+      description="Daftar penilaian independen di kode. Bandingkan dengan versi penilaian tiap modul."
       items={rows.map((row) => ({
         label: row.moduleKey,
         value: row.scoringVersion,
       }))}
-      title="Scoring Versions"
+      title="Versi Penilaian"
     />
   );
 }

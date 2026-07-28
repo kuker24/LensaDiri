@@ -81,7 +81,7 @@ export function SiteHeader({ family }: { family: RouteFamily }) {
         <div className="container-shell flex min-h-14 items-center justify-between gap-4 py-2.5">
           <BrandLink context={family === "auth" ? "Akses akun" : "Eksplorasi"} />
           <Link className={getButtonClassName("secondary", "sm")} href="/">
-            {family === "assessment" ? "Simpan & keluar" : "Beranda"}
+            Beranda
           </Link>
         </div>
       </header>
@@ -90,7 +90,7 @@ export function SiteHeader({ family }: { family: RouteFamily }) {
 
   const items = family === "public" ? publicNavigation : familyNavigation[family];
   const context =
-    family === "account" ? "Ruang pribadi" : family === "operator" ? "Read-only" : undefined;
+    family === "account" ? "Ruang pribadi" : family === "operator" ? "Hanya-baca" : undefined;
 
   return (
     <header className="nav-frost sticky top-0 z-20">
@@ -99,13 +99,13 @@ export function SiteHeader({ family }: { family: RouteFamily }) {
 
         <nav
           aria-label={family === "public" ? "Navigasi utama" : "Navigasi ruang pribadi"}
-          className="hidden flex-1 justify-center gap-0.5 md:flex"
+          className="hidden flex-1 justify-center gap-0.5 lg:flex"
         >
           <NavigationLinks items={items} pathname={pathname} />
         </nav>
 
         <div className="ml-auto flex shrink-0 items-center gap-2">
-          <details className="relative md:hidden">
+          <details className="relative lg:hidden">
             <summary className="focus-ring flex min-h-11 cursor-pointer list-none items-center rounded-[12px] border border-white/35 px-4 text-sm font-medium marker:content-none">
               Menu
             </summary>
@@ -128,7 +128,7 @@ export function SiteHeader({ family }: { family: RouteFamily }) {
             <>
               <Link
                 href="/dashboard"
-                className={cn(getButtonClassName("secondary", "sm"), "hidden md:inline-flex")}
+                className={cn(getButtonClassName("secondary", "sm"), "hidden lg:inline-flex")}
               >
                 Dashboard
               </Link>

@@ -8,11 +8,23 @@ const publicRoutes = [
   "/contact",
   "/terms",
   "/blog",
+  "/blog/cara-membaca-confidence-tanpa-menganggapnya-kepastian",
+  "/blog/mengapa-setiap-lensa-harus-punya-scoring-independen",
+  "/blog/privasi-hasil-dan-share-yang-dapat-dicabut",
   "/method",
   "/privacy",
+  "/disclaimer",
   "/start",
+  "/start/consent?mode=quick",
+  "/start/consent?mode=standard",
+  "/start/modules",
+  "/start/review",
   "/login",
   "/register",
+  "/forgot-password",
+  "/reset-password",
+  "/verify-email",
+  "/modules/type_16",
 ] as const;
 
 for (const route of publicRoutes) {
@@ -36,8 +48,13 @@ for (const route of publicRoutes) {
       .locator("main a, main button, main input, main select, main textarea")
       .evaluateAll((elements) =>
         elements.flatMap((element) => {
-          const rect = element.getBoundingClientRect();
-          const style = window.getComputedStyle(element);
+          const input = element instanceof HTMLInputElement ? element : null;
+          const target =
+            input && (input.type === "checkbox" || input.type === "radio")
+              ? (input.closest("label") ?? input)
+              : element;
+          const rect = target.getBoundingClientRect();
+          const style = window.getComputedStyle(target);
           const isInlineLink = element.tagName === "A" && style.display === "inline";
           const isHidden = rect.width === 0 || rect.height === 0 || style.visibility === "hidden";
           if (isInlineLink || isHidden) return [];
@@ -114,13 +131,13 @@ test("module catalog exposes all ten release-ready lenses with detail navigation
 
 test("module detail preserves valid selection and invalid query falls back", async ({ page }) => {
   await page.goto("/modules/type_16");
-  const chooseModule = page.getByRole("link", { name: "Pilih modul ini" });
+  const chooseModule = page.getByRole("link", { name: "Pilih lensa ini" });
   await expect(chooseModule).toHaveAttribute("href", "/start/modules?module=type_16");
   await chooseModule.click();
   await expect(page.getByRole("checkbox", { name: /16-Type Jungian-inspired/u })).toBeChecked();
 
   await page.goto("/modules/socionics_communication");
-  await page.getByRole("link", { name: "Pilih modul ini" }).click();
+  await page.getByRole("link", { name: "Pilih lensa ini" }).click();
   await expect(page.getByRole("checkbox", { name: /Komunikasi Socionics/u })).toBeChecked();
   await expect(
     page.getByText("Aku memahami lensa eksperimental yang dipilih belum memiliki validasi formal"),

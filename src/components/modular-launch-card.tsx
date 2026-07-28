@@ -17,8 +17,7 @@ export function ModularLaunchCard() {
           Pilih satu lensa, atau susun beberapa.
         </h2>
         <p className="text-ink-muted mt-3 max-w-2xl leading-7">
-          Mulai dari satu lensa · bisa tambah · jeda kapan saja. Skor di server, hasil privat sampai
-          dibagikan.
+          Mulai dari satu lensa, tambah bila perlu, dan jeda kapan saja.
         </p>
       </div>
       <Link

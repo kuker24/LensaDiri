@@ -37,9 +37,11 @@ test("account lifecycle registers, logs in, rejects wrong deletion password, the
   await page.getByLabel("Email").fill(email);
   await page.getByLabel(/password|kata sandi/i).fill(password);
   await page.getByRole("button", { name: "Buat akun" }).click();
-  await expect(page.getByRole("heading", { name: "Pendaftaran diterima" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Permintaan pendaftaran diterima" }),
+  ).toBeVisible();
 
-  await page.getByRole("link", { name: "Masuk sekarang" }).click();
+  await page.getByRole("link", { name: "Kembali ke halaman masuk" }).click();
   await page.getByLabel("Email").fill(email);
   await page.getByLabel(/password|kata sandi/i).fill(password);
   await page.getByRole("button", { name: "Masuk", exact: true }).click();
