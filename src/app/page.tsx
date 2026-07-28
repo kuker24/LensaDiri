@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { EvidenceBadge } from "@/components/evidence-badge";
 import { HeroAmbient } from "@/components/hero-ambient";
-import { ReflectionPass } from "@/components/reflection-pass";
+import { PortalLens } from "@/components/portal-lens";
 import { BlurFade } from "@/components/ui/blur-fade";
 import { getButtonClassName } from "@/components/ui/button";
 
@@ -76,7 +76,7 @@ export default function HomePage() {
           </div>
 
           <BlurFade delay={0.12} className="lg:justify-self-stretch">
-            <ReflectionPass />
+            <PortalLens />
           </BlurFade>
         </div>
       </section>

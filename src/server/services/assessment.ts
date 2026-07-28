@@ -85,11 +85,12 @@ export async function startAssessment(input: {
 
   const readStartTime = Date.now();
 
-  const [modules, combos, modeProfiles, complexEnabled] = await Promise.all([
+  const [modules, combos, modeProfiles, complexEnabled, precisionEnabled] = await Promise.all([
     listCatalogModules(),
     listComboPresets(),
     listAssessmentModeProfiles(),
     isFeatureEnabled("FEATURE_COMPLEX_MODE"),
+    isFeatureEnabled("FEATURE_PROVISIONAL_PRECISION"),
   ]);
   const availableModes = modeProfiles.map((profile) =>
     profile.internalMode === "deep" ? { ...profile, isSelectable: complexEnabled } : profile,
@@ -104,7 +105,7 @@ export async function startAssessment(input: {
 
   const estimate = estimateAssessment(input.request.selection, modules, combos, availableModes, {
     minimumCoverage: getMinimumModuleCoverage(candidates),
-    provisionalPrecisionEnabled: false,
+    provisionalPrecisionEnabled: precisionEnabled,
   });
   if (!estimate.success) return estimate;
 

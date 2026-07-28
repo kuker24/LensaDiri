@@ -8,6 +8,8 @@ export default defineConfig([
   globalIgnores([
     ".next/**",
     ".claude/**",
+    ".od-skills/**",
+    "experiments/**",
     "out/**",
     "build/**",
     "coverage/**",

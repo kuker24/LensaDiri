@@ -49,7 +49,7 @@ export interface AssessmentModuleDefinition {
   readonly minimumAge: number;
   readonly modeQuota: ModuleModeQuota;
   readonly publicName: string;
-  readonly releaseDisposition?: ReleaseDisposition;
+  readonly releaseDisposition: ReleaseDisposition;
   readonly status: SelectableModuleStatus | "draft" | "paused" | "retired";
   readonly version: string | null;
 }
@@ -121,8 +121,9 @@ export function getPublicModeName(mode: AssessmentMode): AssessmentModeProfile["
 
 export function isPubliclyAvailableModule(module: AssessmentModuleDefinition): boolean {
   return (
-    (module.releaseDisposition ?? "RELEASE_READY") === "RELEASE_READY" &&
+    module.releaseDisposition === "RELEASE_READY" &&
     module.isSelectable &&
+    module.version !== null &&
     selectableModuleStatuses.includes(module.status as SelectableModuleStatus)
   );
 }
@@ -135,6 +136,7 @@ export function validateAssessmentSelection(
   const moduleKeys = [...new Set(input.moduleKeys)];
   const minimumModules = input.selectionType === "single" ? 1 : 2;
   if (
+    moduleKeys.length !== input.moduleKeys.length ||
     moduleKeys.length < minimumModules ||
     moduleKeys.length > 10 ||
     (input.selectionType === "single" && moduleKeys.length !== 1)
@@ -152,6 +154,9 @@ export function validateAssessmentSelection(
 
   if (
     input.age === null ||
+    !Number.isInteger(input.age) ||
+    input.age < 13 ||
+    input.age > 99 ||
     selectedModules.some((module) => input.age !== null && input.age < module.minimumAge)
   ) {
     return { code: "age_restricted", valid: false };

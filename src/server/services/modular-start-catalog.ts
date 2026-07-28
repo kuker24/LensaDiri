@@ -41,7 +41,7 @@ export async function loadModularStartCatalog(): Promise<ModularStartCatalog | n
     );
 
     return {
-      combos: complexEnabled ? combos : combos.filter((combo) => !combo.isFullSpectrum),
+      combos: complexEnabled ? combos : combos.filter((combo) => combo.recommendedMode !== "deep"),
       modes: publicModes,
       modules,
     };

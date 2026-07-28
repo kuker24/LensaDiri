@@ -11,11 +11,18 @@ export const runtime = "nodejs";
 
 export async function GET(): Promise<NextResponse> {
   try {
-    const [modules, modes, complexEnabled] = await Promise.all([
+    const [modules, modes, modularEnabled, complexEnabled] = await Promise.all([
       listCatalogModulesFromCache(),
       listAssessmentModeProfilesFromCache(),
+      isFeatureEnabled("FEATURE_MODULAR_COMPOSER"),
       isFeatureEnabled("FEATURE_COMPLEX_MODE"),
     ]);
+    if (!modularEnabled) {
+      return NextResponse.json(apiFailure("feature_unavailable"), {
+        headers: noStoreHeaders,
+        status: 404,
+      });
+    }
     const publicModes = modes.map((profile) =>
       profile.internalMode === "deep" ? { ...profile, isSelectable: complexEnabled } : profile,
     );

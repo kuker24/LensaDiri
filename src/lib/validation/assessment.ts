@@ -14,16 +14,25 @@ const legacyStartAssessmentSchema = z
   })
   .strict();
 
-const modularStartAssessmentSchema = z
+export const assessmentSelectionSchema = z
   .object({
     age: z.number().int().min(13).max(99).nullable().default(null),
-    consent: z.literal(true),
     experimentalAcknowledged: z.boolean().default(false),
-    locale: z.enum(["id", "en"]).default("id"),
     mode: z.enum(assessmentModes),
-    moduleKeys: z.array(moduleKeySchema).min(1).max(10),
+    moduleKeys: z
+      .array(moduleKeySchema)
+      .min(1)
+      .max(10)
+      .refine((keys) => new Set(keys).size === keys.length),
     presetKey: presetKeySchema.nullable().default(null),
     selectionType: z.enum(assessmentSelectionTypes).exclude(["legacy"]),
+  })
+  .strict();
+
+const modularStartAssessmentSchema = assessmentSelectionSchema
+  .safeExtend({
+    consent: z.literal(true),
+    locale: z.enum(["id", "en"]).default("id"),
   })
   .strict();
 
@@ -32,16 +41,7 @@ export const startAssessmentSchema = z.union([
   modularStartAssessmentSchema,
 ]);
 
-export const estimateAssessmentSchema = z
-  .object({
-    age: z.number().int().min(13).max(99).nullable().default(null),
-    experimentalAcknowledged: z.boolean().default(false),
-    mode: z.enum(assessmentModes),
-    moduleKeys: z.array(moduleKeySchema).min(1).max(10),
-    presetKey: presetKeySchema.nullable().default(null),
-    selectionType: z.enum(assessmentSelectionTypes).exclude(["legacy"]),
-  })
-  .strict();
+export const estimateAssessmentSchema = assessmentSelectionSchema;
 
 export const answerAssessmentSchema = z
   .object({

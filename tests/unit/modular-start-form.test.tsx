@@ -1,18 +1,21 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import type { AssessmentModuleDefinition } from "@/lib/assessment/catalog";
+import type { AssessmentModuleDefinition, ComboPresetDefinition } from "@/lib/assessment/catalog";
 import { ModularStartForm } from "@/components/modular-start-form";
+import { AuthApiError } from "@/lib/auth/client";
 
 const mocks = vi.hoisted(() => ({
   getCatalog: vi.fn(),
   getCombos: vi.fn(),
+  estimate: vi.fn(),
   push: vi.fn(),
   saveSelection: vi.fn(),
 }));
 
 vi.mock("next/navigation", () => ({ useRouter: () => ({ push: mocks.push }) }));
 vi.mock("@/lib/assessment/client", () => ({
+  estimateModularAssessment: mocks.estimate,
   getAssessmentCatalog: mocks.getCatalog,
   getComboCatalog: mocks.getCombos,
 }));
@@ -82,6 +85,28 @@ const modeProfiles = [
   },
 ];
 
+const complexMode = {
+  description: "Mode kompleks",
+  internalMode: "deep" as const,
+  isSelectable: true,
+  maxItemsPerSegment: 60,
+  provisionalPrecision: null,
+  publicName: "Complex" as const,
+  secondsPerItem: 12,
+  singleModuleItems: { max: 80, min: 50 },
+  targetItems: { max: 120, min: 100 },
+};
+
+const preset: ComboPresetDefinition = {
+  description: "Kombinasi inti",
+  isFullSpectrum: false,
+  key: "core_personality",
+  moduleKeys: ["trait_profile", "type_16"],
+  publicName: "Core Personality",
+  recommendedMode: "deep",
+  status: "published",
+};
+
 const serverCatalog = {
   modes: modeProfiles,
   modules,
@@ -93,6 +118,7 @@ beforeEach(() => {
     modules,
   });
   mocks.getCombos.mockReset().mockResolvedValue([]);
+  mocks.estimate.mockReset().mockResolvedValue({ itemCount: 90 });
   mocks.push.mockReset();
   mocks.saveSelection.mockReset();
 });
@@ -178,8 +204,68 @@ describe("ModularStartForm", () => {
     });
 
     expect(screen.getByRole("alert")).toHaveTextContent(
-      "Pilihan ini memiliki batas usia yang belum terpenuhi.",
+      "Masukkan usia 13–99. Beberapa lensa memiliki batas usia lebih tinggi.",
     );
     expect(screen.getByRole("button", { name: "Tinjau pilihan" })).toBeDisabled();
+  });
+
+  test("memvalidasi kapasitas di server sebelum membuka review", async () => {
+    mocks.estimate.mockRejectedValueOnce(new AuthApiError("coverage_unavailable"));
+    render(
+      <ModularStartForm
+        initialCatalog={{ modes: [...modeProfiles, complexMode], modules }}
+        initialCombos={[preset]}
+      />,
+    );
+
+    fireEvent.click(screen.getByText("Core Personality"));
+    fireEvent.click(screen.getByRole("button", { name: "Tinjau pilihan" }));
+
+    expect(await screen.findByRole("alert")).toHaveTextContent(
+      "Kombinasi ini melebihi kapasitas kedalaman yang dipilih.",
+    );
+    expect(mocks.saveSelection).not.toHaveBeenCalled();
+    expect(mocks.push).not.toHaveBeenCalled();
+    expect(screen.getByRole("button", { name: "Tinjau pilihan" })).toBeDisabled();
+  });
+
+  test("menyimpan preset tervalidasi lalu mengubahnya menjadi custom combo", async () => {
+    render(
+      <ModularStartForm
+        initialCatalog={{ modes: [...modeProfiles, complexMode], modules }}
+        initialCombos={[preset]}
+      />,
+    );
+
+    fireEvent.click(screen.getByText("Core Personality"));
+    fireEvent.click(screen.getByRole("button", { name: "Tinjau pilihan" }));
+
+    await vi.waitFor(() =>
+      expect(mocks.saveSelection).toHaveBeenCalledWith(
+        expect.objectContaining({
+          moduleKeys: ["trait_profile", "type_16"],
+          presetKey: "core_personality",
+          selectionType: "preset_combo",
+        }),
+      ),
+    );
+
+    cleanup();
+    mocks.saveSelection.mockClear();
+    render(
+      <ModularStartForm
+        initialCatalog={{ modes: [...modeProfiles, complexMode], modules }}
+        initialCombos={[preset]}
+      />,
+    );
+    fireEvent.click(screen.getByText("Core Personality"));
+    fireEvent.click(screen.getByRole("checkbox", { name: /RIASEC/u }));
+    fireEvent.click(screen.getByRole("button", { name: "Tinjau pilihan" }));
+
+    await vi.waitFor(() =>
+      expect(mocks.saveSelection).toHaveBeenCalledWith(
+        expect.objectContaining({ presetKey: null, selectionType: "custom_combo" }),
+      ),
+    );
   });
 });

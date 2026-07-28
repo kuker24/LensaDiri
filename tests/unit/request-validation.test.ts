@@ -3,6 +3,7 @@ import { describe, expect, it } from "vitest";
 import { parseJsonRequest } from "@/lib/security/http";
 import {
   answerAssessmentSchema,
+  assessmentSelectionSchema,
   clarifierAssessmentSchema,
   startAssessmentSchema,
   tokenRequestSchema,
@@ -83,6 +84,27 @@ describe("authentication request validation", () => {
         questionId: "550e8400-e29b-41d4-a716-446655440001",
         token,
         value: 6,
+      }).success,
+    ).toBe(false);
+  });
+
+  it("rejects malformed stored modular selections", () => {
+    const selection = {
+      age: 18,
+      experimentalAcknowledged: false,
+      mode: "deep",
+      moduleKeys: ["trait_profile", "type_16"],
+      presetKey: null,
+      selectionType: "custom_combo",
+    };
+
+    expect(assessmentSelectionSchema.safeParse(selection).success).toBe(true);
+    expect(assessmentSelectionSchema.safeParse({ ...selection, age: 18.5 }).success).toBe(false);
+    expect(assessmentSelectionSchema.safeParse({ ...selection, age: 100 }).success).toBe(false);
+    expect(
+      assessmentSelectionSchema.safeParse({
+        ...selection,
+        moduleKeys: ["trait_profile", "trait_profile"],
       }).success,
     ).toBe(false);
   });
