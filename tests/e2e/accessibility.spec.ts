@@ -48,8 +48,13 @@ for (const route of publicRoutes) {
       .locator("main a, main button, main input, main select, main textarea")
       .evaluateAll((elements) =>
         elements.flatMap((element) => {
-          const rect = element.getBoundingClientRect();
-          const style = window.getComputedStyle(element);
+          const input = element instanceof HTMLInputElement ? element : null;
+          const target =
+            input && (input.type === "checkbox" || input.type === "radio")
+              ? (input.closest("label") ?? input)
+              : element;
+          const rect = target.getBoundingClientRect();
+          const style = window.getComputedStyle(target);
           const isInlineLink = element.tagName === "A" && style.display === "inline";
           const isHidden = rect.width === 0 || rect.height === 0 || style.visibility === "hidden";
           if (isInlineLink || isHidden) return [];
