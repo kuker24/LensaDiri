@@ -12,12 +12,15 @@ import type {
 } from "@/lib/assessment/catalog";
 import { isPubliclyAvailableModule } from "@/lib/assessment/catalog";
 import {
+  estimateModularAssessment,
   getAssessmentCatalog,
   getComboCatalog,
   type AssessmentCatalog,
 } from "@/lib/assessment/client";
 import { estimateAssessment, type AssessmentEstimate } from "@/lib/assessment/estimate";
 import { saveAssessmentSelection } from "@/lib/assessment/selection-storage";
+import { getAssessmentStartErrorMessage } from "@/lib/assessment/start-errors";
+import { AuthApiError } from "@/lib/auth/client";
 import { RecoveryPanel } from "@/components/recovery-panel";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -30,18 +33,6 @@ const tierLabels: Record<string, string> = {
   B_EXPERIMENTAL: "Reflektif B · eksperimental",
   C: "Reflektif C",
   EXPERIMENTAL: "Eksperimental",
-};
-
-const errorLabels: Record<string, string> = {
-  age_restricted: "Pilihan ini memiliki batas usia yang belum terpenuhi.",
-  coverage_unavailable: "Jumlah pertanyaan melebihi kapasitas kedalaman yang dipilih.",
-  experimental_acknowledgment_required: "Konfirmasi lensa eksperimental sebelum melanjutkan.",
-  invalid_module_count: "Pilih satu lensa atau beberapa lensa untuk kombinasi.",
-  mode_unavailable: "Kedalaman ini belum tersedia.",
-  module_unavailable: "Salah satu lensa belum tersedia.",
-  preset_mismatch: "Isi pilihan siap pakai tidak sesuai katalog terbaru.",
-  preset_unavailable: "Pilihan siap pakai ini belum tersedia.",
-  selection_type_mismatch: "Pilihan lensa dan jenis eksplorasi tidak cocok.",
 };
 
 function pickInitialModuleKeys(
@@ -62,16 +53,14 @@ function localEstimate(
   modes: readonly AssessmentModeProfile[],
 ): { estimate: AssessmentEstimate | null; error: string | null } {
   const result = estimateAssessment(selection, modules, combos, modes, {
-    // Preview only — precision numbers come from mode profiles when configured.
-    // Server start/scoring still own authoritative provenance and feature flags.
-    provisionalPrecisionEnabled: modes.some((profile) => profile.provisionalPrecision !== null),
+    provisionalPrecisionEnabled: false,
   });
   if (result.success) {
     return { estimate: result.estimate, error: null };
   }
   return {
     estimate: null,
-    error: errorLabels[result.code] ?? "Pilihan belum dapat dihitung. Periksa usia dan lensa.",
+    error: getAssessmentStartErrorMessage(result.code),
   };
 }
 
@@ -99,7 +88,10 @@ export function ModularStartForm({
   const [age, setAge] = useState<number | null>(18);
   const [experimentalAcknowledged, setExperimentalAcknowledged] = useState(false);
   const [catalogError, setCatalogError] = useState<string | null>(null);
+  const [validationError, setValidationError] = useState<string | null>(null);
+  const [selectionRejected, setSelectionRejected] = useState(false);
   const [loading, setLoading] = useState(() => !hasServerCatalog);
+  const [validating, setValidating] = useState(false);
   const [catalogRequest, setCatalogRequest] = useState(0);
 
   useEffect(() => {
@@ -120,8 +112,14 @@ export function ModularStartForm({
         setCatalogError(null);
         setSelectedKeys(nextKeys);
       })
-      .catch(() => {
-        if (active) setCatalogError("Katalog modular belum dapat dimuat.");
+      .catch((error: unknown) => {
+        if (active) {
+          setCatalogError(
+            error instanceof AuthApiError && error.code === "feature_unavailable"
+              ? getAssessmentStartErrorMessage(error.code)
+              : "Katalog modular belum dapat dimuat.",
+          );
+        }
       })
       .finally(() => {
         if (active) setLoading(false);
@@ -151,8 +149,7 @@ export function ModularStartForm({
     };
   }, [age, combos, experimentalAcknowledged, mode, presetKey, selectedKeys]);
 
-  // Pure client estimate from catalog quotas — avoids flaky /api/assessment/estimate
-  // (rate-limit DB timeout) so the picker stays usable offline of that path.
+  // Preview stays instant; the continue action still requires authoritative server capacity.
   const { estimate, error: selectionError } = useMemo(() => {
     if (!selection || modules.length === 0 || modes.length === 0) {
       return { estimate: null, error: null as string | null };
@@ -160,9 +157,11 @@ export function ModularStartForm({
     return localEstimate(selection, modules, combos, modes);
   }, [combos, modes, modules, selection]);
 
-  const error = catalogError ?? selectionError;
+  const error = catalogError ?? selectionError ?? validationError;
 
   function updateSelection(nextKeys: string[]) {
+    setValidationError(null);
+    setSelectionRejected(false);
     setSelectedKeys(nextKeys);
   }
 
@@ -181,10 +180,29 @@ export function ModularStartForm({
     setMode(combo.recommendedMode);
   }
 
-  function continueToReview() {
+  async function continueToReview() {
     if (!selection || !estimate) return;
-    saveAssessmentSelection(selection);
-    router.push("/start/review");
+    setValidating(true);
+    setValidationError(null);
+    try {
+      await estimateModularAssessment(selection);
+      saveAssessmentSelection(selection);
+      router.push("/start/review");
+    } catch (error) {
+      const code = error instanceof AuthApiError ? error.code : "request_failed";
+      setValidationError(getAssessmentStartErrorMessage(code));
+      setSelectionRejected(
+        ![
+          "assessment_service_busy",
+          "csrf_invalid",
+          "rate_limited",
+          "request_failed",
+          "service_temporarily_busy",
+          "service_unavailable",
+        ].includes(code),
+      );
+      setValidating(false);
+    }
   }
 
   if (loading) {
@@ -203,7 +221,7 @@ export function ModularStartForm({
   if (catalogError && modules.length === 0) {
     return (
       <RecoveryPanel
-        description="Katalog lensa belum dapat dihubungi. Coba lagi tanpa kehilangan pilihan sebelumnya."
+        description={catalogError}
         onRetry={() => {
           setCatalogError(null);
           setLoading(true);
@@ -261,6 +279,7 @@ export function ModularStartForm({
               <button
                 aria-pressed={presetKey === combo.key}
                 className="focus-ring decision-tile bg-canvas aria-pressed:bg-surface-raised hover:bg-surface min-h-28 p-4 text-left disabled:opacity-50"
+                disabled={validating}
                 key={combo.key}
                 onClick={() => selectPreset(combo)}
                 type="button"
@@ -290,7 +309,10 @@ export function ModularStartForm({
               inputMode="numeric"
               max={99}
               min={13}
+              disabled={validating}
               onChange={(event) => {
+                setValidationError(null);
+                setSelectionRejected(false);
                 setAge(event.target.value ? Number(event.target.value) : null);
               }}
               placeholder="13+"
@@ -303,6 +325,8 @@ export function ModularStartForm({
         <div className="border-line mt-5 overflow-hidden rounded-[16px] border">
           {modules.map((module) => {
             const selected = selectedKeys.includes(module.key);
+            const available = isPubliclyAvailableModule(module);
+            const selectionLimitReached = selectedKeys.length >= 10 && !selected;
             return (
               <label
                 className={`focus-within:ring-frost decision-tile relative flex min-h-28 cursor-pointer gap-4 border-b p-4 last:border-b-0 focus-within:z-10 focus-within:ring-2 sm:p-5 ${selected ? "border-line bg-surface-raised" : "border-line bg-canvas hover:bg-surface"}`}
@@ -311,6 +335,7 @@ export function ModularStartForm({
                 <input
                   checked={selected}
                   className="accent-lens mt-1 h-5 w-5"
+                  disabled={!available || selectionLimitReached || validating}
                   onChange={() => toggleModule(module.key)}
                   type="checkbox"
                 />
@@ -327,7 +352,9 @@ export function ModularStartForm({
                     {module.description}
                   </span>
                   <span className="text-ink-muted mt-2 block text-xs font-semibold">
-                    Usia minimum {module.minimumAge}
+                    {available
+                      ? `Usia minimum ${module.minimumAge}`
+                      : (module.availabilityReason ?? "Belum tersedia")}
                   </span>
                 </span>
               </label>
@@ -345,9 +372,11 @@ export function ModularStartForm({
             <button
               aria-pressed={mode === profile.internalMode}
               className="focus-ring decision-tile border-line bg-canvas aria-pressed:bg-surface-raised hover:bg-surface min-h-32 border-b p-4 text-left last:border-b-0 disabled:cursor-not-allowed disabled:opacity-50 sm:border-r sm:border-b-0 sm:last:border-r-0"
-              disabled={!profile.isSelectable}
+              disabled={!profile.isSelectable || validating}
               key={profile.internalMode}
               onClick={() => {
+                setValidationError(null);
+                setSelectionRejected(false);
                 setMode(profile.internalMode);
               }}
               type="button"
@@ -378,7 +407,10 @@ export function ModularStartForm({
           <input
             checked={experimentalAcknowledged}
             className="accent-aperture mt-1 h-5 w-5"
+            disabled={validating}
             onChange={(event) => {
+              setValidationError(null);
+              setSelectionRejected(false);
               setExperimentalAcknowledged(event.target.checked);
             }}
             type="checkbox"
@@ -413,11 +445,11 @@ export function ModularStartForm({
           </div>
           <Button
             className="w-full shrink-0 sm:w-auto"
-            disabled={!estimate}
+            disabled={!estimate || validating || selectionRejected}
             onClick={continueToReview}
             type="button"
           >
-            Tinjau pilihan
+            {validating ? "Memeriksa pilihan…" : "Tinjau pilihan"}
           </Button>
         </div>
       </aside>

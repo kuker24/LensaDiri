@@ -1,4 +1,5 @@
 import type { AssessmentSelectionInput } from "@/lib/assessment/catalog";
+import { assessmentSelectionSchema } from "@/lib/validation/assessment";
 
 export const assessmentSelectionStorageKey = "lensadiri:assessment-selection:v2";
 
@@ -10,18 +11,8 @@ export function loadAssessmentSelection(): AssessmentSelectionInput | null {
   const raw = sessionStorage.getItem(assessmentSelectionStorageKey);
   if (!raw) return null;
   try {
-    const value = JSON.parse(raw) as Partial<AssessmentSelectionInput>;
-    if (
-      !Array.isArray(value.moduleKeys) ||
-      value.moduleKeys.length === 0 ||
-      !["quick", "standard", "deep"].includes(value.mode ?? "") ||
-      !["single", "custom_combo", "preset_combo", "full_spectrum"].includes(
-        value.selectionType ?? "",
-      )
-    ) {
-      return null;
-    }
-    return value as AssessmentSelectionInput;
+    const parsed = assessmentSelectionSchema.safeParse(JSON.parse(raw));
+    return parsed.success ? parsed.data : null;
   } catch {
     return null;
   }

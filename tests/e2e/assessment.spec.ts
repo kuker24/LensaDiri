@@ -1,5 +1,24 @@
 import { expect, test } from "@playwright/test";
 
+test("ten-module Complex selection is blocked with capacity guidance", async ({ page }) => {
+  await page.goto("/start/modules");
+
+  const modules = page.locator('section[aria-labelledby="module-heading"] input[type="checkbox"]');
+  for (let index = 0; index < (await modules.count()); index += 1) {
+    const checkbox = modules.nth(index);
+    if (!(await checkbox.isChecked())) await checkbox.check();
+  }
+  await page.getByRole("button", { name: /Complex/u }).click();
+  await page.getByRole("checkbox", { name: /Aku memahami lensa eksperimental/u }).check();
+  await expect(page.getByText(/10 lensa · 120 pertanyaan/u)).toBeVisible();
+
+  await page.getByRole("button", { name: "Tinjau pilihan" }).click();
+
+  await expect(page).toHaveURL(/\/start\/modules$/u);
+  await expect(page.getByRole("alert").filter({ hasText: /melebihi kapasitas/u })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Tinjau pilihan" })).toBeDisabled();
+});
+
 test("modular selection estimates, starts, pauses, resumes, and completes", async ({ page }) => {
   await page.goto("/start/modules");
   await expect(page.getByRole("heading", { name: "Apa yang ingin kamu pahami?" })).toBeVisible();
@@ -12,6 +31,7 @@ test("modular selection estimates, starts, pauses, resumes, and completes", asyn
   await expect(page.getByText(/24 pertanyaan · sekitar/u)).toBeVisible();
   await page.getByRole("button", { name: "Tinjau pilihan" }).click();
   await expect(page).toHaveURL(/\/start\/review$/u);
+  await expect(page.getByRole("button", { name: "Mulai asesmen" })).toBeDisabled();
   await page.getByRole("checkbox").check();
   await page.getByRole("button", { name: "Mulai asesmen" }).click();
   await expect(page).toHaveURL(/\/test\//u);

@@ -6,12 +6,14 @@ import { useEffect, useState } from "react";
 
 import type { AssessmentModuleDefinition } from "@/lib/assessment/catalog";
 import {
+  estimateModularAssessment,
   getAssessmentCatalog,
-  getComboCatalog,
   startModularAssessment,
 } from "@/lib/assessment/client";
-import { estimateAssessment, type AssessmentEstimate } from "@/lib/assessment/estimate";
+import type { AssessmentEstimate } from "@/lib/assessment/estimate";
 import { loadAssessmentSelection } from "@/lib/assessment/selection-storage";
+import { getAssessmentStartErrorMessage } from "@/lib/assessment/start-errors";
+import { AuthApiError } from "@/lib/auth/client";
 import { Button, getButtonClassName } from "@/components/ui/button";
 
 export function ModularReviewForm() {
@@ -28,23 +30,18 @@ export function ModularReviewForm() {
       Promise.resolve().then(() => setError("Pilihan tidak ditemukan. Pilih lensa kembali."));
       return;
     }
-    // Pure local estimate from catalog — same engine as server start validation,
-    // without depending on /api/assessment/estimate (rate-limit DB can fail closed).
-    Promise.all([getAssessmentCatalog(), getComboCatalog()])
-      .then(([catalog, combos]) => {
-        const result = estimateAssessment(selection, catalog.modules, combos, catalog.modes, {
-          provisionalPrecisionEnabled: catalog.modes.some(
-            (profile) => profile.provisionalPrecision !== null,
-          ),
-        });
-        if (!result.success) {
-          setError("Pilihan tidak lagi tersedia. Periksa katalog kembali.");
-          return;
-        }
-        setEstimate(result.estimate);
+    Promise.all([getAssessmentCatalog(), estimateModularAssessment(selection)])
+      .then(([catalog, authoritativeEstimate]) => {
+        setEstimate(authoritativeEstimate);
         setModules(catalog.modules.filter((module) => selection.moduleKeys.includes(module.key)));
       })
-      .catch(() => setError("Pilihan tidak lagi tersedia. Periksa katalog kembali."));
+      .catch((error: unknown) =>
+        setError(
+          getAssessmentStartErrorMessage(
+            error instanceof AuthApiError ? error.code : "request_failed",
+          ),
+        ),
+      );
   }, []);
 
   async function start() {
@@ -55,8 +52,12 @@ export function ModularReviewForm() {
     try {
       const token = await startModularAssessment(selection);
       router.push(`/test/${token}`);
-    } catch {
-      setError("Asesmen belum dapat dimulai. Pilihan mungkin belum dibuka untuk publik.");
+    } catch (error) {
+      setError(
+        getAssessmentStartErrorMessage(
+          error instanceof AuthApiError ? error.code : "request_failed",
+        ),
+      );
       setPending(false);
     }
   }
@@ -113,6 +114,12 @@ export function ModularReviewForm() {
             <p className="text-ink-muted mt-5 text-sm leading-6">{estimate.disclaimer}</p>
           </div>
         </div>
+      ) : null}
+
+      {!estimate && !error ? (
+        <p className="text-ink-muted mt-8 text-sm" role="status">
+          Memeriksa ketersediaan dan kapasitas pilihan…
+        </p>
       ) : null}
 
       <div className="border-aperture-soft bg-aperture-soft mt-8 space-y-3 rounded-[16px] border p-5 text-sm leading-6">

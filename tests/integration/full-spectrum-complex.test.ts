@@ -16,6 +16,18 @@ import {
 import { startAssessment } from "@/server/services/assessment";
 
 const moduleKeys = ["trait_profile", "type_16", "enneagram", "temperament"] as const;
+const allModuleKeys = [
+  "trait_profile",
+  "type_16",
+  "enneagram",
+  "three_center",
+  "temperament",
+  "instinct",
+  "socionics_communication",
+  "riasec",
+  "attachment",
+  "psychosophy",
+] as const;
 const pepper = process.env.TOKEN_HASH_PEPPER!;
 
 beforeAll(async () => {
@@ -153,6 +165,32 @@ async function runDeepCombo(mode: AssessmentMode) {
 }
 
 describe("Deep Combo PRD v2 lifecycle", () => {
+  it("rejects the ten-module Complex selection before persistence", async () => {
+    const sessionTokenHash = hashOpaqueToken(`over-cap-${randomUUID()}`, pepper);
+
+    await expect(
+      startAssessment({
+        accountId: null,
+        consentVersion: "prd-v2-1",
+        expiresAt: new Date(Date.now() + 10 * 60_000),
+        request: {
+          kind: "modular",
+          locale: "id",
+          selection: {
+            age: 18,
+            experimentalAcknowledged: true,
+            mode: "deep",
+            moduleKeys: allModuleKeys,
+            presetKey: null,
+            selectionType: "custom_combo",
+          },
+        },
+        sessionTokenHash,
+      }),
+    ).resolves.toEqual({ code: "coverage_unavailable", success: false });
+    await expect(getAssessmentSessionByHash(sessionTokenHash)).resolves.toBeNull();
+  });
+
   it("completes Deep Combo Normal atomically", async () => {
     await runDeepCombo("standard");
   }, 180_000);

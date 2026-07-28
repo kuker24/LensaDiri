@@ -21,7 +21,9 @@ export async function GET(): Promise<NextResponse> {
     }
     return NextResponse.json(
       apiSuccess({
-        combos: complexEnabled ? combos : combos.filter((combo) => !combo.isFullSpectrum),
+        combos: complexEnabled
+          ? combos
+          : combos.filter((combo) => combo.recommendedMode !== "deep"),
       }),
       { headers: noStoreHeaders, status: 200 },
     );

@@ -68,7 +68,7 @@ async function runStartFlow(
 
   const started = await startAssessment({
     accountId: account?.accountId ?? null,
-    consentVersion: "2026-07-13",
+    consentVersion: "moduleKeys" in parsedData ? "prd-v2-1" : "2026-07-13",
     expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1_000),
     request: startRequest,
     sessionTokenHash: hashOpaqueToken(token, environment.tokenHashPepper),

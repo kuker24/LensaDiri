@@ -38,6 +38,22 @@ test("account lifecycle registers, logs in, rejects wrong deletion password, the
   await expect(page).toHaveURL(/\/dashboard$/u);
   await expect(page.getByRole("heading", { name: "Sesi, hasil, kontrol data" })).toBeVisible();
 
+  await page.getByRole("link", { name: "Mulai asesmen" }).first().click();
+  await page.getByRole("checkbox", { name: /16-Type Jungian-inspired/u }).check();
+  await page.getByRole("checkbox", { name: /Lensa Motivasi Enneagram-inspired/u }).check();
+  await page.getByRole("checkbox", { name: /Lensa Temperamen/u }).check();
+  await page.getByRole("button", { name: /Complex/u }).click();
+  await expect(page.getByText(/4 lensa · 120 pertanyaan/u)).toBeVisible();
+  await page.getByRole("button", { name: "Tinjau pilihan" }).click();
+  await expect(page).toHaveURL(/\/start\/review$/u);
+  await expect(page.getByRole("button", { name: "Mulai asesmen" })).toBeDisabled();
+  await page.getByRole("checkbox", { name: /setuju jawabanku diproses/u }).check();
+  await page.getByRole("button", { name: "Mulai asesmen" }).click();
+  await expect(page).toHaveURL(/\/test\//u);
+  await page.getByRole("button", { name: "Jeda", exact: true }).click();
+  await page.goto("/dashboard");
+  await expect(page.getByText(/0\/120 · Bagian 1\/2 · Dijeda/u)).toBeVisible();
+
   await page.getByRole("link", { name: "Pusat privasi" }).click();
   await expect(page.getByRole("heading", { name: "Pusat privasi" })).toBeVisible();
   const deleteButton = page.getByRole("button", { name: "Hapus akun permanen" });
