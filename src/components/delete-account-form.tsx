@@ -24,7 +24,6 @@ export function DeleteAccountForm() {
         password: String(formData.get("password") ?? ""),
       });
       router.push("/?account=deleted");
-      router.refresh();
     } catch (caught) {
       const code = caught instanceof AuthApiError ? caught.code : "service_unavailable";
       setError(
