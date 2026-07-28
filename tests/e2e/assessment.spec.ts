@@ -34,9 +34,9 @@ test("modular selection estimates, starts, pauses, resumes, and completes", asyn
   await page.getByRole("button", { name: "Lihat hasil" }).click();
   await expect(page).toHaveURL(/\/result\//u);
   await expect(page.getByRole("heading", { name: "RIASEC" })).toBeVisible();
-  await expect(page.getByText(/Confidence \d+%/u).first()).toBeVisible();
+  await expect(page.getByText(/Tingkat keyakinan \d+%/u).first()).toBeVisible();
   // §17.2: session meta remains available through explicit progressive disclosure.
-  await page.getByText("Detail & confidence").click();
+  await page.getByText("Detail dan tingkat keyakinan").click();
   await expect(page.getByRole("term").filter({ hasText: "Mode" })).toBeVisible();
   await expect(page.getByText("Quick", { exact: true })).toBeVisible();
   await expect(page.getByText(/Versi penilaian/u)).toBeVisible();
@@ -76,7 +76,7 @@ test("guarded lenses enforce age and acknowledgment before Psychosophy completio
   await expect(page).toHaveURL(/\/result\//u);
   await expect(page.getByRole("heading", { name: "Psychosophy" })).toBeVisible();
   await expect(
-    page.getByText("Confidence tidak dihitung untuk lensa eksperimental."),
+    page.getByText("Tingkat keyakinan tidak dihitung untuk lensa eksperimental."),
   ).toBeVisible();
   await page.getByText("Lihat skor dan keterbatasan lensa").click();
   await expect(page.getByText(/Catatan ambiguitas/u)).toBeVisible();

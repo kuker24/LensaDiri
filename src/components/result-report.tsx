@@ -71,7 +71,7 @@ const labels: Record<string, string> = {
   clarifier_recommended: "pertanyaan tambahan disarankan",
   clarifier_completed: "pertanyaan tambahan selesai",
   clarifier_skipped: "pertanyaan tambahan dilewati",
-  weakest_module_low_confidence: "satu lensa memiliki confidence rendah",
+  weakest_module_low_confidence: "satu lensa memiliki tingkat keyakinan rendah",
   mixed_evidence_tiers: "tingkat bukti beragam",
 };
 
@@ -89,7 +89,7 @@ const narrativeLabels: Record<string, string> = {
   "correlation.readiness.context_balance":
     "Dorongan bersiap dan kepekaan emosional memberi konteks yang saling melengkapi.",
   "correlation.mixed_confidence.caution":
-    "Confidence antar-lensa belum merata. Utamakan lensa dengan confidence yang lebih tinggi.",
+    "Tingkat keyakinan antar-lensa belum merata. Utamakan lensa dengan tingkat keyakinan lebih tinggi.",
 };
 
 function formatKey(value: string): string {
@@ -178,8 +178,8 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
         <div className="mt-5 flex flex-wrap items-center gap-3">
           <span className="border-line bg-surface rounded-[12px] border px-3 py-1.5 font-mono text-xs tracking-[-0.02em] tabular-nums">
             {hasEvidenceOrientedModule
-              ? `Confidence ${Math.round(result.quality.confidence * 100)}%`
-              : "Confidence tidak dihitung untuk lensa eksperimental."}
+              ? `Tingkat keyakinan ${Math.round(result.quality.confidence * 100)}%`
+              : "Tingkat keyakinan tidak dihitung untuk lensa eksperimental."}
           </span>
           <span className="text-ink-muted font-mono text-xs tracking-[-0.02em] uppercase">
             Skor di server · privat
@@ -252,7 +252,7 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
 
       <details className="border-line mt-10 border-y py-4" id="result-details">
         <summary className="focus-ring flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 font-normal [&::-webkit-details-marker]:hidden">
-          <span>Detail & confidence</span>
+          <span>Detail dan tingkat keyakinan</span>
           <span aria-hidden="true" className="text-ink-muted font-mono text-lg">
             +
           </span>
@@ -299,10 +299,10 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
         </dl>
         <div className="border-line mt-5 border-t pt-5" aria-labelledby="quality-heading">
           <h2 className="font-normal" id="quality-heading">
-            Cara membaca confidence
+            Cara membaca tingkat keyakinan
           </h2>
           <p className="text-ink-muted mt-2 text-sm leading-6">
-            Confidence menjelaskan kelengkapan cakupan dimensi dan konsistensi jawaban, bukan
+            Tingkat keyakinan menjelaskan kelengkapan cakupan dimensi dan konsistensi jawaban, bukan
             kepastian identitas atau validasi psikometrik formal.
           </p>
           <p className="text-ink-muted mt-2 text-sm leading-6">
@@ -332,7 +332,7 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
                   {formatKey(module.moduleKey)}
                 </h2>
                 <span className="text-ink-muted font-mono text-xs tracking-[-0.02em] uppercase tabular-nums">
-                  Confidence {Math.round(module.confidence * 100)}%
+                  Tingkat keyakinan {Math.round(module.confidence * 100)}%
                 </span>
               </div>
               <p className="text-ink-muted mt-4 max-w-3xl leading-7">
@@ -425,7 +425,7 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
                     "Dua lensa memberi konteks tambahan yang perlu dibaca sebagai refleksi."}
                 </p>
                 <p className="text-ink-muted mt-3 font-mono text-[0.625rem] tracking-[-0.02em] uppercase tabular-nums">
-                  {correlation.sourceModuleKeys.map(formatKey).join(" · ")} · Confidence{" "}
+                  {correlation.sourceModuleKeys.map(formatKey).join(" · ")} · Tingkat keyakinan{" "}
                   {Math.round(correlation.confidence * 100)}%
                 </p>
               </article>
@@ -476,7 +476,7 @@ export function ResultReport({ result }: { result: ResultView }) {
                 </div>
               </div>
               <p className="text-ink-muted mt-2 font-mono text-xs tabular-nums">
-                Confidence {Math.round(score.confidence * 100)}%
+                Tingkat keyakinan {Math.round(score.confidence * 100)}%
               </p>
             </div>
           ))}
@@ -510,7 +510,7 @@ export function ResultReport({ result }: { result: ResultView }) {
       </div>
       {result.quality.straightLineWarning ? (
         <p className="border-line bg-surface text-ink mt-6 rounded-[12px] border p-4 text-sm leading-6">
-          Semua respons memakai nilai sama. Baca hasil dengan confidence lebih hati-hati.
+          Semua respons memakai nilai sama. Baca tingkat keyakinan hasil dengan lebih hati-hati.
         </p>
       ) : null}
     </div>

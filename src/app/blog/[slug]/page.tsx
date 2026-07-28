@@ -9,27 +9,27 @@ const knownSlugs = new Set([
 
 const articles: Record<string, { title: string; content: string[] }> = {
   "cara-membaca-confidence-tanpa-menganggapnya-kepastian": {
-    title: "Cara membaca confidence tanpa menganggapnya kepastian",
+    title: "Cara membaca tingkat keyakinan tanpa menganggapnya kepastian",
     content: [
-      "Confidence menjelaskan coverage dan konsistensi respons, bukan validasi identitas.",
-      "Skor confidence tinggi berarti modul memiliki cukup coverage dimensi dan respons konsisten, bukan bahwa hasil tersebut pasti benar.",
-      "Gunakan confidence sebagai petunjuk seberapa stabil skormu, bukan sebagai ukuran kebenaran absolut.",
+      "Tingkat keyakinan menjelaskan cakupan dan konsistensi respons, bukan validasi identitas.",
+      "Tingkat yang tinggi berarti lensa memiliki cakupan dimensi yang cukup dan respons yang konsisten, bukan bahwa hasil tersebut pasti benar.",
+      "Gunakan tingkat keyakinan sebagai petunjuk kestabilan skor, bukan ukuran kebenaran mutlak.",
     ],
   },
   "mengapa-setiap-lensa-harus-punya-scoring-independen": {
-    title: "Mengapa setiap lensa harus punya scoring independen",
+    title: "Mengapa setiap lensa perlu dinilai secara terpisah",
     content: [
       "Modularitas yang jujur mencegah label dari satu modul diturunkan secara palsu ke modul lain.",
-      "Setiap lensa memiliki scoring engine, item bank, dan report template yang terpisah.",
-      "Dengan demikian, hasil Enneagram tidak memengaruhi hasil Temperament, dan sebaliknya.",
+      "Setiap lensa memiliki cara penilaian, bank pertanyaan, dan templat laporan yang terpisah.",
+      "Dengan demikian, hasil Enneagram tidak memengaruhi hasil Temperamen, dan sebaliknya.",
     ],
   },
   "privasi-hasil-dan-share-yang-dapat-dicabut": {
-    title: "Privasi hasil dan share yang dapat dicabut",
+    title: "Privasi hasil dan tautan berbagi yang dapat dicabut",
     content: [
-      "Hasil tetap private sampai pengguna membuat link terbatas dengan masa berlaku.",
-      "Token share dapat dicabut sewaktu-waktu, dan setiap pencabutan langsung menonaktifkan akses.",
-      "Data mentah tidak pernah diekspos melalui link berbagi.",
+      "Hasil tetap privat sampai pengguna membuat tautan berbagi dengan masa berlaku.",
+      "Tautan berbagi dapat dicabut sewaktu-waktu, dan setiap pencabutan langsung menonaktifkan akses.",
+      "Data mentah tidak pernah ditampilkan melalui tautan berbagi.",
     ],
   },
 };

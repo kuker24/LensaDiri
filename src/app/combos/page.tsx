@@ -36,18 +36,18 @@ export default async function CombosPage() {
   return (
     <section className="task-shell">
       <header className="max-w-3xl">
-        <p className="mono-label text-ink">Kombinasi · preset</p>
+        <p className="mono-label text-ink">Kombinasi pilihan</p>
         <h1 className="mt-5 text-4xl font-normal tracking-[-0.035em] sm:text-6xl">
           Gabungkan lensa tanpa mencampur skor
         </h1>
         <p className="text-ink-muted mt-5 leading-7">
-          Tiap lensa dihitung sendiri. Korelasi disusun setelah skor primer final.
+          Setiap lensa dihitung sendiri. Hubungan antar-lensa dibaca setelah semua skor selesai.
         </p>
       </header>
 
       {combos.length === 0 ? (
         <p className="border-line bg-surface text-ink-muted mt-10 rounded-[16px] border p-6">
-          Belum ada preset yang memenuhi publication gate.
+          Belum ada kombinasi yang siap dipilih.
         </p>
       ) : (
         <ul className="border-line mt-12 border-t">
@@ -62,7 +62,7 @@ export default async function CombosPage() {
               <div>
                 <div className="flex flex-wrap items-center justify-between gap-3">
                   <span className="text-aperture font-mono text-[0.65rem] tracking-[0.08em] uppercase">
-                    {combo.isFullSpectrum ? "Full Spectrum" : "Curated combo"}
+                    {combo.isFullSpectrum ? "Spektrum lengkap" : "Kombinasi terkurasi"}
                   </span>
                   <span className="text-ink-muted mt-2 block text-xs font-medium">
                     {combo.status === "experimental"
@@ -95,7 +95,7 @@ export default async function CombosPage() {
                 className="focus-ring ui-transition text-ink hover:text-ink-muted inline-flex min-h-11 items-center rounded-[12px] text-sm font-medium tracking-[-0.01em]"
                 href="/start/modules"
               >
-                Pilih preset <span aria-hidden="true">↗</span>
+                Susun kombinasi <span aria-hidden="true">↗</span>
               </Link>
             </li>
           ))}

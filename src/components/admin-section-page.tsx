@@ -22,12 +22,14 @@ export function AdminSectionPage({
         <Link className="focus-ring quiet-link rounded-[12px]" href="/admin">
           Admin
         </Link>
-        <span className="mx-2">/</span>
+        <span aria-hidden="true" className="mx-2">
+          /
+        </span>
         <span>{title}</span>
       </nav>
 
       <div>
-        <p className="mono-label text-ink">Read-only</p>
+        <p className="mono-label text-ink">Hanya-baca</p>
         <h1 className="mt-3 text-3xl font-normal tracking-[-0.03em]">{title}</h1>
         <p className="text-ink-muted mt-2 max-w-2xl leading-7">{description}</p>
       </div>
@@ -40,11 +42,11 @@ export function AdminSectionPage({
           <dl className="divide-line divide-y">
             {items.map((item) => (
               <div
-                className="row-hover flex items-start justify-between gap-4 px-5 py-3"
+                className="row-hover flex flex-col gap-1 px-5 py-3 sm:flex-row sm:items-start sm:justify-between sm:gap-4"
                 key={`${item.label}:${item.value}`}
               >
-                <dt className="text-sm font-medium break-all">{item.label}</dt>
-                <dd className="text-ink-muted text-right text-sm break-all">{item.value}</dd>
+                <dt className="text-sm font-medium break-words">{item.label}</dt>
+                <dd className="text-ink-muted text-sm break-words sm:text-right">{item.value}</dd>
               </div>
             ))}
           </dl>

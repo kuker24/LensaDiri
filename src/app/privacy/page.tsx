@@ -13,19 +13,19 @@ export default function PrivacyPage() {
         Privat secara bawaan, kontrol tetap di tangan pengguna.
       </h1>
       <p className="text-ink-muted mt-6 text-lg leading-8">
-        Dokumen ini adalah ringkasan prinsip produk selama tahap pengembangan dan belum menjadi
-        kebijakan privasi final untuk peluncuran publik.
+        Ringkasan ini menjelaskan cara LensaDiri melindungi hasil dan memberi pengguna kontrol atas
+        datanya. Ringkasan ini bukan pengganti kebijakan privasi formal.
       </p>
 
-      <div className="border-line mt-12 border-t">
-        <section className="border-line border-b py-7">
+      <div className="mt-14 space-y-10">
+        <section>
           <h2 className="text-ink text-2xl font-medium">Data sensitif</h2>
           <p className="text-ink-muted mt-3 leading-7">
             Pola jawaban, skor kepribadian, dan laporan naratif diperlakukan sebagai data sensitif.
             Data tersebut tidak boleh dikirim ke analytics pihak ketiga dalam bentuk mentah.
           </p>
         </section>
-        <section className="border-line border-b py-7">
+        <section>
           <h2 className="text-ink text-2xl font-medium">Akses dan berbagi</h2>
           <p className="text-ink-muted mt-3 leading-7">
             Hasil dibuat privat. Tautan berbagi hanya dibuat melalui tindakan eksplisit pengguna,
@@ -33,18 +33,18 @@ export default function PrivacyPage() {
             hash.
           </p>
         </section>
-        <section className="border-line border-b py-7">
+        <section>
           <h2 className="text-ink text-2xl font-medium">Hak pengguna</h2>
           <p className="text-ink-muted mt-3 leading-7">
-            Target MVP mendukung akses hasil, penghapusan hasil, ekspor data minimal, pencabutan
-            tautan berbagi, dan penarikan consent opsional.
+            Pengguna dapat mengakses dan menghapus hasil, mengekspor ringkasan, mencabut tautan
+            berbagi, serta menarik persetujuan opsional.
           </p>
         </section>
-        <section className="border-line border-b py-7">
-          <h2 className="text-ink text-2xl font-medium">Prinsip penyimpanan</h2>
+        <section>
+          <h2 className="text-ink text-2xl font-medium">Penyimpanan dan penghapusan</h2>
           <p className="text-ink-muted mt-3 leading-7">
-            Sistem akan meminimalkan data, membatasi masa retensi, menerapkan default deny pada
-            tabel sensitif, dan menolak akses ketika validasi otorisasi gagal.
+            Hasil akun disimpan sampai pengguna menghapusnya. Sesi tamu kedaluwarsa dan catatan
+            pembatasan permintaan lama dibersihkan sesuai jadwal. Akses tanpa otorisasi ditolak.
           </p>
         </section>
       </div>

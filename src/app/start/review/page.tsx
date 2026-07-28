@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { ModularReviewForm } from "@/components/modular-review-form";
 
 export const metadata: Metadata = {
-  title: "Tinjau Assessment",
+  title: "Tinjau Asesmen",
   robots: { follow: false, index: false },
 };
 

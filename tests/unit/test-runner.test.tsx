@@ -110,7 +110,9 @@ describe("TestRunner response timing", () => {
     mocks.startAssessmentClarifier.mockResolvedValue(clarifierSession);
     render(<TestRunner token="assessment-token" />);
 
-    const progress = await screen.findByRole("progressbar", { name: "Progres clarifier" });
+    const progress = await screen.findByRole("progressbar", {
+      name: "Progres pertanyaan tambahan",
+    });
     expect(progress).toHaveAttribute("aria-valuemin", "0");
     expect(progress).toHaveAttribute("aria-valuemax", "2");
     expect(progress).toHaveAttribute("aria-valuenow", "1");
