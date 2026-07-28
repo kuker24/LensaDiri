@@ -166,6 +166,7 @@ describe("GET /api/auth/session - Anonymous CSRF/Session bootstrap & auth token 
     expect(body.success).toBe(false);
     expect(body.error.code).toBe("service_unavailable");
     expect(body.error.message).toBeUndefined();
+    expect(response.headers.get("set-cookie") ?? "").not.toContain("lensadiri_session");
     vi.useRealTimers();
   });
 

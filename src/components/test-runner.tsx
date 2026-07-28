@@ -119,7 +119,7 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
       }
       setStartedAt(Date.now());
     } catch {
-      setError("Jawaban clarifier belum tersimpan. Coba lagi.");
+      setError("Jawaban tambahan belum tersimpan. Coba lagi.");
     } finally {
       answerInFlightRef.current = false;
       setPending(false);
@@ -135,8 +135,8 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
     } catch {
       setError(
         action === "complete"
-          ? "Jawab semua pertanyaan clarifier sebelum melanjutkan."
-          : "Clarifier belum dapat dilewati. Coba lagi.",
+          ? "Jawab semua pertanyaan tambahan sebelum melanjutkan."
+          : "Pertanyaan tambahan belum dapat dilewati. Coba lagi.",
       );
       setPending(false);
     }
@@ -152,19 +152,19 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
             Perjelas pola yang masih berdekatan
           </h1>
           <p className="text-ink-muted mt-2 text-sm leading-6">
-            Tambahan singkat ini membantu confidence. Kamu boleh melewatinya; hasil tetap tersedia
-            dengan catatan kualitas.
+            Tambahan singkat ini membantu tingkat keyakinan. Kamu boleh melewatinya; hasil tetap
+            tersedia dengan catatan kualitas.
           </p>
         </div>
         <div className="sticky top-14 z-10 mt-6 border-b border-white/12 bg-[rgb(0_0_0_/_0.9)] py-3 backdrop-blur-md">
           <div className="text-ink-muted flex items-center justify-between gap-4 font-mono text-xs tracking-[-0.02em]">
             <span className="tabular-nums">
-              Clarifier {index + 1} / {clarifier.totalCount}
+              Pertanyaan tambahan {index + 1} / {clarifier.totalCount}
             </span>
             <span className="tabular-nums">{answeredCount} tersimpan</span>
           </div>
           <Progress
-            aria-label="Progres clarifier"
+            aria-label="Progres pertanyaan tambahan"
             className="mt-3"
             max={clarifier.totalCount}
             value={answeredCount}
@@ -212,7 +212,7 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
                 type="button"
                 variant="secondary"
               >
-                Lewati clarifier
+                Lewati pertanyaan tambahan
               </Button>
               {answeredCount === clarifier.totalCount ? (
                 <Button
@@ -422,7 +422,7 @@ export function TestRunner({ token }: { token: string }) {
             </span>
           </div>
           <Progress
-            aria-label="Progres assessment"
+            aria-label="Progres asesmen"
             className="mt-3"
             max={session.totalCount}
             value={answeredCount}

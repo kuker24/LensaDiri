@@ -36,7 +36,7 @@ export function StartAssessmentForm({ mode }: { mode: AssessmentMode }) {
         />
         <span>
           Aku setuju jawabanku diproses untuk menghasilkan refleksi pribadi. Hasil bukan diagnosis
-          dan tetap private sampai aku memilih berbagi.
+          dan tetap privat sampai aku memilih berbagi.
         </span>
       </label>
       {error ? (

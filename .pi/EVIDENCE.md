@@ -2,13 +2,15 @@
 
 > **Final hobby release baseline:** `main` @ **`c535a6b`** | tag **`v1.0.0-hobby-final`** | 2026-07-26
 > **Design2 implementation:** `982067b` | polish pin `9e638ec` | 2026-07-27
-> Status: **DESIGN2 LIVE / FRONTEND MAINTENANCE** | backend/domain frozen
+> **Dashboard/auth reliability closure:** `main` @ **`3ce060a`** | PR #65 | 2026-07-28
+> Status: **MAINTENANCE ONLY** | backend/domain frozen
 
 ## Release pin
 
 | Check                          | Result                                     |
 | ------------------------------ | ------------------------------------------ |
-| Production implementation SHA  | `9e638ec9a2fa6b77de63e34c8bef9d5eb4cc80f7` |
+| Current production SHA         | `3ce060a015b331d2799861d7a466b5663bd4af86` |
+| Design2 polish SHA             | `9e638ec9a2fa6b77de63e34c8bef9d5eb4cc80f7` |
 | Design2 base SHA               | `982067b33f841b1a5b2c0bd79ce46eaba10a7a20` |
 | Baseline tag                   | `v1.0.0-hobby-final` @ `c535a6b`           |
 | Product freeze baseline        | `ab2fcdc` (docs pin #51 on top)            |
@@ -16,8 +18,9 @@
 | Hobby modular engineering      | **100% closed**                            |
 | Hobby project finalization     | **100% complete**                          |
 | Full PRD product               | **~75%** - stops here honestly             |
-| Mode                           | **DESIGN2 LIVE / FRONTEND MAINTENANCE**    |
+| Mode                           | **MAINTENANCE ONLY**                       |
 | Frontend redesign              | **COMPLETE** + motion polish live          |
+| Dashboard/auth reliability     | **COMPLETE** @ `3ce060a`                   |
 | `GET /api/health`              | `200` `{"status":"ok"}`                    |
 | `npm audit --audit-level=high` | **0**                                      |
 | Tree at polish deploy          | clean / = origin/main at `9e638ec`         |
@@ -31,12 +34,30 @@
 | Open residual                  | #40 #41 #43 #44 external/optional only     |
 | Closed residual                | #42 DECIDED / #45 DEFERRED_OFF             |
 
+## Dashboard/Auth Reliability Evidence
+
+| Check                         | Result                                                                                                                                                                                                                                |
+| ----------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Merge                         | PR [#65](https://github.com/kuker24/LensaDiri/pull/65), `CLEAN`, squash-merged as `3ce060a015b331d2799861d7a466b5663bd4af86`                                                                                                          |
+| Scope                         | 15 dashboard/auth reliability source and test files; no DB, migration, env, feature flag, scoring, or new feature                                                                                                                     |
+| PR CI                         | [30369143103](https://github.com/kuker24/LensaDiri/actions/runs/30369143103) - **PASS**                                                                                                                                               |
+| Quality/build/audit           | Format, lint, typecheck, 176 unit tests, production build, whitespace, dependency audit - **PASS**; audit result **0 vulnerabilities**                                                                                                |
+| DB/browser gate               | Disposable Supabase reset, seed replay/drift, integration, pgTAP, Playwright desktop + Pixel 5, accessibility - **PASS**                                                                                                              |
+| Post-merge `main` CI          | [30370036507](https://github.com/kuker24/LensaDiri/actions/runs/30370036507) - full gate repeated, **PASS**                                                                                                                           |
+| Vercel                        | Preview **PASS**; production deployment for `3ce060a` **SUCCESS**                                                                                                                                                                     |
+| Production navigation         | [Manual post-deploy evidence](https://github.com/kuker24/LensaDiri/pull/65#issuecomment-5106109050): desktop login → dashboard → home → dashboard → reload; expected heading remained visible, no recovery state or logout - **PASS** |
+| Production test-account erase | [Manual post-deploy evidence](https://github.com/kuker24/LensaDiri/pull/65#issuecomment-5106109050): hard-delete completed; redirect confirmed at `/?account=deleted`; no throwaway account retained                                  |
+| Production liveness           | [30371184573](https://github.com/kuker24/LensaDiri/actions/runs/30371184573) on `3ce060a` - **PASS**                                                                                                                                  |
+| Production health             | `GET https://lensadiri.vercel.app/api/health` - HTTP **200**, `{"status":"ok"}`                                                                                                                                                       |
+
 ## Verdict (binding)
 
 - Hobby modular engineering: **done 100%**
 - Final hobby release + archive: **done 100%**
 - Product freeze reopened for frontend UI/UX only; backend/domain remains frozen
 - Approved Design2 frontend redesign: **complete and live**
+- Dashboard/auth reliability fix: **complete in `main@3ce060a`**
+- Operating mode: **maintenance only**; no standing feature or redesign queue
 - Full PRD product: **not 100%** (~75%); residual is operator/human/external, **not eng blockers**
 - No clinical, psychometric validation, or WCAG third-party cert claims
 - No large features, paid residual services, AI ON, or unreviewed publish

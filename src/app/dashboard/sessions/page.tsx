@@ -44,7 +44,9 @@ export default async function DashboardSessionsPage() {
         <Link className="focus-ring quiet-link rounded-[12px]" href="/dashboard">
           Ruang pribadi
         </Link>
-        <span className="mx-2">/</span>
+        <span aria-hidden="true" className="mx-2">
+          /
+        </span>
         <span>Sesi aktif</span>
       </nav>
 

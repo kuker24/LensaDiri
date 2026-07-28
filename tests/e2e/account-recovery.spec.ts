@@ -32,7 +32,9 @@ test("email verification and password reset stay single-use and revoke sessions"
   await page.getByLabel("Email").fill(email);
   await page.getByLabel(/password|kata sandi/i).fill(oldPassword);
   await page.getByRole("button", { name: "Buat akun" }).click();
-  await expect(page.getByRole("heading", { name: "Pendaftaran diterima" })).toBeVisible();
+  await expect(
+    page.getByRole("heading", { name: "Permintaan pendaftaran diterima" }),
+  ).toBeVisible();
 
   await page.goto("/verify-email");
   await page.getByLabel("Email").fill(email);

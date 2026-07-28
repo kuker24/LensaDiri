@@ -27,25 +27,27 @@ export default async function ResultExportPage({ params }: { params: Promise<{ t
         <Link className="focus-ring quiet-link rounded-[12px]" href="/dashboard/results">
           Hasil
         </Link>
-        <span className="mx-2">/</span>
+        <span aria-hidden="true" className="mx-2">
+          /
+        </span>
         <Link className="focus-ring quiet-link rounded-[12px]" href={`/result/${token}`}>
           Hasil #{token.slice(0, 8)}
         </Link>
-        <span className="mx-2">/</span>
+        <span aria-hidden="true" className="mx-2">
+          /
+        </span>
         <span>Ekspor</span>
       </nav>
 
       <h1 className="text-3xl font-normal tracking-[-0.03em]">Ekspor data</h1>
       <p className="text-ink-muted mt-2 mb-8 leading-7">
-        Unduh salinan hasil privatmu. Laporan PDF menata ringkasan skor dan refleksi dalam format
-        Soft Product LensaDiri untuk semua lensa, combo, dan mix.
+        Unduh ringkasan hasil, skor tiap lensa, dan bahan refleksi dalam format PDF.
       </p>
 
       <div className="border-line bg-surface rounded-[16px] border p-6">
         <h2 className="text-lg font-normal">Laporan PDF</h2>
         <p className="text-ink-muted mt-3 text-sm leading-6">
-          Laporan profesional untuk dibaca dan disimpan — mencakup ringkasan, skor lensa, dan
-          refleksi.
+          Laporan untuk dibaca dan disimpan, mencakup ringkasan, skor lensa, dan refleksi.
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
           <a

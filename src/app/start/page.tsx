@@ -23,7 +23,7 @@ const modes = [
     name: "Standard",
     duration: "10–15 menit",
     items: "60 pertanyaan",
-    description: "Lebih banyak item, confidence lebih kuat.",
+    description: "Lebih banyak pertanyaan, tingkat keyakinan lebih kuat.",
   },
 ] as const;
 
@@ -36,7 +36,7 @@ export default function StartPage() {
           Satu jalur disarankan.
         </h1>
         <p className="text-ink-muted mt-5 max-w-2xl text-lg leading-8">
-          Susun lensa modular dulu. Skor di server, hasil privat sampai kamu bagikan.
+          Pilih satu lensa atau gabungkan beberapa sesuai hal yang ingin kamu pahami.
         </p>
       </BlurFade>
 

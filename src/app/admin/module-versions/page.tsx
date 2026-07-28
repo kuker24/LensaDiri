@@ -11,14 +11,14 @@ export default async function AdminModuleVersionsPage() {
   const versions = await listAdminModuleVersions();
   return (
     <AdminSectionPage
-      description="Versi modul dari database: status, scoring, item bank, dan jumlah item."
+      description="Versi modul dari basis data: status, penilaian, bank pertanyaan, dan jumlah item."
       items={versions.map((row) => ({
         label: `${row.key}@${row.version}`,
         value: [
           row.status,
-          `scoring ${row.scoringVersion}`,
-          `bank ${row.itemBankVersion}`,
-          `${row.questionCount} item`,
+          `penilaian ${row.scoringVersion}`,
+          `bank pertanyaan ${row.itemBankVersion}`,
+          `${row.questionCount} pertanyaan`,
         ].join(" · "),
       }))}
       title="Versi Modul"

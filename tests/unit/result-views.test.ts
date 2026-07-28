@@ -138,7 +138,9 @@ describe("safe shared result projection", () => {
       screen.getByRole("heading", { name: "Baca sebagai pola, bukan batasan." }),
     ).toBeVisible();
     expect(screen.getByRole("heading", { name: "Mulai dari keseharian" })).toBeVisible();
-    expect(screen.getByText("Detail & confidence").closest("details")).not.toHaveAttribute("open");
+    expect(screen.getByText("Detail dan tingkat keyakinan").closest("details")).not.toHaveAttribute(
+      "open",
+    );
   });
 
   it("keeps private modular diagnostics private and allowlists public summary fields", () => {
@@ -230,7 +232,7 @@ describe("safe shared result projection", () => {
     expect(
       screen.getByText("Bagian ini dipertahankan agar hasil lama tetap dapat dibaca."),
     ).toBeInTheDocument();
-    expect(screen.queryByText(/Confidence/i)).not.toBeInTheDocument();
+    expect(screen.queryByText(/Tingkat keyakinan/i)).not.toBeInTheDocument();
   });
 
   it("fails closed for unsupported share scope and creates separate portable export contract", () => {
