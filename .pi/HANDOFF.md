@@ -1,11 +1,12 @@
-# Project Handoff - Design2 live
+# Project Handoff - Maintenance only
 
+> **Current maintenance baseline:** `main` @ **`3ce060a`** | dashboard/auth reliability closed | 2026-07-28
 > **Final hobby release baseline:** `main` @ **`c535a6b`** | tag **`v1.0.0-hobby-final`** | 2026-07-26
 > Product freeze baseline: `ab2fcdc` | eng baseline: `v0.9.0-hobby-modular`
-> **Freeze reopened:** 2026-07-26 for an approved frontend-only total redesign. Backend/domain remains frozen.
+> **Frontend exception closed:** the approved redesign and dashboard/auth reliability follow-up are complete. Backend/domain remains frozen.
 > **Design2 implementation:** `982067b` | polish live `9e638ec` | 2026-07-27
 
-## Status: DESIGN2 LIVE / FRONTEND MAINTENANCE
+## Status: MAINTENANCE ONLY
 
 Hobby project **engineering + release finalization: 100% complete.**
 Full PRD product still **stops honestly at ~75%** (external residual only).
@@ -16,6 +17,7 @@ Clinical / psychometric / WCAG cert: **never claim.**
 | Hobby modular engineering           | **100% closed**                          |
 | Final hobby release tag             | **`v1.0.0-hobby-final` @ `c535a6b`**     |
 | Frontend redesign                   | **COMPLETE** - Design2 live + polish     |
+| Dashboard/auth reliability          | **COMPLETE** - `main` @ `3ce060a`        |
 | Full PRD product                    | **Stops ~75%** - not 100%                |
 | Backend/domain scope                | **FROZEN** - maintenance triggers only   |
 | Clinical / psychometric / WCAG cert | **Never claim**                          |
@@ -47,9 +49,19 @@ Clinical / psychometric / WCAG cert: **never claim.**
 - Indonesian UI jargon cleanup and shared button/badge/progress geometry cleanup are complete.
 - Full chronology, route coverage, media inventory, verification, deployment, and known limits: `.pi/FRONTEND_REDESIGN_PROGRESS.md`.
 
+## Dashboard/Auth Reliability Closure
+
+- PR [#65](https://github.com/kuker24/LensaDiri/pull/65) squash-merged into `main` as `3ce060a015b331d2799861d7a466b5663bd4af86` after merge state `CLEAN`.
+- PR CI [30369143103](https://github.com/kuker24/LensaDiri/actions/runs/30369143103) passed Quality/build/audit plus disposable DB, integration, pgTAP, seed replay, Playwright desktop/Pixel 5, and accessibility.
+- Post-merge `main` CI [30370036507](https://github.com/kuker24/LensaDiri/actions/runs/30370036507) repeated the full gate successfully.
+- Vercel Preview and production deployment passed. [Post-merge production verification](https://github.com/kuker24/LensaDiri/pull/65#issuecomment-5106109050) records desktop login → dashboard → home → dashboard → reload without session loss.
+- The same production evidence records hard-delete of the throwaway verification account; no test account was retained.
+- Production liveness [30371184573](https://github.com/kuker24/LensaDiri/actions/runs/30371184573) passed on `3ce060a`; `GET /api/health` returned HTTP 200 with `{"status":"ok"}`.
+- No DB, migration, environment, feature-flag, scoring, or product-feature change was part of this closure.
+
 ## In Scope (reactive maintenance only)
 
-The approved redesign exception is complete. Further work requires a concrete regression, accessibility, security, dependency, health, monitoring, retention, backup, or separately approved frontend request.
+The approved redesign exception and dashboard/auth reliability fix are complete. Further work requires a concrete regression, accessibility, security, dependency, health, monitoring, retention, or backup trigger.
 
 | Work                     | Notes                                      |
 | ------------------------ | ------------------------------------------ |
