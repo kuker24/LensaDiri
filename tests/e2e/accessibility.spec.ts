@@ -152,7 +152,7 @@ test("unknown module and blog slugs return real not-found responses", async ({ p
     const response = await page.goto(route);
     expect(response?.status()).toBe(404);
     await expect(page.getByRole("heading", { name: "Halaman tidak ditemukan" })).toBeVisible();
-    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/u);
+    await expect(page.locator('meta[name="robots"][content*="noindex"]')).toHaveCount(1);
   }
 });
 
