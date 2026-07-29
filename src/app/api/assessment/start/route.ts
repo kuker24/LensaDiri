@@ -13,6 +13,7 @@ import { startAssessmentSchema } from "@/lib/validation/assessment";
 import { apiFailure, apiSuccess, getDatabaseFailureStatus, noStoreHeaders } from "@/server/http";
 import { getCurrentSession } from "@/server/current-session";
 import { elapsedMilliseconds, logOperationalEvent } from "@/server/observability";
+import { loadModularAssessmentContextFromCache } from "@/server/repositories/catalog-cache";
 import { startAssessment } from "@/server/services/assessment";
 import { assessmentRateLimitPolicies, consumeRateLimit } from "@/server/services/rate-limiter";
 
@@ -66,13 +67,18 @@ async function runStartFlow(
     };
   }
 
-  const started = await startAssessment({
-    accountId: account?.accountId ?? null,
-    consentVersion: "moduleKeys" in parsedData ? "prd-v2-1" : "2026-07-13",
-    expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1_000),
-    request: startRequest,
-    sessionTokenHash: hashOpaqueToken(token, environment.tokenHashPepper),
-  });
+  const started = await startAssessment(
+    {
+      accountId: account?.accountId ?? null,
+      consentVersion: "moduleKeys" in parsedData ? "prd-v2-1" : "2026-07-13",
+      expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1_000),
+      request: startRequest,
+      sessionTokenHash: hashOpaqueToken(token, environment.tokenHashPepper),
+    },
+    {
+      loadModularContext: loadModularAssessmentContextFromCache,
+    },
+  );
 
   return started.success
     ? { success: true as const, flow: started.kind, token }

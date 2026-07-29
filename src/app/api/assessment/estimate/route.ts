@@ -11,12 +11,13 @@ import { getRequestRateLimitIdentity } from "@/lib/security/rate-limit";
 import { estimateAssessmentSchema } from "@/lib/validation/assessment";
 import { apiFailure, apiSuccess, getDatabaseFailureStatus, noStoreHeaders } from "@/server/http";
 import { elapsedMilliseconds, logOperationalEvent } from "@/server/observability";
-import { getMinimumModuleCoverage, loadComposerCandidates } from "@/server/repositories/blueprints";
+import { getMinimumModuleCoverage } from "@/server/repositories/blueprints";
 import {
   isFeatureEnabledBatch,
   listAssessmentModeProfilesFromCache,
   listCatalogModulesFromCache,
   listComboPresetsFromCache,
+  loadComposerCandidatesFromCache,
 } from "@/server/repositories/catalog-cache";
 import { assessmentRateLimitPolicies, consumeRateLimit } from "@/server/services/rate-limiter";
 
@@ -28,7 +29,9 @@ async function loadEstimateContext(
   moduleKeys: readonly string[],
   correlationId: string,
 ): Promise<{
-  candidates: ReturnType<typeof loadComposerCandidates> extends Promise<infer T> ? T : never;
+  candidates: ReturnType<typeof loadComposerCandidatesFromCache> extends Promise<infer T>
+    ? T
+    : never;
   combos: ReturnType<typeof listComboPresetsFromCache> extends Promise<infer T> ? T : never;
   complexEnabled: boolean;
   modeProfiles: ReturnType<typeof listAssessmentModeProfilesFromCache> extends Promise<infer T>
@@ -48,7 +51,7 @@ async function loadEstimateContext(
       "FEATURE_PROVISIONAL_PRECISION",
       "FEATURE_COMPLEX_MODE",
     ]),
-    loadComposerCandidates(moduleKeys),
+    loadComposerCandidatesFromCache(moduleKeys),
   ]);
   logOperationalEvent({
     correlationId,

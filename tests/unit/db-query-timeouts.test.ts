@@ -42,6 +42,7 @@ const mockListComboPresets = vi.fn();
 const mockListAssessmentModeProfiles = vi.fn();
 const mockIsFeatureEnabled = vi.fn();
 const mockIsFeatureEnabledBatch = vi.fn();
+const mockLoadComposerCandidates = vi.fn();
 
 vi.mock("@/server/repositories/catalog", () => ({
   isFeatureEnabled: (...args: unknown[]) => mockIsFeatureEnabled(...args),
@@ -56,10 +57,20 @@ vi.mock("@/server/repositories/catalog-cache", () => ({
   listAssessmentModeProfilesFromCache: () => mockListAssessmentModeProfiles(),
   listCatalogModulesFromCache: () => mockListCatalogModules(),
   listComboPresetsFromCache: () => mockListComboPresets(),
+  loadComposerCandidatesFromCache: (...args: unknown[]) => mockLoadComposerCandidates(...args),
+  loadModularAssessmentContextFromCache: async () => {
+    const [modules, combos, modeProfiles, candidates] = await Promise.all([
+      mockListCatalogModules(),
+      mockListComboPresets(),
+      mockListAssessmentModeProfiles(),
+      mockLoadComposerCandidates(),
+    ]);
+    return { candidates, combos, modeProfiles, modules };
+  },
 }));
 
 vi.mock("@/server/repositories/blueprints", () => ({
-  loadComposerCandidates: () => Promise.resolve([]),
+  loadComposerCandidates: (...args: unknown[]) => mockLoadComposerCandidates(...args),
   getMinimumModuleCoverage: () => ({}),
 }));
 
@@ -121,6 +132,7 @@ describe("Estimate Route - Database query timeout reliability", () => {
     mockListCatalogModules.mockResolvedValue([]);
     mockListComboPresets.mockResolvedValue([]);
     mockListAssessmentModeProfiles.mockResolvedValue([]);
+    mockLoadComposerCandidates.mockResolvedValue([]);
     vi.useRealTimers();
   });
 
@@ -170,6 +182,7 @@ describe("Start Route - Database query timeout reliability", () => {
     mockListCatalogModules.mockResolvedValue([]);
     mockListComboPresets.mockResolvedValue([]);
     mockListAssessmentModeProfiles.mockResolvedValue([]);
+    mockLoadComposerCandidates.mockResolvedValue([]);
     vi.useRealTimers();
   });
 

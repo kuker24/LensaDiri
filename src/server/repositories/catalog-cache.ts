@@ -13,6 +13,7 @@ import {
   listCatalogModules,
   listComboPresets,
 } from "@/server/repositories/catalog";
+import { loadComposerCandidates } from "@/server/repositories/blueprints";
 
 // Katalog modul, combo, dan mode profile bersumber dari konten immutable yang
 // hanya berubah lewat migration/seed yang direview manual. Wrapper cache ini
@@ -72,6 +73,26 @@ export function listComboPresetsFromCache(
   options: Readonly<{ includeUnavailable?: boolean }> = {},
 ): Promise<ComboPresetDefinition[]> {
   return listComboPresetsCached(options.includeUnavailable ?? false);
+}
+
+const loadComposerCandidatesCached = unstable_cache(
+  (moduleKeys: readonly string[]) => loadComposerCandidates(moduleKeys),
+  ["composer-candidates"],
+  cacheOptions,
+);
+
+export function loadComposerCandidatesFromCache(moduleKeys: readonly string[]) {
+  return loadComposerCandidatesCached([...new Set(moduleKeys)].toSorted());
+}
+
+export async function loadModularAssessmentContextFromCache(moduleKeys: readonly string[]) {
+  const [modules, combos, modeProfiles, candidates] = await Promise.all([
+    listCatalogModulesFromCache(),
+    listComboPresetsFromCache(),
+    listAssessmentModeProfilesFromCache(),
+    loadComposerCandidatesFromCache(moduleKeys),
+  ]);
+  return { candidates, combos, modeProfiles, modules };
 }
 
 export { isFeatureEnabledBatch } from "./catalog";

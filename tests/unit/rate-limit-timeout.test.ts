@@ -25,6 +25,7 @@ vi.mock("@/lib/security/rate-limit", () => ({
 }));
 
 const mockConsumeRateLimit = vi.fn();
+const mockLoadModularContext = vi.fn();
 vi.mock("@/server/services/rate-limiter", () => ({
   assessmentRateLimitPolicies: {
     estimate: { limit: 60, routeKey: "assessment_estimate", windowMs: 900000 },
@@ -80,6 +81,8 @@ vi.mock("@/server/repositories/catalog-cache", () => ({
   listAssessmentModeProfilesFromCache: () => Promise.resolve([mockMode]),
   listCatalogModulesFromCache: () => Promise.resolve([mockModule]),
   listComboPresetsFromCache: () => Promise.resolve([]),
+  loadComposerCandidatesFromCache: () => Promise.resolve([]),
+  loadModularAssessmentContextFromCache: (...args: unknown[]) => mockLoadModularContext(...args),
 }));
 
 vi.mock("@/server/repositories/blueprints", () => ({
@@ -118,6 +121,12 @@ describe("rate limiter DB timeout and lock safety mapping", () => {
   beforeEach(() => {
     mockConsumeRateLimit.mockReset();
     mockStartAssessment.mockReset();
+    mockLoadModularContext.mockReset().mockResolvedValue({
+      candidates: [],
+      combos: [],
+      modeProfiles: [mockMode],
+      modules: [mockModule],
+    });
   });
 
   it("maps Postgres query_canceled (57014) to DatabaseError('unavailable')", () => {
@@ -191,5 +200,10 @@ describe("rate limiter DB timeout and lock safety mapping", () => {
       data: { flow: "modular", token: "a".repeat(43) },
     });
     expect(mockStartAssessment).toHaveBeenCalledOnce();
+    const options = mockStartAssessment.mock.calls[0]?.[1] as
+      { loadModularContext?: (moduleKeys: readonly string[]) => Promise<unknown> } | undefined;
+    expect(options?.loadModularContext).toBeTypeOf("function");
+    await options?.loadModularContext?.(["riasec"]);
+    expect(mockLoadModularContext).toHaveBeenCalledWith(["riasec"]);
   });
 });

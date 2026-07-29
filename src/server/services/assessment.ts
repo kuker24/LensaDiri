@@ -55,6 +55,25 @@ export type StartAssessmentResult =
       success: false;
     }>;
 
+type ModularAssessmentContext = Readonly<{
+  candidates: Awaited<ReturnType<typeof loadComposerCandidates>>;
+  combos: Awaited<ReturnType<typeof listComboPresets>>;
+  modeProfiles: Awaited<ReturnType<typeof listAssessmentModeProfiles>>;
+  modules: Awaited<ReturnType<typeof listCatalogModules>>;
+}>;
+
+async function loadModularAssessmentContext(
+  moduleKeys: readonly string[],
+): Promise<ModularAssessmentContext> {
+  const [modules, combos, modeProfiles, candidates] = await Promise.all([
+    listCatalogModules(),
+    listComboPresets(),
+    listAssessmentModeProfiles(),
+    loadComposerCandidates(moduleKeys),
+  ]);
+  return { candidates, combos, modeProfiles, modules };
+}
+
 export async function getPrivateResultByToken(token: string): Promise<PrivateResultView | null> {
   if (!opaqueTokenSchema.safeParse(token).success) return null;
 
@@ -62,13 +81,18 @@ export async function getPrivateResultByToken(token: string): Promise<PrivateRes
   return getResultByHash(hashOpaqueToken(token, environment.tokenHashPepper));
 }
 
-export async function startAssessment(input: {
-  accountId: string | null;
-  consentVersion: string;
-  expiresAt: Date;
-  request: StartAssessmentRequest;
-  sessionTokenHash: string;
-}): Promise<StartAssessmentResult> {
+export async function startAssessment(
+  input: {
+    accountId: string | null;
+    consentVersion: string;
+    expiresAt: Date;
+    request: StartAssessmentRequest;
+    sessionTokenHash: string;
+  },
+  options: {
+    loadModularContext?: (moduleKeys: readonly string[]) => Promise<ModularAssessmentContext>;
+  } = {},
+): Promise<StartAssessmentResult> {
   if (input.request.kind === "legacy") {
     await createAssessmentSession({
       accountId: input.accountId,
@@ -89,12 +113,9 @@ export async function startAssessment(input: {
   if (!flags.FEATURE_MODULAR_COMPOSER) {
     return { code: "feature_unavailable", success: false };
   }
-  const [modules, combos, modeProfiles, candidates] = await Promise.all([
-    listCatalogModules(),
-    listComboPresets(),
-    listAssessmentModeProfiles(),
-    loadComposerCandidates(input.request.selection.moduleKeys),
-  ]);
+  const { modules, combos, modeProfiles, candidates } = await (
+    options.loadModularContext ?? loadModularAssessmentContext
+  )(input.request.selection.moduleKeys);
   const availableModes = modeProfiles.map((profile) =>
     profile.internalMode === "deep"
       ? { ...profile, isSelectable: flags.FEATURE_COMPLEX_MODE === true }
