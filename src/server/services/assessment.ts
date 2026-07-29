@@ -13,7 +13,7 @@ import {
   persistModularSession,
 } from "@/server/repositories/blueprints";
 import {
-  isFeatureEnabled,
+  isFeatureEnabledBatch,
   listAssessmentModeProfiles,
   listCatalogModules,
   listComboPresets,
@@ -79,24 +79,26 @@ export async function startAssessment(input: {
     return { kind: "legacy", success: true };
   }
 
-  if (!(await isFeatureEnabled("FEATURE_MODULAR_COMPOSER"))) {
+  const readStartTime = Date.now();
+  const flags = await isFeatureEnabledBatch([
+    "FEATURE_MODULAR_COMPOSER",
+    "FEATURE_COMPLEX_MODE",
+    "FEATURE_PROVISIONAL_PRECISION",
+  ]);
+  if (!flags.FEATURE_MODULAR_COMPOSER) {
     return { code: "feature_unavailable", success: false };
   }
-
-  const readStartTime = Date.now();
-
-  const [modules, combos, modeProfiles, complexEnabled, precisionEnabled] = await Promise.all([
+  const [modules, combos, modeProfiles, candidates] = await Promise.all([
     listCatalogModules(),
     listComboPresets(),
     listAssessmentModeProfiles(),
-    isFeatureEnabled("FEATURE_COMPLEX_MODE"),
-    isFeatureEnabled("FEATURE_PROVISIONAL_PRECISION"),
+    loadComposerCandidates(input.request.selection.moduleKeys),
   ]);
   const availableModes = modeProfiles.map((profile) =>
-    profile.internalMode === "deep" ? { ...profile, isSelectable: complexEnabled } : profile,
+    profile.internalMode === "deep"
+      ? { ...profile, isSelectable: flags.FEATURE_COMPLEX_MODE === true }
+      : profile,
   );
-  const candidates = await loadComposerCandidates(input.request.selection.moduleKeys);
-
   // If reading database metadata took more than 5 seconds, abort before beginning
   // any write transaction. This prevents late commits near the route deadline.
   if (Date.now() - readStartTime > 5_000) {
@@ -105,7 +107,7 @@ export async function startAssessment(input: {
 
   const estimate = estimateAssessment(input.request.selection, modules, combos, availableModes, {
     minimumCoverage: getMinimumModuleCoverage(candidates),
-    provisionalPrecisionEnabled: precisionEnabled,
+    provisionalPrecisionEnabled: flags.FEATURE_PROVISIONAL_PRECISION === true,
   });
   if (!estimate.success) return estimate;
 

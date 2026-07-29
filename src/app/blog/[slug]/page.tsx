@@ -34,6 +34,12 @@ const articles: Record<string, { title: string; content: string[] }> = {
   },
 };
 
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return [...knownSlugs].map((slug) => ({ slug }));
+}
+
 export default async function BlogPostPage({ params }: { params: Promise<{ slug: string }> }) {
   const { slug } = await params;
   const article = articles[slug];

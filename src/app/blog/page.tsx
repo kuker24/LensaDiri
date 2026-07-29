@@ -44,7 +44,7 @@ export default function BlogPage() {
             <h2 className="text-ink text-xl font-medium tracking-[-0.02em]">{article.title}</h2>
             <p className="text-ink-muted leading-7">{article.summary}</p>
             <Link
-              className="focus-ring ui-transition text-ink-muted hover:text-ink inline-flex min-h-11 items-center rounded-[12px] text-sm font-medium tracking-[-0.01em]"
+              className="focus-ring ui-transition text-ink-muted hover:text-ink inline-flex min-h-11 min-w-11 items-center rounded-[12px] text-sm font-medium tracking-[-0.01em]"
               href={article.href}
             >
               Baca <span aria-hidden="true">↗</span>

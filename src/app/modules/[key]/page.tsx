@@ -2,15 +2,19 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 
 import { getPublicModeName, isPubliclyAvailableModule } from "@/lib/assessment/catalog";
-import { getCatalogModuleByKeyFromCache } from "@/server/repositories/catalog-cache";
+import { publicAssessmentCatalog } from "@/lib/assessment/public-catalog";
 import { Badge } from "@/components/ui/badge";
 import { getButtonClassName } from "@/components/ui/button";
 
-export const dynamic = "force-dynamic";
+export const dynamicParams = false;
+
+export function generateStaticParams() {
+  return publicAssessmentCatalog.modules.map((module) => ({ key: module.key }));
+}
 
 export default async function ModuleDetailPage({ params }: { params: Promise<{ key: string }> }) {
   const { key } = await params;
-  const catalogModule = await getCatalogModuleByKeyFromCache(key);
+  const catalogModule = publicAssessmentCatalog.modules.find((module) => module.key === key);
   if (!catalogModule) notFound();
 
   const available = isPubliclyAvailableModule(catalogModule);

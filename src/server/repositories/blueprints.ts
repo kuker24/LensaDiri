@@ -218,19 +218,22 @@ export async function persistModularSession(input: {
       `;
       if (!blueprintRow) throw new Error("Blueprint insert returned no row.");
 
-      for (const item of input.blueprint.items) {
-        await sql`
-          insert into public.assessment_blueprint_items (
-            blueprint_id, question_id, module_version_id, dimension_id,
-            segment_index, section_key, display_order, module_display_order,
-            scoring_role, consistency_pair_key
-          ) values (
-            ${blueprintRow.id}, ${item.questionId}, ${item.moduleVersionId}, ${item.dimensionId},
-            ${item.segmentIndex}, ${item.sectionKey}, ${item.displayOrder},
-            ${item.moduleDisplayOrder}, ${item.scoringRole}, ${item.consistencyPairKey}
-          )
-        `;
-      }
+      await sql`
+        insert into public.assessment_blueprint_items ${sql(
+          input.blueprint.items.map((item) => ({
+            blueprint_id: blueprintRow.id,
+            consistency_pair_key: item.consistencyPairKey,
+            dimension_id: item.dimensionId,
+            display_order: item.displayOrder,
+            module_display_order: item.moduleDisplayOrder,
+            module_version_id: item.moduleVersionId,
+            question_id: item.questionId,
+            scoring_role: item.scoringRole,
+            section_key: item.sectionKey,
+            segment_index: item.segmentIndex,
+          })),
+        )}
+      `;
 
       const primaryModule = input.blueprint.modules[0];
       if (!primaryModule) throw new Error("Blueprint has no modules.");
@@ -257,30 +260,32 @@ export async function persistModularSession(input: {
         )
       `;
 
-      for (const moduleAllocation of input.blueprint.modules) {
-        await sql`
-          insert into public.test_session_modules (
-            session_id, module_version_id, blueprint_id, status,
-            item_count, required_answers
-          ) values (
-            ${session.id}, ${moduleAllocation.moduleVersionId}, ${blueprintRow.id}, 'active',
-            ${moduleAllocation.itemCount}, ${moduleAllocation.requiredAnswers}
-          )
-        `;
-      }
-      for (const segment of input.blueprint.segmentPlan) {
-        await sql`
-          insert into public.test_session_segments (
-            session_id, blueprint_id, segment_index, status, item_count,
-            required_answers, started_at
-          ) values (
-            ${session.id}, ${blueprintRow.id}, ${segment.segmentIndex},
-            ${segment.segmentIndex === 1 ? "active" : "pending"},
-            ${segment.itemCount}, ${segment.itemCount},
-            ${segment.segmentIndex === 1 ? new Date() : null}
-          )
-        `;
-      }
+      await sql`
+        insert into public.test_session_modules ${sql(
+          input.blueprint.modules.map((moduleAllocation) => ({
+            blueprint_id: blueprintRow.id,
+            item_count: moduleAllocation.itemCount,
+            module_version_id: moduleAllocation.moduleVersionId,
+            required_answers: moduleAllocation.requiredAnswers,
+            session_id: session.id,
+            status: "active",
+          })),
+        )}
+      `;
+      const startedAt = new Date();
+      await sql`
+        insert into public.test_session_segments ${sql(
+          input.blueprint.segmentPlan.map((segment) => ({
+            blueprint_id: blueprintRow.id,
+            item_count: segment.itemCount,
+            required_answers: segment.itemCount,
+            segment_index: segment.segmentIndex,
+            session_id: session.id,
+            started_at: segment.segmentIndex === 1 ? startedAt : null,
+            status: segment.segmentIndex === 1 ? "active" : "pending",
+          })),
+        )}
+      `;
       return { blueprintId: blueprintRow.id, sessionId: session.id };
     }),
   );
