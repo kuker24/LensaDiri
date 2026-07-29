@@ -2,7 +2,9 @@ import type { Metadata } from "next";
 import Link from "next/link";
 
 import { AuthForm } from "@/components/auth-form";
+import { OidcButtons } from "@/components/oidc-buttons";
 import { Reveal } from "@/components/reveal";
+import { getServerEnvironment } from "@/lib/db/env";
 
 export const metadata: Metadata = {
   title: "Daftar",
@@ -11,6 +13,9 @@ export const metadata: Metadata = {
 };
 
 export default function RegisterPage() {
+  const environment = getServerEnvironment();
+  const providers = environment.googleOidc ? (["google"] as const) : [];
+
   return (
     <section className="task-shell">
       <Reveal className="auth-panel mx-auto grid max-w-4xl border-white/18 md:grid-cols-[0.9fr_1.1fr]">
@@ -35,9 +40,17 @@ export default function RegisterPage() {
           <p className="mono-label text-ink-muted">Akses akun</p>
           <h2 className="mt-3 text-2xl font-normal">Buat akun</h2>
           <p className="text-ink-muted mt-2 text-sm leading-6">
-            Email aktif dan kata sandi kuat (minimal 12 karakter).
+            Pilih Google atau gunakan email dan kata sandi.
           </p>
           <div className="mt-7">
+            <OidcButtons providers={[...providers]} />
+            {providers.length > 0 ? (
+              <div className="my-6 flex items-center gap-3" aria-hidden="true">
+                <span className="border-line flex-1 border-t" />
+                <span className="text-ink-muted text-xs tracking-[0.14em] uppercase">atau</span>
+                <span className="border-line flex-1 border-t" />
+              </div>
+            ) : null}
             <AuthForm mode="register" />
           </div>
           <p className="text-ink-muted mt-6 text-sm">

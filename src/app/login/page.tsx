@@ -51,9 +51,7 @@ export default async function LoginPage({
         <div className="bg-surface-raised/40 border-t border-white/10 p-7 sm:p-10 md:border-t-0 md:border-l">
           <p className="mono-label text-ink-muted">Akses akun</p>
           <h2 className="mt-3 text-2xl font-normal">Masuk</h2>
-          <p className="text-ink-muted mt-2 text-sm leading-6">
-            Email dan kata sandi akunmu. Minimal 12 karakter untuk kata sandi.
-          </p>
+          <p className="text-ink-muted mt-2 text-sm leading-6">Email dan kata sandi akunmu.</p>
           <div className="mt-7">
             {authError ? (
               <p
@@ -79,7 +77,7 @@ export default async function LoginPage({
             ) : null}
             <AuthForm mode="login" redirectTo={redirectTo} />
           </div>
-          <p className="text-ink-muted mt-3 text-sm">
+          <p className="text-ink-muted mt-6 text-sm">
             Belum punya akun?{" "}
             <Link className="focus-ring quiet-link rounded-[12px] font-medium" href="/register">
               Daftar

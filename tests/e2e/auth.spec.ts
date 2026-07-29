@@ -35,6 +35,20 @@ test("protected dashboard redirects guests and auth forms support keyboard focus
   });
 });
 
+test("registration offers Google and auth forms omit password-length copy", async ({ page }) => {
+  await page.goto("/login");
+  await expect(page.getByText(/Minimal 12 karakter/u)).toHaveCount(0);
+
+  await page.getByRole("link", { name: "Daftar", exact: true }).click();
+  await expect(page).toHaveURL(/\/register$/u);
+  await expect(page.getByRole("link", { name: "Lanjutkan dengan Google" })).toHaveAttribute(
+    "href",
+    /\/api\/auth\/oidc\/google\/start\?operation=login/u,
+  );
+  await expect(page.getByText(/Minimal 12 karakter/u)).toHaveCount(0);
+  await expect(page.getByLabel("Kata sandi")).toHaveAttribute("minlength", "12");
+});
+
 test("account lifecycle registers, logs in, rejects wrong deletion password, then hard deletes", async ({
   page,
 }, testInfo) => {

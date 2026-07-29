@@ -45,6 +45,8 @@ export default defineConfig({
       CSRF_SECRET: "e2e-csrf-secret-at-least-32-characters",
       DATABASE_URL: testDatabaseUrl,
       E2E_TEST_ROUTES: "1",
+      GOOGLE_OIDC_CLIENT_ID: "e2e-google-client",
+      GOOGLE_OIDC_CLIENT_SECRET: "e2e-google-client-secret",
       NEXT_PUBLIC_APP_URL: "http://127.0.0.1:3000",
       RATE_LIMIT_SECRET: "e2e-rate-limit-secret-at-least-32-characters",
       RECOVERY_TEST_TRANSPORT: "1",
