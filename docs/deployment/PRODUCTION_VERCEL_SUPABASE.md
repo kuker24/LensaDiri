@@ -14,6 +14,8 @@ Single hobby production environment. This workflow is migration-only: never run 
 
 Use Supabase transaction pooler connection string for Vercel `DATABASE_URL`. Keep SSL enabled. Application PostgreSQL client disables prepared statements and limits each production serverless instance to two database connections so paired dashboard reads do not serialize behind one connection.
 
+Public module selection hydrates from a release-pinned catalog snapshot. A single coalesced feature-flag read has a 500 ms deadline and falls back to the last healthy flag state, so a database stall cannot block `/start/modules`. Estimate and start routes still revalidate flags, catalog availability, capacity, and provenance against PostgreSQL before creating a session.
+
 Do not add Supabase anon or service-role keys. LensaDiri uses internal authentication and trusted server-side PostgreSQL access.
 
 ## Production environment variables
