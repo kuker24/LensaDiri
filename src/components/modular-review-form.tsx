@@ -144,7 +144,11 @@ export function ModularReviewForm() {
         </p>
       ) : null}
       <div className="mt-6 flex flex-col-reverse gap-3 sm:flex-row sm:justify-between">
-        <Link className={getButtonClassName("secondary", "md")} href="/start/modules">
+        <Link
+          className={getButtonClassName("secondary", "md")}
+          href="/start/modules"
+          prefetch={false}
+        >
           Ubah pilihan
         </Link>
         <Button disabled={!estimate || !consent || pending} onClick={start} type="button">

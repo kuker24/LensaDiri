@@ -54,6 +54,10 @@ export type AssessmentCatalog = {
   modules: AssessmentModuleDefinition[];
 };
 
+type AssessmentCatalogResponse = AssessmentCatalog & {
+  combos: ComboPresetDefinition[];
+};
+
 export async function startAssessment(mode: AssessmentMode): Promise<string> {
   const data = await postAuthenticatedMutation<{ token: string }>("/api/assessment/start", {
     consent: true,
@@ -71,7 +75,7 @@ export async function startModularAssessment(selection: AssessmentSelectionInput
   return data.token;
 }
 
-export function getAssessmentCatalog(): Promise<AssessmentCatalog> {
+export function getAssessmentCatalog(): Promise<AssessmentCatalogResponse> {
   return getEnvelope("/api/modules", { timeoutMs: CATALOG_FETCH_TIMEOUT_MS });
 }
 

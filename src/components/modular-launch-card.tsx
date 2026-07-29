@@ -23,6 +23,7 @@ export function ModularLaunchCard() {
       <Link
         className={`${getButtonClassName("primary", "md")} relative mt-6 w-full shrink-0 sm:mt-0 sm:w-auto`}
         href="/start/modules"
+        prefetch={false}
       >
         Mulai susun lensa
       </Link>

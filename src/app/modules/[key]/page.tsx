@@ -90,6 +90,7 @@ export default async function ModuleDetailPage({ params }: { params: Promise<{ k
           <Link
             className={`${getButtonClassName("primary", "md")} mt-8`}
             href={`/start/modules?module=${encodeURIComponent(catalogModule.key)}`}
+            prefetch={false}
           >
             Pilih lensa ini
           </Link>

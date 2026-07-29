@@ -4,11 +4,14 @@ import crypto from "node:crypto";
 
 import { cookies } from "next/headers";
 
+import { withDeadline } from "@/lib/async/with-deadline";
 import { getSessionCookieName, isOpaqueSessionToken } from "@/lib/auth/session";
 import { DatabaseError } from "@/lib/db/errors";
 import { getServerEnvironment } from "@/lib/db/env";
 import { elapsedMilliseconds, logOperationalEvent } from "@/server/observability";
 import { getActiveSession } from "@/server/services/auth";
+
+const SESSION_READ_DEADLINE_MS = 5_000;
 
 export async function getCurrentSession(): Promise<Awaited<
   ReturnType<typeof getActiveSession>
@@ -23,11 +26,9 @@ export async function getCurrentSession(): Promise<Awaited<
   const correlationId = crypto.randomUUID();
   const startedAt = process.hrtime.bigint();
   try {
-    const session = await getActiveSession(
-      token,
-      environment.tokenHashPepper,
-      new Date(),
-      correlationId,
+    const session = await withDeadline(
+      getActiveSession(token, environment.tokenHashPepper, new Date(), correlationId),
+      SESSION_READ_DEADLINE_MS,
     );
     logOperationalEvent({
       correlationId,

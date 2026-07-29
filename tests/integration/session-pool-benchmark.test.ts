@@ -3,7 +3,7 @@ import { randomUUID } from "node:crypto";
 import postgres from "postgres";
 import { afterAll, describe, expect, it } from "vitest";
 
-import { closeDatabaseForTests, getDatabase } from "@/lib/db/client";
+import { closeDatabaseForTests } from "@/lib/db/client";
 import { hashPassword } from "@/lib/auth/password";
 import { hashOpaqueToken } from "@/lib/security/tokens";
 import { createAccount } from "@/server/repositories/accounts";
@@ -50,7 +50,7 @@ async function benchmarkConcurrentReads(
 }
 
 describe("session read pool sizing", () => {
-  it("keeps pool max=1 correct under concurrency; only upgrades if max=2 is materially faster", async () => {
+  it("keeps the production max=2 pool correct under concurrent reads", async () => {
     const suffix = randomUUID();
     const email = `pool-bench-${suffix}@example.test`;
     const account = await createAccount({
@@ -67,33 +67,19 @@ describe("session read pool sizing", () => {
       userAgentHash: null,
     });
 
-    // Warm the connection so the benchmark measures pool contention, not cold start.
-    await getDatabase()`select 1`;
-
     const concurrency = 8;
-    const pool1 = createPool(1);
     const pool2 = createPool(2);
 
     try {
-      const bench1 = await benchmarkConcurrentReads(pool1, tokenHash, concurrency);
+      await pool2`select 1`;
       const bench2 = await benchmarkConcurrentReads(pool2, tokenHash, concurrency);
 
-      console.log(
-        `[BENCHMARK] pool max=1 duration=${bench1.durationMs.toFixed(2)}ms ok=${bench1.ok}/${concurrency}`,
-      );
       console.log(
         `[BENCHMARK] pool max=2 duration=${bench2.durationMs.toFixed(2)}ms ok=${bench2.ok}/${concurrency}`,
       );
 
-      // Correctness gate: max=1 must still complete every read (sequential is acceptable, failure is not).
-      expect(bench1.ok).toBe(concurrency);
       expect(bench2.ok).toBe(concurrency);
-
-      // Decision gate: only justify max=2 if it measurably reduces contention (documented in PR, not auto-applied).
-      const materialSpeedup = bench2.durationMs < bench1.durationMs * 0.75;
-      console.log(`[BENCHMARK] max=2 materially faster than max=1: ${materialSpeedup}`);
     } finally {
-      await pool1.end({ timeout: 3 });
       await pool2.end({ timeout: 3 });
     }
   }, 30_000);

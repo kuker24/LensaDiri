@@ -7,7 +7,6 @@ import { AuthApiError } from "@/lib/auth/client";
 
 const mocks = vi.hoisted(() => ({
   getCatalog: vi.fn(),
-  getCombos: vi.fn(),
   estimate: vi.fn(),
   push: vi.fn(),
   saveSelection: vi.fn(),
@@ -17,7 +16,6 @@ vi.mock("next/navigation", () => ({ useRouter: () => ({ push: mocks.push }) }));
 vi.mock("@/lib/assessment/client", () => ({
   estimateModularAssessment: mocks.estimate,
   getAssessmentCatalog: mocks.getCatalog,
-  getComboCatalog: mocks.getCombos,
 }));
 vi.mock("@/lib/assessment/selection-storage", () => ({
   saveAssessmentSelection: mocks.saveSelection,
@@ -114,10 +112,10 @@ const serverCatalog = {
 
 beforeEach(() => {
   mocks.getCatalog.mockReset().mockResolvedValue({
+    combos: [],
     modes: modeProfiles,
     modules,
   });
-  mocks.getCombos.mockReset().mockResolvedValue([]);
   mocks.estimate.mockReset().mockResolvedValue({ itemCount: 90 });
   mocks.push.mockReset();
   mocks.saveSelection.mockReset();
@@ -151,10 +149,18 @@ describe("ModularStartForm", () => {
     expect(screen.getByRole("checkbox", { name: /16-Type Jungian-inspired/u })).toBeChecked();
     expect(screen.queryByText("Memuat pilihan lensa…")).not.toBeInTheDocument();
     expect(mocks.getCatalog).not.toHaveBeenCalled();
-    expect(mocks.getCombos).not.toHaveBeenCalled();
     // pure local estimate: type_16 standard quota 50 → 50 pertanyaan, 10 menit
     expect(screen.getByText(/50 pertanyaan/u)).toBeInTheDocument();
     expect(screen.getByRole("button", { name: "Tinjau pilihan" })).toBeEnabled();
+  });
+
+  test("memuat modul dan combo melalui satu request katalog", async () => {
+    mocks.getCatalog.mockResolvedValueOnce({ combos: [preset], modes: modeProfiles, modules });
+
+    render(<ModularStartForm />);
+
+    expect(await screen.findByText("Core Personality")).toBeInTheDocument();
+    expect(mocks.getCatalog).toHaveBeenCalledTimes(1);
   });
 
   test("memilih initial module yang valid", async () => {
