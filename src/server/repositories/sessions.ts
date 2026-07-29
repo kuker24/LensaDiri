@@ -256,92 +256,77 @@ export async function findAndTouchActiveSession(
   correlationId?: string,
 ): Promise<ActiveSessionRecord | null> {
   return runDatabaseOperation(async () => {
-    const database = getDatabase();
-    const poolStartedAt = process.hrtime.bigint();
-    const sql = await database.reserve();
+    const sql = getDatabase();
+    const readStartedAt = process.hrtime.bigint();
+    const [session] = await sql<
+      {
+        account_id: string;
+        account_status: AccountStatus;
+        expires_at: Date;
+        last_seen_at: Date | null;
+        revoked_at: Date | null;
+        session_id: string;
+      }[]
+    >`
+      select
+        account_sessions.id as session_id,
+        account_sessions.account_id,
+        account_sessions.expires_at,
+        account_sessions.last_seen_at,
+        account_sessions.revoked_at,
+        accounts.status as account_status
+      from public.account_sessions
+      inner join public.accounts on accounts.id = account_sessions.account_id
+      where account_sessions.session_token_hash = ${tokenHash}
+      limit 1
+    `;
     if (correlationId) {
       logOperationalEvent({
         correlationId,
-        durationMs: elapsedMilliseconds(poolStartedAt),
-        operation: "pool_wait",
+        durationMs: elapsedMilliseconds(readStartedAt),
+        operation: "session_read",
         status: "success",
       });
     }
 
-    try {
-      const readStartedAt = process.hrtime.bigint();
-      const [session] = await sql<
-        {
-          account_id: string;
-          account_status: AccountStatus;
-          expires_at: Date;
-          last_seen_at: Date | null;
-          revoked_at: Date | null;
-          session_id: string;
-        }[]
-      >`
-        select
-          account_sessions.id as session_id,
-          account_sessions.account_id,
-          account_sessions.expires_at,
-          account_sessions.last_seen_at,
-          account_sessions.revoked_at,
-          accounts.status as account_status
-        from public.account_sessions
-        inner join public.accounts on accounts.id = account_sessions.account_id
-        where account_sessions.session_token_hash = ${tokenHash}
-        limit 1
+    if (
+      !session ||
+      session.account_status !== "active" ||
+      session.revoked_at !== null ||
+      session.expires_at <= now
+    ) {
+      return null;
+    }
+
+    const staleBefore = new Date(now.getTime() - 10 * 60 * 1000);
+    if (!session.last_seen_at || session.last_seen_at < staleBefore) {
+      const touchStartedAt = process.hrtime.bigint();
+      const result = await sql`
+        update public.account_sessions
+        set last_seen_at = ${now}
+        where id = ${session.session_id}
+          and revoked_at is null
+          and expires_at > ${now}
+          and (last_seen_at is null or last_seen_at < ${staleBefore})
       `;
       if (correlationId) {
         logOperationalEvent({
           correlationId,
-          durationMs: elapsedMilliseconds(readStartedAt),
-          operation: "session_read",
+          durationMs: elapsedMilliseconds(touchStartedAt),
+          operation: "session_touch",
           status: "success",
+          wrote: result.count > 0,
         });
       }
-
-      if (
-        !session ||
-        session.account_status !== "active" ||
-        session.revoked_at !== null ||
-        session.expires_at <= now
-      ) {
-        return null;
-      }
-
-      const staleBefore = new Date(now.getTime() - 10 * 60 * 1000);
-      if (!session.last_seen_at || session.last_seen_at < staleBefore) {
-        const touchStartedAt = process.hrtime.bigint();
-        const result = await sql`
-          update public.account_sessions
-          set last_seen_at = ${now}
-          where id = ${session.session_id}
-            and revoked_at is null
-            and expires_at > ${now}
-            and (last_seen_at is null or last_seen_at < ${staleBefore})
-        `;
-        if (correlationId) {
-          logOperationalEvent({
-            correlationId,
-            durationMs: elapsedMilliseconds(touchStartedAt),
-            operation: "session_touch",
-            status: "success",
-            wrote: result.count > 0,
-          });
-        }
-      }
-
-      return {
-        accountId: session.account_id,
-        accountStatus: session.account_status,
-        expiresAt: session.expires_at,
-        lastSeenAt: session.last_seen_at,
-        revokedAt: session.revoked_at,
-        sessionId: session.session_id,
-      };
-    } finally {
-      sql.release();
     }
+
+    return {
+      accountId: session.account_id,
+      accountStatus: session.account_status,
+      expiresAt: session.expires_at,
+      lastSeenAt: session.last_seen_at,
+      revokedAt: session.revoked_at,
+      sessionId: session.session_id,
+    };
   });
 }

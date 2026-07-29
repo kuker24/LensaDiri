@@ -16,10 +16,8 @@ import {
   getCsrfCookieName,
 } from "@/lib/security/csrf";
 import { getCookieValue } from "@/lib/security/http";
-import { getRequestRateLimitIdentity } from "@/lib/security/rate-limit";
 import { apiFailure, apiSuccess, getDatabaseFailureStatus, noStoreHeaders } from "@/server/http";
 import { getActiveSession } from "@/server/services/auth";
-import { authRateLimitPolicies, consumeRateLimit } from "@/server/services/rate-limiter";
 
 export const runtime = "nodejs";
 
@@ -67,19 +65,6 @@ export async function GET(request: Request): Promise<NextResponse> {
         );
       }
       return response;
-    }
-
-    // Valid-looking tokens retain abuse protection; only anonymous/invalid bootstrap avoids DB writes.
-    const limited = await consumeRateLimit(
-      getRequestRateLimitIdentity(request),
-      authRateLimitPolicies.session,
-      environment.rateLimitSecret,
-    );
-    if (!limited.allowed) {
-      return NextResponse.json(apiFailure("rate_limited"), {
-        headers: { ...noStoreHeaders, "Retry-After": limited.retryAfterSeconds.toString() },
-        status: 429,
-      });
     }
 
     const session = await withDeadline(

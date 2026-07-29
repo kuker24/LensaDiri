@@ -22,7 +22,6 @@ export type OperationalEvent = {
     | "estimate_rate_limit"
     | "login_audit_insert"
     | "login_session_insert"
-    | "pool_wait"
     | "recovery_email_send"
     | "register_auth_service"
     | "register_rate_limit"
