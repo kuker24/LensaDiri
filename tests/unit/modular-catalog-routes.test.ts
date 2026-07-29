@@ -2,125 +2,96 @@ import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
-const flags = vi.hoisted(() => new Map<string, boolean>());
 const getFlags = vi.hoisted(() => vi.fn());
 
 vi.mock("@/server/repositories/catalog", () => ({
-  isFeatureEnabled: (key: string) => Promise.resolve(flags.get(key) ?? false),
-}));
-
-vi.mock("@/server/repositories/catalog-cache", () => ({
   isFeatureEnabledBatch: getFlags,
-  listAssessmentModeProfilesFromCache: () => Promise.resolve([]),
-  listCatalogModulesFromCache: () => Promise.resolve([]),
-  listComboPresetsFromCache: () =>
-    Promise.resolve([
-      {
-        description: "Normal preset",
-        isFullSpectrum: false,
-        key: "normal_preset",
-        moduleKeys: ["trait_profile", "type_16"],
-        publicName: "Normal preset",
-        recommendedMode: "standard",
-        status: "published",
-      },
-      {
-        description: "Complex preset",
-        isFullSpectrum: false,
-        key: "complex_preset",
-        moduleKeys: ["trait_profile", "type_16"],
-        publicName: "Complex preset",
-        recommendedMode: "deep",
-        status: "pilot",
-      },
-    ]),
 }));
 
 import { GET as getCombos } from "@/app/api/combos/route";
 import { GET as getModules } from "@/app/api/modules/route";
 
 beforeEach(() => {
-  flags.clear();
-  getFlags
-    .mockReset()
-    .mockImplementation((keys: readonly string[]) =>
-      Promise.resolve(
-        Object.fromEntries(keys.map((key) => [key, flags.get(key) ?? false])) as Record<
-          string,
-          boolean
-        >,
-      ),
-    );
-});
-
-afterEach(() => {
-  vi.useRealTimers();
-});
-
-describe("modular catalog feature gates", () => {
-  test("returns feature_unavailable when the modular composer is off", async () => {
-    const modules = await getModules();
-    const combos = await getCombos();
-
-    expect(modules.status).toBe(404);
-    expect(combos.status).toBe(404);
-    await expect(modules.json()).resolves.toMatchObject({
-      error: { code: "feature_unavailable" },
-      success: false,
-    });
-    await expect(combos.json()).resolves.toMatchObject({
-      error: { code: "feature_unavailable" },
-      success: false,
-    });
+  getFlags.mockReset().mockResolvedValue({
+    FEATURE_COMPLEX_MODE: true,
+    FEATURE_MODULAR_COMPOSER: true,
   });
+});
 
-  test("hides every Complex preset when Complex is off", async () => {
-    flags.set("FEATURE_MODULAR_COMPOSER", true);
+afterEach(() => vi.useRealTimers());
 
-    const response = await getCombos();
+describe("public modular catalog", () => {
+  test("returns the release snapshot after one batched flag read", async () => {
+    const response = await getModules();
+    const payload = await response.json();
 
     expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toMatchObject({
-      data: { combos: [expect.objectContaining({ key: "normal_preset" })] },
-      success: true,
-    });
-    expect(getFlags).toHaveBeenCalledTimes(1);
+    expect(payload.success).toBe(true);
+    expect(payload.data.modules).toHaveLength(10);
+    expect(payload.data.modes).toHaveLength(3);
+    expect(payload.data.combos).toHaveLength(5);
+    expect(
+      payload.data.modules.some((module: { key: string }) => module.key === "trait_profile"),
+    ).toBe(true);
+    expect(getFlags).toHaveBeenCalledOnce();
     expect(getFlags).toHaveBeenCalledWith(["FEATURE_MODULAR_COMPOSER", "FEATURE_COMPLEX_MODE"]);
   });
 
-  test("returns modules and combos from one catalog request", async () => {
-    flags.set("FEATURE_MODULAR_COMPOSER", true);
-
-    const response = await getModules();
+  test("returns combo presets after one batched flag read", async () => {
+    const response = await getCombos();
+    const payload = await response.json();
 
     expect(response.status).toBe(200);
-    await expect(response.json()).resolves.toMatchObject({
-      data: {
-        combos: [expect.objectContaining({ key: "normal_preset" })],
-        modes: [],
-        modules: [],
-      },
-      success: true,
-    });
-    expect(getFlags).toHaveBeenCalledTimes(1);
+    expect(payload.success).toBe(true);
+    expect(payload.data.combos).toHaveLength(5);
+    expect(
+      payload.data.combos.some((combo: { key: string }) => combo.key === "core_personality"),
+    ).toBe(true);
+    expect(getFlags).toHaveBeenCalledOnce();
   });
 
-  test.each([
-    ["modules", getModules],
-    ["combos", getCombos],
-  ])("fails %s closed with 503 when catalog reads exceed the deadline", async (_name, get) => {
+  test("keeps the catalog available and coalesces reads when the flag query stalls", async () => {
     vi.useFakeTimers();
-    getFlags.mockImplementationOnce(() => new Promise(() => undefined));
+    let resolveFlags!: (flags: Record<string, boolean>) => void;
+    getFlags.mockImplementationOnce(
+      () => new Promise<Record<string, boolean>>((resolve) => (resolveFlags = resolve)),
+    );
 
-    const responsePromise = get();
-    await vi.advanceTimersByTimeAsync(6_000);
-    const response = await responsePromise;
+    const responsePromises = [getModules(), getModules(), getCombos()];
+    await vi.advanceTimersByTimeAsync(500);
+    const responses = await Promise.all(responsePromises);
 
-    expect(response.status).toBe(503);
-    expect(response.headers.get("cache-control")).toBe("no-store");
-    await expect(response.json()).resolves.toEqual({
-      error: { code: "service_unavailable" },
-      success: false,
+    expect(responses.map((response) => response.status)).toEqual([200, 200, 200]);
+    expect(getFlags).toHaveBeenCalledOnce();
+    resolveFlags({ FEATURE_COMPLEX_MODE: true, FEATURE_MODULAR_COMPOSER: true });
+    await Promise.resolve();
+  });
+
+  test("honors the composer and Complex rollback flags when available", async () => {
+    getFlags.mockResolvedValueOnce({
+      FEATURE_COMPLEX_MODE: false,
+      FEATURE_MODULAR_COMPOSER: true,
     });
+    const complexOff = await getModules();
+    const complexOffPayload = await complexOff.json();
+    expect(complexOffPayload.data.modes).toContainEqual(
+      expect.objectContaining({ internalMode: "deep", isSelectable: false }),
+    );
+    expect(
+      complexOffPayload.data.combos.some(
+        (combo: { recommendedMode: string }) => combo.recommendedMode === "deep",
+      ),
+    ).toBe(false);
+
+    getFlags.mockResolvedValueOnce({
+      FEATURE_COMPLEX_MODE: false,
+      FEATURE_MODULAR_COMPOSER: false,
+    });
+    const composerOff = await getModules();
+    expect(composerOff.status).toBe(404);
+
+    getFlags.mockRejectedValueOnce(new Error("database unavailable"));
+    const composerOffDuringOutage = await getModules();
+    expect(composerOffDuringOutage.status).toBe(404);
   });
 });

@@ -1,5 +1,6 @@
 import { afterAll, describe, expect, it } from "vitest";
 
+import { publicAssessmentCatalog } from "@/lib/assessment/public-catalog";
 import { closeDatabaseForTests, getDatabase } from "@/lib/db/client";
 import {
   getCatalogModuleByKey,
@@ -27,6 +28,7 @@ describe("modular catalog PostgreSQL boundary", () => {
 
     const modules = await listCatalogModules();
     expect(modules).toHaveLength(10);
+    expect(modules).toEqual(publicAssessmentCatalog.modules);
     expect(modules).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -62,11 +64,17 @@ describe("modular catalog PostgreSQL boundary", () => {
   });
 
   it("maps Quick/Normal/Complex and keeps incomplete presets hidden", async () => {
-    await expect(listAssessmentModeProfiles()).resolves.toMatchObject([
+    const modes = await listAssessmentModeProfiles();
+    expect(modes).toMatchObject([
       { internalMode: "quick", publicName: "Quick" },
       { internalMode: "standard", publicName: "Normal" },
       { internalMode: "deep", isSelectable: false, publicName: "Complex" },
     ]);
+    expect(modes).toEqual(
+      publicAssessmentCatalog.modes.map((mode) =>
+        mode.internalMode === "deep" ? { ...mode, isSelectable: false } : mode,
+      ),
+    );
     await expect(listComboPresets()).resolves.toEqual(
       expect.arrayContaining([
         expect.objectContaining({ key: "core_personality", status: "published" }),
