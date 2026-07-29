@@ -9,7 +9,7 @@
 - `app/`: public, auth, dashboard, assessment, private result, shared result, metadata, and global styles.
 - `app/api/auth/`, `app/api/account/`, `app/api/assessment/`, `app/api/result/`, `app/api/shared/`: node-runtime HTTP boundaries.
 - `components/`: shared presentational site components.
-- `lib/auth/`: email normalization, Argon2id password helpers, safe redirect validation, and cookie contracts.
+- `lib/auth/`: email normalization, Argon2id password helpers, safe redirect validation, OIDC transaction protection, and cookie contracts.
 - `lib/db/`: Zod environment schema, server-only environment access, PostgreSQL client, transaction helper, and safe DB error mapping.
 - `lib/scoring/`: pure Likert, versioned legacy profile scoring, independent modular engines, quality/confidence, clarifier decisions, dan narrative-only correlation.
 - `lib/security/`: HMAC token, CSRF, HTTP parsing, and rate-limit primitives.
@@ -31,11 +31,12 @@
 - Keep Server Components default. Add Client Components only for required browser state or interaction.
 - Use `@/*` imports, strict TypeScript, and no `any`.
 - Import database, repository, and service modules only from server code. Preserve `server-only` guards and never import secret-dependent modules into client bundles.
-- Parse environment through `getServerEnvironment`; exact required names are `DATABASE_URL`, `NEXT_PUBLIC_APP_URL`, `AUTH_SESSION_SECRET`, `CSRF_SECRET`, `TOKEN_HASH_PEPPER`, and `RATE_LIMIT_SECRET`. `CRON_SECRET` is optional; when set it authorizes the retention cron route via constant-time bearer comparison and the route fails closed when it is missing.
+- Parse environment through `getServerEnvironment`; exact required names are `DATABASE_URL`, `NEXT_PUBLIC_APP_URL`, `AUTH_SESSION_SECRET`, `CSRF_SECRET`, `TOKEN_HASH_PEPPER`, and `RATE_LIMIT_SECRET`. Google and Apple OIDC credential groups are optional but fail closed when partially configured. `CRON_SECRET` is optional; when set it authorizes the retention cron route via constant-time bearer comparison and the route fails closed when it is missing.
 - Keep `src/lib/scoring/likert.ts` and `src/lib/scoring/profile.ts` pure, deterministic, versioned, and unit-tested. Browser must never calculate primary score.
 - Treat current trait-derived 16-Type, motivation, and temperament output as legacy MVP interpretation only. Preserve old result reading, but do not use or expand it for new modular sessions.
 - New lenses require own versioned item bank, module-level scoring service, confidence, and result DTO. Correlation may combine completed module outputs only after independent primary scoring.
 - Store only Argon2id password hashes, HMAC hashes of session/assessment/result/share tokens, and hashed request fingerprints. Do not log or return password, raw token, raw IP, or raw user-agent.
+- OIDC uses provider issuer plus subject as identity. Never auto-link by email, store provider tokens, or replace the internal account-session cookie. Provider identities must first be linked from an active password-backed session.
 - Auth, account, assessment, result, share, feedback, export, and deletion mutations require strict Zod boundary, authorization token/session, relevant rate limit, and exact same-origin CSRF where cookie-authenticated mutation applies. Preserve generic auth failures.
 - `GET /api/auth/session` is CSRF bootstrap. Its signed token may be returned with `no-store`; session nonce cookie stays HttpOnly.
 - Cookies remain `HttpOnly`, `SameSite=Lax`, path `/`, `Secure` in production, and use `__Host-` names in production.
