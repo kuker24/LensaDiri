@@ -1,23 +1,27 @@
 import { expect, test } from "@playwright/test";
 
-test("ten-module Complex selection is blocked with capacity guidance", async ({ page }) => {
+test("ten-module Complex selection reaches segmented review", async ({ page }) => {
   await page.goto("/start/modules");
   await expect(page.getByRole("heading", { name: "Apa yang ingin kamu pahami?" })).toBeVisible();
 
-  const modules = page.locator('section[aria-labelledby="module-heading"] input[type="checkbox"]');
-  for (let index = 0; index < (await modules.count()); index += 1) {
-    const checkbox = modules.nth(index);
-    if (!(await checkbox.isChecked())) await checkbox.check();
-  }
+  await page.getByRole("button", { name: "Pilih semua 10" }).click();
   await page.getByRole("button", { name: /Complex/u }).click();
   await page.getByRole("checkbox", { name: /Aku memahami lensa eksperimental/u }).check();
-  await expect(page.getByText(/10 lensa · 120 pertanyaan/u)).toBeVisible();
+  await expect(page.getByText(/Target awal · 10 lensa/u)).toBeVisible();
 
   await page.getByRole("button", { name: "Tinjau pilihan" }).click();
 
-  await expect(page).toHaveURL(/\/start\/modules$/u);
-  await expect(page.getByRole("alert").filter({ hasText: /melebihi kapasitas/u })).toBeVisible();
-  await expect(page.getByRole("button", { name: "Tinjau pilihan" })).toBeDisabled();
+  await expect(page).toHaveURL(/\/start\/review$/u);
+  const questionCount = page.getByText(/\d+ pertanyaan/u);
+  await expect(questionCount).toBeVisible();
+  expect(Number((await questionCount.textContent())?.match(/\d+/u)?.[0])).toBeGreaterThan(120);
+  await expect(
+    page.getByRole("heading", { name: "Lensa dipilih" }).locator("..").getByRole("listitem"),
+  ).toHaveCount(10);
+  const start = page.getByRole("button", { name: "Mulai asesmen" });
+  await expect(start).toBeDisabled();
+  await page.getByRole("checkbox", { name: /setuju jawabanku diproses/u }).check();
+  await expect(start).toBeEnabled();
 });
 
 test("modular selection estimates, starts, pauses, resumes, and completes", async ({ page }) => {
