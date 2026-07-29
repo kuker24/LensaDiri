@@ -2,6 +2,7 @@ import { expect, test } from "@playwright/test";
 
 test("ten-module Complex selection is blocked with capacity guidance", async ({ page }) => {
   await page.goto("/start/modules");
+  await expect(page.getByRole("heading", { name: "Apa yang ingin kamu pahami?" })).toBeVisible();
 
   const modules = page.locator('section[aria-labelledby="module-heading"] input[type="checkbox"]');
   for (let index = 0; index < (await modules.count()); index += 1) {
