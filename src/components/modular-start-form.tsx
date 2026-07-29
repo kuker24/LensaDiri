@@ -238,7 +238,7 @@ export function ModularStartForm({
   }
 
   return (
-    <div className="mx-auto max-w-4xl pb-28 sm:pb-8">
+    <div className="mx-auto max-w-4xl pb-52 sm:pb-8">
       <div className="max-w-2xl">
         <p className="mono-label text-ink">Susun eksplorasi</p>
         <h1 className="mt-4 text-4xl font-normal tracking-[-0.035em] sm:text-5xl">
@@ -451,8 +451,7 @@ export function ModularStartForm({
                   sekitar {estimate.estimatedMinutes} menit
                 </p>
                 <p className="text-ink-muted mt-1 max-w-2xl text-xs leading-5">
-                  Jumlah final dapat bertambah agar tiap lensa mendapat cakupan minimum, lalu dibagi
-                  menjadi beberapa bagian. {estimate.disclaimer}
+                  Jumlah final dapat bertambah dan dibagi beberapa bagian. {estimate.disclaimer}
                 </p>
               </>
             ) : (
