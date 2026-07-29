@@ -11,26 +11,27 @@ Production project identifiers, database URLs, passwords, API keys, and connecti
 
 ## Applied migration mapping
 
-Verified with `supabase migration list --linked` on 2026-07-22. Production contains versions `202607120001` through `202607270001`; local and hosted migration history agree through `202607270001`. An earlier revision of this document described `202607270001` as pending on `202607200002`; that statement is superseded by the current linked migration list, which shows `202607270001` present on both Local and Remote.
+Verified through a linked production query on 2026-07-29. Production contains the Trait repair version `202607290002`; local and hosted migration history agree through that version.
 
-| Version        | Repository source                                                    | SHA-256                                                            | Production status | Purpose                                                                             |
-| -------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------ | ----------------- | ----------------------------------------------------------------------------------- |
-| `202607120001` | `supabase/migrations/202607120001_phase_1_foundation.sql`            | `b075bc62db2c676272ecb3469c1b3912367038a9b4cb8b94768690fbb24c03b9` | Applied           | Accounts, sessions, consent, rate limit, audit, forced RLS, browser-role revocation |
-| `202607130001` | `supabase/migrations/202607130001_account_hard_delete.sql`           | `bca0fdcb14c1bafac0c98d19d0292278dd2cfd731fc943ccaad36a433acdb003` | Applied           | Trusted account erasure and account-delete rate limit                               |
-| `202607130002` | `supabase/migrations/202607130002_mvp_assessment.sql`                | `38a4578dc0f86792a67901aa356a680a6aa66a9e2ed20690b5235d476655f9e3` | Applied           | Legacy question bank, assessment, result, share, and forced-RLS schema              |
-| `202607130003` | `supabase/migrations/202607130003_mvp_feedback.sql`                  | `4fce3896854ca161c37af0e49ba1fcb197760aa94965a5ab304bf310ed56b3d8` | Applied           | Server-only result feedback                                                         |
-| `202607130004` | `supabase/migrations/202607130004_portable_email_constraint.sql`     | `371bd1719b6ba02d3efe93b489f7e1a8c58fdc00ef2458039d089817d29c3b08` | Applied           | Portable hosted/local email constraint                                              |
-| `202607130005` | `supabase/migrations/202607130005_modular_enum_extensions.sql`       | `b28deeba68f92e221ddc37950144ca48fdeb311552e3c863976d2b191c12d166` | Applied           | Modular enum extensions                                                             |
-| `202607130006` | `supabase/migrations/202607130006_modular_assessment_foundation.sql` | `f8a781e63d5c734388ec91482dd536473cc2e7c90113f2e103b4173e0f0b19c6` | Applied           | Modular assessment foundation and legacy result-version backfill                    |
-| `202607150001` | `supabase/migrations/202607150001_modular_clarifier_runtime.sql`     | `6f567d1170305563b06b3016d831b8faca95f09c1fbd49989f59ad853cc7ef65` | Applied           | Clarifier runtime schema                                                            |
-| `202607160001` | `supabase/migrations/202607160001_result_module_provenance.sql`      | `60b33f6e61692bccce988b46a1d69db8ba86ece5f063d130c55cf264ecde06c2` | Applied           | Result module provenance                                                            |
-| `202607160002` | `supabase/migrations/202607160002_prd_v2_release_contract.sql`       | `2e75f373717a37b18e76394841d4572be344cb2c6bfb059286e21334f61244eb` | Applied           | PRD v2 release and publication contract                                             |
-| `202607160003` | `supabase/migrations/202607160003_dashboard_audit_extension.sql`     | `f6e167e4ffc264e563c3bacfbd7097cb888fa41658932e45133acc68e6b73980` | Applied           | Canonical audit constraint normalization                                            |
-| `202607200001` | `supabase/migrations/202607200001_account_recovery_foundation.sql`   | `bd2060b4b1c5457e24eee5bb77edc44ffc3a9677b293885ebb6a59211436400d` | Applied           | Dormant account recovery foundation                                                 |
-| `202607200002` | `supabase/migrations/202607200002_quality_model_version.sql`         | `73f84030fbbdbdbfda60bc14e240689acb7d497530d8589893697a14d7775eef` | Applied           | Versioned quality-model provenance on `assessment_blueprints`                       |
-| `202607270001` | `supabase/migrations/202607270001_guarded_all_lenses_release.sql`    | `dc3736fbd39d14f687520a4530e5477b8d1a2d2ec6ca70dd32731d8d647725f4` | Applied           | Promote 6 deferred modules to selectable guarded beta/experimental                  |
+| Version        | Repository source                                                       | SHA-256                                                            | Production status | Purpose                                                                             |
+| -------------- | ----------------------------------------------------------------------- | ------------------------------------------------------------------ | ----------------- | ----------------------------------------------------------------------------------- |
+| `202607120001` | `supabase/migrations/202607120001_phase_1_foundation.sql`               | `b075bc62db2c676272ecb3469c1b3912367038a9b4cb8b94768690fbb24c03b9` | Applied           | Accounts, sessions, consent, rate limit, audit, forced RLS, browser-role revocation |
+| `202607130001` | `supabase/migrations/202607130001_account_hard_delete.sql`              | `bca0fdcb14c1bafac0c98d19d0292278dd2cfd731fc943ccaad36a433acdb003` | Applied           | Trusted account erasure and account-delete rate limit                               |
+| `202607130002` | `supabase/migrations/202607130002_mvp_assessment.sql`                   | `38a4578dc0f86792a67901aa356a680a6aa66a9e2ed20690b5235d476655f9e3` | Applied           | Legacy question bank, assessment, result, share, and forced-RLS schema              |
+| `202607130003` | `supabase/migrations/202607130003_mvp_feedback.sql`                     | `4fce3896854ca161c37af0e49ba1fcb197760aa94965a5ab304bf310ed56b3d8` | Applied           | Server-only result feedback                                                         |
+| `202607130004` | `supabase/migrations/202607130004_portable_email_constraint.sql`        | `371bd1719b6ba02d3efe93b489f7e1a8c58fdc00ef2458039d089817d29c3b08` | Applied           | Portable hosted/local email constraint                                              |
+| `202607130005` | `supabase/migrations/202607130005_modular_enum_extensions.sql`          | `b28deeba68f92e221ddc37950144ca48fdeb311552e3c863976d2b191c12d166` | Applied           | Modular enum extensions                                                             |
+| `202607130006` | `supabase/migrations/202607130006_modular_assessment_foundation.sql`    | `f8a781e63d5c734388ec91482dd536473cc2e7c90113f2e103b4173e0f0b19c6` | Applied           | Modular assessment foundation and legacy result-version backfill                    |
+| `202607150001` | `supabase/migrations/202607150001_modular_clarifier_runtime.sql`        | `6f567d1170305563b06b3016d831b8faca95f09c1fbd49989f59ad853cc7ef65` | Applied           | Clarifier runtime schema                                                            |
+| `202607160001` | `supabase/migrations/202607160001_result_module_provenance.sql`         | `60b33f6e61692bccce988b46a1d69db8ba86ece5f063d130c55cf264ecde06c2` | Applied           | Result module provenance                                                            |
+| `202607160002` | `supabase/migrations/202607160002_prd_v2_release_contract.sql`          | `2e75f373717a37b18e76394841d4572be344cb2c6bfb059286e21334f61244eb` | Applied           | PRD v2 release and publication contract                                             |
+| `202607160003` | `supabase/migrations/202607160003_dashboard_audit_extension.sql`        | `f6e167e4ffc264e563c3bacfbd7097cb888fa41658932e45133acc68e6b73980` | Applied           | Canonical audit constraint normalization                                            |
+| `202607200001` | `supabase/migrations/202607200001_account_recovery_foundation.sql`      | `bd2060b4b1c5457e24eee5bb77edc44ffc3a9677b293885ebb6a59211436400d` | Applied           | Dormant account recovery foundation                                                 |
+| `202607200002` | `supabase/migrations/202607200002_quality_model_version.sql`            | `73f84030fbbdbdbfda60bc14e240689acb7d497530d8589893697a14d7775eef` | Applied           | Versioned quality-model provenance on `assessment_blueprints`                       |
+| `202607270001` | `supabase/migrations/202607270001_guarded_all_lenses_release.sql`       | `dc3736fbd39d14f687520a4530e5477b8d1a2d2ec6ca70dd32731d8d647725f4` | Applied           | Promote 6 deferred modules to selectable guarded beta/experimental                  |
+| `202607290002` | `supabase/migrations/202607290002_trait_profile_modular_production.sql` | `3875008bee0ef60307e0f35dd01d849c952531307f56b73df19a96b84c55561d` | Applied           | Restore single Trait Quick, Normal, and Complex capacity with immutable `modular-2` |
 
-Production checkpoint: 14 migrations applied through `202607270001`, `FEATURE_MODULAR_COMPOSER` enabled, all checked tables forced RLS, legacy Quick 40/Standard 60 intact. The guarded six-lens rollout (`202607270001`) is now applied; all 10 modules are selectable in production.
+Production checkpoint: Trait repair `202607290002` applied, `FEATURE_MODULAR_COMPOSER` enabled, all checked tables forced RLS, legacy Quick 40/Standard 60 intact. All 10 modules are selectable in production.
 
 ## Applied guarded-lens migration
 
@@ -64,15 +65,14 @@ A future approved migration window must verify:
 
 This migration is applied to production; the linked migration list on 2026-07-22 shows `202607270001` on both Local and Remote. The postcheck query above remains valid as a read-only verification to run directly against production content tables.
 
-## Pending Trait Profile fix
+## Applied Trait Profile fix
 
-`202607290002_trait_profile_modular_production.sql` repairs incomplete independent Trait content
-from the canonical legacy item bank. Production estimate succeeds, and a reduced Trait allocation
-inside a combo starts, but single Trait fails against its published `modular-1` content. Apply this
-additive migration before declaring single Trait Quick, Normal, or Complex restored. The migration
-preserves published `modular-1` and legacy `mvp-1`, creates `modular-2`, copies 60 items with Deep
-eligibility, pins curated presets to the repair version, then validates independent scoring and
-item-bank provenance.
+`202607290002_trait_profile_modular_production.sql` was applied on 2026-07-29. The additive
+migration preserves published `modular-1` and legacy `mvp-1`, creates published `modular-2`, copies
+60 items with Deep eligibility, pins curated presets to the repair version, then validates
+independent scoring and item-bank provenance. Production smoke passed single Trait Quick (`40`
+items), Normal (`60` items), and Complex (`60` items), each with HTTP `201` start and HTTP `200`
+session reads.
 
 ## Applied additive chain
 
@@ -144,6 +144,6 @@ Never run reset, integration, pgTAP, seed replay/drift/parity, or E2E against ho
 
 ## Release boundary
 
-Approved migrations through `202607290001` applied. Production flags (2026-07-26): composer + Complex + provisional precision **ON**; AI **OFF**. Ten modules selectable (six guarded); `deep_self_discovery` pilot; `full_spectrum` draft. Recovery Resend + mandatory verification unset/OFF until credentials. Residual matrix: `docs/deployment/RELEASE_CLOSURE_GATES.md`. Postcheck SQL: `docs/deployment/PRODUCTION_POSTCHECK_SQL.md`.
+Approved migrations through `202607290002` applied. Production flags (2026-07-26): composer + Complex + provisional precision **ON**; AI **OFF**. Ten modules selectable (six guarded); `deep_self_discovery` pilot; `full_spectrum` draft. Recovery Resend + mandatory verification unset/OFF until credentials. Residual matrix: `docs/deployment/RELEASE_CLOSURE_GATES.md`. Postcheck SQL: `docs/deployment/PRODUCTION_POSTCHECK_SQL.md`.
 
 The guarded six-lens rollout (`202607270001`) reached `main` via PR #15 and is applied to production. Remaining production actions (Complex mode, provisional precision, AI narrative, provider email, mandatory verification) still require separate approved windows.
