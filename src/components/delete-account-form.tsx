@@ -5,7 +5,7 @@ import { type FormEvent, useState } from "react";
 import { AuthApiError, postAuthenticatedMutation } from "@/lib/auth/client";
 import { Input, Label } from "@/components/ui/input";
 
-export function DeleteAccountForm() {
+export function DeleteAccountForm({ provider }: { provider?: "google" }) {
   const [confirmation, setConfirmation] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
@@ -14,6 +14,19 @@ export function DeleteAccountForm() {
     event.preventDefault();
     setError(null);
     setIsPending(true);
+    if (provider === "google") {
+      try {
+        const result = await postAuthenticatedMutation<{ authorizationUrl: string }>(
+          "/api/account/delete/google",
+          { confirmation },
+        );
+        window.location.assign(result.authorizationUrl);
+      } catch {
+        setError("Verifikasi Google gagal dimulai. Akun belum diubah.");
+        setIsPending(false);
+      }
+      return;
+    }
     const formData = new FormData(event.currentTarget);
 
     try {
@@ -37,19 +50,21 @@ export function DeleteAccountForm() {
 
   return (
     <form className="mt-6 space-y-5" onSubmit={handleSubmit}>
-      <div>
-        <Label htmlFor="delete-password">Kata sandi saat ini</Label>
-        <Input
-          autoComplete="current-password"
-          className="border-danger-soft hover:border-danger"
-          id="delete-password"
-          maxLength={128}
-          minLength={12}
-          name="password"
-          required
-          type="password"
-        />
-      </div>
+      {provider !== "google" ? (
+        <div>
+          <Label htmlFor="delete-password">Kata sandi saat ini</Label>
+          <Input
+            autoComplete="current-password"
+            className="border-danger-soft hover:border-danger"
+            id="delete-password"
+            maxLength={128}
+            minLength={12}
+            name="password"
+            required
+            type="password"
+          />
+        </div>
+      ) : null}
       <div>
         <Label htmlFor="delete-confirmation">
           Ketik <span className="font-mono">HAPUS AKUN</span>
@@ -80,7 +95,11 @@ export function DeleteAccountForm() {
         disabled={confirmation !== "HAPUS AKUN" || isPending}
         type="submit"
       >
-        {isPending ? "Menghapus permanen…" : "Hapus akun permanen"}
+        {isPending
+          ? "Memverifikasi…"
+          : provider === "google"
+            ? "Verifikasi Google dan hapus akun"
+            : "Hapus akun permanen"}
       </button>
     </form>
   );

@@ -78,6 +78,10 @@ export async function createOidcAuthorizationUrl(
       await oauth.calculatePKCECodeChallenge(transaction.codeVerifier),
     );
     url.searchParams.set("code_challenge_method", "S256");
+    if (transaction.operation === "delete") {
+      url.searchParams.set("max_age", "0");
+      url.searchParams.set("prompt", "login select_account");
+    }
   } else {
     url.searchParams.set("response_mode", "form_post");
   }
@@ -88,7 +92,12 @@ export async function exchangeOidcCode(input: {
   environment: ServerEnvironment;
   parameters: URLSearchParams;
   transaction: OidcTransaction;
-}): Promise<{ issuer: string; subject: string }> {
+}): Promise<{
+  email: string | null;
+  emailVerified: boolean;
+  issuer: string;
+  subject: string;
+}> {
   const { as, auth, client, redirectUri } = await getProviderClient(
     input.transaction.provider,
     input.environment,
@@ -109,6 +118,7 @@ export async function exchangeOidcCode(input: {
   );
   const tokens = await oauth.processAuthorizationCodeResponse(as, client, tokenResponse, {
     expectedNonce: input.transaction.nonce,
+    ...(input.transaction.operation === "delete" ? { maxAge: 0 } : {}),
     requireIdToken: true,
   });
   await oauth.validateApplicationLevelSignature(as, tokenResponse);
@@ -116,5 +126,10 @@ export async function exchangeOidcCode(input: {
   if (!claims?.sub || claims.iss !== issuers[input.transaction.provider].href.replace(/\/$/u, "")) {
     throw new Error("OIDC identity invalid.");
   }
-  return { issuer: claims.iss, subject: claims.sub };
+  return {
+    email: typeof claims.email === "string" ? claims.email : null,
+    emailVerified: claims.email_verified === true,
+    issuer: claims.iss,
+    subject: claims.sub,
+  };
 }

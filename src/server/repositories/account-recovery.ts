@@ -22,6 +22,7 @@ export async function findActiveRecoveryAccountByEmail(
       where email_normalized = ${emailNormalized}
         and status = 'active'
         and deleted_at is null
+        and password_hash is not null
       limit 1
     `;
     return account
@@ -109,7 +110,10 @@ export async function verifyEmailWithTokenHash(tokenHash: string): Promise<strin
       const updated = await sql`
         update public.accounts
         set email_verified_at = coalesce(email_verified_at, now())
-        where id = ${token.account_id} and status = 'active' and deleted_at is null
+        where id = ${token.account_id}
+          and status = 'active'
+          and deleted_at is null
+          and password_hash is not null
       `;
       if (updated.count === 0) return null;
       await sql`
@@ -140,7 +144,10 @@ export async function resetPasswordWithTokenHash(input: {
       const updated = await sql`
         update public.accounts
         set password_hash = ${input.passwordHash}
-        where id = ${token.account_id} and status = 'active' and deleted_at is null
+        where id = ${token.account_id}
+          and status = 'active'
+          and deleted_at is null
+          and password_hash is not null
       `;
       if (updated.count === 0) return null;
       await sql`

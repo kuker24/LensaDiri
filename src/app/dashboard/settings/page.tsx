@@ -4,15 +4,19 @@ import { OidcButtons } from "@/components/oidc-buttons";
 import { getServerEnvironment } from "@/lib/db/env";
 import { getCurrentSession } from "@/server/current-session";
 import { listAccountOidcProviders } from "@/server/repositories/oidc-identities";
+import { findAccountByIdForAuthentication } from "@/server/repositories/accounts";
 
 export default async function DashboardSettingsPage() {
   const session = await getCurrentSession();
   if (!session) redirect("/login?redirectTo=%2Fdashboard%2Fsettings");
   const environment = getServerEnvironment();
   const linked = await listAccountOidcProviders(session.accountId);
+  const account = await findAccountByIdForAuthentication(session.accountId);
   const available = [
     ...(environment.googleOidc && !linked.includes("google") ? (["google"] as const) : []),
-    ...(environment.appleOidc && !linked.includes("apple") ? (["apple"] as const) : []),
+    ...(account?.passwordHash && environment.appleOidc && !linked.includes("apple")
+      ? (["apple"] as const)
+      : []),
   ];
 
   return (
@@ -40,8 +44,9 @@ export default async function DashboardSettingsPage() {
       <div className="border-line bg-surface mt-5 rounded-[16px] border p-6">
         <h2 className="text-lg font-normal">Metode masuk</h2>
         <p className="text-ink-muted mt-2 text-sm leading-6">
-          Kata sandi tetap aktif. Provider tertaut hanya dipakai untuk membuktikan identitas; sesi
-          LensaDiri tetap dikelola aplikasi.
+          {account?.passwordHash
+            ? "Kata sandi tetap aktif. Provider tertaut membuktikan identitas; sesi LensaDiri tetap dikelola aplikasi."
+            : "Akun ini dibuat melalui Google. Sesi LensaDiri tetap dikelola aplikasi."}
         </p>
         {linked.length > 0 ? (
           <p className="text-ink-muted mt-4 text-sm">

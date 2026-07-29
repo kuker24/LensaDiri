@@ -10,7 +10,7 @@ export type AccountStatus = "active" | "suspended" | "deleted";
 export type AccountAuthenticationRecord = {
   emailVerified: boolean;
   id: string;
-  passwordHash: string;
+  passwordHash: string | null;
   role: AccountRole;
   status: AccountStatus;
 };
@@ -57,6 +57,7 @@ export async function createAccountWithAudit(input: {
     return withTransaction(async (tx) => {
       await tx`set local statement_timeout = 2000`;
       await tx`set local lock_timeout = 1000`;
+      await tx`select pg_advisory_xact_lock(hashtextextended(${input.emailNormalized}, 0))`;
 
       const startAccountInsert = process.hrtime.bigint();
       let account;
@@ -119,7 +120,7 @@ export async function createAccountWithAudit(input: {
 function toAuthenticationRecord(account: {
   email_verified_at: Date | null;
   id: string;
-  password_hash: string;
+  password_hash: string | null;
   role: AccountRole;
   status: AccountStatus;
 }): AccountAuthenticationRecord {
@@ -141,7 +142,7 @@ export async function findAccountForAuthentication(
       {
         email_verified_at: Date | null;
         id: string;
-        password_hash: string;
+        password_hash: string | null;
         role: AccountRole;
         status: AccountStatus;
       }[]
@@ -166,7 +167,7 @@ export async function findAccountByIdForAuthentication(
       {
         email_verified_at: Date | null;
         id: string;
-        password_hash: string;
+        password_hash: string | null;
         role: AccountRole;
         status: AccountStatus;
       }[]
@@ -191,4 +192,26 @@ export async function hardDeleteAccountBySessionHash(sessionTokenHash: string): 
 
     return result?.deleted === true;
   });
+}
+
+export async function hardDeleteExpectedAccountBySessionHash(
+  accountId: string,
+  sessionTokenHash: string,
+): Promise<boolean> {
+  return runDatabaseOperation(() =>
+    withTransaction(async (tx) => {
+      const [session] = await tx<{ account_id: string }[]>`
+        select account_id from public.account_sessions
+        where session_token_hash = ${sessionTokenHash}
+          and revoked_at is null
+          and expires_at > now()
+        for update
+      `;
+      if (session?.account_id !== accountId) return false;
+      const [result] = await tx<{ deleted: boolean }[]>`
+        select public.hard_delete_account_by_session(${sessionTokenHash}) as deleted
+      `;
+      return result?.deleted === true;
+    }),
+  );
 }

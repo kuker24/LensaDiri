@@ -146,8 +146,8 @@ describe("account recovery PostgreSQL lifecycle", () => {
       }),
     ).resolves.toBe("invalid_token");
     const stored = await findAccountForAuthentication(email);
-    expect(await verifyPassword(stored!.passwordHash, password)).toBe(false);
-    expect(await verifyPassword(stored!.passwordHash, newPassword)).toBe(true);
+    expect(await verifyPassword(stored!.passwordHash!, password)).toBe(false);
+    expect(await verifyPassword(stored!.passwordHash!, newPassword)).toBe(true);
     for (const sessionHash of sessionHashes) {
       await expect(findSessionByTokenHash(sessionHash)).resolves.toMatchObject({
         revokedAt: expect.any(Date),

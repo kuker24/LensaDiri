@@ -1,6 +1,6 @@
 begin;
 
-select plan(15);
+select plan(17);
 
 select ok(to_regclass('public.account_oidc_identities') is not null, 'OIDC identities table exists');
 select ok(
@@ -53,6 +53,21 @@ select ok(
       and pg_get_constraintdef(oid) like '%authenticated_with%'
   ),
   'session authentication method is constrained'
+);
+select is(
+  (select is_nullable from information_schema.columns
+   where table_schema = 'public' and table_name = 'accounts' and column_name = 'password_hash'),
+  'YES',
+  'provider-created accounts may omit password hash'
+);
+select ok(
+  exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.accounts'::regclass
+      and conname = 'accounts_password_hash_argon2id_phc'
+      and pg_get_constraintdef(oid) like '%password_hash IS NULL%'
+  ),
+  'nullable password hash remains constrained to Argon2id when present'
 );
 
 select * from finish();
