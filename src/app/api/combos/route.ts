@@ -1,19 +1,24 @@
 import { NextResponse } from "next/server";
 
+import { withDeadline } from "@/lib/async/with-deadline";
 import { apiFailure, apiSuccess, getDatabaseFailureStatus, noStoreHeaders } from "@/server/http";
-import { isFeatureEnabled } from "@/server/repositories/catalog";
-import { listComboPresetsFromCache } from "@/server/repositories/catalog-cache";
+import {
+  isFeatureEnabledBatch,
+  listComboPresetsFromCache,
+} from "@/server/repositories/catalog-cache";
 
 export const runtime = "nodejs";
 
 export async function GET(): Promise<NextResponse> {
   try {
-    const [combos, modularEnabled, complexEnabled] = await Promise.all([
-      listComboPresetsFromCache(),
-      isFeatureEnabled("FEATURE_MODULAR_COMPOSER"),
-      isFeatureEnabled("FEATURE_COMPLEX_MODE"),
-    ]);
-    if (!modularEnabled) {
+    const [combos, flags] = await withDeadline(
+      Promise.all([
+        listComboPresetsFromCache(),
+        isFeatureEnabledBatch(["FEATURE_MODULAR_COMPOSER", "FEATURE_COMPLEX_MODE"]),
+      ]),
+      6_000,
+    );
+    if (!flags.FEATURE_MODULAR_COMPOSER) {
       return NextResponse.json(apiFailure("feature_unavailable"), {
         headers: noStoreHeaders,
         status: 404,
@@ -21,7 +26,7 @@ export async function GET(): Promise<NextResponse> {
     }
     return NextResponse.json(
       apiSuccess({
-        combos: complexEnabled
+        combos: flags.FEATURE_COMPLEX_MODE
           ? combos
           : combos.filter((combo) => combo.recommendedMode !== "deep"),
       }),

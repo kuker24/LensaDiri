@@ -18,11 +18,16 @@ const consentLabels = {
 export default async function DashboardPrivacyPage() {
   const session = await getCurrentSession();
   if (!session) redirect("/login");
+
   const policies = await listAccountConsentPolicies(session.accountId);
 
   return (
     <div className="task-shell">
-      <Link className="focus-ring quiet-link rounded-[12px] text-sm font-medium" href="/dashboard">
+      <Link
+        className="focus-ring quiet-link rounded-[12px] text-sm font-medium"
+        href="/dashboard"
+        prefetch={false}
+      >
         ← Ruang pribadi
       </Link>
       <header className="mt-6 max-w-3xl">

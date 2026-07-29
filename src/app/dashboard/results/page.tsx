@@ -31,7 +31,7 @@ export default async function DashboardResultsPage() {
         aria-label="Jejak navigasi"
         className="text-ink-muted mb-6 font-mono text-xs tracking-[-0.02em]"
       >
-        <Link className="focus-ring quiet-link rounded-[12px]" href="/dashboard">
+        <Link className="focus-ring quiet-link rounded-[12px]" href="/dashboard" prefetch={false}>
           Ruang pribadi
         </Link>
         <span aria-hidden="true" className="mx-2">

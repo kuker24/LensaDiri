@@ -14,7 +14,6 @@ import { isPubliclyAvailableModule } from "@/lib/assessment/catalog";
 import {
   estimateModularAssessment,
   getAssessmentCatalog,
-  getComboCatalog,
   type AssessmentCatalog,
 } from "@/lib/assessment/client";
 import { estimateAssessment, type AssessmentEstimate } from "@/lib/assessment/estimate";
@@ -102,12 +101,12 @@ export function ModularStartForm({
     }
 
     let active = true;
-    Promise.all([getAssessmentCatalog(), getComboCatalog()])
-      .then(([catalog, comboCatalog]) => {
+    getAssessmentCatalog()
+      .then((catalog) => {
         if (!active) return;
         setModules(catalog.modules);
         setModes(catalog.modes);
-        setCombos(comboCatalog);
+        setCombos(catalog.combos);
         const nextKeys = pickInitialModuleKeys(catalog.modules, initialModuleKey);
         setCatalogError(null);
         setSelectedKeys(nextKeys);

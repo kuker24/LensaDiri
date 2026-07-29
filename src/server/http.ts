@@ -1,5 +1,6 @@
 import "server-only";
 
+import { DatabaseTimeoutError } from "@/lib/async/with-deadline";
 import { DatabaseError } from "@/lib/db/errors";
 
 export type ApiSuccess<T> = { success: true; data: T };
@@ -14,7 +15,10 @@ export function apiFailure(code: string): ApiFailure {
 }
 
 export function getDatabaseFailureStatus(error: unknown): 503 | 500 {
-  return error instanceof DatabaseError && error.kind === "unavailable" ? 503 : 500;
+  return error instanceof DatabaseTimeoutError ||
+    (error instanceof DatabaseError && error.kind === "unavailable")
+    ? 503
+    : 500;
 }
 
 export const noStoreHeaders = { "Cache-Control": "no-store" };

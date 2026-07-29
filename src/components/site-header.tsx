@@ -65,6 +65,7 @@ function NavigationLinks({
         )}
         href={item.href}
         key={item.href}
+        prefetch={item.href.startsWith("/dashboard") ? false : null}
       >
         {item.label}
       </Link>
