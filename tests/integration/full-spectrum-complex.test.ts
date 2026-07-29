@@ -166,6 +166,42 @@ async function runDeepCombo(mode: AssessmentMode) {
 
 describe("Deep Combo PRD v2 lifecycle", () => {
   it.each(["quick", "standard", "deep"] as const)(
+    "starts single Trait Profile in %s mode",
+    async (mode) => {
+      const sessionTokenHash = hashOpaqueToken(`trait-only-${mode}-${randomUUID()}`, pepper);
+
+      await expect(
+        startAssessment({
+          accountId: null,
+          consentVersion: "prd-v2-1",
+          expiresAt: new Date(Date.now() + 10 * 60_000),
+          request: {
+            kind: "modular",
+            locale: "id",
+            selection: {
+              age: 18,
+              experimentalAcknowledged: false,
+              mode,
+              moduleKeys: ["trait_profile"],
+              presetKey: null,
+              selectionType: "single",
+            },
+          },
+          sessionTokenHash,
+        }),
+      ).resolves.toEqual({ kind: "modular", success: true });
+
+      const session = await getAssessmentSessionByHash(sessionTokenHash);
+      expect(session).toMatchObject({ isModular: true, mode, status: "active" });
+      expect(new Set(session?.questions.map((question) => question.moduleKey))).toEqual(
+        new Set(["trait_profile"]),
+      );
+      expect(session?.totalCount).toBe(mode === "quick" ? 40 : 60);
+    },
+    120_000,
+  );
+
+  it.each(["quick", "standard", "deep"] as const)(
     "starts all ten modules in %s mode with capacity-safe segments",
     async (mode) => {
       const sessionTokenHash = hashOpaqueToken(`all-lenses-${mode}-${randomUUID()}`, pepper);

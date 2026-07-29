@@ -1,6 +1,7 @@
 import "server-only";
 
 import type { AssessmentSelectionInput } from "@/lib/assessment/catalog";
+import { hasAssessmentCandidateCapacity } from "@/lib/assessment/composer";
 import { estimateAssessment } from "@/lib/assessment/estimate";
 import { getServerEnvironment } from "@/lib/db/env";
 import { hashOpaqueToken } from "@/lib/security/tokens";
@@ -104,12 +105,14 @@ export async function startAssessment(input: {
   if (Date.now() - readStartTime > 5_000) {
     throw new DatabaseTimeoutError("Database read operations took too long.");
   }
-
   const estimate = estimateAssessment(input.request.selection, modules, combos, availableModes, {
     minimumCoverage: getMinimumModuleCoverage(candidates, input.request.selection.mode),
     provisionalPrecisionEnabled: flags.FEATURE_PROVISIONAL_PRECISION === true,
   });
   if (!estimate.success) return estimate;
+  if (!hasAssessmentCandidateCapacity(candidates, estimate.estimate, input.sessionTokenHash)) {
+    return { code: "module_unavailable", success: false };
+  }
 
   const blueprint = await composeFromDatabase({
     candidates,

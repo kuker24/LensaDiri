@@ -63,6 +63,11 @@ vi.mock("@/server/repositories/blueprints", () => ({
   getMinimumModuleCoverage: () => ({}),
 }));
 
+vi.mock("@/lib/assessment/composer", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/assessment/composer")>()),
+  hasAssessmentCandidateCapacity: () => true,
+}));
+
 // Import routes after mocking
 import { POST as estimatePost } from "@/app/api/assessment/estimate/route";
 import { POST as startPost } from "@/app/api/assessment/start/route";

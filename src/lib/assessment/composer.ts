@@ -75,6 +75,28 @@ export interface ComposeAssessmentInput {
   readonly seed: string;
 }
 
+export function hasAssessmentCandidateCapacity(
+  candidates: readonly ComposerItemCandidate[],
+  estimate: AssessmentEstimate,
+  seed = "capacity-check",
+): boolean {
+  try {
+    for (const allocation of estimate.moduleAllocation) {
+      selectModuleItems(
+        allocation.moduleKey,
+        allocation.itemCount,
+        estimate.mode,
+        candidates,
+        seed,
+      );
+    }
+    return true;
+  } catch (error) {
+    if (error instanceof RangeError) return false;
+    throw error;
+  }
+}
+
 function stableHash(value: string): number {
   let hash = 0x811c9dc5;
   for (let index = 0; index < value.length; index += 1) {

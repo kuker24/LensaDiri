@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import crypto from "node:crypto";
 
 import { DatabaseTimeoutError, withDeadline } from "@/lib/async/with-deadline";
+import { hasAssessmentCandidateCapacity } from "@/lib/assessment/composer";
 import { estimateAssessment } from "@/lib/assessment/estimate";
 import { getServerEnvironment } from "@/lib/db/env";
 import { isValidCsrfMutation } from "@/lib/security/csrf";
@@ -153,6 +154,12 @@ export async function POST(request: Request): Promise<NextResponse> {
         provisionalPrecisionEnabled: context.precisionEnabled,
       },
     );
+    if (result.success && !hasAssessmentCandidateCapacity(context.candidates, result.estimate)) {
+      return NextResponse.json(apiFailure("module_unavailable"), {
+        headers: noStoreHeaders,
+        status: 422,
+      });
+    }
 
     logOperationalEvent({
       correlationId,

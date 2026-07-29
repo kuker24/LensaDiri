@@ -1,6 +1,10 @@
 import { describe, expect, it } from "vitest";
 
-import { composeAssessment, type ComposerItemCandidate } from "@/lib/assessment/composer";
+import {
+  composeAssessment,
+  hasAssessmentCandidateCapacity,
+  type ComposerItemCandidate,
+} from "@/lib/assessment/composer";
 import type { AssessmentEstimate } from "@/lib/assessment/estimate";
 
 function candidates(
@@ -62,6 +66,31 @@ function estimate(
 }
 
 describe("Test Composer", () => {
+  it("rejects candidate banks smaller than the authoritative allocation", () => {
+    expect(
+      hasAssessmentCandidateCapacity(
+        candidates("trait_profile", 39),
+        estimate([{ itemCount: 40, moduleKey: "trait_profile" }]),
+      ),
+    ).toBe(false);
+    expect(
+      hasAssessmentCandidateCapacity(
+        candidates("trait_profile", 40),
+        estimate([{ itemCount: 40, moduleKey: "trait_profile" }]),
+      ),
+    ).toBe(true);
+    const duplicateExposure = candidates("trait_profile", 40).map((candidate, index) => ({
+      ...candidate,
+      exposureGroup: index > 37 ? "duplicate-meaning" : null,
+    }));
+    expect(
+      hasAssessmentCandidateCapacity(
+        duplicateExposure,
+        estimate([{ itemCount: 40, moduleKey: "trait_profile" }]),
+      ),
+    ).toBe(false);
+  });
+
   it("is deterministic for identical seed and input", () => {
     const equalPriorityCandidates = [
       ...candidates("trait_profile", 16),

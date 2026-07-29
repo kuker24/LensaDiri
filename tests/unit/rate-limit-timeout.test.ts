@@ -87,6 +87,11 @@ vi.mock("@/server/repositories/blueprints", () => ({
   loadComposerCandidates: () => Promise.resolve([]),
 }));
 
+vi.mock("@/lib/assessment/composer", async (importOriginal) => ({
+  ...(await importOriginal<typeof import("@/lib/assessment/composer")>()),
+  hasAssessmentCandidateCapacity: () => true,
+}));
+
 const mockStartAssessment = vi.fn();
 vi.mock("@/server/services/assessment", () => ({
   startAssessment: (...args: unknown[]) => mockStartAssessment(...args),

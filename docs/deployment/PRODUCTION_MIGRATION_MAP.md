@@ -64,6 +64,16 @@ A future approved migration window must verify:
 
 This migration is applied to production; the linked migration list on 2026-07-22 shows `202607270001` on both Local and Remote. The postcheck query above remains valid as a read-only verification to run directly against production content tables.
 
+## Pending Trait Profile fix
+
+`202607290002_trait_profile_modular_production.sql` repairs incomplete independent Trait content
+from the canonical legacy item bank. Production estimate succeeds, and a reduced Trait allocation
+inside a combo starts, but single Trait fails against its published `modular-1` content. Apply this
+additive migration before declaring single Trait Quick, Normal, or Complex restored. The migration
+preserves published `modular-1` and legacy `mvp-1`, creates `modular-2`, copies 60 items with Deep
+eligibility, pins curated presets to the repair version, then validates independent scoring and
+item-bank provenance.
+
 ## Applied additive chain
 
 Versions below were applied on 2026-07-17 after logical backup, aggregate preflight, checksum review, and a seven-migration dry-run. They are now immutable production history. Future changes require additive fix-forward migrations.
