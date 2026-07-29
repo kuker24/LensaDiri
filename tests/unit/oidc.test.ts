@@ -30,7 +30,9 @@ describe("OIDC transaction primitives", () => {
   it("round-trips authenticated transaction state and rejects tampering", () => {
     const sealed = sealOidcTransaction(transaction, secret);
     expect(openOidcTransaction(sealed, secret)).toEqual(transaction);
-    expect(openOidcTransaction(`${sealed.slice(0, -1)}x`, secret)).toBeNull();
+    const tampered = Buffer.from(sealed, "base64url");
+    tampered[20] ^= 1;
+    expect(openOidcTransaction(tampered.toString("base64url"), secret)).toBeNull();
   });
 
   it("rejects expired transactions", () => {
