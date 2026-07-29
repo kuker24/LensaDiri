@@ -11,7 +11,10 @@ test("protected dashboard redirects guests and auth forms support keyboard focus
     "/dashboard/settings",
   ]) {
     await page.goto(path);
-    await expect(page).toHaveURL(/\/login$/u);
+    await expect(page).toHaveURL((url) => {
+      return url.pathname === "/login" && url.searchParams.get("redirectTo") === path;
+    });
+    await expect(page.getByRole("heading", { name: "Buka ruang pribadimu." })).toBeVisible();
   }
 
   await page.keyboard.press("Tab");
@@ -22,6 +25,14 @@ test("protected dashboard redirects guests and auth forms support keyboard focus
   const health = await page.request.get("/api/health");
   expect(health.status()).toBe(200);
   await expect(health.json()).resolves.toEqual({ status: "ok" });
+
+  await page.goto("/");
+  const mobileMenu = page.locator("summary", { hasText: "Menu" });
+  if (await mobileMenu.isVisible()) await mobileMenu.click();
+  await page.getByRole("link", { name: "Ruang pribadi", exact: true }).first().click();
+  await expect(page).toHaveURL((url) => {
+    return url.pathname === "/login" && url.searchParams.get("redirectTo") === "/dashboard";
+  });
 });
 
 test("account lifecycle registers, logs in, rejects wrong deletion password, then hard deletes", async ({
@@ -42,10 +53,15 @@ test("account lifecycle registers, logs in, rejects wrong deletion password, the
   ).toBeVisible();
 
   await page.getByRole("link", { name: "Kembali ke halaman masuk" }).click();
+  await page.goto("/dashboard/results");
+  await expect(page).toHaveURL((url) => {
+    return url.pathname === "/login" && url.searchParams.get("redirectTo") === "/dashboard/results";
+  });
   await page.getByLabel("Email").fill(email);
   await page.getByLabel(/password|kata sandi/i).fill(password);
   await page.getByRole("button", { name: "Masuk", exact: true }).click();
-  await expect(page).toHaveURL(/\/dashboard$/u);
+  await expect(page).toHaveURL(/\/dashboard\/results$/u);
+  await page.goto("/dashboard");
   await expect(page.getByRole("heading", { name: "Sesi, hasil, kontrol data" })).toBeVisible();
 
   const sessionCookie = (await page.context().cookies()).find(
@@ -61,7 +77,7 @@ test("account lifecycle registers, logs in, rejects wrong deletion password, the
   await expect(page).toHaveURL(/\/$/u);
   const mobileMenu = page.locator("summary", { hasText: "Menu" });
   if (await mobileMenu.isVisible()) await mobileMenu.click();
-  const publicAccountLink = page.getByRole("link", { name: "Dashboard", exact: true });
+  const publicAccountLink = page.getByRole("link", { name: "Ruang pribadi", exact: true });
   await expect(publicAccountLink.first()).toBeVisible();
   await publicAccountLink.first().click();
   await expect(page).toHaveURL(/\/dashboard$/u);
@@ -92,7 +108,9 @@ test("account lifecycle registers, logs in, rejects wrong deletion password, the
   await expect(page).toHaveURL(/\/?account=deleted$/u);
 
   await page.goto("/dashboard");
-  await expect(page).toHaveURL(/\/login$/u);
+  await expect(page).toHaveURL((url) => {
+    return url.pathname === "/login" && url.searchParams.get("redirectTo") === "/dashboard";
+  });
   await page.getByLabel("Email").fill(email);
   await page.getByLabel(/password|kata sandi/i).fill(password);
   await page.getByRole("button", { name: "Masuk", exact: true }).click();

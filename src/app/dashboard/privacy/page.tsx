@@ -17,7 +17,7 @@ const consentLabels = {
 
 export default async function DashboardPrivacyPage() {
   const session = await getCurrentSession();
-  if (!session) redirect("/login");
+  if (!session) redirect("/login?redirectTo=%2Fdashboard%2Fprivacy");
 
   const policies = await listAccountConsentPolicies(session.accountId);
 

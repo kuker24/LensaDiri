@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { AuthForm } from "@/components/auth-form";
 import { BlurFade } from "@/components/ui/blur-fade";
+import { getSafeRedirectPath } from "@/lib/auth/redirect";
 
 export const metadata: Metadata = {
   title: "Masuk",
@@ -10,7 +11,17 @@ export const metadata: Metadata = {
   robots: { follow: false, index: false },
 };
 
-export default function LoginPage() {
+export default async function LoginPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ redirectTo?: string | string[] }>;
+}) {
+  const requestedRedirect = (await searchParams).redirectTo;
+  const redirectTo = getSafeRedirectPath(
+    typeof requestedRedirect === "string" ? requestedRedirect : undefined,
+  );
+  const opensPrivateSpace = redirectTo.startsWith("/dashboard");
+
   return (
     <section className="task-shell">
       <BlurFade className="auth-panel mx-auto grid max-w-4xl border-white/18 md:grid-cols-[0.9fr_1.1fr]">
@@ -22,10 +33,12 @@ export default function LoginPage() {
           <div className="relative">
             <p className="mono-label text-ink">Akses akun</p>
             <h1 className="mt-8 max-w-sm text-3xl font-normal tracking-[-0.03em] sm:text-4xl">
-              Lanjutkan dengan aman.
+              {opensPrivateSpace ? "Buka ruang pribadimu." : "Lanjutkan dengan aman."}
             </h1>
             <p className="text-ink-muted mt-5 max-w-md leading-7">
-              Sesi dilindungi. Jawaban dan hasil tetap privat.
+              {opensPrivateSpace
+                ? "Masuk untuk melanjutkan ke sesi, hasil, dan kontrol datamu."
+                : "Sesi dilindungi. Jawaban dan hasil tetap privat."}
             </p>
           </div>
         </div>
@@ -36,7 +49,7 @@ export default function LoginPage() {
             Email dan kata sandi akunmu. Minimal 12 karakter untuk kata sandi.
           </p>
           <div className="mt-7">
-            <AuthForm mode="login" />
+            <AuthForm mode="login" redirectTo={redirectTo} />
           </div>
           <p className="text-ink-muted mt-6 text-sm">
             Lupa kata sandi?{" "}

@@ -31,7 +31,7 @@ function formatModuleKey(key: string): string {
 
 export default async function DashboardSessionsPage() {
   const session = await getCurrentSession();
-  if (!session) redirect("/login");
+  if (!session) redirect("/login?redirectTo=%2Fdashboard%2Fsessions");
 
   const sessions = await listAccountActiveSessions(session.accountId);
 

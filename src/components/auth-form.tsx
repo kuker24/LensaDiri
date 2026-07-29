@@ -10,6 +10,7 @@ import { AuthApiError, postAuthenticatedMutation } from "@/lib/auth/client";
 
 type AuthFormProps = {
   mode: "login" | "register";
+  redirectTo?: string;
 };
 
 const errorMessages: Record<string, string> = {
@@ -22,7 +23,7 @@ const errorMessages: Record<string, string> = {
   service_unavailable: "Layanan sedang tidak tersedia. Coba lagi nanti.",
 };
 
-export function AuthForm({ mode }: AuthFormProps) {
+export function AuthForm({ mode, redirectTo = "/dashboard" }: AuthFormProps) {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
   const [isPending, setIsPending] = useState(false);
@@ -41,7 +42,7 @@ export function AuthForm({ mode }: AuthFormProps) {
         password: String(formData.get("password") ?? ""),
       });
       if (isLogin) {
-        router.push("/dashboard");
+        router.replace(redirectTo);
       } else {
         setRegistrationAccepted(true);
       }

@@ -40,7 +40,7 @@ function formatModuleKey(key: string): string {
 
 export default async function DashboardPage() {
   const session = await getCurrentSession();
-  if (!session) redirect("/login");
+  if (!session) redirect("/login?redirectTo=%2Fdashboard");
 
   const correlationId = crypto.randomUUID();
   const startedAt = process.hrtime.bigint();

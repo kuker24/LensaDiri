@@ -64,6 +64,7 @@ describe("internal authentication primitives", () => {
 
   it("allows internal redirects only", () => {
     expect(getSafeRedirectPath("/privacy?from=auth")).toBe("/privacy?from=auth");
+    expect(getSafeRedirectPath("/dashboard/results")).toBe("/dashboard/results");
     expect(getSafeRedirectPath("https://attacker.test")).toBe("/dashboard");
     expect(getSafeRedirectPath("//attacker.test")).toBe("/dashboard");
     expect(getSafeRedirectPath("/\\attacker.test")).toBe("/dashboard");

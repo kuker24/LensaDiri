@@ -120,7 +120,7 @@ export function SiteHeader({ family }: { family: RouteFamily }) {
                   className="focus-ring min-h-11 px-3 py-3 text-sm font-medium"
                   href="/dashboard"
                 >
-                  Dashboard
+                  Ruang pribadi
                 </Link>
               ) : null}
             </nav>
@@ -131,7 +131,7 @@ export function SiteHeader({ family }: { family: RouteFamily }) {
                 href="/dashboard"
                 className={cn(getButtonClassName("secondary", "sm"), "hidden lg:inline-flex")}
               >
-                Dashboard
+                Ruang pribadi
               </Link>
               <Link href="/start" className={getButtonClassName("primary", "sm")}>
                 Mulai

@@ -4,7 +4,7 @@ import { getCurrentSession } from "@/server/current-session";
 
 export default async function DashboardSettingsPage() {
   const session = await getCurrentSession();
-  if (!session) redirect("/login");
+  if (!session) redirect("/login?redirectTo=%2Fdashboard%2Fsettings");
 
   return (
     <div className="task-shell">
