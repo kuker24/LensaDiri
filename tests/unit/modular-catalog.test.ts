@@ -8,6 +8,7 @@ import {
   validateAssessmentSelection,
 } from "@/lib/assessment/catalog";
 import { estimateAssessment, provisionalPrecisionDisclaimer } from "@/lib/assessment/estimate";
+import { publicAssessmentCatalog } from "@/lib/assessment/public-catalog";
 
 const modules: readonly AssessmentModuleDefinition[] = [
   {
@@ -260,6 +261,45 @@ describe("modular assessment catalog", () => {
 });
 
 describe("assessment estimate", () => {
+  it.each(["quick", "standard", "deep"] as const)(
+    "accepts every non-empty lens subset in %s mode",
+    (mode) => {
+      const subsetCount = 2 ** publicAssessmentCatalog.modules.length;
+      for (let mask = 1; mask < subsetCount; mask += 1) {
+        const selected = publicAssessmentCatalog.modules.filter((_, index) => mask & (1 << index));
+        const result = estimateAssessment(
+          {
+            age: 18,
+            experimentalAcknowledged: true,
+            mode,
+            moduleKeys: selected.map((module) => module.key),
+            presetKey: null,
+            selectionType: selected.length === 1 ? "single" : "custom_combo",
+          },
+          publicAssessmentCatalog.modules,
+          publicAssessmentCatalog.combos,
+          publicAssessmentCatalog.modes,
+          {
+            minimumCoverage: Object.fromEntries(
+              selected.map((module) => [module.key, module.modeQuota[mode]]),
+            ),
+            provisionalPrecisionEnabled: false,
+          },
+        );
+
+        expect(result).toMatchObject({ success: true });
+        if (result.success) {
+          expect(result.estimate.moduleAllocation).toEqual(
+            selected.map((module) => ({
+              itemCount: module.modeQuota[mode],
+              moduleKey: module.key,
+            })),
+          );
+        }
+      }
+    },
+  );
+
   it("uses single-module quota instead of forcing package targets", () => {
     const result = estimateAssessment(
       {
@@ -308,13 +348,49 @@ describe("assessment estimate", () => {
     });
   });
 
-  it("returns a domain error when minimum coverage exceeds the selected mode", () => {
+  it.each([
+    ["quick", 100, 1],
+    ["standard", 100, 1],
+    ["deep", 130, 3],
+  ] as const)(
+    "expands %s beyond its target when selected lenses require more coverage",
+    (mode, minimumTotal, segmentCount) => {
+      const result = estimateAssessment(
+        {
+          age: 18,
+          experimentalAcknowledged: false,
+          mode,
+          moduleKeys: ["trait_profile", "type_16", "enneagram"],
+          presetKey: null,
+          selectionType: "custom_combo",
+        },
+        modules,
+        presets,
+        modeProfiles,
+        {
+          minimumCoverage: {
+            enneagram: minimumTotal - 60,
+            trait_profile: 30,
+            type_16: 30,
+          },
+          provisionalPrecisionEnabled: false,
+        },
+      );
+
+      expect(result).toMatchObject({
+        estimate: { itemCount: minimumTotal, segmentPlan: { length: segmentCount } },
+        success: true,
+      });
+    },
+  );
+
+  it("fails closed when minimum coverage exceeds a module's mode capacity", () => {
     const result = estimateAssessment(
       {
         age: 18,
         experimentalAcknowledged: false,
-        mode: "standard",
-        moduleKeys: ["trait_profile", "type_16", "enneagram"],
+        mode: "quick",
+        moduleKeys: ["trait_profile", "type_16"],
         presetKey: null,
         selectionType: "custom_combo",
       },
@@ -322,7 +398,7 @@ describe("assessment estimate", () => {
       presets,
       modeProfiles,
       {
-        minimumCoverage: { enneagram: 40, trait_profile: 30, type_16: 30 },
+        minimumCoverage: { trait_profile: 31, type_16: 30 },
         provisionalPrecisionEnabled: false,
       },
     );

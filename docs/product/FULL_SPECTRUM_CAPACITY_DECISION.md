@@ -2,9 +2,20 @@
 
 **Date:** 2026-07-26
 **Mode:** hobby / free tier
-**Status:** **DECIDED — keep `full_spectrum` draft; multi-session path only**
+**Status:** **AMENDED 2026-07-29 — custom 1–10 lenses may use one segmented assessment**
 
-## Problem
+## 2026-07-29 amendment
+
+The database preset `full_spectrum` remains draft. Users may nevertheless select any 1–10
+available lenses as a custom combo in Quick, Normal, or Complex. When minimum valid module
+coverage exceeds the mode's ideal target, the estimate expands to that minimum and the existing
+segment plan divides the assessment without reducing per-module coverage.
+
+This amendment supersedes the rejection of over-target custom combos and the separate-session
+guidance below. Experimental acknowledgment, age rules, independent scoring, pause/resume, and
+the per-segment cap remain unchanged.
+
+## Original problem
 
 | Fact                                | Value                                                                |
 | ----------------------------------- | -------------------------------------------------------------------- |

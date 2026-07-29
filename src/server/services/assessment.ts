@@ -106,7 +106,7 @@ export async function startAssessment(input: {
   }
 
   const estimate = estimateAssessment(input.request.selection, modules, combos, availableModes, {
-    minimumCoverage: getMinimumModuleCoverage(candidates),
+    minimumCoverage: getMinimumModuleCoverage(candidates, input.request.selection.mode),
     provisionalPrecisionEnabled: flags.FEATURE_PROVISIONAL_PRECISION === true,
   });
   if (!estimate.success) return estimate;

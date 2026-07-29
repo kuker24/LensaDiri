@@ -75,7 +75,7 @@ export function ModularReviewForm() {
 
       {estimate ? (
         <div className="bg-surface mt-10 overflow-hidden rounded-[16px] border border-white/18">
-          <div className="border-line grid gap-5 border-b p-6 sm:grid-cols-3">
+          <div className="border-line grid gap-5 border-b p-6 sm:grid-cols-4">
             <div>
               <p className="text-ink-muted font-mono text-[0.625rem] tracking-[-0.02em] uppercase">
                 Kedalaman
@@ -97,6 +97,12 @@ export function ModularReviewForm() {
               <p className="mt-1 text-lg font-normal tabular-nums">
                 ± {estimate.estimatedMinutes} menit
               </p>
+            </div>
+            <div>
+              <p className="text-ink-muted font-mono text-[0.625rem] tracking-[-0.02em] uppercase">
+                Bagian
+              </p>
+              <p className="mt-1 text-lg font-normal tabular-nums">{estimate.segmentPlan.length}</p>
             </div>
           </div>
           <div className="p-6">

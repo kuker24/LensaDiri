@@ -157,6 +157,9 @@ export function ModularStartForm({
   }, [combos, modes, modules, selection]);
 
   const error = catalogError ?? selectionError ?? validationError;
+  const selectableModuleKeys = modules
+    .filter(isPubliclyAvailableModule)
+    .map((module) => module.key);
 
   function updateSelection(nextKeys: string[]) {
     setValidationError(null);
@@ -299,27 +302,45 @@ export function ModularStartForm({
             <h2 className="text-xl font-normal tracking-[-0.02em]" id="module-heading">
               1. Pilih lensa
             </h2>
-            <p className="text-ink-muted mt-1 text-sm">Satu lensa sudah cukup untuk mulai.</p>
+            <p className="text-ink-muted mt-1 text-sm">
+              Pilih bebas 1–{selectableModuleKeys.length} lensa.
+            </p>
           </div>
-          <label className="flex items-center gap-3 text-sm font-medium">
-            Usia <span className="sr-only">wajib</span>
-            <Input
-              className="w-24"
-              inputMode="numeric"
-              max={99}
-              min={13}
-              disabled={validating}
-              onChange={(event) => {
-                setValidationError(null);
-                setSelectionRejected(false);
-                setAge(event.target.value ? Number(event.target.value) : null);
+          <div className="flex flex-wrap items-center gap-3">
+            <Button
+              disabled={
+                validating || selectableModuleKeys.every((key) => selectedKeys.includes(key))
+              }
+              onClick={() => {
+                setPresetKey(null);
+                updateSelection(selectableModuleKeys);
               }}
-              placeholder="13+"
-              required
-              type="number"
-              value={age ?? ""}
-            />
-          </label>
+              size="sm"
+              type="button"
+              variant="secondary"
+            >
+              Pilih semua {selectableModuleKeys.length}
+            </Button>
+            <label className="flex items-center gap-3 text-sm font-medium">
+              Usia <span className="sr-only">wajib</span>
+              <Input
+                className="w-24"
+                inputMode="numeric"
+                max={99}
+                min={13}
+                disabled={validating}
+                onChange={(event) => {
+                  setValidationError(null);
+                  setSelectionRejected(false);
+                  setAge(event.target.value ? Number(event.target.value) : null);
+                }}
+                placeholder="13+"
+                required
+                type="number"
+                value={age ?? ""}
+              />
+            </label>
+          </div>
         </div>
         <div className="border-line mt-5 overflow-hidden rounded-[16px] border">
           {modules.map((module) => {
@@ -426,11 +447,12 @@ export function ModularStartForm({
             {estimate ? (
               <>
                 <p className="mt-2 text-lg font-normal tabular-nums sm:text-xl">
-                  {selectedKeys.length} lensa · {estimate.itemCount} pertanyaan · sekitar{" "}
-                  {estimate.estimatedMinutes} menit
+                  Target awal · {selectedKeys.length} lensa · {estimate.itemCount} pertanyaan ·
+                  sekitar {estimate.estimatedMinutes} menit
                 </p>
                 <p className="text-ink-muted mt-1 max-w-2xl text-xs leading-5">
-                  {estimate.disclaimer}
+                  Jumlah final dapat bertambah agar tiap lensa mendapat cakupan minimum, lalu dibagi
+                  menjadi beberapa bagian. {estimate.disclaimer}
                 </p>
               </>
             ) : (

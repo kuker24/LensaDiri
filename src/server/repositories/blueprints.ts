@@ -8,7 +8,7 @@ import {
   composeAssessment,
 } from "@/lib/assessment/composer";
 import type { AssessmentEstimate } from "@/lib/assessment/estimate";
-import type { AssessmentSelectionInput } from "@/lib/assessment/catalog";
+import type { AssessmentMode, AssessmentSelectionInput } from "@/lib/assessment/catalog";
 import { getDatabase, withTransaction } from "@/lib/db/client";
 import type { ItemPolarity } from "@/lib/scoring/likert";
 import { runDatabaseOperation } from "@/server/database";
@@ -139,9 +139,12 @@ export async function loadComposerCandidates(
 
 export function getMinimumModuleCoverage(
   candidates: readonly ComposerItemCandidate[],
+  mode: AssessmentMode,
 ): Readonly<Record<string, number>> {
   const coverageByDimension = new Map<string, number>();
-  for (const candidate of candidates) {
+  for (const candidate of candidates.filter((candidate) =>
+    candidate.modeEligibility.includes(mode),
+  )) {
     const dimensionKey = `${candidate.moduleKey}\u0000${candidate.constructKey}\u0000${candidate.facetKey}`;
     coverageByDimension.set(
       dimensionKey,

@@ -191,6 +191,27 @@ describe("ModularStartForm", () => {
     expect(screen.queryByRole("alert")).not.toBeInTheDocument();
   });
 
+  test("memilih semua lensa sebagai custom combo", async () => {
+    render(<ModularStartForm initialCatalog={serverCatalog} initialCombos={[]} />);
+
+    fireEvent.click(screen.getByRole("button", { name: "Pilih semua 3" }));
+
+    expect(screen.getAllByRole("checkbox")).toHaveLength(3);
+    expect(
+      screen.getAllByRole<HTMLInputElement>("checkbox").every((checkbox) => checkbox.checked),
+    ).toBe(true);
+    fireEvent.click(screen.getByRole("button", { name: "Tinjau pilihan" }));
+    await vi.waitFor(() =>
+      expect(mocks.saveSelection).toHaveBeenCalledWith(
+        expect.objectContaining({
+          moduleKeys: ["trait_profile", "type_16", "riasec"],
+          presetKey: null,
+          selectionType: "custom_combo",
+        }),
+      ),
+    );
+  });
+
   test("membersihkan estimate saat selection kosong", async () => {
     render(<ModularStartForm initialCatalog={serverCatalog} initialCombos={[]} />);
 

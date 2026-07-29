@@ -110,7 +110,10 @@ function getTargetItemCount(
   }
 
   const requested = modules.reduce((sum, module) => sum + module.modeQuota[input.mode], 0);
-  return Math.max(profile.targetItems.min, Math.min(profile.targetItems.max, requested));
+  return Math.min(
+    requested,
+    Math.max(profile.targetItems.min, Math.min(profile.targetItems.max, requested)),
+  );
 }
 
 function buildSegmentPlan(
@@ -152,15 +155,19 @@ export function estimateAssessment(
   const modules = validation.modules.toSorted(
     (left, right) => left.defaultOrder - right.defaultOrder,
   );
-  const itemCount = getTargetItemCount(input, modules, profile);
   const minimumCoverage = options.minimumCoverage ?? {};
+  if (
+    modules.some(
+      (module) => Math.max(1, minimumCoverage[module.key] ?? 1) > module.modeQuota[input.mode],
+    )
+  ) {
+    return { code: "coverage_unavailable", success: false };
+  }
   const minimumCoverageTotal = modules.reduce(
     (sum, module) => sum + Math.max(1, minimumCoverage[module.key] ?? 1),
     0,
   );
-  if (minimumCoverageTotal > itemCount) {
-    return { code: "coverage_unavailable", success: false };
-  }
+  const itemCount = Math.max(getTargetItemCount(input, modules, profile), minimumCoverageTotal);
   const moduleAllocation = distributeTarget(modules, input.mode, itemCount, minimumCoverage);
   const estimatedMinutes = Math.max(1, Math.ceil((itemCount * profile.secondsPerItem) / 60));
 

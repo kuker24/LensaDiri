@@ -149,7 +149,7 @@ export async function POST(request: Request): Promise<NextResponse> {
       context.combos,
       selectableModes,
       {
-        minimumCoverage: getMinimumModuleCoverage(context.candidates),
+        minimumCoverage: getMinimumModuleCoverage(context.candidates, parsed.data.mode),
         provisionalPrecisionEnabled: context.precisionEnabled,
       },
     );

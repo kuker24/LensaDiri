@@ -165,31 +165,49 @@ async function runDeepCombo(mode: AssessmentMode) {
 }
 
 describe("Deep Combo PRD v2 lifecycle", () => {
-  it("rejects the ten-module Complex selection before persistence", async () => {
-    const sessionTokenHash = hashOpaqueToken(`over-cap-${randomUUID()}`, pepper);
+  it.each(["quick", "standard", "deep"] as const)(
+    "starts all ten modules in %s mode with capacity-safe segments",
+    async (mode) => {
+      const sessionTokenHash = hashOpaqueToken(`all-lenses-${mode}-${randomUUID()}`, pepper);
 
-    await expect(
-      startAssessment({
-        accountId: null,
-        consentVersion: "prd-v2-1",
-        expiresAt: new Date(Date.now() + 10 * 60_000),
-        request: {
-          kind: "modular",
-          locale: "id",
-          selection: {
-            age: 18,
-            experimentalAcknowledged: true,
-            mode: "deep",
-            moduleKeys: allModuleKeys,
-            presetKey: null,
-            selectionType: "custom_combo",
+      await expect(
+        startAssessment({
+          accountId: null,
+          consentVersion: "prd-v2-1",
+          expiresAt: new Date(Date.now() + 10 * 60_000),
+          request: {
+            kind: "modular",
+            locale: "id",
+            selection: {
+              age: 18,
+              experimentalAcknowledged: true,
+              mode,
+              moduleKeys: allModuleKeys,
+              presetKey: null,
+              selectionType: "custom_combo",
+            },
           },
-        },
-        sessionTokenHash,
-      }),
-    ).resolves.toEqual({ code: "coverage_unavailable", success: false });
-    await expect(getAssessmentSessionByHash(sessionTokenHash)).resolves.toBeNull();
-  });
+          sessionTokenHash,
+        }),
+      ).resolves.toEqual({ kind: "modular", success: true });
+
+      const session = await getAssessmentSessionByHash(sessionTokenHash);
+      expect(new Set(session?.questions.map((question) => question.moduleKey))).toEqual(
+        new Set(allModuleKeys),
+      );
+      expect(session).toMatchObject({
+        currentSegmentIndex: 1,
+        isModular: true,
+        mode,
+        status: "active",
+      });
+      expect(session!.totalCount).toBeGreaterThan(
+        mode === "quick" ? 60 : mode === "standard" ? 90 : 120,
+      );
+      expect(session!.segmentCount).toBeGreaterThan(1);
+    },
+    180_000,
+  );
 
   it("completes Deep Combo Normal atomically", async () => {
     await runDeepCombo("standard");

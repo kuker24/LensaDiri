@@ -62,6 +62,7 @@ describe("ModularReviewForm", () => {
     render(<ModularReviewForm />);
 
     expect(await screen.findByText("120 pertanyaan")).toBeVisible();
+    expect(screen.getByText("2")).toBeVisible();
     const start = screen.getByRole("button", { name: "Mulai asesmen" });
     expect(start).toBeDisabled();
     fireEvent.click(screen.getByRole("checkbox", { name: /setuju jawabanku diproses/u }));
