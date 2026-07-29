@@ -17,7 +17,8 @@ export type AuditAction =
   | "email_verified"
   | "password_reset_requested"
   | "password_reset_completed"
-  | "password_reset_failed";
+  | "password_reset_failed"
+  | "oidc_identity_linked";
 
 export type AuditEntityType =
   "account" | "account_session" | "consent" | "admin_resource" | "system";

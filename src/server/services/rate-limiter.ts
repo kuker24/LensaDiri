@@ -46,6 +46,8 @@ export const authRateLimitPolicies = {
     windowMs: 60 * 60 * 1_000,
   },
   login: { limit: 5, routeKey: "auth_login", windowMs: 15 * 60 * 1_000 },
+  oidcCallback: { limit: 10, routeKey: "auth_oidc_callback", windowMs: 15 * 60 * 1_000 },
+  oidcStart: { limit: 10, routeKey: "auth_oidc_start", windowMs: 15 * 60 * 1_000 },
   logout: { limit: 30, routeKey: "auth_logout", windowMs: 15 * 60 * 1_000 },
   register: { limit: 3, routeKey: "auth_register", windowMs: 60 * 60 * 1_000 },
   resetPassword: {

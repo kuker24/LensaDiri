@@ -123,6 +123,7 @@ export async function revokeAccountSession(
 
 export async function createLoginSessionWithAudit(input: {
   accountId: string;
+  authenticatedWith?: "apple" | "google" | "password";
   correlationId?: string;
   expiresAt: Date;
   fingerprint: { ip: string; userAgent: string };
@@ -148,6 +149,7 @@ export async function createLoginSessionWithAudit(input: {
         [sessionRow] = await tx<{ id: string; account_id: string; expires_at: Date }[]>`
           insert into public.account_sessions (
             account_id,
+            authenticated_with,
             session_token_hash,
             user_agent_hash,
             ip_hash,
@@ -156,6 +158,7 @@ export async function createLoginSessionWithAudit(input: {
           )
           values (
             ${input.accountId},
+            ${input.authenticatedWith ?? "password"},
             ${sessionTokenHash},
             ${userAgentHash},
             ${ipHash},
