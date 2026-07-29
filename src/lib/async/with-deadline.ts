@@ -1,3 +1,5 @@
+import { createDatabaseTimeoutReset } from "@/lib/db/client";
+
 /**
  * Shared deadline and timeout primitives for database operations.
  *
@@ -25,13 +27,10 @@ export class DatabaseTimeoutError extends Error {
  * `DatabaseTimeoutError`.
  *
  * Cancellation notes:
- * - The underlying `operation` is NOT cancelled by this helper. A
- *   zombie query continues executing on the PostgreSQL server. The
- *   application-level connection may still hold it.
- * - To prevent zombies, rely on database-side boundaries instead:
- *   `statement_timeout`, `lock_timeout`, and `connect_timeout` set
- *   at the connection/transaction level. These are the authoritative
- *   safeguards.
+ * - The timed-out pool is terminated so queued work cannot poison the
+ *   next request in the same warm serverless instance.
+ * - Database-side `statement_timeout`, `lock_timeout`, and
+ *   `connect_timeout` remain the authoritative query safeguards.
  * - The postgres.js `.cancel()` method is deliberately not used by this
  *   generic helper. The driver documents that cancellation opens a new
  *   connection and is not guaranteed because of protocol-level races.
@@ -49,8 +48,10 @@ export class DatabaseTimeoutError extends Error {
  * queries).
  */
 export function withDeadline<T>(operation: Promise<T>, deadlineMs: number): Promise<T> {
+  const resetDatabase = createDatabaseTimeoutReset();
   return new Promise<T>((resolve, reject) => {
     const timer = setTimeout(() => {
+      resetDatabase();
       reject(new DatabaseTimeoutError());
     }, deadlineMs);
 

@@ -1,5 +1,6 @@
 import "server-only";
 
+import { createDatabaseTimeoutReset } from "@/lib/db/client";
 import { DatabaseError } from "@/lib/db/errors";
 import { hashOpaqueToken } from "@/lib/security/tokens";
 import { getFixedWindow, isRateLimitAllowed, type RateLimitRoute } from "@/lib/security/rate-limit";
@@ -12,8 +13,12 @@ import { incrementRateLimit } from "@/server/repositories/rate-limits";
 const RATE_LIMIT_DEADLINE_MS = 2_000;
 
 function withDeadline<T>(operation: Promise<T>, deadlineMs: number): Promise<T> {
+  const resetDatabase = createDatabaseTimeoutReset();
   return new Promise<T>((resolve, reject) => {
-    const timer = setTimeout(() => reject(new DatabaseError("unavailable")), deadlineMs);
+    const timer = setTimeout(() => {
+      resetDatabase();
+      reject(new DatabaseError("unavailable"));
+    }, deadlineMs);
     operation.then(
       (value) => {
         clearTimeout(timer);

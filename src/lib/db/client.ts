@@ -46,6 +46,16 @@ export async function withTransaction<T>(
   return getDatabase().begin(async (sql) => callback(sql)) as Promise<T>;
 }
 
+export function createDatabaseTimeoutReset(): () => void {
+  const client = globalForDatabase.lensadiriDatabaseClient;
+  return () => {
+    if (!client || globalForDatabase.lensadiriDatabaseClient !== client) return;
+
+    delete globalForDatabase.lensadiriDatabaseClient;
+    void client.end({ timeout: 0 }).catch(() => undefined);
+  };
+}
+
 export async function closeDatabaseForTests(): Promise<void> {
   if (globalForDatabase.lensadiriDatabaseClient) {
     await globalForDatabase.lensadiriDatabaseClient.end({ timeout: 5 });

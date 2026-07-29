@@ -1,10 +1,15 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
 const mocks = vi.hoisted(() => ({
+  createDatabaseTimeoutReset: vi.fn(),
   incrementRateLimit: vi.fn(),
+  resetDatabase: vi.fn(),
 }));
 
 vi.mock("server-only", () => ({}));
+vi.mock("@/lib/db/client", () => ({
+  createDatabaseTimeoutReset: mocks.createDatabaseTimeoutReset,
+}));
 vi.mock("@/server/repositories/rate-limits", () => ({
   incrementRateLimit: mocks.incrementRateLimit,
 }));
@@ -14,6 +19,9 @@ import { assessmentRateLimitPolicies, consumeRateLimit } from "@/server/services
 describe("rate limiter service deadline", () => {
   beforeEach(() => {
     mocks.incrementRateLimit.mockReset();
+    mocks.resetDatabase.mockReset();
+    mocks.createDatabaseTimeoutReset.mockReset();
+    mocks.createDatabaseTimeoutReset.mockReturnValue(mocks.resetDatabase);
     vi.useRealTimers();
   });
 
@@ -49,5 +57,6 @@ describe("rate limiter service deadline", () => {
     expect(mocks.incrementRateLimit).toHaveBeenCalledOnce();
     await vi.advanceTimersByTimeAsync(1);
     await rejection;
+    expect(mocks.resetDatabase).toHaveBeenCalledOnce();
   });
 });
