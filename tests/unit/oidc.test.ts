@@ -42,6 +42,17 @@ describe("OIDC transaction primitives", () => {
     expect(openOidcTransaction(sealed, secret)).toBeNull();
   });
 
+  it("requires account and session context for destructive transactions", () => {
+    const deletion = { ...transaction, operation: "delete" as const };
+    expect(openOidcTransaction(sealOidcTransaction(deletion, secret), secret)).toBeNull();
+    expect(
+      openOidcTransaction(
+        sealOidcTransaction({ ...deletion, accountId: "account", sessionId: "session" }, secret),
+        secret,
+      ),
+    ).toMatchObject({ operation: "delete" });
+  });
+
   it("uses host-prefixed production cookies compatible with Apple form_post", () => {
     expect(getOidcCookieName("apple", true)).toBe("__Host-lensadiri_oidc_apple");
     expect(getOidcCookieOptions(true)).toMatchObject({

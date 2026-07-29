@@ -46,8 +46,8 @@ export async function GET(
   const requestUrl = new URL(request.url);
   const operation: OidcOperation =
     requestUrl.searchParams.get("operation") === "link" ? "link" : "login";
-  const currentSession = operation === "link" ? await getCurrentSession() : null;
-  if (operation === "link" && !currentSession) {
+  const currentSession = operation !== "login" ? await getCurrentSession() : null;
+  if (operation !== "login" && !currentSession) {
     return NextResponse.redirect(
       new URL("/login?redirectTo=%2Fdashboard%2Fsettings", environment.appOrigin),
     );

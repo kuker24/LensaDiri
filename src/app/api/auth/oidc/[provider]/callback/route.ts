@@ -6,11 +6,24 @@ import {
   isOidcProvider,
   openOidcTransaction,
 } from "@/lib/auth/oidc";
-import { SESSION_DURATION_MS, createSessionCookie } from "@/lib/auth/session";
+import {
+  SESSION_DURATION_MS,
+  createClearedSessionCookie,
+  createSessionCookie,
+  getSessionCookieName,
+  isOpaqueSessionToken,
+} from "@/lib/auth/session";
 import { getServerEnvironment } from "@/lib/db/env";
 import { getCookieValue } from "@/lib/security/http";
+import { hashOpaqueToken } from "@/lib/security/tokens";
 import { getRequestRateLimitIdentity } from "@/lib/security/rate-limit";
-import { findOidcAccount, linkOidcIdentity } from "@/server/repositories/oidc-identities";
+import { hardDeleteExpectedAccountBySessionHash } from "@/server/repositories/accounts";
+import {
+  findOidcAccount,
+  linkOidcIdentity,
+  resolveGoogleOidcAccount,
+  verifyOidcIdentityForAccount,
+} from "@/server/repositories/oidc-identities";
 import { createLoginSessionWithAudit } from "@/server/repositories/sessions";
 import { exchangeOidcCode } from "@/server/services/oidc";
 import { authRateLimitPolicies, consumeRateLimit } from "@/server/services/rate-limiter";
@@ -56,12 +69,58 @@ async function callback(
         throw new Error("OIDC link failed.");
       }
       destination = new URL("/dashboard/settings?authLinked=1", environment.appOrigin);
+    } else if (transaction.operation === "delete") {
+      if (
+        provider !== "google" ||
+        !transaction.accountId ||
+        !transaction.sessionId ||
+        !(await verifyOidcIdentityForAccount({
+          ...identity,
+          accountId: transaction.accountId,
+          provider,
+          sessionId: transaction.sessionId,
+        }))
+      ) {
+        throw new Error("OIDC delete verification failed.");
+      }
+      const sessionToken = getCookieValue(
+        request.headers.get("cookie"),
+        getSessionCookieName(environment.isProduction),
+      );
+      if (
+        !sessionToken ||
+        !isOpaqueSessionToken(sessionToken) ||
+        !(await hardDeleteExpectedAccountBySessionHash(
+          transaction.accountId,
+          hashOpaqueToken(sessionToken, environment.tokenHashPepper),
+        ))
+      ) {
+        throw new Error("OIDC account deletion failed.");
+      }
+      destination = new URL("/?account=deleted", environment.appOrigin);
     } else {
-      const accountId = await findOidcAccount({
-        ...identity,
-        provider,
-        requireEmailVerification: environment.requireEmailVerification,
-      });
+      let accountId: string | null;
+      if (provider === "google") {
+        if (!identity.email || !identity.emailVerified) {
+          throw new Error("OIDC verified email required.");
+        }
+        const resolved = await resolveGoogleOidcAccount({
+          email: identity.email,
+          issuer: identity.issuer,
+          subject: identity.subject,
+        });
+        if (resolved.outcome === "collision") {
+          destination = new URL("/login?authError=email_collision", environment.appOrigin);
+          throw new Error("OIDC email collision.");
+        }
+        accountId = resolved.accountId;
+      } else {
+        accountId = await findOidcAccount({
+          ...identity,
+          provider,
+          requireEmailVerification: environment.requireEmailVerification,
+        });
+      }
       if (!accountId) throw new Error("OIDC identity unknown.");
       session = await createLoginSessionWithAudit({
         accountId,
@@ -79,12 +138,18 @@ async function callback(
       destination = new URL(transaction.redirectTo, environment.appOrigin);
     }
   } catch {
-    destination = errorDestination;
+    if (destination === errorDestination && transaction?.operation === "delete") {
+      destination = new URL("/dashboard/privacy?authError=provider_failed", environment.appOrigin);
+    }
   }
   const response = NextResponse.redirect(destination);
   response.cookies.set(cookieName, "", getOidcCookieOptions(environment.isProduction, true));
   if (session) {
     const cookie = createSessionCookie(session.token, session.expiresAt, environment.isProduction);
+    response.cookies.set(cookie.name, cookie.value, cookie.options);
+  }
+  if (destination.pathname === "/" && destination.searchParams.get("account") === "deleted") {
+    const cookie = createClearedSessionCookie(environment.isProduction);
     response.cookies.set(cookie.name, cookie.value, cookie.options);
   }
   response.headers.set("Cache-Control", "no-store");

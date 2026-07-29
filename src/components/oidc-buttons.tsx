@@ -11,7 +11,7 @@ export function OidcButtons({
   providers,
   redirectTo = "/dashboard",
 }: {
-  operation?: "link" | "login";
+  operation?: "delete" | "link" | "login";
   providers: OidcProvider[];
   redirectTo?: string;
 }) {
@@ -24,9 +24,11 @@ export function OidcButtons({
           href={`/api/auth/oidc/${provider}/start?operation=${operation}&redirectTo=${encodeURIComponent(operation === "link" ? "/dashboard/settings" : redirectTo)}`}
           key={provider}
         >
-          {operation === "link"
-            ? `Tautkan ${provider === "google" ? "Google" : "Apple"}`
-            : labels[provider]}
+          {operation === "delete"
+            ? "Verifikasi Google dan hapus akun"
+            : operation === "link"
+              ? `Tautkan ${provider === "google" ? "Google" : "Apple"}`
+              : labels[provider]}
         </a>
       ))}
     </div>

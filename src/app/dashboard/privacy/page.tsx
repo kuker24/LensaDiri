@@ -6,6 +6,8 @@ import { DeleteAccountForm } from "@/components/delete-account-form";
 import { Badge } from "@/components/ui/badge";
 import { getCurrentSession } from "@/server/current-session";
 import { listAccountConsentPolicies } from "@/server/repositories/privacy";
+import { findAccountByIdForAuthentication } from "@/server/repositories/accounts";
+import { listAccountOidcProviders } from "@/server/repositories/oidc-identities";
 
 const consentLabels = {
   ai_feature_optional: "Fitur naratif AI",
@@ -15,11 +17,18 @@ const consentLabels = {
   result_storage: "Penyimpanan hasil",
 } as const;
 
-export default async function DashboardPrivacyPage() {
+export default async function DashboardPrivacyPage({
+  searchParams,
+}: {
+  searchParams: Promise<{ authError?: string }>;
+}) {
   const session = await getCurrentSession();
   if (!session) redirect("/login?redirectTo=%2Fdashboard%2Fprivacy");
 
   const policies = await listAccountConsentPolicies(session.accountId);
+  const account = await findAccountByIdForAuthentication(session.accountId);
+  const providers = await listAccountOidcProviders(session.accountId);
+  const { authError } = await searchParams;
 
   return (
     <div className="task-shell">
@@ -115,7 +124,19 @@ export default async function DashboardPrivacyPage() {
           Tindakan ini menghapus permanen akun beserta sesi, persetujuan, asesmen, jawaban, hasil,
           tautan berbagi, masukan, dan data terkait. Tindakan ini tidak dapat dibatalkan.
         </p>
-        <DeleteAccountForm />
+        {authError ? (
+          <p
+            className="border-danger/30 bg-surface text-danger mt-5 rounded-[12px] border px-4 py-3 text-sm"
+            role="alert"
+          >
+            Verifikasi gagal. Akun belum dihapus.
+          </p>
+        ) : null}
+        {account?.passwordHash ? (
+          <DeleteAccountForm />
+        ) : providers.includes("google") ? (
+          <DeleteAccountForm provider="google" />
+        ) : null}
       </section>
     </div>
   );

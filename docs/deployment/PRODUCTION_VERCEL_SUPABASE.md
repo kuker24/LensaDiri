@@ -58,7 +58,10 @@ Provider rules:
 - Apple return URL: `<NEXT_PUBLIC_APP_URL>/api/auth/oidc/apple/callback`; production HTTPS and registered domain are mandatory.
 - Encode Apple PKCS#8 `.p8` private key as base64 before storing it in Vercel. Never commit or print the key.
 - Configure complete provider groups. Partial groups fail application environment validation.
-- Provider identity must first be linked from `/dashboard/settings` after password login. Matching email never links accounts.
+- Google creates an account only from a provider-verified email when no live account already owns that email. Existing identities log in directly.
+- Matching email never links accounts. When an email already belongs to a password account, sign in with the password and link Google from `/dashboard/settings`.
+- Apple remains linked-account login only until its production credential group and live flow are approved and verified.
+- Google-created accounts have no password. Permanent deletion requires exact `HAPUS AKUN` confirmation followed by fresh Google re-authentication.
 - Removing one provider credential group and redeploying disables its button without deleting existing identity mappings.
 
 Rules for recovery email:

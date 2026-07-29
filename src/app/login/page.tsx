@@ -64,7 +64,9 @@ export default async function LoginPage({
                   ? "Terlalu banyak percobaan. Tunggu sebentar lalu coba lagi."
                   : authError === "provider_unavailable"
                     ? "Login provider sedang tidak tersedia. Gunakan email dan kata sandi."
-                    : "Login provider gagal atau belum ditautkan. Masuk dengan kata sandi, lalu tautkan provider di Pengaturan."}
+                    : authError === "email_collision"
+                      ? "Email ini sudah memiliki akun. Masuk dengan kata sandi, lalu tautkan Google di Pengaturan."
+                      : "Login provider gagal. Coba lagi atau gunakan email dan kata sandi."}
               </p>
             ) : null}
             <OidcButtons providers={[...providers]} redirectTo={redirectTo} />
@@ -77,21 +79,6 @@ export default async function LoginPage({
             ) : null}
             <AuthForm mode="login" redirectTo={redirectTo} />
           </div>
-          <p className="text-ink-muted mt-6 text-sm">
-            Lupa kata sandi?{" "}
-            <Link
-              className="focus-ring quiet-link rounded-[12px] font-medium"
-              href="/forgot-password"
-            >
-              Atur ulang
-            </Link>
-          </p>
-          <p className="text-ink-muted mt-3 text-sm">
-            Belum verifikasi?{" "}
-            <Link className="focus-ring quiet-link rounded-[12px] font-medium" href="/verify-email">
-              Kirim ulang
-            </Link>
-          </p>
           <p className="text-ink-muted mt-3 text-sm">
             Belum punya akun?{" "}
             <Link className="focus-ring quiet-link rounded-[12px] font-medium" href="/register">

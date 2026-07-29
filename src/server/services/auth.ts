@@ -160,7 +160,7 @@ export async function loginAccount(input: {
   );
 
   const startPasswordVerify = process.hrtime.bigint();
-  const passwordMatches = account
+  const passwordMatches = account?.passwordHash
     ? await verifyPassword(account.passwordHash, input.password)
     : await verifyDummyPassword(input.password).then(() => false);
   const endPasswordVerify = process.hrtime.bigint();
@@ -274,6 +274,7 @@ export async function deleteAccount(input: {
   if (
     !account ||
     account.status !== "active" ||
+    !account.passwordHash ||
     !(await verifyPassword(account.passwordHash, input.password))
   ) {
     return "invalid_credentials";

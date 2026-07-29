@@ -2,7 +2,7 @@ import { createCipheriv, createDecipheriv, createHash, randomBytes } from "node:
 
 export const oidcProviders = ["google", "apple"] as const;
 export type OidcProvider = (typeof oidcProviders)[number];
-export type OidcOperation = "link" | "login";
+export type OidcOperation = "delete" | "link" | "login";
 
 export type OidcTransaction = {
   accountId?: string;
@@ -45,14 +45,14 @@ export function openOidcTransaction(value: string, secret: string): OidcTransact
     ) as Partial<OidcTransaction>;
     if (
       !isOidcProvider(parsed.provider ?? "") ||
-      (parsed.operation !== "login" && parsed.operation !== "link") ||
+      !["delete", "link", "login"].includes(parsed.operation ?? "") ||
       typeof parsed.state !== "string" ||
       typeof parsed.nonce !== "string" ||
       typeof parsed.codeVerifier !== "string" ||
       typeof parsed.redirectTo !== "string" ||
       typeof parsed.expiresAt !== "number" ||
       parsed.expiresAt <= Date.now() ||
-      (parsed.operation === "link" &&
+      (parsed.operation !== "login" &&
         (typeof parsed.accountId !== "string" || typeof parsed.sessionId !== "string"))
     ) {
       return null;
