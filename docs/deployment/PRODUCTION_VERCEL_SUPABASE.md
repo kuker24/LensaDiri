@@ -39,6 +39,26 @@ RESEND_API_KEY
 FEATURE_REQUIRE_EMAIL_VERIFICATION
 ```
 
+Optional Google and Apple login remains disabled until each complete credential group is set:
+
+```text
+GOOGLE_OIDC_CLIENT_ID
+GOOGLE_OIDC_CLIENT_SECRET
+APPLE_OIDC_CLIENT_ID
+APPLE_OIDC_TEAM_ID
+APPLE_OIDC_KEY_ID
+APPLE_OIDC_PRIVATE_KEY_BASE64
+```
+
+Provider rules:
+
+- Google callback: `<NEXT_PUBLIC_APP_URL>/api/auth/oidc/google/callback`.
+- Apple return URL: `<NEXT_PUBLIC_APP_URL>/api/auth/oidc/apple/callback`; production HTTPS and registered domain are mandatory.
+- Encode Apple PKCS#8 `.p8` private key as base64 before storing it in Vercel. Never commit or print the key.
+- Configure complete provider groups. Partial groups fail application environment validation.
+- Provider identity must first be linked from `/dashboard/settings` after password login. Matching email never links accounts.
+- Removing one provider credential group and redeploying disables its button without deleting existing identity mappings.
+
 Rules for recovery email:
 
 - Leave `EMAIL_FROM` and `RESEND_API_KEY` unset to keep delivery disabled. Application boots and recovery APIs return generic accepted responses without sending mail.

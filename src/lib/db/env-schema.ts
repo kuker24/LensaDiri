@@ -22,6 +22,13 @@ const emptyToUndefined = (value: unknown) =>
   typeof value === "string" && value.trim() === "" ? undefined : value;
 
 const rawServerEnvironmentSchema = z.object({
+  APPLE_OIDC_CLIENT_ID: z.preprocess(emptyToUndefined, z.string().min(1).max(255).optional()),
+  APPLE_OIDC_KEY_ID: z.preprocess(emptyToUndefined, z.string().min(1).max(64).optional()),
+  APPLE_OIDC_PRIVATE_KEY_BASE64: z.preprocess(
+    emptyToUndefined,
+    z.string().min(64).max(8192).optional(),
+  ),
+  APPLE_OIDC_TEAM_ID: z.preprocess(emptyToUndefined, z.string().min(1).max(64).optional()),
   AUTH_SESSION_SECRET: secretSchema,
   CRON_SECRET: z.preprocess(emptyToUndefined, z.string().min(16).optional()),
   CSRF_SECRET: secretSchema,
@@ -29,6 +36,8 @@ const rawServerEnvironmentSchema = z.object({
   // Optional; transport stays disabled until both RESEND_API_KEY and EMAIL_FROM are set.
   EMAIL_FROM: z.preprocess(emptyToUndefined, emailFromSchema.optional()),
   FEATURE_REQUIRE_EMAIL_VERIFICATION: z.preprocess(emptyToUndefined, optionalFlagSchema),
+  GOOGLE_OIDC_CLIENT_ID: z.preprocess(emptyToUndefined, z.string().min(1).max(255).optional()),
+  GOOGLE_OIDC_CLIENT_SECRET: z.preprocess(emptyToUndefined, z.string().min(8).max(512).optional()),
   NEXT_PUBLIC_APP_URL: z.string().url(),
   RATE_LIMIT_SECRET: secretSchema,
   // Optional provider secret; min length only when present. Never required for boot.
@@ -37,11 +46,18 @@ const rawServerEnvironmentSchema = z.object({
 });
 
 export type ServerEnvironment = {
+  appleOidc: {
+    clientId: string;
+    keyId: string;
+    privateKey: string;
+    teamId: string;
+  } | null;
   authSessionSecret: string;
   cronSecret: string | null;
   csrfSecret: string;
   databaseUrl: string;
   emailFrom: string | null;
+  googleOidc: { clientId: string; clientSecret: string } | null;
   isProduction: boolean;
   rateLimitSecret: string;
   requireEmailVerification: boolean;
@@ -75,12 +91,57 @@ export function parseServerEnvironment(
     throw new Error("Server environment configuration is invalid.");
   }
 
+  const googleValues = [parsed.data.GOOGLE_OIDC_CLIENT_ID, parsed.data.GOOGLE_OIDC_CLIENT_SECRET];
+  const appleValues = [
+    parsed.data.APPLE_OIDC_CLIENT_ID,
+    parsed.data.APPLE_OIDC_KEY_ID,
+    parsed.data.APPLE_OIDC_PRIVATE_KEY_BASE64,
+    parsed.data.APPLE_OIDC_TEAM_ID,
+  ];
+  if (
+    (googleValues.some(Boolean) && !googleValues.every(Boolean)) ||
+    (appleValues.some(Boolean) && !appleValues.every(Boolean))
+  ) {
+    throw new Error("Server environment configuration is invalid.");
+  }
+
+  let applePrivateKey: string | null = null;
+  if (parsed.data.APPLE_OIDC_PRIVATE_KEY_BASE64) {
+    try {
+      applePrivateKey = Buffer.from(parsed.data.APPLE_OIDC_PRIVATE_KEY_BASE64, "base64").toString(
+        "utf8",
+      );
+      if (!applePrivateKey.includes("BEGIN PRIVATE KEY")) throw new Error();
+    } catch {
+      throw new Error("Server environment configuration is invalid.");
+    }
+  }
+
   return {
+    appleOidc:
+      parsed.data.APPLE_OIDC_CLIENT_ID &&
+      parsed.data.APPLE_OIDC_KEY_ID &&
+      applePrivateKey &&
+      parsed.data.APPLE_OIDC_TEAM_ID
+        ? {
+            clientId: parsed.data.APPLE_OIDC_CLIENT_ID,
+            keyId: parsed.data.APPLE_OIDC_KEY_ID,
+            privateKey: applePrivateKey,
+            teamId: parsed.data.APPLE_OIDC_TEAM_ID,
+          }
+        : null,
     authSessionSecret: parsed.data.AUTH_SESSION_SECRET,
     cronSecret: parsed.data.CRON_SECRET ?? null,
     csrfSecret: parsed.data.CSRF_SECRET,
     databaseUrl: parsed.data.DATABASE_URL,
     emailFrom: parsed.data.EMAIL_FROM ?? null,
+    googleOidc:
+      parsed.data.GOOGLE_OIDC_CLIENT_ID && parsed.data.GOOGLE_OIDC_CLIENT_SECRET
+        ? {
+            clientId: parsed.data.GOOGLE_OIDC_CLIENT_ID,
+            clientSecret: parsed.data.GOOGLE_OIDC_CLIENT_SECRET,
+          }
+        : null,
     isProduction: nodeEnv === "production",
     rateLimitSecret: parsed.data.RATE_LIMIT_SECRET,
     requireEmailVerification: parsed.data.FEATURE_REQUIRE_EMAIL_VERIFICATION ?? false,

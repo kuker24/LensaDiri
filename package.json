@@ -33,8 +33,10 @@
   "dependencies": {
     "@react-pdf/renderer": "^4.5.1",
     "argon2": "^0.44.0",
+    "jose": "^6.2.4",
     "motion": "^12.42.2",
     "next": "16.2.12",
+    "oauth4webapi": "^3.8.6",
     "postgres": "^3.4.9",
     "react": "19.2.7",
     "react-dom": "19.2.7",

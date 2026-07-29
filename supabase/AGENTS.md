@@ -12,6 +12,7 @@ All auth and MVP assessment tables are sensitive. RLS is enabled and forced with
 
 - Store only HMAC hashes of opaque session tokens. Never store raw tokens.
 - Store Argon2id PHC password hashes only. Never store plaintext passwords.
+- Store OIDC identity as provider, issuer, and subject only. Never store authorization codes, provider tokens, raw transaction state, or provider private keys. Never link identities by matching email.
 - Normalize account email to lowercase trimmed form before insert.
 - Account deletion is permanent after password re-authentication and exact confirmation; linked session, consent, assessment, result, share, and audit records must disappear atomically.
 - Keep `consents` and `audit_logs` append-only except scoped trusted account-erasure transaction.

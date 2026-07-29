@@ -17,6 +17,7 @@
 - Integration tests must use a disposable local database identified by `TEST_DATABASE_URL`. Never point them at shared, staging, or production databases.
 - Test security behavior without logging secrets, raw token values, raw answers, private result data, passwords, raw IPs, or raw user-agent strings.
 - Unit coverage verifies Likert/profile scoring, overlay determinism, input boundaries, token generation/HMAC, email/password/session, CSRF, rate limit, request schemas, and environment validation.
+- OIDC coverage must remain network-independent and prove transaction tamper/expiry rejection, complete provider configuration, forced-RLS identity storage, provider-subject uniqueness, and internal-session preservation.
 - Integration coverage requires migrations and seed applied from clean local database. It verifies auth, hard delete, Quick/Standard assessment, result, feedback, and share persistence rather than mocks.
 - pgTAP database tests must retain default-deny expectations: RLS enabled and forced; no policies; no `SELECT`, `INSERT`, `UPDATE`, or `DELETE` privilege for `anon` and `authenticated` on sensitive tables.
 - Add explicit regression coverage for Likert range boundaries and security-sensitive behavior when related code changes. Source use of `timingSafeEqual` is not evidence of timing-characteristic test coverage.

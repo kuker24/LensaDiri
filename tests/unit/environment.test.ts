@@ -62,4 +62,32 @@ describe("server environment validation", () => {
       resendApiKey: null,
     });
   });
+
+  it("enables only complete OIDC provider configuration groups", () => {
+    expect(parseServerEnvironment(validEnvironment)).toMatchObject({
+      appleOidc: null,
+      googleOidc: null,
+    });
+    expect(
+      parseServerEnvironment({
+        ...validEnvironment,
+        GOOGLE_OIDC_CLIENT_ID: "google-client",
+        GOOGLE_OIDC_CLIENT_SECRET: "google-secret",
+      }).googleOidc,
+    ).toEqual({ clientId: "google-client", clientSecret: "google-secret" });
+    expect(() =>
+      parseServerEnvironment({ ...validEnvironment, GOOGLE_OIDC_CLIENT_ID: "google-client" }),
+    ).toThrow("Server environment configuration is invalid.");
+    expect(
+      parseServerEnvironment({
+        ...validEnvironment,
+        APPLE_OIDC_CLIENT_ID: "com.example.web",
+        APPLE_OIDC_KEY_ID: "KEY123",
+        APPLE_OIDC_PRIVATE_KEY_BASE64: Buffer.from(
+          "-----BEGIN PRIVATE KEY-----\ntest\n-----END PRIVATE KEY-----",
+        ).toString("base64"),
+        APPLE_OIDC_TEAM_ID: "TEAM123",
+      }).appleOidc,
+    ).toMatchObject({ clientId: "com.example.web", keyId: "KEY123", teamId: "TEAM123" });
+  });
 });

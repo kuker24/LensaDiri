@@ -1,6 +1,8 @@
 export type RateLimitRoute =
   | "auth_register"
   | "auth_login"
+  | "auth_oidc_start"
+  | "auth_oidc_callback"
   | "auth_session"
   | "auth_logout"
   | "account_delete"
