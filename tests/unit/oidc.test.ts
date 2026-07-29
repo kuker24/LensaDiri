@@ -31,7 +31,9 @@ describe("OIDC transaction primitives", () => {
     const sealed = sealOidcTransaction(transaction, secret);
     expect(openOidcTransaction(sealed, secret)).toEqual(transaction);
     const tampered = Buffer.from(sealed, "base64url");
-    tampered[20] ^= 1;
+    const byte = tampered[20];
+    expect(byte).toBeDefined();
+    tampered[20] = (byte ?? 0) ^ 1;
     expect(openOidcTransaction(tampered.toString("base64url"), secret)).toBeNull();
   });
 
