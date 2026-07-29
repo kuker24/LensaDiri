@@ -45,6 +45,7 @@ const mockIsFeatureEnabledBatch = vi.fn();
 
 vi.mock("@/server/repositories/catalog", () => ({
   isFeatureEnabled: (...args: unknown[]) => mockIsFeatureEnabled(...args),
+  isFeatureEnabledBatch: (...args: unknown[]) => mockIsFeatureEnabledBatch(...args),
   listAssessmentModeProfiles: () => mockListAssessmentModeProfiles(),
   listCatalogModules: () => mockListCatalogModules(),
   listComboPresets: () => mockListComboPresets(),
@@ -154,7 +155,13 @@ describe("Estimate Route - Database query timeout reliability", () => {
 describe("Start Route - Database query timeout reliability", () => {
   beforeEach(() => {
     vi.restoreAllMocks();
+    vi.clearAllMocks();
     mockIsFeatureEnabled.mockResolvedValue(true);
+    mockIsFeatureEnabledBatch.mockResolvedValue({
+      FEATURE_COMPLEX_MODE: true,
+      FEATURE_MODULAR_COMPOSER: true,
+      FEATURE_PROVISIONAL_PRECISION: true,
+    });
     mockListCatalogModules.mockResolvedValue([]);
     mockListComboPresets.mockResolvedValue([]);
     mockListAssessmentModeProfiles.mockResolvedValue([]);
@@ -164,7 +171,7 @@ describe("Start Route - Database query timeout reliability", () => {
   it("returns 503 assessment_service_busy when start assessment flow times out", async () => {
     vi.useFakeTimers();
     // Force feature flag lookup to stall indefinitely to trigger start route deadline
-    mockIsFeatureEnabled.mockImplementationOnce(() => new Promise(() => {}));
+    mockIsFeatureEnabledBatch.mockImplementationOnce(() => new Promise(() => {}));
 
     const request = new Request("http://localhost:3000/api/assessment/start", {
       body: JSON.stringify({
@@ -193,5 +200,39 @@ describe("Start Route - Database query timeout reliability", () => {
       error: { code: "assessment_service_busy" },
       message: "Permintaan belum dapat diproses. Coba lagi beberapa saat.",
     });
+  });
+
+  it("fails closed before catalog reads when the composer flag is disabled", async () => {
+    mockIsFeatureEnabledBatch.mockResolvedValue({
+      FEATURE_COMPLEX_MODE: true,
+      FEATURE_MODULAR_COMPOSER: false,
+      FEATURE_PROVISIONAL_PRECISION: true,
+    });
+
+    const response = await startPost(
+      new Request("http://localhost:3000/api/assessment/start", {
+        body: JSON.stringify({
+          age: 18,
+          consent: true,
+          experimentalAcknowledged: false,
+          locale: "id",
+          mode: "quick",
+          moduleKeys: ["riasec"],
+          presetKey: null,
+          selectionType: "single",
+        }),
+        headers: { "content-type": "application/json" },
+        method: "POST",
+      }),
+    );
+
+    expect(response.status).toBe(422);
+    await expect(response.json()).resolves.toEqual({
+      success: false,
+      error: { code: "feature_unavailable" },
+    });
+    expect(mockListCatalogModules).not.toHaveBeenCalled();
+    expect(mockListComboPresets).not.toHaveBeenCalled();
+    expect(mockListAssessmentModeProfiles).not.toHaveBeenCalled();
   });
 });

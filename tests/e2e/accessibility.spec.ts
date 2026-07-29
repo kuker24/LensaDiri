@@ -147,6 +147,15 @@ test("module detail preserves valid selection and invalid query falls back", asy
   await expect(page.getByRole("checkbox", { name: /Profil Trait/u })).toBeChecked();
 });
 
+test("unknown module and blog slugs return real not-found responses", async ({ page }) => {
+  for (const route of ["/modules/not-in-catalog", "/blog/not-in-catalog"]) {
+    const response = await page.goto(route);
+    expect(response?.status()).toBe(404);
+    await expect(page.getByRole("heading", { name: "Halaman tidak ditemukan" })).toBeVisible();
+    await expect(page.locator('meta[name="robots"]')).toHaveAttribute("content", /noindex/u);
+  }
+});
+
 test("homepage and product surfaces preserve explicit backgrounds", async ({ page }) => {
   async function backgroundPixel(selector: string) {
     return page.locator(selector).evaluate((element) => {
