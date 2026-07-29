@@ -16,6 +16,13 @@ vi.mock("@/server/repositories/rate-limits", () => ({
 
 import { assessmentRateLimitPolicies, consumeRateLimit } from "@/server/services/rate-limiter";
 
+describe("assessment rate-limit policies", () => {
+  it("supports large cohorts sharing one public IP", () => {
+    expect(assessmentRateLimitPolicies.estimate.limit).toBe(600);
+    expect(assessmentRateLimitPolicies.start.limit).toBe(120);
+  });
+});
+
 describe("rate limiter service deadline", () => {
   beforeEach(() => {
     mocks.incrementRateLimit.mockReset();

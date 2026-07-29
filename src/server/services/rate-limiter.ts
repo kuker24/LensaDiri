@@ -63,7 +63,7 @@ export const authRateLimitPolicies = {
 
 export const assessmentRateLimitPolicies = {
   answer: { limit: 240, routeKey: "assessment_answer", windowMs: 15 * 60 * 1_000 },
-  estimate: { limit: 60, routeKey: "assessment_estimate", windowMs: 15 * 60 * 1_000 },
+  estimate: { limit: 600, routeKey: "assessment_estimate", windowMs: 15 * 60 * 1_000 },
   pause: { limit: 30, routeKey: "assessment_pause", windowMs: 15 * 60 * 1_000 },
   resume: { limit: 30, routeKey: "assessment_resume", windowMs: 15 * 60 * 1_000 },
   clarifier: { limit: 120, routeKey: "assessment_clarifier", windowMs: 15 * 60 * 1_000 },
@@ -72,7 +72,7 @@ export const assessmentRateLimitPolicies = {
   resultExport: { limit: 30, routeKey: "result_export", windowMs: 15 * 60 * 1_000 },
   resultFeedback: { limit: 10, routeKey: "result_feedback", windowMs: 60 * 60 * 1_000 },
   share: { limit: 20, routeKey: "result_share", windowMs: 15 * 60 * 1_000 },
-  start: { limit: 10, routeKey: "assessment_start", windowMs: 60 * 60 * 1_000 },
+  start: { limit: 120, routeKey: "assessment_start", windowMs: 60 * 60 * 1_000 },
 } as const satisfies Record<string, RateLimitPolicy>;
 
 export async function consumeRateLimit(
