@@ -85,9 +85,9 @@ describe("GET /api/auth/session - Anonymous CSRF/Session bootstrap & auth token 
     expect(mocks.consumeRateLimit).not.toHaveBeenCalled();
   });
 
-  it("returns authenticated true when valid session token exists and is active, performing session DB query and rate limit check", async () => {
+  it("returns authenticated true with one read-only session lookup", async () => {
     const validToken = "a".repeat(43);
-    mocks.consumeRateLimit.mockResolvedValue({ allowed: true, retryAfterSeconds: 0 });
+    mocks.consumeRateLimit.mockRejectedValue(new DatabaseError("unavailable"));
     mocks.getActiveSession.mockResolvedValue({
       accountId: "acc-id",
       accountStatus: "active",
@@ -110,7 +110,6 @@ describe("GET /api/auth/session - Anonymous CSRF/Session bootstrap & auth token 
     expect(body.success).toBe(true);
     expect(body.data.authenticated).toBe(true);
 
-    expect(mocks.consumeRateLimit).toHaveBeenCalledOnce();
     expect(mocks.getActiveSession).toHaveBeenCalledOnce();
     expect(mocks.getActiveSession).toHaveBeenCalledWith(
       validToken,
@@ -118,11 +117,11 @@ describe("GET /api/auth/session - Anonymous CSRF/Session bootstrap & auth token 
       expect.any(Date),
       expect.any(String),
     );
+    expect(mocks.consumeRateLimit).not.toHaveBeenCalled();
   });
 
   it("fails closed with 503 service_unavailable and hides system errors when DB fails during active session lookup", async () => {
     const validToken = "b".repeat(43);
-    mocks.consumeRateLimit.mockResolvedValue({ allowed: true, retryAfterSeconds: 0 });
     mocks.getActiveSession.mockRejectedValue(new DatabaseError("unavailable"));
 
     const request = new Request("http://localhost:3000/api/auth/session", {
@@ -144,7 +143,6 @@ describe("GET /api/auth/session - Anonymous CSRF/Session bootstrap & auth token 
   it("fails closed with 503 service_unavailable when active session lookup times out", async () => {
     vi.useFakeTimers();
     const validToken = "c".repeat(43);
-    mocks.consumeRateLimit.mockResolvedValue({ allowed: true, retryAfterSeconds: 0 });
 
     // Stalls indefinitely to trigger withDeadline (3000ms)
     mocks.getActiveSession.mockImplementationOnce(() => new Promise(() => {}));
@@ -168,29 +166,5 @@ describe("GET /api/auth/session - Anonymous CSRF/Session bootstrap & auth token 
     expect(body.error.message).toBeUndefined();
     expect(response.headers.get("set-cookie") ?? "").not.toContain("lensadiri_session");
     vi.useRealTimers();
-  });
-
-  it("rejects with 429 rate_limited when session rate limit is exceeded for a valid token", async () => {
-    const validToken = "d".repeat(43);
-    mocks.consumeRateLimit.mockResolvedValue({ allowed: false, retryAfterSeconds: 123 });
-
-    const request = new Request("http://localhost:3000/api/auth/session", {
-      headers: {
-        cookie: `lensadiri_session=${validToken}`,
-      },
-      method: "GET",
-    });
-
-    const response = await GET(request);
-    expect(response.status).toBe(429);
-
-    const body = await response.json();
-    expect(body.success).toBe(false);
-    expect(body.error.code).toBe("rate_limited");
-    expect(response.headers.get("Retry-After")).toBe("123");
-
-    expect(mocks.consumeRateLimit).toHaveBeenCalledOnce();
-    // Active session must NOT be queried when rate-limited
-    expect(mocks.getActiveSession).not.toHaveBeenCalled();
   });
 });
