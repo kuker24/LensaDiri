@@ -26,7 +26,11 @@ export default async function ResultPrivacyPage({
         aria-label="Jejak navigasi"
         className="text-ink-muted mb-6 font-mono text-xs tracking-[-0.02em]"
       >
-        <Link className="focus-ring quiet-link rounded-[12px]" href="/dashboard/results">
+        <Link
+          className="focus-ring quiet-link rounded-[12px]"
+          href="/dashboard/results"
+          prefetch={false}
+        >
           Hasil
         </Link>
         <span className="mx-2">/</span>

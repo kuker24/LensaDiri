@@ -41,7 +41,7 @@ export default async function DashboardSessionsPage() {
         aria-label="Jejak navigasi"
         className="text-ink-muted mb-6 font-mono text-xs tracking-[-0.02em]"
       >
-        <Link className="focus-ring quiet-link rounded-[12px]" href="/dashboard">
+        <Link className="focus-ring quiet-link rounded-[12px]" href="/dashboard" prefetch={false}>
           Ruang pribadi
         </Link>
         <span className="mx-2">/</span>
@@ -60,7 +60,11 @@ export default async function DashboardSessionsPage() {
             Mulai dari satu lensa — kamu bisa menjeda kapan saja.
           </p>
           <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link className={getButtonClassName("primary", "md")} href="/start/modules">
+            <Link
+              className={getButtonClassName("primary", "md")}
+              href="/start/modules"
+              prefetch={false}
+            >
               Mulai asesmen
             </Link>
             <Link className={getButtonClassName("secondary", "md")} href="/method">

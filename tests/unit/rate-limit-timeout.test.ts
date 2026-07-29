@@ -1,5 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
 
+import { DatabaseTimeoutError } from "@/lib/async/with-deadline";
 import { DatabaseError, mapDatabaseError } from "@/lib/db/errors";
 import { getDatabaseFailureStatus } from "@/server/http";
 
@@ -120,6 +121,10 @@ describe("rate limiter DB timeout and lock safety mapping", () => {
     expect(mapped).toBeInstanceOf(DatabaseError);
     expect(mapped.kind).toBe("unavailable");
     expect(getDatabaseFailureStatus(mapped)).toBe(503);
+  });
+
+  it("maps an application read deadline to 503", () => {
+    expect(getDatabaseFailureStatus(new DatabaseTimeoutError())).toBe(503);
   });
 
   it("maps Postgres lock_not_available (55P03) to DatabaseError('unavailable')", () => {

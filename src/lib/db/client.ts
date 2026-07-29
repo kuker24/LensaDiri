@@ -23,7 +23,7 @@ export function getDatabase(): Sql {
     // Fail before the bounded assessment/session route paths exhaust their wall-clock deadlines.
     connect_timeout: 3,
     idle_timeout: 15,
-    max: environment.isProduction ? 1 : 10,
+    max: environment.isProduction ? 2 : 10,
     // Connection parameters sent as startup options for every session.
     connection: {
       lock_timeout: 3000,

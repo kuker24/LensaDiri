@@ -94,6 +94,7 @@ export default async function CombosPage() {
               <Link
                 className="focus-ring ui-transition text-ink hover:text-ink-muted inline-flex min-h-11 items-center rounded-[12px] text-sm font-medium tracking-[-0.01em]"
                 href="/start/modules"
+                prefetch={false}
               >
                 Pilih preset <span aria-hidden="true">↗</span>
               </Link>

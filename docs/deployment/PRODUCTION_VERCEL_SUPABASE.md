@@ -12,7 +12,7 @@ Single hobby production environment. This workflow is migration-only: never run 
 
 ## Supabase connection
 
-Use Supabase transaction pooler connection string for Vercel `DATABASE_URL`. Keep SSL enabled. Application PostgreSQL client disables prepared statements and limits each production serverless instance to one database connection.
+Use Supabase transaction pooler connection string for Vercel `DATABASE_URL`. Keep SSL enabled. Application PostgreSQL client disables prepared statements and limits each production serverless instance to two database connections so paired dashboard reads do not serialize behind one connection.
 
 Do not add Supabase anon or service-role keys. LensaDiri uses internal authentication and trusted server-side PostgreSQL access.
 

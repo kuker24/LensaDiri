@@ -1,9 +1,11 @@
 import Link from "next/link";
+import { redirect } from "next/navigation";
 
 import { DashboardOpenButton } from "@/components/dashboard-open-button";
 import { LogoutButton } from "@/components/logout-button";
 import { getButtonClassName } from "@/components/ui/button";
 import { Progress } from "@/components/ui/progress";
+import { withDeadline } from "@/lib/async/with-deadline";
 import { getCurrentSession } from "@/server/current-session";
 import {
   listAccountActiveSessions,
@@ -34,12 +36,15 @@ function formatModuleKey(key: string): string {
 
 export default async function DashboardPage() {
   const session = await getCurrentSession();
-  const [activeSessions, results] = session
-    ? await Promise.all([
-        listAccountActiveSessions(session.accountId),
-        listAccountDashboardResults(session.accountId),
-      ])
-    : [[], []];
+  if (!session) redirect("/login");
+
+  const [activeSessions, results] = await withDeadline(
+    Promise.all([
+      listAccountActiveSessions(session.accountId),
+      listAccountDashboardResults(session.accountId),
+    ]),
+    8_000,
+  );
 
   return (
     <div className="task-shell">
@@ -64,7 +69,11 @@ export default async function DashboardPage() {
             </h2>
             <p className="text-ink-muted mt-1 text-sm">Akses diperbarui saat Lanjutkan.</p>
           </div>
-          <Link className={getButtonClassName("primary", "sm")} href="/start/modules">
+          <Link
+            className={getButtonClassName("primary", "sm")}
+            href="/start/modules"
+            prefetch={false}
+          >
             Mulai asesmen
           </Link>
         </div>
@@ -75,7 +84,11 @@ export default async function DashboardPage() {
               Mulai dari satu lensa — kamu bisa menjeda kapan saja.
             </p>
             <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <Link className={getButtonClassName("primary", "md")} href="/start/modules">
+              <Link
+                className={getButtonClassName("primary", "md")}
+                href="/start/modules"
+                prefetch={false}
+              >
                 Mulai asesmen
               </Link>
               <Link className={getButtonClassName("secondary", "md")} href="/method">
@@ -158,6 +171,7 @@ export default async function DashboardPage() {
           <Link
             className="focus-ring ui-transition mt-5 inline-flex min-h-11 items-center rounded-[12px] border border-white/20 px-5 py-3 text-sm hover:bg-white/5"
             href="/dashboard/privacy"
+            prefetch={false}
           >
             Pusat privasi
           </Link>
@@ -170,6 +184,7 @@ export default async function DashboardPage() {
           <Link
             className="focus-ring ui-transition border-danger-soft text-danger hover:bg-danger-soft mt-5 inline-flex min-h-11 items-center rounded-[12px] border px-5 py-3 text-sm"
             href="/dashboard/privacy#delete-account-title"
+            prefetch={false}
           >
             Kelola penghapusan
           </Link>
