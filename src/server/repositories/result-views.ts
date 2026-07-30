@@ -3,6 +3,11 @@ import type {
   ModularResultView,
   PrivateResultView,
 } from "@/server/repositories/assessment";
+import {
+  formatModuleResultTitle,
+  resultConstructLabels,
+  resultModuleLabels,
+} from "@/lib/report/result-presentation";
 
 export const publicShareScopes = ["summary"] as const;
 export type PublicShareScope = (typeof publicShareScopes)[number];
@@ -120,69 +125,6 @@ export type ExportResultView = {
   readonly result: ExportLegacyResult | ExportModularResult;
 };
 
-const moduleNames: Readonly<Record<string, string>> = {
-  attachment: "Refleksi Attachment",
-  enneagram: "Enneagram",
-  instinct: "Varian Instingtual",
-  psychosophy: "Psychosophy",
-  riasec: "Minat Karier RIASEC",
-  socionics_communication: "Komunikasi Socionics",
-  temperament: "Temperament",
-  three_center: "Pola Tiga Pusat",
-  trait_profile: "Profil Trait",
-  type_16: "16-Type",
-};
-
-const constructLabels: Readonly<Record<string, string>> = {
-  agreeableness: "Kooperasi",
-  anxious: "Anxious",
-  artistic: "Artistic",
-  avoidant: "Avoidant",
-  choleric: "Penggerak",
-  conscientiousness: "Keteraturan",
-  conventional: "Conventional",
-  emotion: "Emotion",
-  emotional_sensitivity: "Kepekaan emosi",
-  enneagram: "Enneagram",
-  enterprising: "Enterprising",
-  extraversion: "Energi sosial",
-  fearful: "Fearful",
-  feeling: "Pertimbangan manusia",
-  gut: "Perut (Gut)",
-  head: "Pikiran (Head)",
-  heart: "Hati (Heart)",
-  information_processing: "Pemrosesan Informasi",
-  interaction_style: "Gaya Interaksi",
-  intuition: "Pola dan kemungkinan",
-  investigative: "Investigative",
-  judging: "Struktur keputusan",
-  logic: "Logic",
-  melancholic: "Mendalam",
-  one_to_one: "One-to-One",
-  openness: "Keterbukaan",
-  pattern_1: "Pola 1",
-  pattern_2: "Pola 2",
-  pattern_3: "Pola 3",
-  pattern_4: "Pola 4",
-  pattern_5: "Pola 5",
-  pattern_6: "Pola 6",
-  pattern_7: "Pola 7",
-  pattern_8: "Pola 8",
-  pattern_9: "Pola 9",
-  phlegmatic: "Stabil",
-  physics: "Physics",
-  realistic: "Realistic",
-  sanguine: "Ekspresif",
-  secure: "Secure",
-  self_preservation: "Self-Preservation",
-  social: "Social",
-  temperament: "Temperament",
-  three_center: "Pola Tiga Pusat",
-  trait_profile: "Profil Trait",
-  type_16: "16-Type",
-  will: "Will",
-};
-
 export function isPublicShareScope(value: string): value is PublicShareScope {
   return publicShareScopes.includes(value as PublicShareScope);
 }
@@ -193,13 +135,13 @@ function requirePublicShareScope(value: string): PublicShareScope {
 }
 
 function requireModuleName(moduleKey: string): string {
-  const name = moduleNames[moduleKey];
+  const name = resultModuleLabels[moduleKey];
   if (!name) throw new RangeError(`Unsupported public module: ${moduleKey}.`);
   return name;
 }
 
 function requireConstructLabel(constructKey: string): string {
-  const label = constructLabels[constructKey];
+  const label = resultConstructLabels[constructKey];
   if (!label) throw new RangeError(`Unsupported public construct: ${constructKey}.`);
   return label;
 }
@@ -215,13 +157,7 @@ function optionalString(value: unknown): string | null {
 }
 
 function publicModuleTitle(result: ModularResultView["modules"][number]): string {
-  const summary = asRecord(result.summary);
-  const candidate =
-    optionalString(summary.archetype) ??
-    optionalString(summary.primaryType) ??
-    optionalString(summary.corePattern) ??
-    optionalString(summary.primary);
-  return candidate ?? requireModuleName(result.moduleKey);
+  return formatModuleResultTitle(result.moduleKey, asRecord(result.summary));
 }
 
 function publicModuleDisclaimer(result: ModularResultView["modules"][number]): string {

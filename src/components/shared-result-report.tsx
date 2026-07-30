@@ -1,4 +1,7 @@
 import type { SafeSharedResultView } from "@/server/repositories/result-views";
+import { ResultIdentitySummary } from "@/components/result-identity-summary";
+import { ResultScoreIndicator } from "@/components/result-score-indicator";
+import { orderResultScores, resultEvidenceLabels } from "@/lib/report/result-presentation";
 
 const correlationLabels: Readonly<Record<string, string>> = {
   complementary: "Pola saling melengkapi",
@@ -34,6 +37,15 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
           <h1 className="mt-4 text-3xl font-normal tracking-[-0.035em] sm:text-5xl">
             {result.title}
           </h1>
+          <ResultIdentitySummary
+            items={[
+              { name: "Profil Trait", title: result.title },
+              ...result.overlays.map((overlay) => ({
+                name: overlay.title,
+                title: overlay.label,
+              })),
+            ]}
+          />
           <p className="text-ink-muted mt-5 max-w-2xl leading-7">{result.disclaimer}</p>
         </header>
         <section className="mt-10" aria-labelledby="shared-trait-heading">
@@ -46,22 +58,11 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
                 className="border-line bg-surface rounded-[16px] border p-5"
                 key={score.constructKey}
               >
-                <div className="flex justify-between gap-4">
-                  <h3 className="font-normal">{score.label}</h3>
-                  <span className="font-mono text-sm tabular-nums">{score.normalizedScore}</span>
-                </div>
-                <div
-                  aria-label={`${score.label} ${score.normalizedScore} dari 100`}
-                  className="bg-line mt-3 h-px overflow-visible"
-                  role="img"
-                >
-                  <div
-                    className="bg-frost relative h-px"
-                    style={{ width: `${score.normalizedScore}%` }}
-                  >
-                    <span className="bg-frost absolute top-1/2 right-0 h-1.5 w-1.5 -translate-y-1/2 rounded-full" />
-                  </div>
-                </div>
+                <ResultScoreIndicator
+                  constructKey={score.constructKey}
+                  label={score.label}
+                  value={score.normalizedScore}
+                />
               </article>
             ))}
           </div>
@@ -110,10 +111,17 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
       <header className="lens-glow bg-surface relative overflow-hidden rounded-[20px] border border-white/18 p-7 sm:p-10">
         <p className="mono-label text-ink">Ringkasan hasil yang dibagikan</p>
         <h1 className="mt-4 text-3xl font-normal tracking-[-0.035em] sm:text-5xl">
-          {result.title}
+          Hasil dalam {result.modules.length} lensa
         </h1>
+        <ResultIdentitySummary
+          items={result.modules.map((module) => ({ name: module.name, title: module.title }))}
+        />
         <p className="text-ink-muted mt-5 max-w-2xl leading-7">{result.disclaimer}</p>
       </header>
+      <p className="text-ink-muted mt-8 max-w-3xl text-sm leading-6">
+        Angka menunjukkan posisi kecenderungan jawaban dari 0 sampai 100, bukan persentase akurasi
+        diri.
+      </p>
       <div className="mt-10 space-y-8">
         {result.modules.map((module) => (
           <section
@@ -129,31 +137,20 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
                 {module.name}
               </h2>
               <span className="border-line text-ink-muted rounded-[12px] border px-3 py-1 font-mono text-xs tracking-[-0.02em] uppercase">
-                Tingkat bukti {module.evidenceTier.replace("_", " ")}
+                {resultEvidenceLabels[module.evidenceTier] ??
+                  `Tingkat bukti ${module.evidenceTier.replace("_", " ")}`}
               </span>
             </div>
             <p className="text-ink-muted mt-3">{module.title}</p>
             <p className="text-ink-muted mt-2 text-sm leading-6">{module.disclaimer}</p>
             <div className="mt-5 space-y-5">
-              {module.scores.map((score) => (
-                <article key={`${score.constructKey}-${score.facetKey}`}>
-                  <div className="flex justify-between gap-4">
-                    <h3 className="font-normal">{score.label}</h3>
-                    <span className="font-mono text-sm tabular-nums">{score.normalizedScore}</span>
-                  </div>
-                  <div
-                    aria-label={`${score.label} ${score.normalizedScore} dari 100`}
-                    className="bg-line mt-3 h-px overflow-visible"
-                    role="img"
-                  >
-                    <div
-                      className="bg-frost relative h-px"
-                      style={{ width: `${score.normalizedScore}%` }}
-                    >
-                      <span className="bg-frost absolute top-1/2 right-0 h-1.5 w-1.5 -translate-y-1/2 rounded-full" />
-                    </div>
-                  </div>
-                </article>
+              {orderResultScores(module.key, module.scores).map((score) => (
+                <ResultScoreIndicator
+                  constructKey={score.constructKey}
+                  key={`${score.constructKey}-${score.facetKey}`}
+                  label={score.label}
+                  value={score.normalizedScore}
+                />
               ))}
             </div>
           </section>

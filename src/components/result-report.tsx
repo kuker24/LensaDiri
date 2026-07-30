@@ -1,60 +1,19 @@
 import { getPublicModeName } from "@/lib/assessment/catalog";
 import { buildIntegratedReflection, buildModuleReflection } from "@/lib/report/modular-report";
+import {
+  ambiguityReading,
+  confidenceReading,
+  formatModuleResultTitle,
+  formatResultKey,
+  isExperimentalEvidence,
+  orderResultScores,
+  resultEvidenceLabels,
+} from "@/lib/report/result-presentation";
 import type { ResultView } from "@/server/repositories/assessment";
+import { ResultIdentitySummary } from "@/components/result-identity-summary";
+import { ResultScoreIndicator } from "@/components/result-score-indicator";
 
 const labels: Record<string, string> = {
-  openness: "Keterbukaan",
-  conscientiousness: "Keteraturan",
-  extraversion: "Energi sosial",
-  agreeableness: "Kooperasi",
-  emotional_sensitivity: "Kepekaan emosi",
-  type_16: "16-Type",
-  trait_profile: "Profil Trait",
-  enneagram: "Enneagram",
-  three_center: "Pola Tiga Pusat",
-  temperament: "Temperamen",
-  instinct: "Lensa Varian Instingtual",
-  socionics_communication: "Komunikasi Socionics",
-  riasec: "Minat Karier RIASEC",
-  attachment: "Refleksi Attachment",
-  psychosophy: "Psychosophy",
-  pattern_1: "Pola 1",
-  pattern_2: "Pola 2",
-  pattern_3: "Pola 3",
-  pattern_4: "Pola 4",
-  pattern_5: "Pola 5",
-  pattern_6: "Pola 6",
-  pattern_7: "Pola 7",
-  pattern_8: "Pola 8",
-  pattern_9: "Pola 9",
-  realistic: "Realistic",
-  investigative: "Investigative",
-  artistic: "Artistic",
-  social: "Social",
-  enterprising: "Enterprising",
-  conventional: "Conventional",
-  secure: "Secure",
-  anxious: "Anxious",
-  avoidant: "Avoidant",
-  fearful: "Fearful",
-  emotion: "Emotion",
-  will: "Will",
-  logic: "Logic",
-  physics: "Physics",
-  information_processing: "Pemrosesan Informasi",
-  interaction_style: "Gaya Interaksi",
-  head: "Pikiran (Head)",
-  heart: "Hati (Heart)",
-  gut: "Perut (Gut)",
-  self_preservation: "Self-Preservation",
-  one_to_one: "One-to-One",
-  intuition: "Pola dan kemungkinan",
-  feeling: "Pertimbangan manusia",
-  judging: "Struktur keputusan",
-  sanguine: "Ekspresif",
-  choleric: "Penggerak",
-  melancholic: "Mendalam",
-  phlegmatic: "Stabil",
   reinforcing: "Pola saling menguatkan",
   complementary: "Pola saling melengkapi",
   reflective_tension: "Tegangan reflektif",
@@ -93,7 +52,7 @@ const narrativeLabels: Record<string, string> = {
 };
 
 function formatKey(value: string): string {
-  return labels[value] ?? value.replaceAll("_", " ");
+  return labels[value] ?? formatResultKey(value);
 }
 
 function formatDate(value: string): string {
@@ -122,14 +81,6 @@ function limitationNote(summary: Readonly<Record<string, unknown>>): string | nu
   return optionalString(summary.disclaimer);
 }
 
-function ambiguityNote(ambiguity: Readonly<Record<string, unknown>>): string {
-  const level = typeof ambiguity.level === "number" ? ambiguity.level : null;
-  if (level !== null) {
-    return `Ambiguitas pola ${Math.round(level * 100)}%. Angka ini menunjukkan kedekatan skor atau batas interpretasi, bukan ketidakpastian identitas yang dapat diukur secara mutlak.`;
-  }
-  return "Lensa ini dibaca sebagai spektrum beberapa dimensi. Tidak ada satu label kandidat yang dianggap pasti.";
-}
-
 function ReflectionList({ items }: { items: readonly string[] }) {
   return (
     <ul className="text-ink-muted mt-3 space-y-2 leading-7">
@@ -151,40 +102,43 @@ const reportAnchors = [
   { href: "#share-controls", label: "Bagikan / ekspor" },
 ];
 
-const evidenceTierId: Record<string, string> = {
-  A: "Bukti A",
-  B: "Reflektif B",
-  B_EXPERIMENTAL: "Reflektif B · eksperimental",
-  C: "Reflektif C",
-  EXPERIMENTAL: "Eksperimental",
-};
-
 function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "modular" }> }) {
   const integrated = buildIntegratedReflection(result.modules);
   const hasEvidenceOrientedModule = result.modules.some(
     (module) => module.evidenceTier !== "EXPERIMENTAL" && module.evidenceTier !== "C",
   );
+  const identities = result.modules.map((module) => ({
+    name: formatKey(module.moduleKey),
+    title: formatModuleResultTitle(module.moduleKey, module.summary),
+  }));
 
   return (
     <div>
       <div className="border-y border-white/20 py-8 sm:py-12">
         <p className="mono-label text-ink">Hasil pribadi · {result.modules.length} lensa</p>
         <h1 className="mt-4 max-w-3xl text-3xl font-normal tracking-[-0.035em] sm:text-5xl">
-          Baca sebagai pola, bukan batasan.
+          Hasilmu dalam {result.modules.length} lensa
         </h1>
+        <ResultIdentitySummary items={identities} />
         <p className="text-ink-muted mt-5 max-w-2xl text-base leading-7 sm:text-lg">
           {result.summary.disclaimer}
         </p>
-        <div className="mt-5 flex flex-wrap items-center gap-3">
-          <span className="border-line bg-surface rounded-[12px] border px-3 py-1.5 font-mono text-xs tracking-[-0.02em] tabular-nums">
+        <div className="mt-6 flex flex-wrap items-center gap-3">
+          <span className="border-line bg-surface rounded-[12px] border px-3 py-1.5 text-xs tracking-[-0.01em] tabular-nums">
             {hasEvidenceOrientedModule
-              ? `Tingkat keyakinan ${Math.round(result.quality.confidence * 100)}%`
+              ? `${confidenceReading(result.quality.confidence)} · tingkat keyakinan ${Math.round(result.quality.confidence * 100)} dari 100`
               : "Tingkat keyakinan tidak dihitung untuk lensa eksperimental."}
           </span>
           <span className="text-ink-muted font-mono text-xs tracking-[-0.02em] uppercase">
-            Skor di server · privat
+            Dihitung aman · hanya untukmu
           </span>
         </div>
+        {hasEvidenceOrientedModule ? (
+          <p className="text-ink-muted mt-3 max-w-2xl text-sm leading-6">
+            Tingkat keyakinan menunjukkan seberapa lengkap dan konsisten jawabanmu, bukan seberapa
+            akurat sebuah label menggambarkan dirimu.
+          </p>
+        ) : null}
       </div>
 
       <nav
@@ -318,6 +272,8 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
           const reflection = buildModuleReflection(module);
           const alternate = alternateCandidate(module.ambiguity);
           const limitation = limitationNote(module.summary);
+          const moduleTitle = formatModuleResultTitle(module.moduleKey, module.summary);
+          const isExperimental = isExperimentalEvidence(module.evidenceTier);
           return (
             <section
               aria-labelledby={`module-${module.moduleKey}`}
@@ -325,14 +281,19 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
               key={module.moduleKey}
             >
               <div className="flex flex-wrap items-baseline justify-between gap-3">
-                <h2
-                  className="text-2xl font-normal tracking-[-0.025em] capitalize"
-                  id={`module-${module.moduleKey}`}
-                >
-                  {formatKey(module.moduleKey)}
-                </h2>
-                <span className="text-ink-muted font-mono text-xs tracking-[-0.02em] uppercase tabular-nums">
-                  Tingkat keyakinan {Math.round(module.confidence * 100)}%
+                <div>
+                  <h2
+                    className="text-2xl font-normal tracking-[-0.025em]"
+                    id={`module-${module.moduleKey}`}
+                  >
+                    {formatKey(module.moduleKey)}
+                  </h2>
+                  <p className="mt-2 text-lg font-medium">{moduleTitle}</p>
+                </div>
+                <span className="text-ink-muted text-xs tracking-[-0.01em] tabular-nums">
+                  {isExperimental
+                    ? "Eksperimental · tanpa tingkat keyakinan keseluruhan"
+                    : `${confidenceReading(module.confidence)} · ${Math.round(module.confidence * 100)} dari 100`}
                 </span>
               </div>
               <p className="text-ink-muted mt-4 max-w-3xl leading-7">
@@ -340,48 +301,38 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
               </p>
               <div className="mt-6 grid gap-px overflow-hidden rounded-[16px] border border-white/14 bg-white/14 md:grid-cols-2">
                 <article className="bg-surface p-5">
-                  <h3 className="font-normal">Hal yang mungkin membantu</h3>
+                  <h3 className="font-normal">Yang terlihat dari jawabanmu</h3>
                   <ReflectionList items={reflection.strengths} />
                 </article>
                 <article className="bg-surface p-5">
-                  <h3 className="font-normal">Hal yang perlu diperiksa</h3>
+                  <h3 className="font-normal">Yang perlu diperhatikan</h3>
                   <ReflectionList items={reflection.blindSpots} />
                 </article>
               </div>
               <details className="border-line mt-5 border-y py-3">
                 <summary className="focus-ring flex min-h-11 cursor-pointer list-none items-center justify-between gap-4 text-sm font-normal [&::-webkit-details-marker]:hidden">
-                  <span>Lihat skor dan keterbatasan lensa</span>
+                  <span>Lihat kecenderungan dan batasan lensa</span>
                   <span aria-hidden="true" className="text-ink-muted font-mono text-lg">
                     +
                   </span>
                 </summary>
+                <p className="text-ink-muted mt-4 text-sm leading-6">
+                  Angka menunjukkan posisi kecenderungan jawaban dari 0 sampai 100, bukan persentase
+                  akurasi dirimu.
+                </p>
                 <div className="mt-5 space-y-5">
-                  {module.scores.map((score) => (
-                    <div key={`${score.constructKey}-${score.facetKey}`}>
-                      <div className="flex justify-between gap-4">
-                        <h3 className="font-normal capitalize">{formatKey(score.constructKey)}</h3>
-                        <span className="font-mono text-sm tabular-nums">
-                          {score.normalizedScore}
-                        </span>
-                      </div>
-                      <div
-                        className="bg-line mt-3 h-px overflow-visible"
-                        role="img"
-                        aria-label={`${formatKey(score.constructKey)} ${score.normalizedScore} dari 100`}
-                      >
-                        <div
-                          className="bg-frost relative h-px"
-                          style={{ width: `${score.normalizedScore}%` }}
-                        >
-                          <span className="bg-frost absolute top-1/2 right-0 h-1.5 w-1.5 -translate-y-1/2 rounded-full" />
-                        </div>
-                      </div>
-                    </div>
+                  {orderResultScores(module.moduleKey, module.scores).map((score) => (
+                    <ResultScoreIndicator
+                      constructKey={score.constructKey}
+                      key={`${score.constructKey}-${score.facetKey}`}
+                      label={formatKey(score.constructKey)}
+                      value={score.normalizedScore}
+                    />
                   ))}
                 </div>
                 <div className="border-line mt-5 flex flex-wrap items-center gap-2 border-t pt-5 text-sm">
                   <span className="border-line bg-surface rounded-[12px] border px-3 py-1 font-mono text-xs tracking-[-0.02em] uppercase">
-                    {evidenceTierId[module.evidenceTier] ??
+                    {resultEvidenceLabels[module.evidenceTier] ??
                       `Tingkat bukti ${module.evidenceTier.replace("_", " ")}`}
                   </span>
                   <span className="border-line text-ink-muted rounded-[12px] border px-3 py-1 font-mono text-xs tabular-nums">
@@ -390,14 +341,14 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
                 </div>
                 {alternate ? (
                   <p className="border-line bg-surface text-ink mt-4 rounded-[12px] border px-4 py-3 text-sm leading-6">
-                    <span className="font-normal">Kandidat alternatif:</span> {alternate}. Skor
-                    beberapa dimensi dekat batas, jadi baca hasil ini sebagai kecenderungan, bukan
-                    label pasti.
+                    <span className="font-normal">Pola lain yang cukup dekat:</span>{" "}
+                    {formatKey(alternate)}. Artinya, jawabanmu belum membedakan kedua pola dengan
+                    tegas; perhatikan konteks saat membaca hasil.
                   </p>
                 ) : (
                   <p className="border-line bg-surface text-ink mt-4 rounded-[12px] border px-4 py-3 text-sm leading-6">
-                    <span className="font-normal">Catatan ambiguitas:</span>{" "}
-                    {ambiguityNote(module.ambiguity)}
+                    <span className="font-normal">Seberapa jelas polanya:</span>{" "}
+                    {ambiguityReading(module.ambiguity.level)}
                   </p>
                 )}
                 {limitation ? (
@@ -447,6 +398,20 @@ export function ResultReport({ result }: { result: ResultView }) {
         <h1 className="mt-4 text-3xl font-normal tracking-[-0.035em] sm:text-5xl">
           {result.summary.archetype}
         </h1>
+        <ResultIdentitySummary
+          items={[
+            { name: "Profil Trait", title: result.summary.archetype },
+            ...Object.entries(result.summary.overlays).map(([key, overlay]) => ({
+              name:
+                key === "type16"
+                  ? "16-Type reflektif"
+                  : key === "motivation"
+                    ? "Motivasi reflektif"
+                    : "Temperamen reflektif",
+              title: overlay.label,
+            })),
+          ]}
+        />
         <p className="text-ink-muted mt-5 max-w-2xl leading-7">{result.summary.disclaimer}</p>
       </div>
       <section className="mt-10" aria-labelledby="trait-heading">
@@ -459,22 +424,11 @@ export function ResultReport({ result }: { result: ResultView }) {
               className="border-line bg-surface rounded-[16px] border p-5"
               key={score.constructKey}
             >
-              <div className="flex justify-between gap-4">
-                <h3 className="font-normal">{labels[score.constructKey]}</h3>
-                <span className="font-mono text-sm tabular-nums">{score.normalizedScore}</span>
-              </div>
-              <div
-                className="bg-line mt-3 h-px overflow-visible"
-                role="img"
-                aria-label={`${labels[score.constructKey]} ${score.normalizedScore} dari 100`}
-              >
-                <div
-                  className="bg-frost relative h-px"
-                  style={{ width: `${score.normalizedScore}%` }}
-                >
-                  <span className="bg-frost absolute top-1/2 right-0 h-1.5 w-1.5 -translate-y-1/2 rounded-full" />
-                </div>
-              </div>
+              <ResultScoreIndicator
+                constructKey={score.constructKey}
+                label={formatKey(score.constructKey)}
+                value={score.normalizedScore}
+              />
               <p className="text-ink-muted mt-2 font-mono text-xs tabular-nums">
                 Tingkat keyakinan {Math.round(score.confidence * 100)}%
               </p>

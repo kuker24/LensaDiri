@@ -134,9 +134,11 @@ describe("safe shared result projection", () => {
   it("menampilkan refleksi praktis sebelum membuka detail teknis", () => {
     render(createElement(ResultReport, { result: privateModularResult }));
 
-    expect(
-      screen.getByRole("heading", { name: "Baca sebagai pola, bukan batasan." }),
-    ).toBeVisible();
+    expect(screen.getByRole("heading", { name: "Hasilmu dalam 1 lensa" })).toBeVisible();
+    expect(screen.getByRole("region", { name: "Ringkasan semua lensa" })).toHaveTextContent(
+      "Profil Trait",
+    );
+    expect(screen.getByText(/Perlu konteks · tingkat keyakinan 42 dari 100/u)).toBeVisible();
     expect(screen.getByRole("heading", { name: "Mulai dari keseharian" })).toBeVisible();
     expect(screen.getByText("Detail dan tingkat keyakinan").closest("details")).not.toHaveAttribute(
       "open",
@@ -180,7 +182,7 @@ describe("safe shared result projection", () => {
               normalizedScore: 67,
             },
           ],
-          title: "eksploratif dan ekspresif",
+          title: "Eksploratif dan ekspresif",
         },
       ],
       share: safeMetadata,
@@ -190,6 +192,14 @@ describe("safe shared result projection", () => {
       expect(serialized).not.toContain(field);
     }
     expect(serialized).not.toContain("3.67");
+
+    render(createElement(SharedResultReport, { result: shared }));
+    expect(screen.getByRole("heading", { name: "Hasil dalam 1 lensa" })).toBeVisible();
+    const summary = screen.getByRole("region", { name: "Ringkasan semua lensa" });
+    expect(summary).toHaveTextContent("Profil Trait");
+    expect(summary).toHaveTextContent("Eksploratif dan ekspresif");
+    expect(screen.getByRole("img", { name: /Energi sosial.*67 dari 100/iu })).toBeVisible();
+    expect(screen.queryByText(/Tingkat keyakinan/iu)).not.toBeInTheDocument();
   });
 
   it("keeps legacy share useful while excluding score confidence and quality diagnostics", () => {
@@ -227,7 +237,7 @@ describe("safe shared result projection", () => {
     }
 
     render(createElement(SharedResultReport, { result: shared }));
-    expect(screen.getByText("INFP")).toBeInTheDocument();
+    expect(screen.getAllByText("INFP")).toHaveLength(2);
     expect(screen.getByText("Bukan instrumen proprietary.")).toBeInTheDocument();
     expect(
       screen.getByText("Bagian ini dipertahankan agar hasil lama tetap dapat dibaca."),
