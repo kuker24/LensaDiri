@@ -104,7 +104,7 @@ test("guarded lenses enforce age and acknowledgment before Psychosophy completio
     page.getByText("Tingkat keyakinan tidak dihitung untuk lensa eksperimental."),
   ).toBeVisible();
   await page.getByText("Lihat kecenderungan dan batasan lensa").click();
-  await expect(page.getByText(/Catatan ambiguitas/u)).toBeVisible();
+  await expect(page.getByText(/Seberapa jelas polanya/u)).toBeVisible();
   await expect(page.getByText(/hanya untuk refleksi eksploratif/u)).toBeVisible();
 });
 
