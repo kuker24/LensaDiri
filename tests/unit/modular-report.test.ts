@@ -68,6 +68,7 @@ describe("modular report assembly", () => {
     expect(reflection.moduleKey).toBe("trait_profile");
     expect(reflection.strengths).toHaveLength(2);
     expect(reflection.blindSpots.length).toBeGreaterThan(0);
+    expect(reflection.blindSpots.join(" ")).not.toMatch(/keteraturan tidak banyak muncul/iu);
     expect(moduleResult.scores).toEqual(before);
   });
 

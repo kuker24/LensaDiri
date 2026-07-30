@@ -156,11 +156,23 @@ describe("result PDF export", () => {
     expect(legacyModel.kind).toBe("legacy");
     expect(legacyModel.legacy?.scores).toHaveLength(5);
     expect(legacyModel.title).toBe("eksploratif");
+    expect(legacyModel.identities).toHaveLength(4);
+    expect(legacyModel.identities[1]).toEqual({ name: "16-Type reflektif", title: "INFP" });
 
     const modularModel = buildResultPdfModel(privateModularCombo);
     expect(modularModel.kind).toBe("modular");
     expect(modularModel.modular?.modules).toHaveLength(2);
     expect(modularModel.modular?.correlations[0]?.narrative).toMatch(/konteks/i);
+    expect(modularModel.identities).toEqual([
+      { name: "Profil Trait", title: "Eksploratif dan ekspresif" },
+      { name: "16-Type", title: "INFP-like" },
+    ]);
+    expect(modularModel.modular?.overallConfidenceLabel).toBe("Cukup terbaca · 68 dari 100");
+    expect(modularModel.title).toBe("Hasilmu dalam 2 lensa");
+    expect(modularModel.modular?.modules[0]?.scores[0]).toMatchObject({
+      reading: "Menonjol",
+      score: 74,
+    });
     expect(modularModel.selectionLabel).toMatch(/2 lensa/i);
   });
 

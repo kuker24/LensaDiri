@@ -57,6 +57,10 @@ function label(key: string): string {
   return constructLabels[key] ?? key.replaceAll("_", " ");
 }
 
+function startSentence(value: string): string {
+  return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
 function orderedScores(resultModule: IndependentModuleResult): readonly ModuleDimensionScore[] {
   return resultModule.scores.toSorted(
     (left, right) =>
@@ -67,10 +71,10 @@ function orderedScores(resultModule: IndependentModuleResult): readonly ModuleDi
 
 function describeBand(score: ModuleDimensionScore): string {
   if (score.normalizedScore >= 65)
-    return `kecenderungan ${label(score.constructKey)} cukup menonjol`;
+    return `${label(score.constructKey)} cukup menonjol dalam jawabanmu`;
   if (score.normalizedScore <= 35)
-    return `kecenderungan ${label(score.constructKey)} lebih selektif atau kontekstual`;
-  return `kecenderungan ${label(score.constructKey)} relatif seimbang`;
+    return `${label(score.constructKey)} kurang menonjol dalam jawabanmu`;
+  return `${label(score.constructKey)} tampak cukup seimbang`;
 }
 
 export function buildModuleReflection(
@@ -82,19 +86,23 @@ export function buildModuleReflection(
   const lowest = ordered.at(-1);
 
   return {
-    blindSpots: lowest
-      ? [
-          `Saat ${label(lowest.constructKey)} tidak menjadi respons utama, kebutuhan pada sisi ini dapat terlambat disadari.`,
-          "Periksa konteks sebelum menjadikan satu pola sebagai aturan tetap tentang dirimu.",
-        ]
-      : ["Data belum cukup untuk menyusun blind spot yang stabil."],
+    blindSpots:
+      lowest && lowest.normalizedScore <= 35
+        ? [
+            `${startSentence(label(lowest.constructKey))} tidak banyak muncul dalam jawaban ini. Bukan berarti sisi itu tidak ada; bisa jadi hanya muncul pada situasi tertentu.`,
+            "Cocokkan hasil dengan kejadian nyata sebelum menjadikannya kesimpulan tentang dirimu.",
+          ]
+        : [
+            "Tidak ada aspek yang jauh lebih rendah pada lensa ini. Perbedaan kecil tetap bisa berubah menurut situasi.",
+            "Cocokkan hasil dengan kejadian nyata sebelum menjadikannya kesimpulan tentang dirimu.",
+          ],
     moduleKey: resultModule.moduleKey,
     practicalReflection: strongest
-      ? `Amati kapan ${label(strongest.constructKey)} membantumu dan kapan kamu perlu menyeimbangkannya dengan respons lain.`
+      ? `${startSentence(label(strongest.constructKey))} paling terlihat pada lensa ini. Coba perhatikan kapan pola itu membantu dan kapan kamu membutuhkan cara lain.`
       : "Gunakan hasil sebagai bahan refleksi, bukan label mutlak.",
     strengths: [strongest, second]
       .filter((score): score is ModuleDimensionScore => score !== undefined)
-      .map((score) => `Responsmu menunjukkan ${describeBand(score)}.`),
+      .map((score) => `${startSentence(describeBand(score))}.`),
   };
 }
 

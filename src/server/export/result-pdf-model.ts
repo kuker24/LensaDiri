@@ -1,5 +1,11 @@
 import { getPublicModeName } from "@/lib/assessment/catalog";
 import { buildIntegratedReflection, buildModuleReflection } from "@/lib/report/modular-report";
+import {
+  confidenceReading,
+  formatModuleResultTitle,
+  isExperimentalEvidence,
+  scoreReading,
+} from "@/lib/report/result-presentation";
 import type { PrivateResultView } from "@/server/repositories/assessment";
 import {
   constructLabels,
@@ -12,6 +18,7 @@ import {
 
 export type PdfScoreRow = {
   readonly label: string;
+  readonly reading: string;
   readonly score: number;
 };
 
@@ -64,6 +71,10 @@ export type ResultPdfModel = {
   readonly createdAtLabel: string;
   readonly disclaimer: string;
   readonly exportedAtLabel: string;
+  readonly identities: readonly {
+    readonly name: string;
+    readonly title: string;
+  }[];
   readonly kind: "legacy" | "modular";
   readonly legacy: PdfLegacyBlock | null;
   readonly modular: PdfModularBlock | null;
@@ -95,14 +106,7 @@ function optionalString(value: unknown): string | null {
 type ModularModule = Extract<PrivateResultView, { kind: "modular" }>["modules"][number];
 
 function moduleTitle(module: ModularModule): string {
-  const summary = asRecord(module.summary);
-  return (
-    optionalString(summary.archetype) ??
-    optionalString(summary.primaryType) ??
-    optionalString(summary.corePattern) ??
-    optionalString(summary.primary) ??
-    formatPdfLabel(module.moduleKey, moduleLabels)
-  );
+  return formatModuleResultTitle(module.moduleKey, asRecord(module.summary));
 }
 
 function moduleDisclaimer(module: ModularModule): string {
@@ -114,11 +118,11 @@ function moduleDisclaimer(module: ModularModule): string {
 }
 
 function isExperimentalTier(tier: string): boolean {
-  return tier === "EXPERIMENTAL" || tier === "C";
+  return isExperimentalEvidence(tier);
 }
 
-function confidencePercentLabel(confidence: number): string {
-  return `${Math.round(confidence * 100)}%`;
+function confidenceLabel(confidence: number): string {
+  return `${confidenceReading(confidence)} · ${Math.round(confidence * 100)} dari 100`;
 }
 
 function toLegacy(result: Extract<PrivateResultView, { kind: "legacy" }>): PdfLegacyBlock {
@@ -143,10 +147,11 @@ function toLegacy(result: Extract<PrivateResultView, { kind: "legacy" }>): PdfLe
       },
     ],
     qualityNote: result.quality.straightLineWarning
-      ? `Confidence ${confidencePercentLabel(result.quality.confidence)} · ${result.quality.answeredItems} item · pola jawaban seragam terdeteksi (baca lebih hati-hati).`
-      : `Confidence ${confidencePercentLabel(result.quality.confidence)} · ${result.quality.answeredItems} item terjawab.`,
+      ? `${confidenceLabel(result.quality.confidence)} · ${result.quality.answeredItems} pertanyaan · pola jawaban seragam terdeteksi, jadi baca lebih hati-hati.`
+      : `${confidenceLabel(result.quality.confidence)} · ${result.quality.answeredItems} pertanyaan terjawab.`,
     scores: result.scores.map((score) => ({
       label: formatPdfLabel(score.constructKey, constructLabels),
+      reading: scoreReading(score.normalizedScore),
       score: Math.round(score.normalizedScore),
     })),
     strengths: result.summary.strengths,
@@ -185,7 +190,7 @@ function toModular(result: Extract<PrivateResultView, { kind: "modular" }>): Pdf
         blindSpots: reflection.blindSpots,
         confidenceLabel: isExperimentalTier(module.evidenceTier)
           ? null
-          : confidencePercentLabel(module.confidence),
+          : confidenceLabel(module.confidence),
         disclaimer: moduleDisclaimer(module),
         evidenceTierLabel:
           evidenceTierLabels[module.evidenceTier] ?? `Tingkat bukti ${module.evidenceTier}`,
@@ -199,15 +204,14 @@ function toModular(result: Extract<PrivateResultView, { kind: "modular" }>): Pdf
           )
           .map((score) => ({
             label: formatPdfLabel(score.constructKey, constructLabels),
+            reading: scoreReading(score.normalizedScore),
             score: Math.round(score.normalizedScore),
           })),
         strengths: reflection.strengths,
         title: moduleTitle(module),
       };
     }),
-    overallConfidenceLabel: hasEvidenceOriented
-      ? confidencePercentLabel(result.quality.confidence)
-      : null,
+    overallConfidenceLabel: hasEvidenceOriented ? confidenceLabel(result.quality.confidence) : null,
   };
 }
 
@@ -223,6 +227,21 @@ export function buildResultPdfModel(
       createdAtLabel,
       disclaimer: result.summary.disclaimer,
       exportedAtLabel,
+      identities: [
+        { name: "Profil Trait", title: result.summary.archetype },
+        {
+          name: "16-Type reflektif",
+          title: result.summary.overlays.type16.label,
+        },
+        {
+          name: "Motivasi reflektif",
+          title: result.summary.overlays.motivation.label,
+        },
+        {
+          name: "Temperamen reflektif",
+          title: result.summary.overlays.temperament.label,
+        },
+      ],
       kind: "legacy",
       legacy: toLegacy(result),
       modular: null,
@@ -243,12 +262,18 @@ export function buildResultPdfModel(
     createdAtLabel,
     disclaimer: result.summary.disclaimer,
     exportedAtLabel,
+    identities: result.modules.map((module) => ({
+      name: formatPdfLabel(module.moduleKey, moduleLabels),
+      title: moduleTitle(module),
+    })),
     kind: "modular",
     legacy: null,
     modular,
     selectionLabel,
     subtitle: "Laporan refleksi pribadi",
     title:
-      lensCount === 1 ? (modular.modules[0]?.title ?? "Hasil modular") : "Hasil reflektif modular",
+      lensCount === 1
+        ? (modular.modules[0]?.title ?? "Hasil satu lensa")
+        : `Hasilmu dalam ${lensCount} lensa`,
   };
 }
