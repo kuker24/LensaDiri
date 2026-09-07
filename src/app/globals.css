@@ -3,40 +3,52 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  /* Soft Product: Plus Jakarta Sans for UI/display; mono only for meta/data */
-  --font-sans:
-    var(--font-plus-jakarta), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
+  /* Dala world: one grotesk voice (Archivo) for display + UI; mono only for meta/data */
+  --font-sans: var(--font-archivo), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-display: var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
 
+  /* Void + bone neutrals */
+  --color-void: #000000;
   --color-canvas: #000000;
-  --color-surface: #111111;
-  --color-surface-raised: #1a1a1a;
+  --color-surface: #101014;
+  --color-surface-raised: #17171c;
   --color-ink: #ffffff;
   --color-ink-soft: #f5f5f5;
-  --color-ink-muted: #b8bab9;
-  --color-steel: #b8bab9;
-  --color-ash: #b8bab9;
-  --color-charcoal: #444345;
-  --color-frost: #e2e2e2;
-  --color-void: #000000;
-  --color-lens: #444345;
-  --color-lens-strong: #555456;
-  --color-lens-soft: #1c1c1e;
-  --color-aperture: #e2e2e2;
-  --color-aperture-soft: #1a1a1a;
-  --color-mist: #141414;
-  --color-line: #2a2a2a;
+  --color-ink-muted: #9a9a9a;
+  --color-steel: #9a9a9a;
+  --color-ash: #9a9a9a;
+  --color-mist: #bdbdbd;
+  --color-line: #26262c;
+  --color-frost: #efefec;
+  --color-nav: rgb(0 0 0 / 0.66);
+
+  /* Dala chromatic roles: single violet for action, saffron for emphasis, verdant wash */
+  --color-iris: #8052ff;
+  --color-iris-deep: #5b3df0;
+  --color-iris-wash: rgb(128 82 255 / 0.12);
+  --color-saffron: #ffb829;
+  --color-saffron-wash: rgb(255 184 41 / 0.08);
+  --color-verdant: #15846e;
+  --color-verdant-wash: rgb(21 132 110 / 0.12);
+
+  /* Compat aliases — old names, Dala values (no logic churn, all pixels change) */
+  --color-charcoal: #17171c;
+  --color-lens: #8052ff;
+  --color-lens-strong: #5b3df0;
+  --color-lens-soft: rgb(128 82 255 / 0.12);
+  --color-aperture: #ffb829;
+  --color-aperture-soft: rgb(255 184 41 / 0.08);
+  --color-aperture-on-dark: #ffb829;
+
   --color-success: #7dcea0;
   --color-success-soft: #10271a;
   --color-warning: #f2c879;
   --color-warning-soft: #2c2414;
   --color-danger: #ff8b95;
   --color-danger-soft: #30171b;
-  --color-aperture-on-dark: #e2e2e2;
-  --color-nav: rgb(0 0 0 / 0.55);
 
-  /* Soft Product radii: control ~12px, panel ~16px, shell ~20px */
+  /* Dala controls: pill primary, 12px secondary */
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
   --radius-lg: 1rem;
@@ -50,8 +62,7 @@
   --duration-ui: 180ms;
   /* Marketing entry only — task UI stays on --duration-ui */
   --duration-reveal: 480ms;
-  --duration-spectrum: 450ms;
-  --duration-film: 700ms;
+  --duration-constellation: 900ms;
 }
 
 :root {
@@ -61,20 +72,19 @@
   --surface: var(--color-surface);
   --surface-strong: var(--color-surface-raised);
   --line: var(--color-line);
-  --brand: var(--color-lens);
-  --brand-strong: var(--color-lens-strong);
-  --brand-soft: var(--color-lens-soft);
-  --aqua: var(--color-aperture);
+  --brand: var(--color-iris);
+  --brand-strong: var(--color-iris-deep);
+  --brand-soft: var(--color-iris-wash);
+  --aqua: var(--color-saffron);
   --shadow: var(--shadow-surface);
-  --blur-glass: 0px;
   --page-max: 1200px;
-  --section-gap: 0px;
   --card-pad: 1.25rem;
-  --hairline: rgb(226 226 226 / 0.22);
+  --hairline: rgb(239 239 236 / 0.16);
   --z-sticky: 20;
   --z-modal-backdrop: 40;
   --z-modal: 50;
   --z-toast: 60;
+  color-scheme: dark;
 }
 
 * {
@@ -84,6 +94,7 @@
 html {
   scroll-behavior: smooth;
   background: var(--background);
+  scrollbar-color: #3a3a42 #000000;
 }
 
 body {
@@ -98,11 +109,26 @@ body {
   line-height: 1.65;
   letter-spacing: -0.011em;
   text-rendering: optimizeLegibility;
+  caret-color: var(--color-iris);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: #000000;
+}
+::-webkit-scrollbar-thumb {
+  background: #3a3a42;
+  border-radius: 8px;
+  border: 2px solid #000000;
 }
 
 a {
   color: inherit;
   text-decoration: none;
+  text-underline-offset: 3px;
 }
 
 button,
@@ -125,8 +151,8 @@ p {
 }
 
 ::selection {
-  background: rgb(226 226 226 / 0.28);
-  color: var(--foreground);
+  background: rgb(128 82 255 / 0.42);
+  color: #ffffff;
 }
 
 .tabular-nums {
@@ -145,7 +171,7 @@ p {
 
 .surface-panel {
   border: 1px solid var(--hairline);
-  border-radius: var(--radius-lg); /* 16px Soft Product panel */
+  border-radius: var(--radius-lg);
   background: var(--surface);
 }
 
@@ -157,7 +183,7 @@ p {
 
 .auth-panel {
   overflow: hidden;
-  border: 1px solid rgb(226 226 226 / 0.18);
+  border: 1px solid rgb(239 239 236 / 0.14);
   border-radius: 1.25rem;
   background: var(--surface);
 }
@@ -181,7 +207,7 @@ p {
 }
 
 .quiet-link {
-  color: var(--color-aperture);
+  color: var(--color-saffron);
   transition: color var(--duration-ui) var(--ease-out);
 }
 
@@ -242,16 +268,11 @@ p {
   transform: none;
 }
 
-.lens-glow {
-  background-color: rgb(17 17 17 / 0.7);
-  background-image: none;
-}
-
 .nav-frost {
-  background: rgb(0 0 0 / 0.62);
-  border-bottom: 1px solid rgb(226 226 226 / 0.28);
-  backdrop-filter: blur(10px) saturate(1.05);
-  -webkit-backdrop-filter: blur(10px) saturate(1.05);
+  background: rgb(0 0 0 / 0.72);
+  border-bottom: 1px solid rgb(239 239 236 / 0.12);
+  backdrop-filter: blur(12px) saturate(1.05);
+  -webkit-backdrop-filter: blur(12px) saturate(1.05);
 }
 
 .nav-menu-panel {
@@ -272,17 +293,27 @@ p {
   outline-offset: 3px;
 }
 
-.section-stamp {
-  color: var(--color-ink);
+/* Dala display: one weight (400/500), scale does the hierarchy, -0.04em tracking */
+.display-stack {
   font-family: var(--font-display);
-  font-size: clamp(2.5rem, 8vw, 5rem);
-  font-weight: 500;
+  font-style: normal;
+  font-weight: 400;
   line-height: 0.95;
-  letter-spacing: -0.03em;
-  text-transform: none;
+  letter-spacing: -0.04em;
 }
 
-/* Meta / evidence / instrumentation only — not CTAs */
+.display-solid {
+  font-family: var(--font-display);
+  font-weight: 500;
+  line-height: 1.02;
+  letter-spacing: -0.035em;
+}
+
+.display-spark {
+  color: var(--color-saffron);
+}
+
+/* Meta / evidence / instrumentation only — never a kicker above a heading */
 .mono-label {
   font-family: var(--font-mono);
   font-size: 0.75rem;
@@ -306,7 +337,7 @@ p {
   bottom: 0.55rem;
   left: 0.75rem;
   height: 1px;
-  background: rgb(226 226 226 / 0.7);
+  background: var(--color-iris);
   transform: scaleX(0);
   transform-origin: left center;
   transition: transform var(--duration-ui) var(--ease-out-expo);
@@ -322,26 +353,6 @@ p {
   transform: scaleX(1);
 }
 
-.display-stack {
-  font-family: var(--font-display);
-  font-style: normal;
-  font-weight: 500;
-  line-height: 0.95;
-  letter-spacing: -0.03em;
-}
-
-.display-underline {
-  box-decoration-break: clone;
-  border-bottom: 1px solid rgb(226 226 226 / 0.55);
-  padding-bottom: 0.08em;
-}
-
-.display-italic {
-  font-family: var(--font-display);
-  font-style: normal;
-  font-weight: 500;
-}
-
 .hairline {
   border-color: var(--hairline);
 }
@@ -350,42 +361,25 @@ p {
   padding-block: clamp(4.5rem, 8vw, 6rem);
 }
 
-.film-strip {
+/* Void stage: pure black, constellation is the only texture */
+.void-stage {
   position: relative;
   isolation: isolate;
-  min-height: min(100svh, 56rem);
   overflow: hidden;
+  background: #000000;
 }
 
-.film-strip-media {
-  position: absolute;
-  inset: -2%;
-  z-index: -2;
-  background-color: #000;
-  background-position: center;
-  background-size: cover;
-  transform: scale(1.04);
-  transition: transform var(--duration-film) var(--ease-out-expo);
-}
-
-.film-strip:has(.reveal[data-in-view="true"]) .film-strip-media,
-.film-strip-media.is-settled {
-  transform: scale(1);
-}
-
-.film-strip-scrim {
+.constellation-field {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background:
-    linear-gradient(90deg, rgb(0 0 0 / 0.82) 0%, rgb(0 0 0 / 0.4) 46%, rgb(0 0 0 / 0.22) 100%),
-    linear-gradient(
-      180deg,
-      rgb(0 0 0 / 0.28) 0%,
-      transparent 28%,
-      transparent 72%,
-      rgb(0 0 0 / 0.45) 100%
-    );
+  pointer-events: none;
+}
+
+.constellation-field svg {
+  display: block;
+  width: 100%;
+  height: 100%;
 }
 
 /* Progressive reveal: visible by default; only hides after JS marks motion-ready. */
@@ -447,34 +441,9 @@ p {
     animation-delay: 250ms;
   }
 
-  /* Landing only — never put ambient loops on task surfaces */
-  .hero-ambient-video {
-    animation: ambient-drift 28s var(--ease-in-out) infinite alternate;
-  }
-
-  .spectrum-mark {
-    transform-origin: left center;
-    animation: spectrum-draw var(--duration-spectrum) var(--ease-out-expo) both;
-  }
-
-  .spectrum-row:nth-child(1) .spectrum-mark {
-    animation-delay: 40ms;
-  }
-
-  .spectrum-row:nth-child(2) .spectrum-mark {
-    animation-delay: 90ms;
-  }
-
-  .spectrum-row:nth-child(3) .spectrum-mark {
-    animation-delay: 140ms;
-  }
-
-  .spectrum-row:nth-child(4) .spectrum-mark {
-    animation-delay: 190ms;
-  }
-
-  .spectrum-row:nth-child(5) .spectrum-mark {
-    animation-delay: 240ms;
+  /* Landing only — the constellation breathes once, then rests */
+  .constellation-drift {
+    animation: constellation-settle var(--duration-constellation) var(--ease-out-expo) both;
   }
 }
 
@@ -492,25 +461,17 @@ p {
   }
 }
 
-@keyframes ambient-drift {
+@keyframes constellation-settle {
   from {
-    transform: scale(1.02) translate3d(0, 0, 0);
+    opacity: 0;
+    transform: scale(1.03);
+    filter: blur(3px);
   }
 
   to {
-    transform: scale(1.08) translate3d(-1.2%, -0.8%, 0);
-  }
-}
-
-@keyframes spectrum-draw {
-  from {
-    transform: scaleX(0.12);
-    opacity: 0.4;
-  }
-
-  to {
-    transform: scaleX(1);
     opacity: 1;
+    transform: scale(1);
+    filter: none;
   }
 }
 
@@ -550,7 +511,7 @@ dialog[open] {
 }
 
 dialog::backdrop {
-  background: rgb(0 0 0 / 0.55);
+  background: rgb(0 0 0 / 0.6);
   opacity: 0;
   transition:
     opacity var(--duration-ui) var(--ease-out),
@@ -591,7 +552,7 @@ dialog[open]::backdrop {
   .pressable,
   .decision-tile,
   .reveal,
-  .film-strip-media,
+  .constellation-drift,
   .hero-entrance > *,
   dialog,
   dialog[open],
@@ -602,6 +563,7 @@ dialog[open]::backdrop {
 
   .toast-motion,
   .reveal,
+  .constellation-drift,
   .hero-entrance > *,
   dialog[open],
   dialog[open]::backdrop {
@@ -635,44 +597,7 @@ dialog[open]::backdrop {
     transform: none !important;
   }
 
-  .film-strip-media,
-  .spectrum-mark {
-    transition: none !important;
-    animation: none !important;
-  }
-
-  .hero-ambient-video {
-    display: none;
-  }
-
-  .hero-ambient-poster {
-    display: block;
-  }
-
   .nav-link::after {
     transition: none !important;
-  }
-}
-
-@theme inline {
-  /* Soft Product: monochrome spotlight only — no shiny/gradient text keyframes */
-  --animate-spotlight: spotlight 2s ease 0.65s 1 forwards;
-
-  @keyframes spotlight {
-    0% {
-      opacity: 0;
-      transform: translate(-72%, -62%) scale(0.5);
-    }
-    100% {
-      opacity: 1;
-      transform: translate(-50%, -40%) scale(1);
-    }
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-spotlight {
-    animation: none !important;
-    display: none !important;
   }
 }

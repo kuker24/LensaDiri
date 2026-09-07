@@ -5,10 +5,11 @@ export type ButtonVariant = "primary" | "secondary" | "ghost";
 export type ButtonSize = "sm" | "md";
 
 export const variantStyles: Record<ButtonVariant, string> = {
+  /* Dala: one violet pill for the primary action; hairline ghost for the rest */
   primary:
-    "rounded-[12px] border border-frost/55 bg-charcoal text-ink shadow-[inset_0_1px_0_rgb(255_255_255_/_0.12)] hover:bg-lens-strong hover:border-frost/75 active:bg-charcoal/90 disabled:bg-surface-raised disabled:text-ink-muted disabled:shadow-none",
+    "rounded-pill border border-iris bg-iris text-white shadow-none hover:bg-iris-deep hover:border-iris-deep active:bg-iris-deep/90 disabled:bg-surface-raised disabled:text-ink-muted disabled:border-line",
   secondary:
-    "rounded-[12px] border border-white/22 bg-canvas text-ink hover:border-frost/55 hover:bg-white/5 active:bg-white/8 disabled:border-white/12 disabled:text-ink-muted",
+    "rounded-[12px] border border-white/20 bg-transparent text-ink hover:border-white/45 hover:bg-white/5 active:bg-white/8 disabled:border-white/12 disabled:text-ink-muted",
   ghost: "rounded-[12px] text-ink hover:bg-white/8 active:bg-white/12 disabled:text-ink-muted",
 };
 

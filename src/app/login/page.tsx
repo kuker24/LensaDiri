@@ -32,10 +32,7 @@ export default async function LoginPage({
     <section className="task-shell">
       <BlurFade className="auth-panel mx-auto grid max-w-4xl border-white/18 md:grid-cols-[0.9fr_1.1fr]">
         <div className="bg-surface relative flex flex-col justify-between overflow-hidden p-7 sm:p-10">
-          <div
-            aria-hidden="true"
-            className="pointer-events-none absolute inset-0 bg-[url(/media/design2/panel-void-detail.jpg)] bg-cover bg-center opacity-25"
-          />
+          <div aria-hidden="true" className="bg-iris-wash pointer-events-none absolute inset-0" />
           <div className="relative">
             <p className="mono-label text-ink">Akses akun</p>
             <h1 className="mt-8 max-w-sm text-3xl font-normal tracking-[-0.03em] sm:text-4xl">

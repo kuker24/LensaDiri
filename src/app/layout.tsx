@@ -1,14 +1,14 @@
 import type { Metadata, Viewport } from "next";
-import { JetBrains_Mono, Plus_Jakarta_Sans } from "next/font/google";
+import { Archivo, JetBrains_Mono } from "next/font/google";
 import type { ReactNode } from "react";
 import { AppShell } from "@/components/app-shell";
 import { ToastProvider } from "@/components/ui/toast";
 import { siteConfig } from "@/lib/site";
 import "./globals.css";
 
-const plusJakartaSans = Plus_Jakarta_Sans({
+const archivo = Archivo({
   subsets: ["latin"],
-  variable: "--font-plus-jakarta",
+  variable: "--font-archivo",
   display: "swap",
 });
 
@@ -75,9 +75,10 @@ export default function RootLayout({ children }: Readonly<{ children: ReactNode 
     <html
       data-scroll-behavior="smooth"
       lang="id"
-      className={`${plusJakartaSans.variable} ${jetBrainsMono.variable}`}
+      className={`${archivo.variable} ${jetBrainsMono.variable}`}
     >
       <body>
+        {/* THESIS: many lenses form one self — a violet constellation head on pure black replaces the monochrome workshop; the category-default card grid is refused. OWN-WORLD: void black, bone type at sculptural scale, one violet pill action, saffron punctuation, hairline structure. STORY: visitor grasps private modular self-reflection in seconds, starts calmly, stays in control. FIRST VIEWPORT: nav top; giant two-line headline left; constellation head right; violet Mulai + ghost Metode; meta row beneath. FORM: Dala bank world (found-this-design pin), seed 6cb1d954 superseded by user GO. FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md */}
         <a
           className="focus-ring bg-surface-raised text-ink sr-only z-50 rounded-[12px] border border-white/20 px-4 py-3 focus:not-sr-only focus:fixed focus:top-4 focus:left-4"
           href="#konten-utama"

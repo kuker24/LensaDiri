@@ -12,13 +12,15 @@ const footerLinks = [
 
 export function SiteFooter() {
   return (
-    <footer className="border-t border-white/15">
+    <footer className="border-t border-white/10">
       <div className="container-shell py-8 sm:py-10">
         <div className="flex flex-col gap-6 sm:flex-row sm:items-start sm:justify-between">
           <div className="flex items-start gap-2.5">
             <BrandMark className="text-ink mt-0.5 h-5 w-5" />
             <div>
-              <p className="text-sm font-semibold tracking-[-0.02em]">LensaDiri</p>
+              <p className="text-sm font-semibold tracking-[-0.02em]">
+                LensaDiri<span className="display-spark">.</span>
+              </p>
               <p className="text-ink-muted mt-1 max-w-sm text-sm leading-6">
                 Banyak lensa. Tanpa label mutlak.
               </p>

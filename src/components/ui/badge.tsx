@@ -4,10 +4,10 @@ import { cn } from "@/lib/cn";
 type BadgeTone = "neutral" | "lens" | "aperture" | "success" | "warning" | "danger";
 
 const toneStyles: Record<BadgeTone, string> = {
-  /* Soft Product: monochrome first; success/warning/danger only for functional status */
-  neutral: "border-white/18 bg-white/[0.04] text-ink-muted",
-  lens: "border-frost/30 bg-white/[0.06] text-frost",
-  aperture: "border-frost/50 bg-white/[0.1] text-ink",
+  /* Dala: A strongest bone, B/C softer frost, Experimental quiet mist */
+  neutral: "border-white/15 bg-white/[0.04] text-ink-muted",
+  lens: "border-white/25 bg-white/[0.06] text-mist",
+  aperture: "border-white/45 bg-white/[0.1] text-ink",
   success: "border-success/30 bg-success-soft text-success",
   warning: "border-warning/30 bg-warning-soft text-warning",
   danger: "border-danger-soft bg-danger-soft text-danger",

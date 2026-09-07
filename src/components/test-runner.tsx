@@ -69,7 +69,7 @@ function LikertSelector({
             onClick={() => onAnswer(value)}
             type="button"
           >
-            <span className="border-line bg-canvas text-ink-muted group-aria-pressed:border-frost/70 group-aria-pressed:bg-charcoal group-aria-pressed:text-ink ui-transition mr-3.5 inline-grid h-7 w-7 shrink-0 place-items-center rounded-[12px] border font-mono text-xs tabular-nums">
+            <span className="border-line bg-canvas text-ink-muted group-aria-pressed:border-frost/70 group-aria-pressed:bg-iris ui-transition mr-3.5 inline-grid h-7 w-7 shrink-0 place-items-center rounded-[12px] border font-mono text-xs tabular-nums group-aria-pressed:text-white">
               {value}
             </span>
             <span className="leading-6">{label}</span>
