@@ -43,34 +43,36 @@ async function runStartFlow(
   parsedData: StartRequestData,
   environment: ReturnType<typeof getServerEnvironment>,
   token: string,
-): Promise<{ flow: string; success: true; token: string } | { code: string; success: false }> {
+  journeyToken?: string,
+): Promise<
+  | { flow: string; journeyToken?: string; success: true; token: string }
+  | { code: string; success: false }
+> {
   const account = await getCurrentSession();
-  let startRequest: Parameters<typeof startAssessment>[0]["request"];
-
-  if ("moduleKeys" in parsedData) {
-    startRequest = {
-      kind: "modular" as const,
-      locale: parsedData.locale,
-      selection: {
-        age: parsedData.age,
-        experimentalAcknowledged: parsedData.experimentalAcknowledged,
-        mode: parsedData.mode,
-        moduleKeys: parsedData.moduleKeys,
-        presetKey: parsedData.presetKey,
-        selectionType: parsedData.selectionType,
-      },
-    };
-  } else {
-    startRequest = {
-      kind: "legacy" as const,
+  if (!journeyToken) return { code: "journey_required", success: false };
+  const startRequest: Parameters<typeof startAssessment>[0]["request"] = {
+    journey: {
+      characterGender: parsedData.journey.characterGender,
+      combined: parsedData.journey.combined,
+      journeyTokenHash: hashOpaqueToken(journeyToken, environment.tokenHashPepper),
+      kind: "create" as const,
+    },
+    kind: "modular" as const,
+    locale: parsedData.locale,
+    selection: {
+      age: parsedData.age,
+      experimentalAcknowledged: parsedData.experimentalAcknowledged,
       mode: parsedData.mode,
-    };
-  }
+      moduleKeys: parsedData.moduleKeys,
+      presetKey: parsedData.presetKey,
+      selectionType: parsedData.selectionType,
+    },
+  };
 
   const started = await startAssessment(
     {
       accountId: account?.accountId ?? null,
-      consentVersion: "moduleKeys" in parsedData ? "prd-v2-1" : "2026-07-13",
+      consentVersion: "identity-journey-1",
       expiresAt: new Date(Date.now() + 7 * 24 * 60 * 60 * 1_000),
       request: startRequest,
       sessionTokenHash: hashOpaqueToken(token, environment.tokenHashPepper),
@@ -81,7 +83,12 @@ async function runStartFlow(
   );
 
   return started.success
-    ? { success: true as const, flow: started.kind, token }
+    ? {
+        success: true as const,
+        flow: started.kind,
+        token,
+        ...(journeyToken ? { journeyToken } : {}),
+      }
     : { success: false as const, code: started.code };
 }
 
@@ -140,8 +147,9 @@ export async function POST(request: Request): Promise<NextResponse> {
 
   try {
     const token = generateOpaqueToken();
+    const journeyToken = generateOpaqueToken();
     const result = await withDeadline(
-      runStartFlow(parsed.data, environment, token),
+      runStartFlow(parsed.data, environment, token, journeyToken),
       START_DB_DEADLINE_MS,
     );
     logOperationalEvent({
@@ -151,10 +159,17 @@ export async function POST(request: Request): Promise<NextResponse> {
       status: result.success ? "success" : "rejected",
     });
     return result.success
-      ? NextResponse.json(apiSuccess({ flow: result.flow, token }), {
-          headers: noStoreHeaders,
-          status: 201,
-        })
+      ? NextResponse.json(
+          apiSuccess({
+            flow: result.flow,
+            token,
+            ...(result.journeyToken ? { journeyToken: result.journeyToken } : {}),
+          }),
+          {
+            headers: noStoreHeaders,
+            status: 201,
+          },
+        )
       : NextResponse.json(apiFailure(result.code), {
           headers: noStoreHeaders,
           status: 422,

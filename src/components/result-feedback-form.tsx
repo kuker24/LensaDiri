@@ -44,7 +44,7 @@ export function ResultFeedbackForm({ token }: { token: string }) {
         Nilai 1 sampai 5
       </Label>
       <select
-        className="focus-ring ui-transition bg-surface-raised text-ink mt-2 min-h-12 w-full rounded-[12px] border border-white/30 px-4 text-base outline-none hover:border-white/45 sm:text-sm"
+        className="focus-ring ui-transition bg-surface-raised text-ink border-line hover:border-iris/45 mt-2 min-h-12 w-full rounded-[12px] border px-4 text-base outline-none sm:text-sm"
         defaultValue=""
         id="feedback-rating"
         name="rating"

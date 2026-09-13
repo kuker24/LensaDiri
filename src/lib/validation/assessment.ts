@@ -1,18 +1,12 @@
 import { z } from "zod";
 
 import { assessmentModes, assessmentSelectionTypes } from "@/lib/assessment/catalog";
+import { identityJourneyModuleKeys } from "@/lib/assessment/identity-journey";
 
 const opaqueTokenSchema = z.string().regex(/^[A-Za-z0-9_-]{43,128}$/u);
 const uuidSchema = z.uuid();
 const moduleKeySchema = z.string().regex(/^[a-z0-9_]{2,40}$/u);
 const presetKeySchema = z.string().regex(/^[a-z][a-z0-9_]{1,49}$/u);
-
-const legacyStartAssessmentSchema = z
-  .object({
-    consent: z.literal(true),
-    mode: z.enum(["quick", "standard"]),
-  })
-  .strict();
 
 export const assessmentSelectionSchema = z
   .object({
@@ -29,17 +23,43 @@ export const assessmentSelectionSchema = z
   })
   .strict();
 
-const modularStartAssessmentSchema = assessmentSelectionSchema
+/**
+ * The public entry is one combined Complex sitting over the whole five-lens plan.
+ *
+ * Four of those lenses are experimental, so `experimentalAcknowledged` must be
+ * true rather than false: the browser has to carry the acknowledgment the PRD
+ * requires before an experimental lens runs. `psychosophy` is an 18+ module, so
+ * the minimum age for this entry is 18, not the schema-wide 13. Both are also
+ * enforced server-side in `validateAssessmentSelection`; this boundary refuses
+ * the request earlier and with a clearer contract.
+ */
+export const combinedJourneyMinimumAge = 18;
+
+export const startAssessmentSchema = assessmentSelectionSchema
   .safeExtend({
     consent: z.literal(true),
+    journey: z
+      .object({
+        characterGender: z.enum(["perempuan", "laki"]),
+        combined: z.literal(true),
+        kind: z.literal("create"),
+      })
+      .strict(),
     locale: z.enum(["id", "en"]).default("id"),
   })
-  .strict();
-
-export const startAssessmentSchema = z.union([
-  legacyStartAssessmentSchema,
-  modularStartAssessmentSchema,
-]);
+  .strict()
+  .refine(
+    (input) =>
+      input.mode === "deep" &&
+      input.selectionType === "custom_combo" &&
+      input.moduleKeys.length === identityJourneyModuleKeys.length &&
+      identityJourneyModuleKeys.every((key, position) => input.moduleKeys[position] === key) &&
+      input.presetKey === null &&
+      input.experimentalAcknowledged &&
+      input.age !== null &&
+      input.age >= combinedJourneyMinimumAge,
+    { message: "The public entry must start the full five-lens journey in one sitting." },
+  );
 
 export const estimateAssessmentSchema = assessmentSelectionSchema;
 
@@ -60,6 +80,13 @@ export const tokenRequestSchema = z
   .strict();
 
 export const completeAssessmentSchema = tokenRequestSchema;
+export const continueIdentityJourneySchema = z
+  .object({
+    age: z.number().int().min(13).max(99),
+    experimentalAcknowledged: z.boolean().default(false),
+    journeyToken: opaqueTokenSchema,
+  })
+  .strict();
 export const clarifierAssessmentSchema = z.discriminatedUnion("action", [
   z
     .object({

@@ -72,149 +72,154 @@ export default async function DashboardPage() {
   }
 
   return (
-    <div className="task-shell">
-      <header className="flex flex-col gap-6 border-b border-white/12 pb-8 sm:flex-row sm:items-end sm:justify-between">
-        <div>
-          <p className="mono-label text-ink">Ruang pribadi</p>
-          <h1 className="mt-3 text-3xl font-normal tracking-[-0.03em] sm:text-4xl">
-            Sesi, hasil, kontrol data
-          </h1>
-          <p className="text-ink-muted mt-3 max-w-2xl leading-7">
-            Lanjutkan asesmen atau kelola hasil, berbagi, ekspor, dan hapus data.
-          </p>
-        </div>
-        <LogoutButton />
-      </header>
-
-      <section className="mt-10" aria-labelledby="active-sessions-heading">
-        <div className="flex flex-wrap items-end justify-between gap-3">
+    <div className="bg-canvas text-ink relative min-h-[calc(100svh-3.5rem)] px-4 py-16 sm:px-6 lg:px-8">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_50%_15%,rgba(157,66,35,0.1)_0%,transparent_70%)]"
+      />
+      <div className="relative mx-auto max-w-5xl">
+        <header className="border-line flex flex-col gap-6 border-b pb-8 sm:flex-row sm:items-end sm:justify-between">
           <div>
-            <h2 className="text-2xl font-normal" id="active-sessions-heading">
-              Sesi aktif
-            </h2>
-            <p className="text-ink-muted mt-1 text-sm">Akses diperbarui saat Lanjutkan.</p>
-          </div>
-          <Link
-            className={getButtonClassName("primary", "sm")}
-            href="/start/modules"
-            prefetch={false}
-          >
-            Mulai asesmen
-          </Link>
-        </div>
-        {activeSessions.length === 0 ? (
-          <div className="bg-surface mt-4 rounded-[16px] border border-white/12 p-6 sm:p-8">
-            <p className="text-ink text-lg font-normal">Belum ada sesi aktif.</p>
-            <p className="text-ink-muted mt-2 max-w-xl leading-7">
-              Mulai dari satu lensa — kamu bisa menjeda kapan saja.
+            <span className="bg-iris-wash text-iris inline-flex items-center gap-2 rounded-full px-3.5 py-1 font-mono text-xs font-semibold tracking-wider uppercase shadow-[0_8px_24px_rgba(157,66,35,0.12)]">
+              <span className="bg-iris h-1.5 w-1.5 rounded-full" />
+              Ruang Pribadi
+            </span>
+            <h1 className="mt-4 font-sans text-3xl font-semibold tracking-[-0.03em] sm:text-4xl">
+              Sesi, hasil, kontrol data
+            </h1>
+            <p className="text-ink-muted mt-3 max-w-2xl leading-7">
+              Lanjutkan asesmen atau kelola hasil, berbagi, ekspor, dan hapus data.
             </p>
-            <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-              <Link
-                className={getButtonClassName("primary", "md")}
-                href="/start/modules"
-                prefetch={false}
-              >
-                Mulai asesmen
-              </Link>
-              <Link className={getButtonClassName("secondary", "md")} href="/method">
-                Pelajari metode
-              </Link>
-            </div>
           </div>
-        ) : (
-          <ul className="mt-4 divide-y divide-white/12 border-y border-white/12">
-            {activeSessions.map((item) => (
-              <li className="row-hover bg-surface/40 py-5 first:pt-5" key={item.id}>
-                <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
-                  <div className="min-w-0 flex-1">
-                    <p className="font-normal capitalize">
-                      {item.moduleKeys.map(formatModuleKey).join(" · ")}
-                    </p>
-                    <p className="text-ink-muted mt-1 text-sm tabular-nums">
-                      {item.answeredCount}/{item.totalCount} · Bagian {item.currentSegmentIndex}/
-                      {item.segmentCount} · {sessionStatusLabels[item.status] ?? "Berjalan"}
-                    </p>
-                    <Progress
-                      aria-label={`${item.answeredCount} dari ${item.totalCount} pertanyaan terjawab`}
-                      className="mt-3 max-w-xl"
-                      max={item.totalCount}
-                      value={item.answeredCount}
-                    />
-                  </div>
-                  <DashboardOpenButton id={item.id} kind="session" />
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+          <LogoutButton />
+        </header>
 
-      <section className="mt-12" aria-labelledby="saved-results-heading">
-        <h2 className="text-2xl font-normal" id="saved-results-heading">
-          Riwayat hasil
-        </h2>
-        {results.length === 0 ? (
-          <p className="text-ink-muted bg-surface mt-4 rounded-[16px] border border-white/12 p-6">
-            Belum ada hasil tersimpan.
-          </p>
-        ) : (
-          <ul className="mt-4 divide-y divide-white/12 border-y border-white/12">
-            {results.map((result) => (
-              <li className="row-hover bg-surface/40 py-5" key={result.id}>
-                <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
-                  <div>
-                    <p className="font-normal capitalize">
-                      {result.moduleKeys.map(formatModuleKey).join(" · ")}
-                    </p>
-                    <p className="text-ink-muted mt-1 text-sm">
-                      {new Intl.DateTimeFormat("id-ID", { dateStyle: "medium" }).format(
-                        new Date(result.createdAt),
-                      )}{" "}
-                      · Versi {result.scoringVersion}
-                    </p>
-                    <p className="text-ink-muted mt-1 text-sm tabular-nums">
-                      {result.activeShareCount} tautan berbagi aktif
-                    </p>
+        <section className="mt-10" aria-labelledby="active-sessions-heading">
+          <div className="flex flex-wrap items-end justify-between gap-3">
+            <div>
+              <h2 className="text-2xl font-normal" id="active-sessions-heading">
+                Sesi aktif
+              </h2>
+              <p className="text-ink-muted mt-1 text-sm">Akses diperbarui saat Lanjutkan.</p>
+            </div>
+            <Link className={getButtonClassName("primary", "sm")} href="/start" prefetch={false}>
+              Mulai asesmen
+            </Link>
+          </div>
+          {activeSessions.length === 0 ? (
+            <div className="bg-surface border-line mt-4 rounded-[16px] border p-6 sm:p-8">
+              <p className="text-ink text-lg font-normal">Belum ada sesi aktif.</p>
+              <p className="text-ink-muted mt-2 max-w-xl leading-7">
+                Mulai dari satu lensa — kamu bisa menjeda kapan saja.
+              </p>
+              <div className="mt-6 flex flex-col gap-3 sm:flex-row">
+                <Link
+                  className={getButtonClassName("primary", "md")}
+                  href="/start"
+                  prefetch={false}
+                >
+                  Mulai asesmen
+                </Link>
+                <Link className={getButtonClassName("secondary", "md")} href="/method">
+                  Pelajari metode
+                </Link>
+              </div>
+            </div>
+          ) : (
+            <ul className="divide-line border-line mt-4 divide-y border-y">
+              {activeSessions.map((item) => (
+                <li className="row-hover bg-surface/40 py-5 first:pt-5" key={item.id}>
+                  <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-normal capitalize">
+                        {item.moduleKeys.map(formatModuleKey).join(" · ")}
+                      </p>
+                      <p className="text-ink-muted mt-1 text-sm tabular-nums">
+                        {item.answeredCount}/{item.totalCount} · Bagian {item.currentSegmentIndex}/
+                        {item.segmentCount} · {sessionStatusLabels[item.status] ?? "Berjalan"}
+                      </p>
+                      <Progress
+                        aria-label={`${item.answeredCount} dari ${item.totalCount} pertanyaan terjawab`}
+                        className="mt-3 max-w-xl"
+                        max={item.totalCount}
+                        value={item.answeredCount}
+                      />
+                    </div>
+                    <DashboardOpenButton id={item.id} kind="session" />
                   </div>
-                  <DashboardOpenButton id={result.id} kind="result" />
-                </div>
-              </li>
-            ))}
-          </ul>
-        )}
-      </section>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
 
-      <section
-        className="mt-12 grid gap-px overflow-hidden rounded-[16px] border border-white/12 bg-white/12 md:grid-cols-2"
-        aria-label="Kontrol akun"
-      >
-        <article className="bg-surface p-6">
-          <h2 className="text-xl font-normal">Privasi</h2>
-          <p className="text-ink-muted mt-3 leading-7">
-            Persetujuan, masa simpan, ekspor, dan hapus data.
-          </p>
-          <Link
-            className="focus-ring ui-transition mt-5 inline-flex min-h-11 items-center rounded-[12px] border border-white/20 px-5 py-3 text-sm hover:bg-white/5"
-            href="/dashboard/privacy"
-            prefetch={false}
-          >
-            Pusat privasi
-          </Link>
-        </article>
-        <article className="bg-surface p-6">
-          <h2 className="text-xl font-normal">Hapus akun</h2>
-          <p className="text-ink-muted mt-3 leading-7">
-            Permanen: sesi, jawaban, hasil, berbagi, masukan, dan data akun.
-          </p>
-          <Link
-            className="focus-ring ui-transition border-danger-soft text-danger hover:bg-danger-soft mt-5 inline-flex min-h-11 items-center rounded-[12px] border px-5 py-3 text-sm"
-            href="/dashboard/privacy#delete-account-title"
-            prefetch={false}
-          >
-            Kelola penghapusan
-          </Link>
-        </article>
-      </section>
+        <section className="mt-12" aria-labelledby="saved-results-heading">
+          <h2 className="text-2xl font-normal" id="saved-results-heading">
+            Riwayat hasil
+          </h2>
+          {results.length === 0 ? (
+            <p className="text-ink-muted bg-surface border-line mt-4 rounded-[16px] border p-6">
+              Belum ada hasil tersimpan.
+            </p>
+          ) : (
+            <ul className="divide-line border-line mt-4 divide-y border-y">
+              {results.map((result) => (
+                <li className="row-hover bg-surface/40 py-5" key={result.id}>
+                  <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">
+                    <div>
+                      <p className="font-normal capitalize">
+                        {result.moduleKeys.map(formatModuleKey).join(" · ")}
+                      </p>
+                      <p className="text-ink-muted mt-1 text-sm">
+                        {new Intl.DateTimeFormat("id-ID", { dateStyle: "medium" }).format(
+                          new Date(result.createdAt),
+                        )}{" "}
+                        · Versi {result.scoringVersion}
+                      </p>
+                      <p className="text-ink-muted mt-1 text-sm tabular-nums">
+                        {result.activeShareCount} tautan berbagi aktif
+                      </p>
+                    </div>
+                    <DashboardOpenButton id={result.id} kind="result" />
+                  </div>
+                </li>
+              ))}
+            </ul>
+          )}
+        </section>
+
+        <section
+          className="border-line bg-line mt-12 grid gap-px overflow-hidden rounded-[16px] border md:grid-cols-2"
+          aria-label="Kontrol akun"
+        >
+          <article className="bg-surface p-6">
+            <h2 className="text-xl font-normal">Privasi</h2>
+            <p className="text-ink-muted mt-3 leading-7">
+              Persetujuan, masa simpan, ekspor, dan hapus data.
+            </p>
+            <Link
+              className="focus-ring ui-transition border-line hover:bg-surface-raised mt-5 inline-flex min-h-11 items-center rounded-[12px] border px-5 py-3 text-sm"
+              href="/dashboard/privacy"
+              prefetch={false}
+            >
+              Pusat privasi
+            </Link>
+          </article>
+          <article className="bg-surface p-6">
+            <h2 className="text-xl font-normal">Hapus akun</h2>
+            <p className="text-ink-muted mt-3 leading-7">
+              Permanen: sesi, jawaban, hasil, berbagi, masukan, dan data akun.
+            </p>
+            <Link
+              className="focus-ring ui-transition border-danger-soft text-danger hover:bg-danger-soft mt-5 inline-flex min-h-11 items-center rounded-[12px] border px-5 py-3 text-sm"
+              href="/dashboard/privacy#delete-account-title"
+              prefetch={false}
+            >
+              Kelola penghapusan
+            </Link>
+          </article>
+        </section>
+      </div>
     </div>
   );
 }

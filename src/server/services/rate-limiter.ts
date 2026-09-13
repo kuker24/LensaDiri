@@ -70,6 +70,7 @@ export const assessmentRateLimitPolicies = {
   resume: { limit: 30, routeKey: "assessment_resume", windowMs: 15 * 60 * 1_000 },
   clarifier: { limit: 120, routeKey: "assessment_clarifier", windowMs: 15 * 60 * 1_000 },
   complete: { limit: 10, routeKey: "assessment_complete", windowMs: 15 * 60 * 1_000 },
+  journeyRead: { limit: 120, routeKey: "assessment_journey_read", windowMs: 15 * 60 * 1_000 },
   resultDelete: { limit: 10, routeKey: "result_delete", windowMs: 15 * 60 * 1_000 },
   resultExport: { limit: 30, routeKey: "result_export", windowMs: 15 * 60 * 1_000 },
   resultFeedback: { limit: 10, routeKey: "result_feedback", windowMs: 60 * 60 * 1_000 },

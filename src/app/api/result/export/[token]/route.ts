@@ -39,6 +39,9 @@ export async function GET(
         headers: noStoreHeaders,
         status: 429,
       });
+    // Intentionally not gated behind the identity-journey cutover. Display readers
+    // are closed for pre-cutover results, but data portability and deletion remain
+    // required capabilities, so a bearer of an old result token can still export it.
     const result = await getResultByHash(resultHash);
     if (!result) {
       return NextResponse.json(apiFailure("not_found"), { headers: noStoreHeaders, status: 404 });

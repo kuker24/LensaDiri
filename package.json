@@ -21,6 +21,7 @@
     "test:db": "npx supabase test db",
     "test:seed-replay": "node scripts/test-seed-replay.mjs",
     "test:seed-replay-drift": "node scripts/test-seed-replay-drift.mjs",
+    "assets:sync-figurines": "python3 scripts/sync-figurines.py",
     "db:start": "npx supabase start",
     "db:reset": "npx supabase db reset",
     "test:e2e": "playwright test",
@@ -35,13 +36,12 @@
     "argon2": "^0.44.0",
     "jose": "^6.2.4",
     "motion": "^12.42.2",
-    "next": "16.2.12",
+    "next": "16.3.4",
     "oauth4webapi": "^3.8.6",
     "postgres": "^3.4.9",
     "react": "19.2.7",
     "react-dom": "19.2.7",
     "server-only": "^0.0.1",
-    "three": "^0.172.0",
     "zod": "^4.0.0"
   },
   "devDependencies": {
@@ -52,23 +52,23 @@
     "@types/node": "^20.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "@types/three": "^0.172.0",
     "eslint": "^9.0.0",
-    "eslint-config-next": "16.2.12",
+    "eslint-config-next": "16.3.4",
     "jsdom": "^26.0.0",
     "prettier": "^3.0.0",
     "prettier-plugin-tailwindcss": "^0.6.0",
     "tailwindcss": "^4.1.0",
     "typescript": "^5.9.0",
-    "vitest": "^4.0.0"
+    "vitest": "4.1.11"
   },
   "overrides": {
-    "next": {
-      "postcss": "8.5.22"
-    },
-    "sharp": "^0.35.3",
-    "postcss": "8.5.22",
-    "minimatch": "10.2.5",
-    "brace-expansion": "5.0.8"
+    "@vitest/mocker": "4.1.11",
+    "baseline-browser-mapping": "2.11.22",
+    "browserslist": "4.28.9",
+    "js-yaml": "4.3.2",
+    "sharp": "0.35.4",
+    "postcss": "8.5.28",
+    "minimatch": "10.2.6",
+    "brace-expansion": "5.0.9"
   }
 }

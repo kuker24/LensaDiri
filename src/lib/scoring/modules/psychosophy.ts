@@ -8,6 +8,15 @@ import {
 export const psychosophyConstructKeys = ["emotion", "will", "logic", "physics"] as const;
 export type PsychosophyConstructKey = (typeof psychosophyConstructKeys)[number];
 
+const positionLetters: Readonly<Record<PsychosophyConstructKey, string>> = {
+  emotion: "E",
+  will: "V",
+  logic: "L",
+  physics: "F",
+};
+
+const superscripts = ["¹", "²", "³", "⁴"] as const;
+
 export function scorePsychosophyModule(
   answers: readonly ModuleScoringAnswer<PsychosophyConstructKey>[],
   expectedAnswers: number,
@@ -35,5 +44,30 @@ export function scorePsychosophyModule(
         "Psychosophy Experimental Lens hanya untuk refleksi eksploratif dan tidak masuk ringkasan evidence-oriented.",
       priorityOrder: ordered.map((score) => score.constructKey),
     },
+  };
+}
+
+export function scorePsychosophyJourneyModule(
+  answers: readonly ModuleScoringAnswer<PsychosophyConstructKey>[],
+  expectedAnswers: number,
+  context?: QualityModelContext,
+): IndependentModuleResult<"psychosophy", PsychosophyConstructKey> {
+  const base = scorePsychosophyModule(answers, expectedAnswers, context);
+  const order = base.summary.priorityOrder;
+  if (!Array.isArray(order) || order.length !== psychosophyConstructKeys.length) {
+    throw new RangeError("Psychosophy journey result requires four ordered aspects.");
+  }
+  const positionCode = order
+    .map((key, index) => {
+      if (typeof key !== "string" || !(key in positionLetters)) {
+        throw new RangeError("Psychosophy journey result contains an unknown aspect.");
+      }
+      return `${positionLetters[key as PsychosophyConstructKey]}${superscripts[index]}`;
+    })
+    .join("");
+  return {
+    ...base,
+    scoringVersion: "psychosophy-journey-score-1",
+    summary: { ...base.summary, positionCode },
   };
 }

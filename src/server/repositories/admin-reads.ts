@@ -1,7 +1,7 @@
 import "server-only";
 
 import { getDatabase } from "@/lib/db/client";
-import { independentScoringVersions } from "@/lib/scoring/modules/registry";
+import { listIndependentScoringRegistrations } from "@/lib/scoring/modules/registry";
 import { runDatabaseOperation } from "@/server/database";
 
 export const ADMIN_LIST_LIMIT = 50;
@@ -108,9 +108,12 @@ export function toAdminAuditMetadata(raw: unknown): Readonly<Record<string, stri
 }
 
 export function listAdminScoringRegistry(): readonly AdminScoringRegistryRow[] {
-  return Object.entries(independentScoringVersions)
-    .map(([moduleKey, scoringVersion]) => ({ moduleKey, scoringVersion }))
-    .sort((a, b) => a.moduleKey.localeCompare(b.moduleKey));
+  // Derived from the dispatch registry so every accepted version is visible,
+  // including the additive identity-journey versions.
+  return listIndependentScoringRegistrations().map(({ moduleKey, scoringVersion }) => ({
+    moduleKey,
+    scoringVersion,
+  }));
 }
 
 export async function listAdminModules(): Promise<readonly AdminModuleRow[]> {

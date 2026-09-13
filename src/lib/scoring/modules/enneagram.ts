@@ -19,6 +19,14 @@ export const enneagramConstructKeys = [
 ] as const;
 export type EnneagramConstructKey = (typeof enneagramConstructKeys)[number];
 
+export const enneagramJourneyConstructKeys = [
+  ...enneagramConstructKeys,
+  "instinct_self_preservation",
+  "instinct_social",
+  "instinct_one_to_one",
+] as const;
+export type EnneagramJourneyConstructKey = (typeof enneagramJourneyConstructKeys)[number];
+
 const centers: Readonly<Record<EnneagramConstructKey, "gut" | "heart" | "head">> = {
   pattern_1: "gut",
   pattern_2: "heart",
@@ -33,6 +41,72 @@ const centers: Readonly<Record<EnneagramConstructKey, "gut" | "heart" | "head">>
 
 function patternNumber(key: EnneagramConstructKey): number {
   return Number(key.slice("pattern_".length));
+}
+
+const instinctCodes = {
+  instinct_one_to_one: "sx",
+  instinct_self_preservation: "sp",
+  instinct_social: "so",
+} as const;
+
+export function scoreEnneagramJourneyModule(
+  answers: readonly ModuleScoringAnswer<EnneagramJourneyConstructKey>[],
+  expectedAnswers: number,
+  context?: QualityModelContext,
+): IndependentModuleResult<"enneagram", EnneagramJourneyConstructKey> {
+  const scores = scoreConstructs(answers, enneagramJourneyConstructKeys);
+  const patternScores = scores
+    .filter((score): score is typeof score & { constructKey: EnneagramConstructKey } =>
+      enneagramConstructKeys.includes(score.constructKey as EnneagramConstructKey),
+    )
+    .toSorted((left, right) => right.normalizedScore - left.normalizedScore);
+  const core = patternScores[0];
+  if (!core) throw new RangeError("Enneagram journey result requires pattern scores.");
+  const coreCenter = centers[core.constructKey];
+  const centerWinners = (["gut", "heart", "head"] as const)
+    .map(
+      (center) =>
+        patternScores
+          .filter((score) => centers[score.constructKey] === center)
+          .toSorted((left, right) => right.normalizedScore - left.normalizedScore)[0],
+    )
+    .filter((score): score is NonNullable<typeof score> => Boolean(score));
+  const remaining = centerWinners
+    .filter((score) => centers[score.constructKey] !== coreCenter)
+    .toSorted((left, right) => right.normalizedScore - left.normalizedScore);
+  const tritype = [core, ...remaining].map((score) => patternNumber(score.constructKey)).join("");
+  const instinct = scores
+    .filter((score) => score.constructKey.startsWith("instinct_"))
+    .toSorted((left, right) => right.normalizedScore - left.normalizedScore)[0];
+  if (!instinct || !(instinct.constructKey in instinctCodes)) {
+    throw new RangeError("Enneagram journey result requires instinct scores.");
+  }
+  const { ambiguity, gap } = getScoreGap(patternScores);
+  const quality = scoreQuality({
+    ambiguity,
+    answers,
+    constructKeys: enneagramJourneyConstructKeys,
+    context,
+    expectedAnswers,
+  });
+  const instinctCode = instinctCodes[instinct.constructKey as keyof typeof instinctCodes];
+  return {
+    ambiguity: { alternatePattern: patternScores[1]?.constructKey ?? null, gap, level: ambiguity },
+    confidence: quality.confidence,
+    evidenceTier: "B",
+    moduleKey: "enneagram",
+    quality,
+    scores,
+    scoringVersion: "enneagram-journey-score-1",
+    summary: {
+      compactCode: `${instinctCode}${tritype}`,
+      corePattern: core.constructKey,
+      disclaimer:
+        "Kode gabungan Enneagram, tiga pusat, dan insting bersifat eksperimental untuk refleksi; bukan diagnosis.",
+      instinct: instinctCode,
+      tritype,
+    },
+  };
 }
 
 export function scoreEnneagramModule(

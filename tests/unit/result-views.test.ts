@@ -1,5 +1,5 @@
 import { createElement } from "react";
-import { cleanup, render, screen } from "@testing-library/react";
+import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, describe, expect, it } from "vitest";
 
 import { SharedResultReport } from "@/components/shared-result-report";
@@ -134,6 +134,11 @@ describe("safe shared result projection", () => {
   it("menampilkan refleksi praktis sebelum membuka detail teknis", () => {
     render(createElement(ResultReport, { result: privateModularResult }));
 
+    // Podium is the first paint; the deep report sits behind the Uraian toggle
+    // and is `hidden`, so it is out of the accessibility tree until opened.
+    expect(screen.queryByRole("heading", { name: "Hasilmu dalam 1 lensa" })).toBeNull();
+    fireEvent.click(screen.getByRole("button", { name: /^Uraian$/u }));
+
     expect(screen.getByRole("heading", { name: "Hasilmu dalam 1 lensa" })).toBeVisible();
     expect(screen.getByRole("region", { name: "Ringkasan semua lensa" })).toHaveTextContent(
       "Profil Trait",
@@ -200,6 +205,35 @@ describe("safe shared result projection", () => {
     expect(summary).toHaveTextContent("Eksploratif dan ekspresif");
     expect(screen.getByRole("img", { name: /Energi sosial.*67 dari 100/iu })).toBeVisible();
     expect(screen.queryByText(/Tingkat keyakinan/iu)).not.toBeInTheDocument();
+  });
+
+  it("allowlists only the compact collectible identity for a full journey share", () => {
+    const shared = toSafeSharedResultView(privateModularResult, "summary", safeMetadata, {
+      complete: true,
+      enneagram: "sx964",
+      group: "SJ",
+      line: "ISFJ sx964 SEI RCUAN L¹V²E³F⁴ SJ",
+      psyche: "L¹V²E³F⁴",
+      sloan: "RCUAN",
+      socionics: "SEI",
+      type16: "ISFJ",
+    });
+
+    expect(shared.kind).toBe("modular");
+    if (shared.kind !== "modular") throw new Error("Expected modular fixture.");
+    expect(shared.collectible).toEqual({
+      complete: true,
+      group: "SJ",
+      lensCount: 5,
+      line: "ISFJ sx964 SEI RCUAN L¹V²E³F⁴ SJ",
+      type16: "ISFJ",
+    });
+    expect(JSON.stringify(shared.collectible)).not.toContain("confidence");
+    expect(JSON.stringify(shared.collectible)).not.toContain("summary");
+
+    render(createElement(SharedResultReport, { result: shared }));
+    expect(screen.getByRole("heading", { name: "Podium penuh 5 lensa" })).toBeVisible();
+    expect(screen.getByText("ISFJ sx964 SEI RCUAN L¹V²E³F⁴ SJ")).toBeVisible();
   });
 
   it("keeps legacy share useful while excluding score confidence and quality diagnostics", () => {

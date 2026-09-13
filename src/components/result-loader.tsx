@@ -53,11 +53,12 @@ function PrivateResultLoader({ children, token }: { children?: ReactNode; token:
         <p className="text-ink-muted mt-3 leading-7">Menyiapkan ringkasan reflektifmu…</p>
       </div>
     );
+  // Controls are passed through so ResultReport can hold them back until the
+  // podium stage; the claim/attach stages own the whole viewport.
   return (
-    <>
-      <ResultReport result={result} />
+    <ResultReport result={result} token={token}>
       {children}
-    </>
+    </ResultReport>
   );
 }
 

@@ -4,6 +4,7 @@ import { hashOpaqueToken } from "@/lib/security/tokens";
 import { opaqueTokenSchema } from "@/lib/validation/assessment";
 import { apiFailure, apiSuccess, getDatabaseFailureStatus, noStoreHeaders } from "@/server/http";
 import { getSharedResultByHash } from "@/server/repositories/assessment";
+import { isJourneyAttachedShareHash } from "@/server/repositories/identity-journeys";
 export const runtime = "nodejs";
 export async function GET(
   _request: Request,
@@ -14,7 +15,12 @@ export async function GET(
     return NextResponse.json(apiFailure("not_found"), { headers: noStoreHeaders, status: 404 });
   const environment = getServerEnvironment();
   try {
-    const result = await getSharedResultByHash(hashOpaqueToken(token, environment.tokenHashPepper));
+    const shareHash = hashOpaqueToken(token, environment.tokenHashPepper);
+    // Identity-journey cutover: pre-cutover share links no longer render.
+    if (!(await isJourneyAttachedShareHash(shareHash))) {
+      return NextResponse.json(apiFailure("not_found"), { headers: noStoreHeaders, status: 404 });
+    }
+    const result = await getSharedResultByHash(shareHash);
     return result
       ? NextResponse.json(apiSuccess(result), { headers: noStoreHeaders })
       : NextResponse.json(apiFailure("not_found"), { headers: noStoreHeaders, status: 404 });

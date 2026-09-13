@@ -4,13 +4,14 @@ import { cn } from "@/lib/cn";
 export type ButtonVariant = "primary" | "secondary" | "ghost";
 export type ButtonSize = "sm" | "md";
 
+/* Paper theme: borders are ink-alpha, not white-alpha. On `#fbf9f5` a
+   `border-white/20` is invisible, so every outline uses the line token. */
 export const variantStyles: Record<ButtonVariant, string> = {
-  /* Dala: one violet pill for the primary action; hairline ghost for the rest */
   primary:
-    "rounded-pill border border-iris bg-iris text-white shadow-none hover:bg-iris-deep hover:border-iris-deep active:bg-iris-deep/90 disabled:bg-surface-raised disabled:text-ink-muted disabled:border-line",
+    "rounded-full border border-iris bg-iris text-canvas shadow-[0_4px_14px_rgb(157_66_35_/_0.28)] hover:bg-iris-deep hover:border-iris-deep active:bg-iris-deep disabled:bg-surface-raised disabled:text-ink-muted disabled:border-line disabled:shadow-none",
   secondary:
-    "rounded-[12px] border border-white/20 bg-transparent text-ink hover:border-white/45 hover:bg-white/5 active:bg-white/8 disabled:border-white/12 disabled:text-ink-muted",
-  ghost: "rounded-[12px] text-ink hover:bg-white/8 active:bg-white/12 disabled:text-ink-muted",
+    "rounded-full border border-line bg-surface text-ink hover:border-iris/45 hover:bg-surface-raised active:bg-line disabled:border-line disabled:text-ink-muted",
+  ghost: "rounded-full text-ink hover:bg-surface-raised active:bg-line disabled:text-ink-muted",
 };
 
 export const sizeStyles: Record<ButtonSize, string> = {

@@ -32,5 +32,5 @@ test("normalizes composer candidate cache keys", async () => {
   await loadComposerCandidatesFromCache(["type_16", "trait_profile", "type_16"]);
 
   expect(mocks.loadCandidates).toHaveBeenCalledOnce();
-  expect(mocks.loadCandidates).toHaveBeenCalledWith(["trait_profile", "type_16"]);
+  expect(mocks.loadCandidates).toHaveBeenCalledWith(["trait_profile", "type_16"], {});
 });

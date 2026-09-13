@@ -3,7 +3,7 @@ import { getServerEnvironment } from "@/lib/db/env";
 import { hashOpaqueToken } from "@/lib/security/tokens";
 import { opaqueTokenSchema } from "@/lib/validation/assessment";
 import { apiFailure, apiSuccess, getDatabaseFailureStatus, noStoreHeaders } from "@/server/http";
-import { getResultByHash } from "@/server/repositories/assessment";
+import { getJourneyResultByHash } from "@/server/services/assessment";
 export const runtime = "nodejs";
 export async function GET(
   _request: Request,
@@ -14,7 +14,9 @@ export async function GET(
     return NextResponse.json(apiFailure("not_found"), { headers: noStoreHeaders, status: 404 });
   const environment = getServerEnvironment();
   try {
-    const result = await getResultByHash(hashOpaqueToken(token, environment.tokenHashPepper));
+    const result = await getJourneyResultByHash(
+      hashOpaqueToken(token, environment.tokenHashPepper),
+    );
     return result
       ? NextResponse.json(apiSuccess(result), { headers: noStoreHeaders })
       : NextResponse.json(apiFailure("not_found"), { headers: noStoreHeaders, status: 404 });

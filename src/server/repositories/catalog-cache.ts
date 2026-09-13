@@ -76,21 +76,38 @@ export function listComboPresetsFromCache(
 }
 
 const loadComposerCandidatesCached = unstable_cache(
-  (moduleKeys: readonly string[]) => loadComposerCandidates(moduleKeys),
+  (moduleKeys: readonly string[], scoringVersions: Readonly<Record<string, string>>) =>
+    loadComposerCandidates(moduleKeys, scoringVersions),
   ["composer-candidates"],
   cacheOptions,
 );
 
-export function loadComposerCandidatesFromCache(moduleKeys: readonly string[]) {
-  return loadComposerCandidatesCached([...new Set(moduleKeys)].toSorted());
+export function loadComposerCandidatesFromCache(
+  moduleKeys: readonly string[],
+  scoringVersions: Readonly<Record<string, string>> = {},
+) {
+  // Disposable E2E databases regenerate UUIDs on every reset. Reusing cached
+  // candidate IDs across resets would create blueprints with stale foreign keys.
+  if (process.env.E2E_TEST_ROUTES === "1") {
+    return loadComposerCandidates(moduleKeys, scoringVersions);
+  }
+  return loadComposerCandidatesCached(
+    [...new Set(moduleKeys)].toSorted(),
+    Object.fromEntries(
+      Object.entries(scoringVersions).toSorted(([left], [right]) => left.localeCompare(right)),
+    ),
+  );
 }
 
-export async function loadModularAssessmentContextFromCache(moduleKeys: readonly string[]) {
+export async function loadModularAssessmentContextFromCache(
+  moduleKeys: readonly string[],
+  scoringVersions: Readonly<Record<string, string>> = {},
+) {
   const [modules, combos, modeProfiles, candidates] = await Promise.all([
     listCatalogModulesFromCache(),
     listComboPresetsFromCache(),
     listAssessmentModeProfilesFromCache(),
-    loadComposerCandidatesFromCache(moduleKeys),
+    loadComposerCandidatesFromCache(moduleKeys, scoringVersions),
   ]);
   return { candidates, combos, modeProfiles, modules };
 }

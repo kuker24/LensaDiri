@@ -56,7 +56,7 @@ export function ResultControls({ token }: { token: string }) {
 
   return (
     <section
-      className="bg-surface mt-10 scroll-mt-28 rounded-[16px] border border-dashed border-white/30 p-6"
+      className="bg-surface border-line-strong mt-10 scroll-mt-28 rounded-[16px] border border-dashed p-6"
       aria-labelledby="result-controls-title"
       id="share-controls"
     >

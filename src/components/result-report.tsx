@@ -1,4 +1,7 @@
+import { useEffect, useState, type ReactNode } from "react";
 import { getPublicModeName } from "@/lib/assessment/catalog";
+import { getIdentityJourney } from "@/lib/assessment/client";
+import { getIdentityJourneyAccess } from "@/lib/assessment/journey-storage";
 import { buildIntegratedReflection, buildModuleReflection } from "@/lib/report/modular-report";
 import {
   ambiguityReading,
@@ -12,26 +15,28 @@ import {
 import type { ResultView } from "@/server/repositories/assessment";
 import { ResultIdentitySummary } from "@/components/result-identity-summary";
 import { ResultScoreIndicator } from "@/components/result-score-indicator";
+import { ResultPodium } from "@/components/result-podium";
+import type { IdentityJourneyView } from "@/server/repositories/identity-journeys";
 
 const labels: Record<string, string> = {
   reinforcing: "Pola saling menguatkan",
   complementary: "Pola saling melengkapi",
-  reflective_tension: "Tegangan reflektif",
-  context_dependent: "Bergantung konteks",
-  low_confidence_conflict: "Perlu dibaca hati-hati",
+  reflective_tension: "Dinamika saling mengimbangi",
+  context_dependent: "Bergantung konteks situasi",
+  low_confidence_conflict: "Perlu dibaca secara luwes",
   too_fast: "respons sangat cepat",
   straightlining: "pola jawaban seragam",
   low_variance: "variasi respons rendah",
   consistency_unavailable: "konsistensi belum tersedia",
-  reverse_inconsistency: "pasangan respons kurang konsisten",
+  reverse_inconsistency: "pasangan respons kurang selaras",
   inconsistent_pair: "jawaban pada pasangan pernyataan berlawanan kurang selaras",
-  threshold_ambiguity: "skor dekat batas",
-  excessive_midpoint: "terlalu banyak respons tengah",
-  clarifier_recommended: "pertanyaan tambahan disarankan",
-  clarifier_completed: "pertanyaan tambahan selesai",
-  clarifier_skipped: "pertanyaan tambahan dilewati",
-  weakest_module_low_confidence: "satu lensa memiliki tingkat keyakinan rendah",
-  mixed_evidence_tiers: "tingkat bukti beragam",
+  threshold_ambiguity: "kecenderungan berimbang",
+  excessive_midpoint: "banyak memilih respons netral",
+  clarifier_recommended: "pertanyaan penjelas disarankan",
+  clarifier_completed: "pertanyaan penjelas selesai",
+  clarifier_skipped: "pertanyaan penjelas dilewati",
+  weakest_module_low_confidence: "satu aspek perlu dibaca lebih fleksibel",
+  mixed_evidence_tiers: "kombinasi dasar riset beragam",
 };
 
 const narrativeLabels: Record<string, string> = {
@@ -114,9 +119,12 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
 
   return (
     <div>
-      <div className="border-y border-white/20 py-8 sm:py-12">
-        <p className="mono-label text-ink">Hasil pribadi · {result.modules.length} lensa</p>
-        <h1 className="mt-4 max-w-3xl text-3xl font-normal tracking-[-0.035em] sm:text-5xl">
+      <div className="bg-surface border-line rounded-[28px] border p-8 shadow-[0_12px_36px_rgb(27_28_26_/_0.08)] sm:p-12">
+        <span className="bg-iris-wash text-iris inline-flex items-center gap-2 rounded-full px-3.5 py-1 font-mono text-xs font-bold tracking-wider uppercase">
+          <span className="bg-iris h-1.5 w-1.5 rounded-full" />
+          Hasil Pribadi · {result.modules.length} Lensa
+        </span>
+        <h1 className="mt-5 max-w-3xl font-sans text-3xl font-semibold tracking-[-0.035em] sm:text-5xl">
           Hasilmu dalam {result.modules.length} lensa
         </h1>
         <ResultIdentitySummary items={identities} />
@@ -124,12 +132,12 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
           {result.summary.disclaimer}
         </p>
         <div className="mt-6 flex flex-wrap items-center gap-3">
-          <span className="border-line bg-surface rounded-[12px] border px-3 py-1.5 text-xs tracking-[-0.01em] tabular-nums">
+          <span className="bg-surface-raised border-line text-ink-muted rounded-full border px-3.5 py-1.5 font-mono text-xs tracking-[-0.01em] tabular-nums">
             {hasEvidenceOrientedModule
               ? `${confidenceReading(result.quality.confidence)} · tingkat keyakinan ${Math.round(result.quality.confidence * 100)} dari 100`
               : "Tingkat keyakinan tidak dihitung untuk lensa eksperimental."}
           </span>
-          <span className="text-ink-muted font-mono text-xs tracking-[-0.02em] uppercase">
+          <span className="text-steel font-mono text-xs tracking-[-0.02em] uppercase">
             Dihitung aman · hanya untukmu
           </span>
         </div>
@@ -143,11 +151,11 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
 
       <nav
         aria-label="Navigasi laporan"
-        className="sticky top-14 z-10 -mx-1 mt-6 flex scrollbar-none gap-2 overflow-x-auto border-b border-white/12 bg-[rgb(0_0_0_/_0.9)] px-1 py-3 backdrop-blur-md"
+        className="border-line sticky top-14 z-20 -mx-1 mt-6 flex scrollbar-none gap-2 overflow-x-auto border-b bg-[rgb(251_249_245_/_0.92)] px-1 py-3 backdrop-blur-xl"
       >
         {reportAnchors.map((anchor) => (
           <a
-            className="focus-ring ui-transition border-line text-ink-muted hover:border-frost/55 hover:text-ink min-h-11 shrink-0 rounded-[12px] border px-3 py-2 text-xs font-medium tracking-[-0.01em]"
+            className="focus-ring ui-transition border-line bg-surface text-ink-muted hover:border-iris/50 hover:text-ink inline-flex min-h-10 shrink-0 items-center rounded-full border px-4.5 py-2 font-mono text-xs font-medium tracking-wider uppercase"
             href={anchor.href}
             key={anchor.href}
           >
@@ -169,7 +177,7 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
             Ambil yang relevan. Sisanya boleh ditunda.
           </p>
         </div>
-        <div className="mt-5 divide-y divide-white/14 border-y border-white/14">
+        <div className="divide-line border-line mt-5 divide-y border-y">
           {[
             ["Komunikasi", integrated.communication],
             ["Belajar", integrated.learning],
@@ -190,7 +198,7 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
 
       <section className="mt-10" aria-label="Rencana pengembangan">
         <h2 className="text-2xl font-normal tracking-[-0.025em]">Langkah berikutnya</h2>
-        <div className="mt-5 grid gap-px overflow-hidden rounded-[16px] border border-white/14 bg-white/14 md:grid-cols-2">
+        <div className="border-line bg-line mt-5 grid gap-px overflow-hidden rounded-[16px] border md:grid-cols-2">
           <article className="bg-surface p-5 sm:p-6">
             <p className="mono-label text-ink-muted">7 hari</p>
             <h3 className="mt-2 text-lg font-normal">Mulai kecil</h3>
@@ -277,20 +285,20 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
           return (
             <section
               aria-labelledby={`module-${module.moduleKey}`}
-              className="border-t border-white/14 pt-8"
+              className="border-line bg-surface rounded-[18px] border p-7 shadow-[inset_0_3px_0_var(--color-iris),0_6px_20px_rgb(27_28_26_/_0.06)] sm:p-9"
               key={module.moduleKey}
             >
               <div className="flex flex-wrap items-baseline justify-between gap-3">
                 <div>
                   <h2
-                    className="text-2xl font-normal tracking-[-0.025em]"
+                    className="font-sans text-2xl font-semibold tracking-[-0.025em]"
                     id={`module-${module.moduleKey}`}
                   >
                     {formatKey(module.moduleKey)}
                   </h2>
-                  <p className="mt-2 text-lg font-medium">{moduleTitle}</p>
+                  <p className="text-iris mt-2 text-lg font-medium">{moduleTitle}</p>
                 </div>
-                <span className="text-ink-muted text-xs tracking-[-0.01em] tabular-nums">
+                <span className="text-steel font-mono text-xs tracking-[-0.01em] tabular-nums">
                   {isExperimental
                     ? "Eksperimental · tanpa tingkat keyakinan keseluruhan"
                     : `${confidenceReading(module.confidence)} · ${Math.round(module.confidence * 100)} dari 100`}
@@ -299,13 +307,13 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
               <p className="text-ink-muted mt-4 max-w-3xl leading-7">
                 {reflection.practicalReflection}
               </p>
-              <div className="mt-6 grid gap-px overflow-hidden rounded-[16px] border border-white/14 bg-white/14 md:grid-cols-2">
-                <article className="bg-surface p-5">
-                  <h3 className="font-normal">Yang terlihat dari jawabanmu</h3>
+              <div className="border-line bg-line mt-6 grid gap-px overflow-hidden rounded-[14px] border md:grid-cols-2">
+                <article className="bg-surface-raised p-5">
+                  <h3 className="font-semibold">Yang terlihat dari jawabanmu</h3>
                   <ReflectionList items={reflection.strengths} />
                 </article>
-                <article className="bg-surface p-5">
-                  <h3 className="font-normal">Yang perlu diperhatikan</h3>
+                <article className="bg-surface-raised p-5">
+                  <h3 className="font-semibold">Yang perlu diperhatikan</h3>
                   <ReflectionList items={reflection.blindSpots} />
                 </article>
               </div>
@@ -367,7 +375,7 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
           <h2 className="text-2xl font-normal tracking-[-0.025em]" id="correlation-heading">
             Hubungan dan tegangan antar-lensa
           </h2>
-          <div className="mt-5 grid gap-px overflow-hidden rounded-[16px] border border-white/14 bg-white/14 md:grid-cols-2">
+          <div className="border-line bg-line mt-5 grid gap-px overflow-hidden rounded-[16px] border md:grid-cols-2">
             {result.correlations.map((correlation) => (
               <article className="bg-surface p-5" key={correlation.ruleKey}>
                 <h3 className="font-normal capitalize">{formatKey(correlation.kind)}</h3>
@@ -388,12 +396,10 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
   );
 }
 
-export function ResultReport({ result }: { result: ResultView }) {
-  if (result.kind === "modular") return <ModularResultReport result={result} />;
-
+function LegacyResultReport({ result }: { result: Extract<ResultView, { kind: "legacy" }> }) {
   return (
     <div>
-      <div className="lens-glow bg-surface relative overflow-hidden rounded-[20px] border border-white/18 p-7 sm:p-10">
+      <div className="bg-surface border-line relative overflow-hidden rounded-[20px] border p-7 shadow-[0_10px_30px_rgb(27_28_26_/_0.07)] sm:p-10">
         <p className="mono-label text-ink">Profil reflektif</p>
         <h1 className="mt-4 text-3xl font-normal tracking-[-0.035em] sm:text-5xl">
           {result.summary.archetype}
@@ -443,7 +449,7 @@ export function ResultReport({ result }: { result: ResultView }) {
         <p className="text-ink-muted mt-2 text-sm leading-6">
           Bagian ini dipertahankan agar hasil lama tetap dapat dibaca.
         </p>
-        <div className="mt-5 grid gap-px overflow-hidden rounded-[16px] border border-white/14 bg-white/14 md:grid-cols-3">
+        <div className="border-line bg-line mt-5 grid gap-px overflow-hidden rounded-[16px] border md:grid-cols-3">
           {Object.entries(result.summary.overlays).map(([key, overlay]) => (
             <article className="bg-surface p-5" key={key}>
               <p className="text-lg font-normal">{overlay.label}</p>
@@ -452,7 +458,7 @@ export function ResultReport({ result }: { result: ResultView }) {
           ))}
         </div>
       </section>
-      <div className="mt-10 grid gap-px overflow-hidden rounded-[16px] border border-white/14 bg-white/14 md:grid-cols-2">
+      <div className="border-line bg-line mt-10 grid gap-px overflow-hidden rounded-[16px] border md:grid-cols-2">
         <section className="bg-surface p-6">
           <h2 className="text-xl font-normal tracking-[-0.02em]">Pola yang menonjol</h2>
           <ReflectionList items={result.summary.strengths} />
@@ -467,6 +473,95 @@ export function ResultReport({ result }: { result: ResultView }) {
           Semua respons memakai nilai sama. Baca tingkat keyakinan hasil dengan lebih hati-hati.
         </p>
       ) : null}
+    </div>
+  );
+}
+
+export function ResultReport({
+  result,
+  token,
+  children,
+}: {
+  result: ResultView;
+  token?: string;
+  /**
+   * Trailing controls (share / feedback). Rendered only on the podium stage —
+   * the claim and attach stages are full-screen, so anything appended after
+   * them would dangle below the fold on an unrelated background.
+   */
+  children?: ReactNode;
+}) {
+  const [isUraianOpen, setIsUraianOpen] = useState(false);
+  const [journeyAccess] = useState(() => getIdentityJourneyAccess());
+  const [journey, setJourney] = useState<IdentityJourneyView | null>(null);
+
+  useEffect(() => {
+    if (!journeyAccess) return;
+    let active = true;
+    getIdentityJourney(journeyAccess.token)
+      .then((value) => {
+        if (active) setJourney(value);
+      })
+      .catch(() => undefined);
+    return () => {
+      active = false;
+    };
+  }, [journeyAccess]);
+
+  return (
+    <div className="w-full">
+      {/* First Paint: Figurine + Identity Bar + Actions (Uraian / Bagikan / Lensa lain) */}
+      <ResultPodium
+        {...(journey
+          ? {
+              artifacts: journey.artifacts,
+              characterGender: journey.characterGender,
+              completedLensCount: journey.steps.filter((step) => step.status === "completed")
+                .length,
+              identity: journey.identity,
+            }
+          : {})}
+        result={result}
+        token={token}
+        isUraianOpen={isUraianOpen}
+        onOpenUraian={() => {
+          setIsUraianOpen((prev) => {
+            const next = !prev;
+            if (next && typeof window !== "undefined") {
+              setTimeout(() => {
+                document.getElementById("uraian-section")?.scrollIntoView({ behavior: "smooth" });
+              }, 100);
+            }
+            return next;
+          });
+        }}
+      />
+
+      {/* Accordion Uraian (closed by default) */}
+      <div id="uraian-section" hidden={!isUraianOpen} className="mx-auto max-w-5xl px-4 py-8">
+        <div className="bg-surface border-line rounded-[24px] border p-6 shadow-[0_10px_30px_rgb(27_28_26_/_0.07)] sm:p-10">
+          <div className="border-line mb-6 flex items-center justify-between gap-4 border-b pb-4">
+            <h2 className="font-['Anton',var(--font-anton),sans-serif] text-2xl tracking-tight uppercase sm:text-3xl">
+              Uraian Laporan Mendalam
+            </h2>
+            <button
+              type="button"
+              onClick={() => setIsUraianOpen(false)}
+              className="pressable focus-ring border-line text-ink-muted hover:text-ink shrink-0 cursor-pointer rounded-full border px-3.5 py-1.5 text-xs"
+            >
+              Tutup uraian ✕
+            </button>
+          </div>
+
+          {result.kind === "modular" ? (
+            <ModularResultReport result={result} />
+          ) : (
+            <LegacyResultReport result={result} />
+          )}
+        </div>
+      </div>
+
+      {children ? <div className="mx-auto max-w-5xl px-4 pb-10">{children}</div> : null}
     </div>
   );
 }

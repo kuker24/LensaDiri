@@ -120,6 +120,12 @@ export async function listCatalogModules(
         from public.module_versions
         where module_versions.module_id = modules.id
           and module_versions.status in ('pilot', 'published', 'experimental', 'active')
+          and module_versions.scoring_version not in (
+            'enneagram-journey-score-1',
+            'socionics-type-score-1',
+            'trait-profile-journey-1',
+            'psychosophy-journey-score-1'
+          )
         order by module_versions.published_at desc nulls last, module_versions.created_at desc
         limit 1
       ) as module_versions on true

@@ -4,9 +4,14 @@ coverage
 playwright-report
 test-results
 package-lock.json
+.codebase-memory
 
 # Canonical long-form product contract is maintained manually to keep stable diffs.
 docs/product/PRD_FULL_LensaDiri.md
+NewDesign_V1/PRD-LensaDiri-UX-UI-Collectible.md
 
 # Raw Refero style dump; not app source.
 Design.md/
+
+# Verbatim Google Stitch export kept as-is for fidelity comparison; not app source.
+NewDesign_V1/stitch_lensadiri_3d_collector_prototype/

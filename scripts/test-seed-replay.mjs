@@ -17,6 +17,13 @@ const expectedCanonicalCounts = {
   combo_presets: 6,
   combo_mappings: 27,
 };
+const expectedJourneyCounts = {
+  module_versions: 4,
+  dimensions: 25,
+  questions: 180,
+  translations: 180,
+  mappings: 180,
+};
 const seedPaths = [
   ...readFileSync(supabaseConfigPath, "utf8").matchAll(/"\.\/seed\/([^"\n]+\.sql)"/gu),
 ].map(([, path]) => `supabase/seed/${path}`);
@@ -118,13 +125,21 @@ const snapshotSql = `
 with counts as (
   select jsonb_build_object(
     'modules', (select count(*) from public.modules),
-    'module_versions', (select count(*) from public.module_versions),
-    'dimensions', (select count(*) from public.question_dimensions),
-    'questions', (select count(*) from public.questions),
-    'translations', (select count(*) from public.question_translations),
-    'mappings', (select count(*) from public.question_dimension_mappings),
+    'module_versions', (select count(*) from public.module_versions where scoring_version not in ('enneagram-journey-score-1','socionics-type-score-1','trait-profile-journey-1','psychosophy-journey-score-1')),
+    'dimensions', (select count(*) from public.question_dimensions inner join public.module_versions on module_versions.id = question_dimensions.module_version_id where module_versions.scoring_version not in ('enneagram-journey-score-1','socionics-type-score-1','trait-profile-journey-1','psychosophy-journey-score-1')),
+    'questions', (select count(*) from public.questions inner join public.module_versions on module_versions.id = questions.module_version_id where module_versions.scoring_version not in ('enneagram-journey-score-1','socionics-type-score-1','trait-profile-journey-1','psychosophy-journey-score-1')),
+    'translations', (select count(*) from public.question_translations inner join public.questions on questions.id = question_translations.question_id inner join public.module_versions on module_versions.id = questions.module_version_id where module_versions.scoring_version not in ('enneagram-journey-score-1','socionics-type-score-1','trait-profile-journey-1','psychosophy-journey-score-1')),
+    'mappings', (select count(*) from public.question_dimension_mappings inner join public.questions on questions.id = question_dimension_mappings.question_id inner join public.module_versions on module_versions.id = questions.module_version_id where module_versions.scoring_version not in ('enneagram-journey-score-1','socionics-type-score-1','trait-profile-journey-1','psychosophy-journey-score-1')),
     'combo_presets', (select count(*) from public.combo_presets),
     'combo_mappings', (select count(*) from public.combo_preset_modules)
+  ) as value
+), journey_counts as (
+  select jsonb_build_object(
+    'module_versions', (select count(*) from public.module_versions where scoring_version = any(array['enneagram-journey-score-1','socionics-type-score-1','trait-profile-journey-1','psychosophy-journey-score-1'])),
+    'dimensions', (select count(*) from public.question_dimensions inner join public.module_versions on module_versions.id = question_dimensions.module_version_id where module_versions.scoring_version = any(array['enneagram-journey-score-1','socionics-type-score-1','trait-profile-journey-1','psychosophy-journey-score-1'])),
+    'questions', (select count(*) from public.questions inner join public.module_versions on module_versions.id = questions.module_version_id where module_versions.scoring_version = any(array['enneagram-journey-score-1','socionics-type-score-1','trait-profile-journey-1','psychosophy-journey-score-1'])),
+    'translations', (select count(*) from public.question_translations inner join public.questions on questions.id = question_translations.question_id inner join public.module_versions on module_versions.id = questions.module_version_id where module_versions.scoring_version = any(array['enneagram-journey-score-1','socionics-type-score-1','trait-profile-journey-1','psychosophy-journey-score-1'])),
+    'mappings', (select count(*) from public.question_dimension_mappings inner join public.questions on questions.id = question_dimension_mappings.question_id inner join public.module_versions on module_versions.id = questions.module_version_id where module_versions.scoring_version = any(array['enneagram-journey-score-1','socionics-type-score-1','trait-profile-journey-1','psychosophy-journey-score-1']))
   ) as value
 ), duplicates as (
   select jsonb_build_object(
@@ -155,7 +170,8 @@ with counts as (
       'composer_config_json', module_versions.composer_config_json,
       'report_template_version', module_versions.report_template_version
     ) order by modules.key, module_versions.version)
-    from public.module_versions inner join public.modules on modules.id = module_versions.module_id), '[]'::jsonb),
+    from public.module_versions inner join public.modules on modules.id = module_versions.module_id
+    where module_versions.scoring_version <> all(array['enneagram-journey-score-1','socionics-type-score-1','trait-profile-journey-1','psychosophy-journey-score-1'])), '[]'::jsonb),
     'dimensions', coalesce((select jsonb_agg(jsonb_build_object(
       'module_key', modules.key, 'version', module_versions.version,
       'construct_key', question_dimensions.construct_key,
@@ -165,7 +181,8 @@ with counts as (
     ) order by modules.key, module_versions.version, question_dimensions.construct_key, question_dimensions.facet_key)
     from public.question_dimensions
     inner join public.module_versions on module_versions.id = question_dimensions.module_version_id
-    inner join public.modules on modules.id = module_versions.module_id), '[]'::jsonb),
+    inner join public.modules on modules.id = module_versions.module_id
+    where module_versions.scoring_version <> all(array['enneagram-journey-score-1','socionics-type-score-1','trait-profile-journey-1','psychosophy-journey-score-1'])), '[]'::jsonb),
     'questions', coalesce((select jsonb_agg(jsonb_build_object(
       'module_key', modules.key, 'version', module_versions.version,
       'item_code', questions.item_code, 'construct_key', question_dimensions.construct_key,
@@ -184,7 +201,8 @@ with counts as (
     from public.questions
     inner join public.module_versions on module_versions.id = questions.module_version_id
     inner join public.modules on modules.id = module_versions.module_id
-    inner join public.question_dimensions on question_dimensions.id = questions.dimension_id), '[]'::jsonb),
+    inner join public.question_dimensions on question_dimensions.id = questions.dimension_id
+    where module_versions.scoring_version <> all(array['enneagram-journey-score-1','socionics-type-score-1','trait-profile-journey-1','psychosophy-journey-score-1'])), '[]'::jsonb),
     'translations', coalesce((select jsonb_agg(jsonb_build_object(
       'module_key', modules.key, 'version', module_versions.version,
       'item_code', questions.item_code, 'locale', question_translations.locale,
@@ -196,7 +214,8 @@ with counts as (
     from public.question_translations
     inner join public.questions on questions.id = question_translations.question_id
     inner join public.module_versions on module_versions.id = questions.module_version_id
-    inner join public.modules on modules.id = module_versions.module_id), '[]'::jsonb),
+    inner join public.modules on modules.id = module_versions.module_id
+    where module_versions.scoring_version <> all(array['enneagram-journey-score-1','socionics-type-score-1','trait-profile-journey-1','psychosophy-journey-score-1'])), '[]'::jsonb),
     'mappings', coalesce((select jsonb_agg(jsonb_build_object(
       'module_key', modules.key, 'version', module_versions.version,
       'item_code', questions.item_code, 'construct_key', question_dimensions.construct_key,
@@ -210,7 +229,8 @@ with counts as (
     inner join public.questions on questions.id = question_dimension_mappings.question_id
     inner join public.module_versions on module_versions.id = questions.module_version_id
     inner join public.modules on modules.id = module_versions.module_id
-    inner join public.question_dimensions on question_dimensions.id = question_dimension_mappings.dimension_id), '[]'::jsonb),
+    inner join public.question_dimensions on question_dimensions.id = question_dimension_mappings.dimension_id
+    where module_versions.scoring_version <> all(array['enneagram-journey-score-1','socionics-type-score-1','trait-profile-journey-1','psychosophy-journey-score-1'])), '[]'::jsonb),
     'combo_presets', coalesce((select jsonb_agg(jsonb_build_object(
       'key', key, 'public_name', public_name, 'description', description,
       'status', status, 'recommended_mode', recommended_mode,
@@ -236,10 +256,11 @@ with counts as (
 )
 select jsonb_build_object(
   'counts', counts.value,
+  'journey_counts', journey_counts.value,
   'duplicates', duplicates.value,
   'canonical', canonical.value
 )::text
-from counts cross join duplicates cross join canonical;
+from counts cross join journey_counts cross join duplicates cross join canonical;
 `;
 
 function snapshot() {
@@ -263,6 +284,7 @@ function snapshot() {
 
   return {
     counts: value.counts,
+    journeyCounts: value.journey_counts,
     hash: createHash("sha256").update(JSON.stringify(value.canonical)).digest("hex"),
   };
 }
@@ -277,12 +299,22 @@ function verifyReviewedCanonicalIdentity(value) {
   if (!hasExpectedCounts(value.counts) || value.hash !== expectedCanonicalHash) {
     fail("baseline canonical identity does not match reviewed seed identity");
   }
+  if (
+    !Object.entries(expectedJourneyCounts).every(
+      ([key, expected]) => value.journeyCounts[key] === expected,
+    )
+  ) {
+    fail("identity journey item-bank counts do not match the versioned contract");
+  }
 }
 
 function verifySnapshot(reference, label) {
   const current = snapshot();
   if (JSON.stringify(current.counts) !== JSON.stringify(reference.counts)) {
     fail(`${label} changed canonical counts`);
+  }
+  if (JSON.stringify(current.journeyCounts) !== JSON.stringify(reference.journeyCounts)) {
+    fail(`${label} changed identity journey counts`);
   }
   if (current.hash !== reference.hash) {
     fail(`${label} changed canonical content hash`);

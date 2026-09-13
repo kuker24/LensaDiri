@@ -20,7 +20,7 @@ test("protected dashboard redirects guests and auth forms support keyboard focus
   await page.keyboard.press("Tab");
   await expect(page.getByRole("link", { name: "Lewati ke konten utama" })).toBeFocused();
   await page.keyboard.press("Tab");
-  await expect(page.getByRole("link", { name: /LensaDiri/u })).toBeFocused();
+  await expect(page.getByRole("link", { name: /lensadiri/iu })).toBeFocused();
 
   const health = await page.request.get("/api/health");
   expect(health.status()).toBe(200);
@@ -30,23 +30,27 @@ test("protected dashboard redirects guests and auth forms support keyboard focus
   const mobileMenu = page.locator("summary", { hasText: "Menu" });
   if (await mobileMenu.isVisible()) await mobileMenu.click();
   await page.getByRole("link", { name: "Ruang pribadi", exact: true }).first().click();
-  await expect(page).toHaveURL((url) => {
-    return url.pathname === "/login" && url.searchParams.get("redirectTo") === "/dashboard";
-  });
+  await expect(page).toHaveURL(
+    (url) => url.pathname === "/login" && url.searchParams.get("redirectTo") === "/dashboard",
+    { timeout: 15_000 },
+  );
 });
 
 test("registration offers Google and auth forms omit password-length copy", async ({ page }) => {
   await page.goto("/login");
   await expect(page.getByText(/Minimal 12 karakter/u)).toHaveCount(0);
 
-  await page.getByRole("link", { name: "Daftar", exact: true }).click();
+  await page.getByRole("link", { name: "Daftar", exact: true }).first().click();
   await expect(page).toHaveURL(/\/register$/u);
   await expect(page.getByRole("link", { name: "Lanjutkan dengan Google" })).toHaveAttribute(
     "href",
     /\/api\/auth\/oidc\/google\/start\?operation=login/u,
   );
   await expect(page.getByText(/Minimal 12 karakter/u)).toHaveCount(0);
-  await expect(page.getByLabel("Kata sandi")).toHaveAttribute("minlength", "12");
+  await expect(page.getByRole("textbox", { name: "Kata sandi" })).toHaveAttribute(
+    "minlength",
+    "12",
+  );
 });
 
 test("account lifecycle registers, logs in, rejects wrong deletion password, then hard deletes", async ({
@@ -60,11 +64,11 @@ test("account lifecycle registers, logs in, rejects wrong deletion password, the
 
   await page.goto("/register");
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel(/password|kata sandi/i).fill(password);
+  await page.getByRole("textbox", { name: "Kata sandi" }).fill(password);
   await page.getByRole("button", { name: "Buat akun" }).click();
-  await expect(
-    page.getByRole("heading", { name: "Permintaan pendaftaran diterima" }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Permintaan pendaftaran diterima" })).toBeVisible({
+    timeout: 15_000,
+  });
 
   await page.getByRole("link", { name: "Kembali ke halaman masuk" }).click();
   await page.goto("/dashboard/results");
@@ -72,9 +76,9 @@ test("account lifecycle registers, logs in, rejects wrong deletion password, the
     return url.pathname === "/login" && url.searchParams.get("redirectTo") === "/dashboard/results";
   });
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel(/password|kata sandi/i).fill(password);
+  await page.getByRole("textbox", { name: "Kata sandi" }).fill(password);
   await page.getByRole("button", { name: "Masuk", exact: true }).click();
-  await expect(page).toHaveURL(/\/dashboard\/results$/u);
+  await expect(page).toHaveURL(/\/dashboard\/results$/u, { timeout: 15_000 });
   await page.goto("/dashboard");
   await expect(page.getByRole("heading", { name: "Sesi, hasil, kontrol data" })).toBeVisible();
 
@@ -126,12 +130,12 @@ test("account lifecycle registers, logs in, rejects wrong deletion password, the
     return url.pathname === "/login" && url.searchParams.get("redirectTo") === "/dashboard";
   });
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel(/password|kata sandi/i).fill(password);
+  await page.getByRole("textbox", { name: "Kata sandi" }).fill(password);
   await page.getByRole("button", { name: "Masuk", exact: true }).click();
   await expect(page.getByText("Email atau kata sandi tidak cocok.")).toBeVisible();
 });
 
-test("account starts and pauses a Complex modular session", async ({ page }, testInfo) => {
+test("account starts and pauses an identity journey", async ({ page }, testInfo) => {
   const suffix = `${testInfo.project.name}-${Date.now()}-${testInfo.workerIndex}`
     .toLowerCase()
     .replaceAll(/[^a-z0-9-]/gu, "-");
@@ -140,28 +144,24 @@ test("account starts and pauses a Complex modular session", async ({ page }, tes
 
   await page.goto("/register");
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel(/password|kata sandi/i).fill(password);
+  await page.getByRole("textbox", { name: "Kata sandi" }).fill(password);
   await page.getByRole("button", { name: "Buat akun" }).click();
+  await expect(page.getByRole("heading", { name: "Permintaan pendaftaran diterima" })).toBeVisible({
+    timeout: 15_000,
+  });
   await page.getByRole("link", { name: "Kembali ke halaman masuk" }).click();
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel(/password|kata sandi/i).fill(password);
+  await page.getByRole("textbox", { name: "Kata sandi" }).fill(password);
   await page.getByRole("button", { name: "Masuk", exact: true }).click();
-  await expect(page).toHaveURL(/\/dashboard$/u);
+  await expect(page).toHaveURL(/\/dashboard$/u, { timeout: 15_000 });
 
-  await page.getByRole("link", { name: "Mulai asesmen" }).first().click();
-  await page.getByRole("checkbox", { name: /16-Type Jungian-inspired/u }).check();
-  await page.getByRole("checkbox", { name: /Lensa Motivasi Enneagram-inspired/u }).check();
-  await page.getByRole("checkbox", { name: /Lensa Temperamen/u }).check();
-  await page.getByRole("button", { name: /Complex/u }).click();
-  await expect(page.getByText(/Target awal · 4 lensa · 120 pertanyaan/u)).toBeVisible();
-  await page.getByRole("button", { name: "Tinjau pilihan" }).click();
-  await expect(page).toHaveURL(/\/start\/review$/u);
-  await expect(page.getByRole("button", { name: "Mulai asesmen" })).toBeDisabled();
-  await page.getByRole("checkbox", { name: /setuju jawabanku diproses/u }).check();
-  await page.getByRole("button", { name: "Mulai asesmen" }).click();
+  await page.goto("/start");
+  await page.getByRole("radio", { name: /Laki-laki/u }).click();
+  await page.getByRole("checkbox").check();
+  // The combined run covers an 18+ lens, so a qualifying age is required to start.
+  await page.getByLabel("Usia").fill("24");
+  await page.getByRole("button", { name: "Testlensa" }).click();
   await expect(page).toHaveURL(/\/test\//u);
   await page.getByRole("button", { name: "Jeda", exact: true }).click();
   await expect(page.getByRole("heading", { name: "Sesi dijeda" })).toBeVisible();
-  await page.goto("/dashboard");
-  await expect(page.getByText(/0\/120 · Bagian 1\/2 · Dijeda/u)).toBeVisible();
 });

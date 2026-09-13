@@ -9,8 +9,21 @@ const clientMocks = vi.hoisted(() => ({
 }));
 
 vi.mock("@/lib/assessment/client", () => clientMocks);
+// ResultReport owns the trailing controls so they stay hidden on the
+// full-screen claim/attach stages, so the stub must render children too.
 vi.mock("@/components/result-report", () => ({
-  ResultReport: ({ result }: { result: { marker: string } }) => <div>{result.marker}</div>,
+  ResultReport: ({
+    result,
+    children,
+  }: {
+    result: { marker: string };
+    children?: React.ReactNode;
+  }) => (
+    <div>
+      {result.marker}
+      {children}
+    </div>
+  ),
 }));
 vi.mock("@/components/shared-result-report", () => ({
   SharedResultReport: ({ result }: { result: { marker: string } }) => <div>{result.marker}</div>,

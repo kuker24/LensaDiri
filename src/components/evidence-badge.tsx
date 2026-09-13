@@ -14,9 +14,9 @@ const tones: Record<EvidenceTier, "aperture" | "lens" | "neutral"> = {
 };
 
 const labels: Record<EvidenceTier, string> = {
-  A: "Bukti A",
-  B: "Reflektif B",
-  C: "Reflektif C",
+  A: "Riset Teruji",
+  B: "Reflektif",
+  C: "Eksploratif",
   Experimental: "Eksperimental",
 };
 

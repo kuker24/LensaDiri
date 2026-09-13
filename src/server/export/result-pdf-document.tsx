@@ -2,16 +2,20 @@ import { Document, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 
 import type { PdfScoreRow, ResultPdfModel } from "@/server/export/result-pdf-model";
 
-/** Digital-first monochrome report: matte black, bone type, frost hairlines. */
+/**
+ * Print-first report on the same warm paper as the app. A matte-black page is
+ * both inconsistent with the collectible theme and wasteful to print, so the
+ * palette inverts: paper stays light and ink carries the contrast.
+ */
 const colors = {
-  accent: "#F5F5F2",
-  hairline: "#303030",
-  ink: "#F5F5F2",
-  muted: "#B8BAB9",
-  paper: "#000000",
-  soft: "#111111",
-  softRaised: "#181818",
-  track: "#292929",
+  accent: "#9D4223",
+  hairline: "#E4E2DE",
+  ink: "#1B1C1A",
+  muted: "#56423C",
+  paper: "#FBF9F5",
+  soft: "#FFFFFF",
+  softRaised: "#F5F3EF",
+  track: "#EFEEEA",
 } as const;
 
 const styles = StyleSheet.create({

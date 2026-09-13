@@ -32,9 +32,25 @@ describe("admin read DTOs", () => {
     const rows = listAdminScoringRegistry();
     expect(rows.length).toBeGreaterThanOrEqual(10);
     expect(rows.every((row) => row.moduleKey && row.scoringVersion)).toBe(true);
-    expect(rows.find((row) => row.moduleKey === "trait_profile")?.scoringVersion).toBe(
-      "trait-profile-modular-1",
-    );
+    // Every dispatchable version must be visible, including additive journey versions.
+    expect(
+      rows.filter((row) => row.moduleKey === "trait_profile").map((row) => row.scoringVersion),
+    ).toEqual(["trait-profile-journey-1", "trait-profile-modular-1"]);
+    expect(rows).toContainEqual({
+      moduleKey: "enneagram",
+      scoringVersion: "enneagram-journey-score-1",
+    });
+    expect(rows).toContainEqual({
+      moduleKey: "socionics_communication",
+      scoringVersion: "socionics-type-score-1",
+    });
+    expect(rows).toContainEqual({
+      moduleKey: "psychosophy",
+      scoringVersion: "psychosophy-journey-score-1",
+    });
+    // No duplicate registrations.
+    const pairs = rows.map((row) => `${row.moduleKey}@${row.scoringVersion}`);
+    expect(new Set(pairs).size).toBe(pairs.length);
     const keys = rows.map((row) => row.moduleKey);
     expect(keys).toEqual([...keys].sort((a, b) => a.localeCompare(b)));
   });

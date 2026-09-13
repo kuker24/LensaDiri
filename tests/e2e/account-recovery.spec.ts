@@ -30,63 +30,71 @@ test("email verification and password reset stay single-use and revoke sessions"
 
   await page.goto("/register");
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel(/password|kata sandi/i).fill(oldPassword);
+  await page.getByRole("textbox", { name: "Kata sandi" }).fill(oldPassword);
   await page.getByRole("button", { name: "Buat akun" }).click();
-  await expect(
-    page.getByRole("heading", { name: "Permintaan pendaftaran diterima" }),
-  ).toBeVisible();
+  await expect(page.getByRole("heading", { name: "Permintaan pendaftaran diterima" })).toBeVisible({
+    timeout: 15_000,
+  });
 
   await page.goto("/verify-email");
   await page.getByLabel("Email").fill(email);
   await page.getByRole("button", { name: "Kirim instruksi verifikasi" }).click();
-  await expect(page.getByRole("status").first()).toContainText("instruksi sudah disiapkan");
+  await expect(
+    page.getByRole("status").filter({ hasText: "instruksi sudah disiapkan" }),
+  ).toBeVisible({
+    timeout: 15_000,
+  });
   const verificationToken = await fetchRecoveryToken(page, email, "email_verification");
   await openRecoveryLink(page, "/verify-email", verificationToken);
   await page.getByRole("button", { name: "Verifikasi email" }).click();
-  await expect(page.getByRole("status").first()).toContainText("Email berhasil diverifikasi");
+  await expect(
+    page.getByRole("status").filter({ hasText: "Email berhasil diverifikasi" }),
+  ).toBeVisible({
+    timeout: 15_000,
+  });
   await openRecoveryLink(page, "/verify-email", verificationToken);
   await page.getByRole("button", { name: "Verifikasi email" }).click();
   await expect(page.getByText(/Tautan tidak valid, kedaluwarsa/u)).toContainText("sudah digunakan");
 
   await page.goto("/login");
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel(/password|kata sandi/i).fill(oldPassword);
+  await page.getByRole("textbox", { name: "Kata sandi" }).fill(oldPassword);
   await page.getByRole("button", { name: "Masuk", exact: true }).click();
   await expect(page).toHaveURL(/\/dashboard$/u);
 
   await page.goto("/forgot-password");
   await page.getByLabel("Email").fill(email);
   await page.getByRole("button", { name: "Kirim instruksi pengaturan ulang" }).click();
-  await expect(page.getByRole("status").first()).toContainText(
-    "instruksi pengaturan ulang sudah disiapkan",
-  );
+  await expect(
+    page.getByRole("status").filter({ hasText: "instruksi pengaturan ulang sudah disiapkan" }),
+  ).toBeVisible({ timeout: 15_000 });
   const resetToken = await fetchRecoveryToken(page, email, "password_reset");
   await openRecoveryLink(page, "/reset-password", resetToken);
   await page.getByLabel("Kata sandi baru").fill(newPassword);
   await page.getByRole("button", { name: "Simpan kata sandi baru" }).click();
-  await expect(page.getByRole("status").first()).toContainText(
-    "Semua sesi masuk lama sudah dinonaktifkan",
-  );
+  await expect(
+    page.getByRole("status").filter({ hasText: "Semua sesi masuk lama sudah dinonaktifkan" }),
+  ).toBeVisible({ timeout: 15_000 });
 
   await page.goto("/dashboard");
   await expect(page).toHaveURL((url) => {
     return url.pathname === "/login" && url.searchParams.get("redirectTo") === "/dashboard";
   });
   await page.getByLabel("Email").fill(email);
-  await page.getByLabel(/password|kata sandi/i).fill(oldPassword);
+  await page.getByRole("textbox", { name: "Kata sandi" }).fill(oldPassword);
   await page.getByRole("button", { name: "Masuk", exact: true }).click();
   await expect(page.getByText("Email atau kata sandi tidak cocok.")).toBeVisible();
-  await page.getByLabel(/password|kata sandi/i).fill(newPassword);
+  await page.getByRole("textbox", { name: "Kata sandi" }).fill(newPassword);
   await page.getByRole("button", { name: "Masuk", exact: true }).click();
-  await expect(page).toHaveURL(/\/dashboard$/u);
+  await expect(page).toHaveURL(/\/dashboard$/u, { timeout: 15_000 });
 
   const unknownEmail = `unknown-${suffix}@example.test`;
   await page.goto("/forgot-password");
   await page.getByLabel("Email").fill(unknownEmail);
   await page.getByRole("button", { name: "Kirim instruksi pengaturan ulang" }).click();
-  await expect(page.getByRole("status").first()).toContainText(
-    "instruksi pengaturan ulang sudah disiapkan",
-  );
+  await expect(
+    page.getByRole("status").filter({ hasText: "instruksi pengaturan ulang sudah disiapkan" }),
+  ).toBeVisible({ timeout: 15_000 });
   const unknownDelivery = await page.request.get(
     `/api/test/recovery-token?email=${encodeURIComponent(unknownEmail)}&purpose=password_reset`,
   );

@@ -2,14 +2,25 @@ import {
   scoreAttachmentModule,
   type AttachmentConstructKey,
 } from "@/lib/scoring/modules/attachment";
-import { scoreEnneagramModule, type EnneagramConstructKey } from "@/lib/scoring/modules/enneagram";
+import {
+  scoreEnneagramJourneyModule,
+  scoreEnneagramModule,
+  type EnneagramConstructKey,
+  type EnneagramJourneyConstructKey,
+} from "@/lib/scoring/modules/enneagram";
 import { scoreInstinctModule, type InstinctConstructKey } from "@/lib/scoring/modules/instinct";
 import {
+  scorePsychosophyJourneyModule,
   scorePsychosophyModule,
   type PsychosophyConstructKey,
 } from "@/lib/scoring/modules/psychosophy";
 import { scoreRiasecModule, type RiasecConstructKey } from "@/lib/scoring/modules/riasec";
-import { scoreSocionicsModule, type SocionicsConstructKey } from "@/lib/scoring/modules/socionics";
+import {
+  scoreSocionicsModule,
+  scoreSocionicsTypeModule,
+  type SocionicsConstructKey,
+  type SocionicsTypeConstructKey,
+} from "@/lib/scoring/modules/socionics";
 import {
   scoreTemperamentModule,
   type TemperamentConstructKey,
@@ -18,7 +29,10 @@ import {
   scoreThreeCenterModule,
   type ThreeCenterConstructKey,
 } from "@/lib/scoring/modules/three-center";
-import { scoreTraitProfileModule } from "@/lib/scoring/modules/trait-profile";
+import {
+  scoreTraitProfileJourneyModule,
+  scoreTraitProfileModule,
+} from "@/lib/scoring/modules/trait-profile";
 import { scoreType16Module, type Type16ConstructKey } from "@/lib/scoring/modules/type16";
 import type { IndependentModuleResult } from "@/lib/scoring/modules/types";
 import type { TraitKey } from "@/lib/scoring/profile";
@@ -43,7 +57,7 @@ export const independentlyScoredModuleKeys = Object.keys(
 export type IndependentlyScoredModuleKey = (typeof independentlyScoredModuleKeys)[number];
 
 export function hasIndependentScoringEngine(moduleKey: string, scoringVersion: string): boolean {
-  return independentScoringVersions[moduleKey as IndependentlyScoredModuleKey] === scoringVersion;
+  return independentScoringRegistry.has(`${moduleKey}@${scoringVersion}`);
 }
 
 type IndependentScoringInput = {
@@ -65,6 +79,15 @@ const independentScoringRegistry = new Map<string, IndependentScoringEngine>([
       ),
   ],
   [
+    "trait_profile@trait-profile-journey-1",
+    ({ answers, context, expectedAnswers }) =>
+      scoreTraitProfileJourneyModule(
+        answers as readonly ModuleScoringAnswer<TraitKey>[],
+        expectedAnswers,
+        context,
+      ),
+  ],
+  [
     "type_16@type16-score-1",
     ({ answers, context, expectedAnswers }) =>
       scoreType16Module(
@@ -78,6 +101,15 @@ const independentScoringRegistry = new Map<string, IndependentScoringEngine>([
     ({ answers, context, expectedAnswers }) =>
       scoreEnneagramModule(
         answers as readonly ModuleScoringAnswer<EnneagramConstructKey>[],
+        expectedAnswers,
+        context,
+      ),
+  ],
+  [
+    "enneagram@enneagram-journey-score-1",
+    ({ answers, context, expectedAnswers }) =>
+      scoreEnneagramJourneyModule(
+        answers as readonly ModuleScoringAnswer<EnneagramJourneyConstructKey>[],
         expectedAnswers,
         context,
       ),
@@ -119,6 +151,15 @@ const independentScoringRegistry = new Map<string, IndependentScoringEngine>([
       ),
   ],
   [
+    "socionics_communication@socionics-type-score-1",
+    ({ answers, context, expectedAnswers }) =>
+      scoreSocionicsTypeModule(
+        answers as readonly ModuleScoringAnswer<SocionicsTypeConstructKey>[],
+        expectedAnswers,
+        context,
+      ),
+  ],
+  [
     "riasec@riasec-score-1",
     ({ answers, context, expectedAnswers }) =>
       scoreRiasecModule(
@@ -145,7 +186,40 @@ const independentScoringRegistry = new Map<string, IndependentScoringEngine>([
         context,
       ),
   ],
+  [
+    "psychosophy@psychosophy-journey-score-1",
+    ({ answers, context, expectedAnswers }) =>
+      scorePsychosophyJourneyModule(
+        answers as readonly ModuleScoringAnswer<PsychosophyConstructKey>[],
+        expectedAnswers,
+        context,
+      ),
+  ],
 ]);
+
+/**
+ * Every dispatchable `moduleKey@scoringVersion` pair, derived from the registry so
+ * operational views cannot drift from what the engine actually accepts.
+ * `independentScoringVersions` above stays as the default version per module.
+ */
+export function listIndependentScoringRegistrations(): readonly Readonly<{
+  moduleKey: string;
+  scoringVersion: string;
+}>[] {
+  return [...independentScoringRegistry.keys()]
+    .map((registryKey) => {
+      const separator = registryKey.lastIndexOf("@");
+      return {
+        moduleKey: registryKey.slice(0, separator),
+        scoringVersion: registryKey.slice(separator + 1),
+      };
+    })
+    .toSorted(
+      (left, right) =>
+        left.moduleKey.localeCompare(right.moduleKey) ||
+        left.scoringVersion.localeCompare(right.scoringVersion),
+    );
+}
 
 export function scoreIndependentModule(input: {
   readonly answers: readonly ModuleScoringAnswer[];

@@ -1,13 +1,83 @@
+import NextImage from "next/image";
 import type { SafeSharedResultView } from "@/server/repositories/result-views";
 import { ResultIdentitySummary } from "@/components/result-identity-summary";
 import { ResultScoreIndicator } from "@/components/result-score-indicator";
 import { orderResultScores, resultEvidenceLabels } from "@/lib/report/result-presentation";
+import { parseTemperament, resolveFigurineSrc, type StageCode } from "@/components/result-podium";
+
+/**
+ * Cluster stages are light fills, so the label colour is the matching dark ink.
+ * White on these fills measures 2.2-2.5:1; `tests/unit/contrast.test.ts` guards it.
+ */
+const SHARED_STAGE = {
+  NT: { fill: "#6eb5ff", panel: "#8dc4ff", ink: "#0b2f52" },
+  NF: { fill: "#e882b4", panel: "#ed9dc4", ink: "#681847" },
+  SJ: { fill: "#6bbf7a", panel: "#85cc92", ink: "#002109" },
+  SP: { fill: "#f4845f", panel: "#f79b7f", ink: "#6c1e02" },
+  NEUTRAL: { fill: "#e4e2de", panel: "#efeeea", ink: "#30312e" },
+} as const;
+
+/** Share-card hero, shared by the legacy and modular shared views. */
+function SharedStageCard({
+  stageCode,
+  figureSrc,
+  identity,
+}: {
+  stageCode: StageCode;
+  figureSrc: string;
+  identity: string;
+}) {
+  const stage = SHARED_STAGE[stageCode];
+
+  return (
+    <div className="bg-surface border-line relative mb-10 overflow-hidden rounded-[28px] border p-8 shadow-[0_12px_36px_rgb(27_28_26_/_0.08)] sm:p-12">
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 -z-10 overflow-hidden"
+        style={{ backgroundColor: stage.fill, opacity: 0.14 }}
+      />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center select-none"
+      >
+        <span
+          className="font-['Anton',var(--font-anton),sans-serif] text-[clamp(100px,20vw,240px)] leading-none font-black tracking-tight uppercase opacity-25"
+          style={{ color: stage.fill }}
+        >
+          POLA
+        </span>
+      </div>
+      <div className="relative z-10 flex flex-col items-center text-center">
+        <div className="relative h-56 w-48 sm:h-64 sm:w-56">
+          <NextImage
+            src={figureSrc}
+            alt="Figurine karakter hasil"
+            fill
+            sizes="200px"
+            draggable={false}
+            className="object-contain object-bottom drop-shadow-[0_14px_22px_rgb(27_28_26_/_0.16)] select-none"
+          />
+        </div>
+        <div aria-hidden="true" className="h-3 w-40 rounded-[100%] bg-[#1b1c1a]/18 blur-[3px]" />
+        <div
+          className="mt-4 rounded-[14px] px-5 py-2.5 font-mono text-base font-bold tracking-wider sm:text-xl"
+          style={{ backgroundColor: stage.panel, color: stage.ink }}
+        >
+          {identity}
+        </div>
+        <p className="text-ink-muted mt-3 text-sm font-medium">
+          “Baca sebagai pola, bukan label tetap.”
+        </p>
+      </div>
+    </div>
+  );
+}
 
 const correlationLabels: Readonly<Record<string, string>> = {
   complementary: "Pola saling melengkapi",
-  context_dependent: "Bergantung konteks",
-  low_confidence_conflict: "Perlu dibaca hati-hati",
-  reflective_tension: "Tegangan reflektif",
+  context_dependent: "Bergantung konteks situasi",
+  low_confidence_conflict: "Perlu dibaca secara luwes",
+  reflective_tension: "Dinamika saling mengimbangi",
   reinforcing: "Pola saling menguatkan",
 };
 
@@ -30,9 +100,18 @@ const narrativeLabels: Readonly<Record<string, string>> = {
 
 export function SharedResultReport({ result }: { result: SafeSharedResultView }) {
   if (result.kind === "legacy") {
+    const t16Overlay = result.overlays.find(
+      (o) => o.title.toLowerCase().includes("16") || o.label.length === 4,
+    );
+    const code = t16Overlay ? parseTemperament(t16Overlay.label) : parseTemperament(result.title);
+    const stageCode = code ?? "NEUTRAL";
+    const figureSrc = resolveFigurineSrc(stageCode, undefined, t16Overlay?.label);
+
     return (
       <div>
-        <header className="lens-glow bg-surface relative overflow-hidden rounded-[20px] border border-white/14 p-7 sm:p-10">
+        <SharedStageCard stageCode={stageCode} figureSrc={figureSrc} identity={result.title} />
+
+        <header className="bg-surface border-line relative overflow-hidden rounded-[20px] border p-7 shadow-[0_10px_30px_rgb(27_28_26_/_0.07)] sm:p-10">
           <p className="mono-label text-ink">Ringkasan hasil yang dibagikan</p>
           <h1 className="mt-4 text-3xl font-normal tracking-[-0.035em] sm:text-5xl">
             {result.title}
@@ -74,7 +153,7 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
           <p className="text-ink-muted mt-2 text-sm leading-6">
             Bagian ini dipertahankan agar hasil lama tetap dapat dibaca.
           </p>
-          <div className="mt-5 grid gap-px overflow-hidden rounded-[16px] border border-white/14 bg-white/14 md:grid-cols-3">
+          <div className="border-line bg-line mt-5 grid gap-px overflow-hidden rounded-[16px] border md:grid-cols-3">
             {result.overlays.map((overlay) => (
               <article className="bg-surface p-5" key={overlay.title}>
                 <p className="mono-label text-ink">{overlay.title}</p>
@@ -84,7 +163,7 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
             ))}
           </div>
         </section>
-        <section className="mt-10 grid gap-px overflow-hidden rounded-[16px] border border-white/14 bg-white/14 md:grid-cols-2">
+        <section className="border-line bg-line mt-10 grid gap-px overflow-hidden rounded-[16px] border md:grid-cols-2">
           <article className="bg-surface p-6">
             <h2 className="text-xl font-normal tracking-[-0.02em]">Pola yang dibagikan</h2>
             <ul className="text-ink-muted mt-4 space-y-3 leading-7">
@@ -106,12 +185,32 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
     );
   }
 
+  const t16Mod = result.modules.find((m) => m.key === "type_16");
+  const tempMod = result.modules.find((m) => m.key === "temperament");
+  const code =
+    result.collectible?.group ??
+    (t16Mod ? parseTemperament(t16Mod.title) : tempMod ? parseTemperament(tempMod.title) : null);
+  const stageCode = code ?? "NEUTRAL";
+  const figureSrc = resolveFigurineSrc(
+    stageCode,
+    undefined,
+    result.collectible?.type16 ?? t16Mod?.title,
+  );
+
   return (
     <div>
-      <header className="lens-glow bg-surface relative overflow-hidden rounded-[20px] border border-white/18 p-7 sm:p-10">
+      <SharedStageCard
+        stageCode={stageCode}
+        figureSrc={figureSrc}
+        identity={result.collectible?.line || result.modules.map((m) => m.title).join(" · ")}
+      />
+
+      <header className="bg-surface border-line relative overflow-hidden rounded-[20px] border p-7 shadow-[0_10px_30px_rgb(27_28_26_/_0.07)] sm:p-10">
         <p className="mono-label text-ink">Ringkasan hasil yang dibagikan</p>
         <h1 className="mt-4 text-3xl font-normal tracking-[-0.035em] sm:text-5xl">
-          Hasil dalam {result.modules.length} lensa
+          {result.collectible?.complete
+            ? "Podium penuh 5 lensa"
+            : `Hasil dalam ${result.collectible?.lensCount ?? result.modules.length} lensa`}
         </h1>
         <ResultIdentitySummary
           items={result.modules.map((module) => ({ name: module.name, title: module.title }))}
@@ -161,7 +260,7 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
           <h2 className="text-2xl font-normal tracking-[-0.025em]" id="shared-correlation-heading">
             Hubungan antar-lensa
           </h2>
-          <div className="mt-5 grid gap-px overflow-hidden rounded-[16px] border border-white/14 bg-white/14 md:grid-cols-2">
+          <div className="border-line bg-line mt-5 grid gap-px overflow-hidden rounded-[16px] border md:grid-cols-2">
             {result.correlations.map((correlation) => (
               <article
                 className="bg-surface p-5"

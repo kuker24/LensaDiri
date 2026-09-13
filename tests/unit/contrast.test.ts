@@ -40,11 +40,34 @@ function token(name: string): string {
 describe("critical design token contrast", () => {
   test.each([
     ["ink on canvas", "ink", "canvas", 4.5],
+    ["ink on surface", "ink", "surface", 4.5],
     ["muted ink on canvas", "ink-muted", "canvas", 4.5],
-    ["ink text on lens", "ink", "lens", 4.5],
+    ["muted ink on surface", "ink-muted", "surface", 4.5],
+    // Paper theme: `lens` is a dark action fill, so its label is canvas-on-lens
+    // (`bg-lens text-canvas`), not ink-on-lens as in the former dark theme.
+    ["canvas label on lens fill", "canvas", "lens", 4.5],
+    ["lens as link text on canvas", "lens", "canvas", 4.5],
     ["aperture focus on canvas", "aperture", "canvas", 3],
     ["danger on canvas", "danger", "canvas", 4.5],
+    ["danger on its own soft fill", "danger", "danger-soft", 4.5],
+    ["success on canvas", "success", "canvas", 4.5],
+    ["warning on canvas", "warning", "canvas", 4.5],
+    ["steel hairline text on canvas", "steel", "canvas", 3],
+    ["ink on raised surface", "ink", "surface-raised", 4.5],
+    // Each cluster stage is a light fill, so its label must be the matching
+    // dark `-ink`. White on these stages measures 2.2-2.5:1 and is forbidden.
+    ["SP label on coral stage", "coral-ink", "coral", 4.5],
+    ["SJ label on sage stage", "sage-ink", "sage", 4.5],
+    ["NF label on pink stage", "pink-ink", "pink", 4.5],
+    ["NT label on sky stage", "sky-ink", "sky", 4.5],
   ])("%s meets its WCAG threshold", (_name, foreground, background, threshold) => {
     expect(contrast(token(foreground), token(background))).toBeGreaterThanOrEqual(threshold);
   });
+
+  test.each([["coral"], ["sage"], ["pink"], ["sky"]])(
+    "pure white is not legible body text on the %s stage",
+    (stage) => {
+      expect(contrast("#ffffff", token(stage))).toBeLessThan(3);
+    },
+  );
 });
