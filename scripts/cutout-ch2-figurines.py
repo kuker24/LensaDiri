@@ -45,13 +45,19 @@ OUT = Path(sys.argv[1] if len(sys.argv) > 1 else "NewDesign_V1/karakternya")
 # Reviewed gender of each source render. Read from the rendered artwork, not the
 # filename suffix. Outfit and palette are shared within each type, so the type
 # stays readable across both genders.
+#
+# The esfp pair was re-rendered because the original two reads were the same
+# character in two poses, not one per gender: mean absolute difference between
+# the pair was 6.4, against 25.9 for the replacement. Both mappings flip with it
+# (esfp_1 is now the female read), so the suffix stays a source label and never a
+# gender marker.
 GENDER = {
     "enfj_1": "perempuan", "enfj_2": "laki",
     "enfp_1": "perempuan", "enfp_2": "laki",
     "entj_1": "perempuan", "entj_2": "laki",
     "entp_1": "perempuan", "entp_2": "laki",
     "esfj_1": "laki", "esfj_2": "perempuan",
-    "esfp_1": "laki", "esfp_2": "perempuan",
+    "esfp_1": "perempuan", "esfp_2": "laki",
     "estj_1": "laki", "estj_2": "perempuan",
     "estp_1": "laki", "estp_2": "perempuan",
     "infj_1": "perempuan", "infj_2": "laki",
