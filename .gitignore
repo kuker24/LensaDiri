@@ -48,6 +48,12 @@ production-dump*
 experiments/
 NewDesign_V1/
 
+# throwaway agent screenshots and review dumps; curated audit sets stay tracked
+.pi/screenshots/**
+!.pi/screenshots/ui-audit-*/
+!.pi/screenshots/ui-audit-*/**
+.impeccable/review/
+
 # Vercel
 .vercel/
 
