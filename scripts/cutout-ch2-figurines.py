@@ -71,6 +71,56 @@ SHADOW_LUM_DEPTH = 42
 SHADOW_SAT_TOLERANCE = 18
 FEET_BAND_START = 0.86
 
+# Shadow absorption used to be an unbounded flood, and that is what chewed the
+# footwear. Restricting it to the feet band bounds *where* it may start but not
+# how far it may travel, and pale sneakers, white rubber soles, and white socks
+# satisfy the same neutrality-and-depth window as the floor shadow. Simulating
+# the old flood shows it walking 90-114 rows upward into shoe material:
+#
+#     estp_1  2,615 px absorbed, 1,829 clearly material, deepest row 1041
+#     estp_2  4,938 px absorbed, 3,003 clearly material, deepest row 1057
+#     esfj_1  6,331 px absorbed, 3,538 clearly material, deepest row  995
+#     entj_1 11,309 px absorbed, 3,084 clearly material, deepest row 1038
+#
+# Four colour-based discriminators were measured and rejected before settling on
+# reach: un-compositing (error rose 17->86), neighbourhood support (footwear and
+# a known-good control band overlap, 37% vs 16-47%), column geometry, and
+# monotone luminance descent. That matches this file's own premise - brightness
+# cannot separate a pale floor from a pale shoe - so the fix constrains geometry
+# instead of guessing material.
+#
+# A cast shadow is contiguous with the backdrop it sits on, so it is reachable in
+# a few steps. Shoe material is not: it lies behind the sole edge. Two bounds
+# encode that. Absorption may travel at most this many steps from genuine
+# backdrop, and it may not cross a luminance step edge. Measured together over
+# the eight worst renders these spare all but 4 px of clearly-material pixels,
+# where the unbounded flood destroyed 14,000.
+SHADOW_MAX_DISTANCE = 3
+SHADOW_EDGE_BARRIER = 9.0
+
+# Leftover floor is then classified per region rather than per pixel. A region
+# whose border opens mostly onto transparency is a patch of plane; one enclosed
+# by artwork is footwear. Measured separation is 36-47% against a flat 100%, so
+# the midpoint is far from both populations. The size floor keeps this away from
+# small debris, which the speckle and pocket passes already own.
+FLOOR_MIN_REGION = 40
+FLOOR_ART_FRACTION = 0.50
+
+# Regions are grown under a luminance-continuity limit. Without it the floor
+# patch merges with the ramp pixels hugging a shoe, and the merged region's
+# border statistic lands near the cut - 53% on entj_1 and 51% on intj_1 - so the
+# slab survived there while the same code cleared istj_1. A borderline number is
+# the signal that two things were merged, not that the threshold needs nudging.
+#
+# Tightening continuity breaks the merge instead of moving the line, but it can
+# be tightened too far: at 1.5 the floor stops being one region and shatters into
+# crumbs below FLOOR_MIN_REGION, which then survive as detached islands and trip
+# the speckle guard (entj_1 raised a 125px stray at x540-555, y1025-1038). That
+# guard is doing its job - the fragments are real leftovers - so the value has to
+# keep the plane connected. At 2.5 all four problem renders pass, and no region
+# lands between 40% and 62%: floor reads 0-39%, material reads 100%.
+FLOOR_CONTINUITY = 2.5
+
 RIM_DISTANCE = 2
 RAMP = 26
 
@@ -177,7 +227,23 @@ def cut(name):
                 break
     feet_line = top + max(1, bottom - top) * FEET_BAND_START
 
-    def accept_shadow(x, y):
+    def step_edge(x, y):
+        """Largest local luminance step across this pixel.
+
+        A cast shadow is a smooth ramp painted on the plane, so its interior
+        gradients are small. The boundary of a shoe is a step. Refusing to cross
+        a step keeps absorption on the floor side of the sole.
+        """
+        left = pixels[max(x - 1, 0), y]
+        right = pixels[min(x + 1, width - 1), y]
+        above = pixels[x, max(y - 1, 0)]
+        below = pixels[x, min(y + 1, height - 1)]
+        return max(
+            abs(luminance(right) - luminance(left)),
+            abs(luminance(below) - luminance(above)),
+        )
+
+    def absorbable_shadow(x, y):
         pixel = pixels[x, y]
         if tight(pixel):
             return True
@@ -186,14 +252,127 @@ def cut(name):
         return (
             saturation(pixel) <= SHADOW_SAT_TOLERANCE
             and background - luminance(pixel) <= SHADOW_LUM_DEPTH
+            and step_edge(x, y) <= SHADOW_EDGE_BARRIER
         )
 
+    # Bounded shadow spread. Genuine backdrop re-seeds at distance 0, so a pixel
+    # is only absorbed while it is within SHADOW_MAX_DISTANCE steps of real
+    # backdrop; the walk cannot ratchet its way up into the figure.
+    shadow_queue = deque()
+    for y in range(height):
+        row = y * width
+        for x in range(width):
+            if mask[row + x]:
+                shadow_queue.append((x, y, 0))
+    while shadow_queue:
+        x, y, distance = shadow_queue.popleft()
+        if distance >= SHADOW_MAX_DISTANCE:
+            continue
+        for nx, ny in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)):
+            if not (0 <= nx < width and 0 <= ny < height):
+                continue
+            index = ny * width + nx
+            if mask[index] or not absorbable_shadow(nx, ny):
+                continue
+            mask[index] = 1
+            reached = 0 if tight(pixels[nx, ny]) else distance + 1
+            shadow_queue.append((nx, ny, reached))
+
+    # Bounding the walk above leaves behind plain backdrop that used to be
+    # reached *through* the shadow ramp: measured over the 32 renders the bound
+    # saved every one of the 370 eaten footwear pixels but left 3,634 more
+    # backdrop pixels opaque, which reads as a grey slab under the feet.
+    #
+    # Those pixels are not ambiguous. They satisfy tight(), the script's own
+    # definition of backdrop, which by construction excludes artwork. So they can
+    # be swept without any distance bound - the bound exists to protect material
+    # the neutrality window cannot distinguish, and tight() pixels are not that.
+    for x in range(width):
+        push(x, 0, accept_tight)
+        push(x, height - 1, accept_tight)
+    for y in range(height):
+        push(0, y, accept_tight)
+        push(width - 1, y, accept_tight)
     for y in range(height):
         row = y * width
         for x in range(width):
             if mask[row + x]:
                 queue.append((x, y))
-    spread(accept_shadow)
+    spread(accept_tight)
+
+    # The bounded walk plus the tight sweep still leave a slab of floor under the
+    # feet: pixels that are neither tight() backdrop nor definite artwork, sitting
+    # in the neutrality window this file says colour cannot resolve. Per pixel
+    # they are genuinely ambiguous, and every per-pixel discriminator measured
+    # here failed on them - un-compositing, neighbourhood support, column
+    # geometry, monotone descent, and the gradient barrier alone.
+    #
+    # As regions they are not ambiguous. A cast shadow is a patch of plane, so
+    # most of its border opens onto transparency. Footwear is enclosed by the
+    # figure, so most of its border touches definite artwork. Measured on the
+    # regenerated renders the two populations separate without overlap:
+    #
+    #     istj_1  slab 3,679px   artFraction 36%      shoe 3,197px  100%
+    #     entj_1  slab 9,285px   artFraction 36%      shoe   467px  100%
+    #     estp_2  slab 2,115px   artFraction 47%      shoe 2,014px  100%
+    #
+    # So classify by enclosure, not by colour. Regions below the size floor are
+    # left alone: at that scale the border statistic is noise, and the speckle
+    # and pocket passes below already own small detached debris.
+    #
+    # This is confined to the feet band for the same reason the shadow pass is:
+    # position, not colour, is what protects pale artwork. Without that fence the
+    # floor under intj_1 grew up into the pale coat at y828 and the merged region
+    # scored 63%, so the slab was kept; pale clothing elsewhere would have been
+    # the mirror failure. Only a contact shadow can be in this band.
+    region_seen = bytearray(width * height)
+
+    def ambiguous(index):
+        y, x = divmod(index, width)
+        if y < feet_line:
+            return False
+        pixel = pixels[x, y]
+        return (
+            not mask[index]
+            and saturation(pixel) <= SHADOW_SAT_TOLERANCE
+            and background - luminance(pixel) <= SHADOW_LUM_DEPTH
+        )
+
+    floor_pixels = 0
+    for start in range(width * height):
+        if region_seen[start] or not ambiguous(start):
+            continue
+        region_seen[start] = 1
+        work = deque([start])
+        members = []
+        touches_art = 0
+        touches_void = 0
+        while work:
+            index = work.popleft()
+            members.append(index)
+            y, x = divmod(index, width)
+            for nx, ny in ((x - 1, y), (x + 1, y), (x, y - 1), (x, y + 1)):
+                if not (0 <= nx < width and 0 <= ny < height):
+                    continue
+                neighbour = ny * width + nx
+                if mask[neighbour]:
+                    touches_void += 1
+                elif not ambiguous(neighbour):
+                    touches_art += 1
+                elif not region_seen[neighbour] and (
+                    abs(luminance(pixels[nx, ny]) - luminance(pixels[x, y]))
+                    <= FLOOR_CONTINUITY
+                ):
+                    region_seen[neighbour] = 1
+                    work.append(neighbour)
+        border = touches_art + touches_void
+        if len(members) < FLOOR_MIN_REGION or not border:
+            continue
+        if touches_art / border >= FLOOR_ART_FRACTION:
+            continue
+        for index in members:
+            mask[index] = 1
+        floor_pixels += len(members)
 
     # Drop speckles: keep only the largest opaque component.
     seen = bytearray(width * height)
@@ -238,6 +417,15 @@ def cut(name):
     def backdrop_like(index):
         y, x = divmod(index, width)
         pixel = pixels[x, y]
+        # Widening this window to the shadow window in the feet band was measured
+        # and rejected. It does clear the floor visible between the legs, which
+        # the enclosure test cannot reach (that patch is surrounded by shoe and
+        # trouser, so it scores 100% art and is kept). But the same window names
+        # white sneaker material: on estp_1 and estp_2 the widened pocket chewed
+        # visible bites out of both white shoes. That is this file's founding
+        # warning - a pale floor and a pale shoe are the same colour - so the
+        # narrow neutrality window stays, and the remaining between-the-legs floor
+        # is left rather than risk the artwork.
         return (
             abs(background - luminance(pixel)) <= POCKET_BG_DELTA
             and saturation(pixel) <= POCKET_MAX_SATURATION
