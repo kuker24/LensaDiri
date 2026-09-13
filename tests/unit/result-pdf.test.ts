@@ -5,7 +5,9 @@ import { describe, expect, it, vi } from "vitest";
 
 vi.mock("server-only", () => ({}));
 
+import { resultConstructLabels } from "@/lib/report/result-presentation";
 import { buildResultPdfBuffer, pdfFilenameForResult } from "@/server/export/build-result-pdf";
+import { formatPdfLabel } from "@/server/export/pdf-labels";
 import { buildResultPdfModel } from "@/server/export/result-pdf-model";
 import type { PrivateResultView } from "@/server/repositories/assessment";
 
@@ -207,4 +209,54 @@ describe("result PDF export", () => {
     writeFileSync(path.join(outDir, "sample-legacy.pdf"), legacyPdf);
     writeFileSync(path.join(outDir, "sample-modular-combo.pdf"), modularPdf);
   }, 30_000);
+
+  it("labels every construct the scoring engines can emit", () => {
+    // `requireConstructLabel` in `result-views.ts` throws on an unknown key, so
+    // a gap here is not merely cosmetic: a shared result carrying an unlabelled
+    // construct fails closed instead of rendering. Four keys were missing -
+    // `instinct_social`, `instinct_one_to_one`, `instinct_self_preservation`
+    // and `rationality` - which also printed sentence-cased English identifiers
+    // into an Indonesian PDF.
+    const emitted = [
+      "instinct_one_to_one",
+      "instinct_self_preservation",
+      "instinct_social",
+      "rationality",
+      ...Array.from({ length: 9 }, (_, index) => `pattern_${index + 1}`),
+    ];
+    for (const key of emitted) {
+      expect(resultConstructLabels[key], `missing label for ${key}`).toBeTruthy();
+      // A leaked identifier reads as the key with underscores swapped out.
+      expect(formatPdfLabel(key)).not.toBe(key.replaceAll("_", " "));
+      expect(formatPdfLabel(key)).not.toMatch(/^Instinct |^Rationality$|^Pattern /u);
+    }
+  });
+
+  it("omits the fixed growth plans and the footer strap from the export", () => {
+    const model = buildResultPdfModel(privateModularCombo);
+    // Removed on request. These were fixed copy that never varied with the
+    // answers, so they read as filler in a printed report. The web report keeps
+    // them, where a live product can act on them.
+    expect(model.modular?.integrated).not.toHaveProperty("growth7Days");
+    expect(model.modular?.integrated).not.toHaveProperty("growth30Days");
+  });
+
+  it("carries numeric confidence for charts, and null when it is not measured", () => {
+    const model = buildResultPdfModel(privateModularCombo);
+    const [trait] = model.modular?.modules ?? [];
+    // Chart geometry needs the magnitude; re-parsing it out of the prose label
+    // would be fragile.
+    expect(trait?.confidence).toBe(72);
+    expect(trait?.confidenceLabel).toContain("72");
+
+    // An experimental lens is genuinely not scored for confidence. Null must
+    // survive to the chart so it can draw "not measured" rather than a zero
+    // column, which would claim no support instead of no measurement.
+    const experimental = buildResultPdfModel({
+      ...privateModularCombo,
+      modules: [{ ...privateModularCombo.modules[0]!, evidenceTier: "EXPERIMENTAL" }],
+    } as PrivateResultView);
+    expect(experimental.modular?.modules[0]?.confidence).toBeNull();
+    expect(experimental.modular?.modules[0]?.confidenceLabel).toBeNull();
+  });
 });

@@ -1,5 +1,10 @@
 import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 
+import {
+  ConfidenceColumns,
+  DivergingBars,
+  type PdfLensConfidence,
+} from "@/server/export/result-pdf-charts";
 import type { PdfScoreRow, ResultPdfModel } from "@/server/export/result-pdf-model";
 
 /**
@@ -15,7 +20,6 @@ const colors = {
   paper: "#FBF9F5",
   soft: "#FFFFFF",
   softRaised: "#F5F3EF",
-  track: "#EFEEEA",
 } as const;
 
 const styles = StyleSheet.create({
@@ -32,18 +36,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 4,
     textTransform: "uppercase",
-  },
-  barFill: {
-    backgroundColor: colors.accent,
-    borderRadius: 2,
-    height: 7,
-  },
-  barTrack: {
-    backgroundColor: colors.track,
-    borderRadius: 2,
-    height: 7,
-    marginTop: 4,
-    width: "100%",
   },
   body: {
     color: colors.ink,
@@ -98,7 +90,9 @@ const styles = StyleSheet.create({
     color: "#858585",
     flexDirection: "row",
     fontSize: 8,
-    justifyContent: "space-between",
+    // One child now that the left-hand strap is gone. `space-between` would
+    // park a lone item on the left, so align it to the outer margin instead.
+    justifyContent: "flex-end",
     left: 40,
     position: "absolute",
     right: 40,
@@ -149,26 +143,6 @@ const styles = StyleSheet.create({
     paddingBottom: 56,
     paddingHorizontal: 42,
     paddingTop: 42,
-  },
-  rowBetween: {
-    alignItems: "center",
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
-  scoreBlock: {
-    marginBottom: 8,
-  },
-  scoreLabel: {
-    color: colors.ink,
-    flexGrow: 1,
-    fontSize: 9.5,
-    paddingRight: 8,
-  },
-  scoreValue: {
-    color: colors.ink,
-    fontSize: 9,
-    // Poly has no Medium cut, so emphasis is spacing, not weight.
-    letterSpacing: 0.3,
   },
   identityChip: {
     backgroundColor: colors.softRaised,
@@ -314,27 +288,16 @@ const styles = StyleSheet.create({
   },
 });
 
+/**
+ * Score rows for one lens.
+ *
+ * Delegates to the diverging chart rather than drawing bars filled from the
+ * left. The old encoding made 50 look like a half-empty result when 50 is the
+ * neutral midpoint of a bipolar scale, which contradicted the glossary on the
+ * same document.
+ */
 function ScoreBars({ scores }: { scores: readonly PdfScoreRow[] }) {
-  return (
-    <View>
-      {scores.map((row) => {
-        const width = Math.max(0, Math.min(100, row.score));
-        return (
-          <View key={`${row.label}-${row.score}`} style={styles.scoreBlock} wrap={false}>
-            <View style={styles.rowBetween}>
-              <Text style={styles.scoreLabel}>{row.label}</Text>
-              <Text style={styles.scoreValue}>
-                {row.reading} · {row.score} dari 100
-              </Text>
-            </View>
-            <View style={styles.barTrack}>
-              <View style={[styles.barFill, { width: `${width}%` }]} />
-            </View>
-          </View>
-        );
-      })}
-    </View>
-  );
+  return <DivergingBars scores={scores} />;
 }
 
 function BulletList({ items }: { items: readonly string[] }) {
@@ -351,10 +314,19 @@ function BulletList({ items }: { items: readonly string[] }) {
   );
 }
 
+/**
+ * Running footer: pagination only.
+ *
+ * The "LensaDiri · privat · bukan diagnosis" strap that used to sit on the left
+ * was removed on request. Unlike stripping disclosure from a screen, this is
+ * safe: it was a repetition, not the disclosure itself. The cover carries the
+ * full disclaimer, every lens section keeps its own limitation box, and the
+ * closing note restates both. Page numbers stay because a printed report that
+ * loses its ordering is hard to reassemble.
+ */
 function PageFooter({ model }: { model: ResultPdfModel }) {
   return (
     <View fixed style={styles.footer}>
-      <Text>LensaDiri · privat · bukan diagnosis</Text>
       <Text
         render={({ pageNumber, totalPages }) =>
           `${pageNumber} / ${totalPages} · diekspor ${model.exportedAtLabel}`
@@ -544,6 +516,12 @@ function ModularBody({ model }: { model: ResultPdfModel }) {
   const modular = model.modular;
   if (!modular) return null;
 
+  const lensConfidence: readonly PdfLensConfidence[] = modular.modules.map((module) => ({
+    confidence: module.confidence,
+    label: module.name,
+    reading: module.confidenceLabel ?? "tidak diukur",
+  }));
+
   return (
     <View>
       {modular.overallConfidenceLabel ? (
@@ -556,6 +534,24 @@ function ModularBody({ model }: { model: ResultPdfModel }) {
           Tingkat keyakinan tidak dihitung untuk kombinasi lensa eksperimental.
         </Text>
       )}
+
+      {/* Support per lens, side by side.
+
+          Previously this was prose repeated once per lens, pages apart, so
+          answering "which lens should I trust most" meant flipping back and
+          forth and comparing numbers by hand. As columns on one baseline it is a
+          single glance, which matters because the lenses genuinely differ. */}
+      {lensConfidence.length > 1 ? (
+        <View wrap={false}>
+          <Text style={styles.h2}>Seberapa kuat dukungan tiap lensa</Text>
+          <View style={styles.sectionRule} />
+          <Text style={[styles.muted, { marginBottom: 2 }]}>
+            Batang yang lebih tinggi berarti jawabanmu lebih lengkap dan konsisten pada lensa itu,
+            bukan berarti hasilnya lebih benar. Baca lensa yang dukungannya lebih kuat lebih dulu.
+          </Text>
+          <ConfidenceColumns lenses={lensConfidence} />
+        </View>
+      ) : null}
 
       <Text style={styles.h2}>Mulai dari keseharian</Text>
       <View style={styles.sectionRule} />
@@ -573,14 +569,6 @@ function ModularBody({ model }: { model: ResultPdfModel }) {
           <Text style={styles.muted}>{text}</Text>
         </View>
       ))}
-
-      <Text style={styles.h2}>Yang bisa dicoba minggu ini</Text>
-      <View style={styles.sectionRule} />
-      <BulletList items={modular.integrated.growth7Days} />
-
-      <Text style={styles.h2}>Yang bisa dibangun sebulan ke depan</Text>
-      <View style={styles.sectionRule} />
-      <BulletList items={modular.integrated.growth30Days} />
 
       {modular.correlations.length > 0 ? (
         <View>

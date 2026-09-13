@@ -41,6 +41,16 @@ export type PdfLegacyBlock = {
 
 export type PdfModuleBlock = {
   readonly blindSpots: readonly string[];
+  /**
+   * Confidence as a 0-100 number, or null for an experimental lens that is not
+   * scored for confidence at all.
+   *
+   * The label string alone was not enough once the overview gained a column
+   * chart: a chart needs the magnitude, and re-parsing it out of the prose label
+   * would be fragile. Null is carried through rather than coerced to 0, because
+   * "not measured" and "measured as zero" must not draw the same mark.
+   */
+  readonly confidence: number | null;
   readonly confidenceLabel: string | null;
   readonly disclaimer: string;
   readonly evidenceTierLabel: string;
@@ -57,10 +67,17 @@ export type PdfModularBlock = {
     readonly narrative: string;
     readonly sources: string;
   }[];
+  /**
+   * Everyday reflection only.
+   *
+   * The 7-day and 30-day plans that `buildIntegratedReflection` also returns are
+   * deliberately not carried into the export. They are fixed copy that does not
+   * vary with the answers, so in a printed report they read as filler next to
+   * the sections that genuinely respond to the result. The web report still
+   * shows them, where they sit beside a live product that can act on them.
+   */
   readonly integrated: {
     readonly communication: string;
-    readonly growth30Days: readonly string[];
-    readonly growth7Days: readonly string[];
     readonly learning: string;
     readonly relationships: string;
     readonly stress: string;
@@ -225,8 +242,6 @@ function toModular(result: Extract<PrivateResultView, { kind: "modular" }>): Pdf
     })),
     integrated: {
       communication: integrated.communication,
-      growth30Days: integrated.growth30Days,
-      growth7Days: integrated.growth7Days,
       learning: integrated.learning,
       relationships: integrated.relationships,
       stress: integrated.stress,
@@ -235,11 +250,11 @@ function toModular(result: Extract<PrivateResultView, { kind: "modular" }>): Pdf
     modeLabel: getPublicModeName(result.mode),
     modules: result.modules.map((module) => {
       const reflection = buildModuleReflection(module);
+      const experimental = isExperimentalTier(module.evidenceTier);
       return {
         blindSpots: reflection.blindSpots,
-        confidenceLabel: isExperimentalTier(module.evidenceTier)
-          ? null
-          : confidenceLabel(module.confidence),
+        confidence: experimental ? null : Math.round(module.confidence * 100),
+        confidenceLabel: experimental ? null : confidenceLabel(module.confidence),
         disclaimer: moduleDisclaimer(module),
         evidenceTierLabel:
           evidenceTierLabels[module.evidenceTier] ?? `Tingkat bukti ${module.evidenceTier}`,

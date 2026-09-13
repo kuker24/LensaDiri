@@ -29,6 +29,16 @@ export const resultConstructLabels: Readonly<Record<string, string>> = {
   head: "Pikiran / analisis",
   heart: "Hati / relasi",
   information_processing: "Cara memproses informasi",
+  // The instinct engine emits its constructs with an `instinct_` prefix, and
+  // socionics emits `rationality`. None of them were listed here, which had two
+  // consequences: the PDF printed the sentence-cased raw key ("Instinct social",
+  // "Instinct one to one", "Instinct self preservation", "Rationality") as the
+  // only English on an Indonesian page, and `requireConstructLabel` in
+  // `result-views.ts` throws on an unknown key, so a shared result carrying one
+  // of these would fail closed rather than render.
+  instinct_one_to_one: "Fokus hubungan satu lawan satu",
+  instinct_self_preservation: "Fokus rasa aman diri",
+  instinct_social: "Fokus kelompok dan peran sosial",
   interaction_style: "Gaya berinteraksi",
   intuition: "Pola dan kemungkinan",
   investigative: "Analisis dan riset",
@@ -48,6 +58,7 @@ export const resultConstructLabels: Readonly<Record<string, string>> = {
   pattern_9: "Pola 9",
   phlegmatic: "Ritme stabil",
   physics: "Kebutuhan fisik",
+  rationality: "Cara menata keputusan",
   realistic: "Aktivitas praktis",
   sanguine: "Ekspresi spontan",
   secure: "Rasa aman dalam relasi",
