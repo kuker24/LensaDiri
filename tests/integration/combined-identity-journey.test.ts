@@ -179,4 +179,46 @@ describe("combined identity journey PostgreSQL lifecycle", () => {
       success: false,
     });
   });
+
+  /**
+   * Regression: production could not start a combined sitting at all.
+   *
+   * The combined run is Complex, so every journey lens must ship deep-eligible
+   * items. In production the Trait journey bank was copied from a `modular-1`
+   * that predated the deep-mode repair, leaving all 60 items `{quick,standard}`.
+   * The composer could never fill the deep quota, capacity failed closed, and
+   * the entry returned `module_unavailable`.
+   *
+   * Asserting the item bank directly is deliberate. The lifecycle tests above
+   * start a sitting successfully, yet they passed throughout the outage: seeded
+   * databases build `modular-1` with `deep` already present, so no behavioural
+   * test could see the production shape. This checks the data contract those
+   * tests silently depend on.
+   */
+  it("ships deep-eligible items for every journey lens so Complex can be composed", async () => {
+    const sql = getDatabase();
+    const banks = await sql<{ deep_items: number; module_key: string; total_items: number }[]>`
+      select modules.key as module_key,
+        count(*)::int as total_items,
+        count(*) filter (where 'deep' = any(questions.mode_eligibility))::int as deep_items
+      from public.questions
+      inner join public.module_versions
+        on module_versions.id = questions.module_version_id
+      inner join public.modules on modules.id = module_versions.module_id
+      where module_versions.scoring_version in (
+        'trait-profile-journey-1', 'enneagram-journey-score-1',
+        'psychosophy-journey-score-1', 'socionics-type-score-1'
+      )
+      group by 1
+      order by 1
+    `;
+    expect(banks.length).toBeGreaterThan(0);
+
+    for (const bank of banks) {
+      expect(
+        bank.deep_items,
+        `${bank.module_key} journey bank must be fully deep-eligible, got ${bank.deep_items}/${bank.total_items}`,
+      ).toBe(bank.total_items);
+    }
+  });
 });
