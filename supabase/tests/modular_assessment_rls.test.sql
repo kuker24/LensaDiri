@@ -1,6 +1,6 @@
 begin;
 
-select plan(66);
+select plan(86);
 
 select ok(to_regclass('public.question_translations') is not null, 'question_translations exists');
 select ok(to_regclass('public.question_options') is not null, 'question_options exists');
@@ -21,6 +21,138 @@ select ok(to_regclass('public.result_clarifier_items') is not null, 'clarifier i
 select ok(to_regclass('public.result_clarifier_answers') is not null, 'clarifier answers exists');
 select ok(to_regclass('public.result_versions') is not null, 'result versions exists');
 select ok(to_regclass('public.feature_flags') is not null, 'feature flags exists');
+select ok(to_regclass('public.identity_journeys') is not null, 'identity journeys exists');
+select ok(to_regclass('public.identity_journey_steps') is not null, 'identity journey steps exists');
+
+select ok(
+  (select relrowsecurity and relforcerowsecurity from pg_class where oid = 'public.identity_journeys'::regclass),
+  'identity journeys force RLS'
+);
+select ok(
+  (select relrowsecurity and relforcerowsecurity from pg_class where oid = 'public.identity_journey_steps'::regclass),
+  'identity journey steps force RLS'
+);
+select ok(
+  not exists (
+    select 1 from pg_policies where schemaname = 'public'
+      and tablename in ('identity_journeys', 'identity_journey_steps')
+  ),
+  'identity journey tables have zero browser policies'
+);
+select ok(not has_table_privilege('anon', 'public.identity_journeys', 'SELECT'), 'anon cannot select journeys');
+select ok(not has_table_privilege('authenticated', 'public.identity_journeys', 'SELECT'), 'browser user cannot select journeys');
+select ok(not has_table_privilege('anon', 'public.identity_journey_steps', 'SELECT'), 'anon cannot select journey steps');
+select ok(not has_table_privilege('authenticated', 'public.identity_journey_steps', 'SELECT'), 'browser user cannot select journey steps');
+select ok(
+  exists (select 1 from pg_constraint where conname = 'identity_journey_steps_plan'),
+  'journey step order and module mapping are constrained'
+);
+-- The combined sitting activates all five steps against one session, so
+-- "exactly one active step" no longer holds and its partial unique index is
+-- gone. What keeps a journey well-formed is step identity, asserted below.
+select ok(
+  not exists (select 1 from pg_indexes where indexname = 'identity_journey_steps_one_active_idx'),
+  'the single-active-step index is retired for combined sittings'
+);
+select ok(
+  not exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.identity_journey_steps'::regclass and contype = 'u'
+      and conkey = array[(
+        select attnum from pg_attribute
+        where attrelid = 'public.identity_journey_steps'::regclass and attname = 'session_id'
+      )]
+  ),
+  'one session may claim every step of its journey'
+);
+select ok(
+  exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.identity_journey_steps'::regclass
+      and conname = 'identity_journey_steps_position_unique' and contype = 'u'
+  ),
+  'a journey still holds each position exactly once'
+);
+select ok(
+  exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.identity_journey_steps'::regclass
+      and conname = 'identity_journey_steps_module_unique' and contype = 'u'
+  ),
+  'a journey still holds each lens exactly once'
+);
+select ok(
+  exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.identity_journey_steps'::regclass
+      and conname = 'identity_journey_steps_session_id_fkey' and confdeltype = 'n'
+  ),
+  'session deletion detaches rather than deletes the journey'
+);
+select ok(
+  exists (
+    select 1 from pg_constraint
+    where conrelid = 'public.identity_journey_steps'::regclass
+      and conname = 'identity_journey_steps_result_id_fkey' and confdeltype = 'n'
+  ),
+  'result deletion detaches rather than deletes the journey'
+);
+select ok(
+  pg_get_constraintdef(
+    (select oid from pg_constraint where conname = 'rate_limits_route_key')
+  ) like '%assessment_journey_read%',
+  'journey reads own a dedicated rate-limit route key'
+);
+
+-- Retention cleanup and account erasure detach a claimed step through
+-- `on delete set null`. An active step must survive losing its session, otherwise
+-- `cleanup_expired_retention_data` aborts for every expired guest journey.
+create temporary table journey_detach_probe as
+with journey as (
+  insert into public.identity_journeys (
+    journey_token_hash, character_gender, expires_at
+  ) values (
+    repeat('a', 64), 'perempuan', now() + interval '7 days'
+  ) returning id
+), session_row as (
+  insert into public.test_sessions (
+    session_token_hash, mode, consent_version, module_version_id, expires_at
+  )
+  select repeat('b', 64), 'standard', 'identity-journey-1',
+    module_versions.id, now() + interval '7 days'
+  from public.module_versions
+  inner join public.modules on modules.id = module_versions.module_id
+  where modules.key = 'type_16'
+  order by module_versions.version
+  limit 1
+  returning id
+), step as (
+  insert into public.identity_journey_steps (
+    journey_id, position, module_key, required, status, session_id, started_at
+  )
+  select journey.id, 1, 'type_16', true, 'active', session_row.id, now()
+  from journey cross join session_row
+  returning id, session_id
+)
+select step.id as step_id, step.session_id from step;
+
+select lives_ok(
+  $$delete from public.test_sessions
+    where id = (select session_id from journey_detach_probe)$$,
+  'deleting the session of an active journey step does not violate step state'
+);
+select is(
+  (select session_id from public.identity_journey_steps
+    where id = (select step_id from journey_detach_probe)),
+  null,
+  'the active step is detached instead of blocking session deletion'
+);
+select is(
+  (select status from public.identity_journey_steps
+    where id = (select step_id from journey_detach_probe)),
+  'active',
+  'the detached step keeps its active status for resume handling'
+);
 
 select ok(
   not exists (

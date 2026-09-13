@@ -146,6 +146,12 @@ inner join lateral (
   from public.module_versions as candidate
   where candidate.module_id = modules.id
     and candidate.status in ('active', 'pilot', 'published', 'experimental')
+    and candidate.scoring_version not in (
+      'enneagram-journey-score-1',
+      'socionics-type-score-1',
+      'trait-profile-journey-1',
+      'psychosophy-journey-score-1'
+    )
   order by
     case when modules.key = 'trait_profile' and candidate.version = 'modular-1' then 0 else 1 end,
     candidate.published_at desc nulls last,

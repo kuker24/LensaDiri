@@ -3,12 +3,18 @@ import { describe, expect, it } from "vitest";
 import { attachmentConstructKeys, scoreAttachmentModule } from "@/lib/scoring/modules/attachment";
 import { instinctConstructKeys, scoreInstinctModule } from "@/lib/scoring/modules/instinct";
 import {
+  scorePsychosophyJourneyModule,
   psychosophyConstructKeys,
   scorePsychosophyModule,
 } from "@/lib/scoring/modules/psychosophy";
 import { riasecConstructKeys, scoreRiasecModule } from "@/lib/scoring/modules/riasec";
 import { scoreIndependentModule } from "@/lib/scoring/modules/registry";
-import { socionicsConstructKeys, scoreSocionicsModule } from "@/lib/scoring/modules/socionics";
+import {
+  scoreSocionicsModule,
+  scoreSocionicsTypeModule,
+  socionicsConstructKeys,
+  socionicsTypeConstructKeys,
+} from "@/lib/scoring/modules/socionics";
 import {
   scoreThreeCenterModule,
   threeCenterConstructKeys,
@@ -119,6 +125,14 @@ describe("psychosophy independent scoring", () => {
     expect(result.scoringVersion).toBe("psychosophy-score-1");
     expect(result.scores).toHaveLength(4);
     expect(result.summary).toMatchObject({ priorityOrder: expect.arrayContaining(["emotion"]) });
+    expect(result.summary).not.toHaveProperty("positionCode");
+    const journeyResult = scorePsychosophyJourneyModule(input, input.length);
+    expect(journeyResult.summary.positionCode).toMatch(/^(?:[FEVL][¹²³⁴]){4}$/u);
+    expect(
+      new Set(
+        [...String(journeyResult.summary.positionCode)].filter((value) => /[¹²³⁴]/u.test(value)),
+      ).size,
+    ).toBe(4);
     expect(result.scores.map((score) => score.constructKey)).toEqual(psychosophyConstructKeys);
   });
 });
@@ -135,6 +149,21 @@ describe("socionics communication independent scoring", () => {
     expect(result.scoringVersion).toBe("socionics-score-1");
     expect(result.scores).toHaveLength(2);
     expect(result.scores.map((score) => score.constructKey)).toEqual(socionicsConstructKeys);
+  });
+
+  it("derives SEI only from four independently measured type axes", () => {
+    const input = answers(socionicsTypeConstructKeys, {
+      extraversion: 1,
+      intuition: 1,
+      logic: 1,
+      rationality: 1,
+    });
+    const result = scoreSocionicsTypeModule(input, input.length);
+
+    expect(result.scoringVersion).toBe("socionics-type-score-1");
+    expect(result.summary.primaryType).toBe("SEI");
+    expect(result.ambiguity).toHaveProperty("alternateType");
+    expect(result.scores).toHaveLength(4);
   });
 });
 

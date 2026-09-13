@@ -2,98 +2,85 @@
 
 ## Direction
 
-**MekaVerse portal for LensaDiri.** Monochrome gallery shell from `Design.md/Design2`: pure black void, white bone type, charcoal controls, frost hairlines. Full-bleed cinematic world art (video/photo) carries all color; UI chrome never competes. Quiet reflection product voice stays; airport, neon casino, and violet instrument chrome do not.
+**Vinyl Gallery for LensaDiri.** The interface borrows the physical language of a warm designer-toy exhibition: soft-vinyl figurines, paper display cards, rounded vitrines, large packaging typography, and four colored stages. It stays playful without turning reflection into a game. Product truth always outranks collectible decoration.
 
-Physical scene: an adult opens a game-world portal at night; the interface is a featherweight HUD over a rendered diorama, then task surfaces go quiet for answering and reading.
-
-Color strategy: **restrained monochrome chrome** across the app; **committed/drenched color only inside media**.
+The primary journey is `anonymous gallery -> choose a visual form -> required 16-Type -> claim -> four optional tests in fixed order -> full podium at 5/5`. Tests run one at a time. Type names remain hidden until the first result is claimed. Partial progress lives on a workbench, not a full podium. Account and administrative surfaces inherit the same typography, color, and controls without becoming character stages.
 
 ## Color
 
-| Token            | Value     | Role                                      |
-| ---------------- | --------- | ----------------------------------------- |
-| `canvas` / void  | `#000000` | Page void behind art and UI               |
-| `surface`        | `#111111` | Grouped product panel on void             |
-| `surface-raised` | `#1a1a1a` | Inputs, dialogs, selected rows            |
-| `ink` / bone     | `#ffffff` | Primary text and high-contrast edges      |
-| `ink-muted`      | `#b8bab9` | Secondary text (ash)                      |
-| `line` / frost   | `#e2e2e2` | Hairlines at low opacity on dark          |
-| `charcoal`       | `#444345` | Primary filled actions                    |
-| `lens`           | `#444345` | Alias: primary action (Design2 charcoal)  |
-| `lens-strong`    | `#555456` | Hover/pressed primary                     |
-| `lens-soft`      | `#1c1c1e` | Selected wash (neutral)                   |
-| `aperture`       | `#e2e2e2` | Emphasis text on dark (frost, not violet) |
-| `success`        | `#7DCEA0` | Success state                             |
-| `warning`        | `#F2C879` | Warning state                             |
-| `danger`         | `#FF8B95` | Error/destructive state                   |
+| Token            | Value     | Role                     |
+| ---------------- | --------- | ------------------------ |
+| `canvas`         | `#fbf9f5` | Warm paper background    |
+| `surface`        | `#ffffff` | Cards and vitrines       |
+| `surface-raised` | `#f5f3ef` | Inset trays and controls |
+| `ink`            | `#1b1c1a` | Primary text             |
+| `ink-muted`      | `#56423c` | Supporting text          |
+| `line`           | `#e4e2de` | Borders and tracks       |
+| `primary`        | `#9d4223` | Actions and focus        |
+| `SP`             | `#f4845f` | Explorer stage           |
+| `SJ`             | `#6bbf7a` | Sentinel stage           |
+| `NF`             | `#e882b4` | Diplomat stage           |
+| `NT`             | `#6eb5ff` | Analyst stage            |
 
-Chromatic color lives in media only. Do not reintroduce violet as default CTA.
+Stage colors are light fills. Text on them must use the matching dark stage ink: SP `#6c1e02`, SJ `#002109`, NF `#681847`, NT `#0b2f52`. White text on these fills is forbidden. Results without an explicit 16-Type or Temperament use the neutral paper stage rather than an inferred group.
 
 ## Typography
 
-- UI/display: **Plus Jakarta Sans** via `next/font/google` (Soft Product), weight 400–500 for monumental display.
-- Chrome/labels: JetBrains Mono, 10–12px, tracking ≈ `-0.02em` — **meta/instrumentation only**, not section titles or trust copy.
-- Display stacked mark: large sizes with line-height ≈ `0.95`; optional 1px frost underline on hero lines only.
-- Body: 16px minimum on mobile controls, 1.6 line height, 65–72ch prose max.
-- No Lora italic as brand hero voice under Design2.
-- No gradient-clip text (`background-clip: text` + gradient fill) on labels or headings.
+- Display and packaging headings: Anton, uppercase, compact line-height, moderate tracking.
+- Body and controls: Plus Jakarta Sans, 500-800 weights.
+- Monospace is limited to measurements, progress, codes, and compact metadata.
+- Headings carry the hierarchy; decorative labels do not repeat them.
+- Public copy is short, direct Indonesian. Do not use collectible jargon as a factual claim.
 
 ## Layout
 
-- Marketing: full-bleed film-strip sections (edge-to-edge art, 0 gap between world strips).
-- Overlay copy: left-aligned, generous padding (20–80px), absolute or flex over art.
-- Product flows: content max ~1200px, gutters 20/32/40; task density compact.
-- Cards only when grouping needs a boundary; hairlines carry most hierarchy.
-- Radii (Soft Product): controls **~12px**, panels **~16px**, large containers **~20px**. Nothing larger.
-- Scroll reveal must be **content-first**: never leave marketing copy at opacity 0 waiting for IntersectionObserver.
+- Landing is a single `100dvh` stage with anonymous figures around one large active cutout and a ghost `POLA` mark.
+- Task screens use one dominant action area and preserve generous gallery margins.
+- Desktop may use split figure/content layouts. Mobile prioritizes the task and stacks cards without horizontal overflow.
+- Claim and podium keep the first paint short. Scientific detail, confidence, export, feedback, and deletion live under Uraian.
+- Operational pages use calm paper surfaces and normal information density, not hero carousels.
 
-## Shape And Elevation
+## Shape And Material
 
-- No decorative box shadows.
-- Elevation: void → charcoal → ash + 1px frost hairlines only.
-- Navigation: transparent sticky bar, 1px frost bottom border at low opacity. No frosted purple glass.
+- Main cards: 24-32px radii with warm diffuse shadows and a fine border.
+- Inner image trays: 16-20px radii.
+- Primary actions and compact status controls: continuous pills.
+- Figurines are transparent PNG cutouts, grounded by soft contact shadows. Never place an opaque white card inside the image frame.
+- Blur is reserved for acrylic navigation or ambient stage light, not generic decoration.
 
 ## Components
 
-### Transparent Navigation
+### Gallery Carousel
 
-Sticky void-transparent strip. Wordmark left with small diamond glyph; mono links center; Masuk secondary + Mulai charcoal right. Mobile: horizontal scroll links, 44px targets.
+The active figure is large and sharp; immediate neighbors are smaller with 2px blur; the second ring uses 4px blur. Public text exposes only collection position, never a type code, archetype name, group label, or revealing image alternative text.
 
-### Hero World
+### Form Selection
 
-Full-bleed muted video (or poster under reduced motion) with stacked h1 and charcoal Explore. Accessible h1 text must remain `Kenali pola dirimu` for smoke tests.
+Two large figure cards choose appearance only. The selected state uses primary outline, warm wash, and a clear check. Age and explicit consent sit below the visual choice. The primary path starts the 16-Type Normal lens; composing other lenses remains secondary.
 
-### Reflection Panel
+### Reflection Runner
 
-Dark surface instrument panel with process steps and illustrative spectrum — no airport language. Hairlines and mono labels; progress marks use charcoal/bone, not violet bloom.
+The question card is dominant. Progress and save state remain visible. The blank figure is a quiet companion on desktop and may recede on mobile. Autosave, pause, resume, keyboard controls, errors, and clarifiers keep their existing behavior.
 
-### Section Strips
+### Claim, Workbench, And Podium
 
-Full-bleed stills or ambient video under mono overlay for marketing sections.
-
-### Buttons
-
-Primary: charcoal fill, bone text, 2px radius, optional 1px frost border. Secondary: void + frost hairline. Ghost: transparent. Press `scale(0.98)` 120ms. Focus ring frost/bone.
-
-### Product Surface
-
-Void canvas, surface panels, frost hairlines, 10–20px radius max. Selected: `lens-soft` neutral wash. Errors/success: semantic wash + text.
+Claim is the first place an actual type may appear. The workbench exposes exactly one available next test in this order: Enneagram, Socionics-inspired, Big Five/SLOAN, Attitudinal Psyche. Future steps remain locked. It never depicts an unearned result. Partial collections use `POLAMU SAAT INI`; `PODIUM PENUH` is reserved for 5/5. Shared cards retain the server allowlist and omit private diagnostics.
 
 ## Motion
 
-- Product transitions: 150–220ms ease-out.
-- Animate transform/opacity only.
-- No orchestrated page-load sequence in assessment, auth, dashboard, or admin.
-- Reduced motion: static poster, no spatial movement, short opacity feedback only.
+- Carousel movement: 650ms `cubic-bezier(0.4, 0, 0.2, 1)` for spatial continuity.
+- Frequent controls: 140-220ms with strong ease-out; button press scales to 0.97.
+- Avoid `transition: all`, unbounded ambient loops, and hover movement on touch devices.
+- Dynamic state uses interruptible CSS transitions rather than keyframes.
+- Reduced motion removes spatial travel and blur changes while retaining short color or opacity feedback.
 
-## Media
+## Content Boundaries
 
-Masters: `Design.md/Design2/Video/assets/`, `Design.md/Design2/Foto/assets/`.
-
-Web ship: `public/media/hero-ambient.mp4`, `public/media/hero-poster.jpg`, `public/media/design2/*`.
-
-Requirements: no people/text/logo/medical/neon-casino, poster fallback, muted autoplay, lazy-safe, reduced-motion static, verified provenance.
+- Do not show a type before Claim.
+- Do not invent authenticity, rarity, certification, material specification, user counts, or scientific validation.
+- Do not infer an NT/NF/SJ/SP stage from Trait, RIASEC, Enneagram, Attachment, or another unrelated lens.
+- Use “pola”, “refleksi”, “lensa”, “pertanyaan”, and concrete action labels. Avoid pseudo-clinical or collector-industry jargon.
 
 ## Responsive And Accessibility
 
-Test 360×800, 393×844, 768×1024, 1280×800, 1440×900. One `main`, one `h1` per page, visible labels, 44px targets, no forced horizontal page scroll, no content under sticky nav, no certification claims.
+Verify 390x844 and 1440x900 together. Every page has one `h1`, visible focus, 44px minimum controls, no horizontal page overflow, useful loading/error/disabled states, and contrast-safe text. The landing keeps an accessible `h1` containing “Kenali pola dirimu”. Reduced motion, keyboard navigation, and server-authoritative scoring are permanent constraints.

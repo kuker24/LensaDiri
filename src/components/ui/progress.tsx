@@ -21,11 +21,11 @@ export function Progress({
         aria-valuemax={max}
         aria-valuemin={0}
         aria-valuenow={Math.round(value)}
-        className="h-1.5 w-full overflow-hidden rounded-full bg-white/20"
+        className="bg-line h-1.5 w-full overflow-hidden rounded-full"
         role="progressbar"
       >
         <div
-          className="bg-frost h-full w-full origin-left motion-reduce:transition-none"
+          className="bg-iris h-full w-full origin-left motion-reduce:transition-none"
           style={{
             transform: `scaleX(${percent / 100})`,
             transition: "transform var(--duration-ui) var(--ease-out)",

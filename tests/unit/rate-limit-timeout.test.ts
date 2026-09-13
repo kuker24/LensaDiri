@@ -3,6 +3,7 @@ import { beforeEach, describe, expect, it, vi } from "vitest";
 import { DatabaseTimeoutError } from "@/lib/async/with-deadline";
 import { DatabaseError, mapDatabaseError } from "@/lib/db/errors";
 import { getDatabaseFailureStatus } from "@/server/http";
+import { combinedJourneyStartBody } from "./helpers/start-request";
 
 // Mocking dependencies for route tests
 vi.mock("server-only", () => ({}));
@@ -178,16 +179,7 @@ describe("rate limiter DB timeout and lock safety mapping", () => {
     mockStartAssessment.mockResolvedValueOnce({ kind: "modular", success: true });
 
     const request = new Request("http://localhost:3000/api/assessment/start", {
-      body: JSON.stringify({
-        age: 18,
-        consent: true,
-        experimentalAcknowledged: false,
-        locale: "id",
-        mode: "quick",
-        moduleKeys: ["riasec"],
-        presetKey: null,
-        selectionType: "single",
-      }),
+      body: JSON.stringify(combinedJourneyStartBody()),
       headers: { "content-type": "application/json" },
       method: "POST",
     });
@@ -197,13 +189,17 @@ describe("rate limiter DB timeout and lock safety mapping", () => {
     const body = await response.json();
     expect(body).toEqual({
       success: true,
-      data: { flow: "modular", token: "a".repeat(43) },
+      data: {
+        flow: "modular",
+        journeyToken: "a".repeat(43),
+        token: "a".repeat(43),
+      },
     });
     expect(mockStartAssessment).toHaveBeenCalledOnce();
     const options = mockStartAssessment.mock.calls[0]?.[1] as
       { loadModularContext?: (moduleKeys: readonly string[]) => Promise<unknown> } | undefined;
     expect(options?.loadModularContext).toBeTypeOf("function");
-    await options?.loadModularContext?.(["riasec"]);
-    expect(mockLoadModularContext).toHaveBeenCalledWith(["riasec"]);
+    await options?.loadModularContext?.(["type_16"]);
+    expect(mockLoadModularContext).toHaveBeenCalledWith(["type_16"]);
   });
 });

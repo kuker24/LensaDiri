@@ -236,4 +236,34 @@ describe("TestRunner response timing", () => {
     expect(mocks.getAssessmentSession).toHaveBeenCalledTimes(2);
     expect(mocks.completeAssessment).not.toHaveBeenCalled();
   });
+
+  test("mendukung penekanan tombol 1-5 di keyboard untuk menjawab cepat", async () => {
+    mocks.getAssessmentSession.mockResolvedValue(assessmentSession);
+    render(<TestRunner token="assessment-token" />);
+
+    await screen.findByRole("heading", { name: "Pertanyaan assessment" });
+    fireEvent.keyDown(window, { key: "4" });
+
+    await waitFor(() => {
+      expect(mocks.saveAnswer).toHaveBeenCalledWith(
+        expect.objectContaining({
+          questionId: "550e8400-e29b-41d4-a716-446655440001",
+          token: "assessment-token",
+          value: 4,
+        }),
+      );
+    });
+  });
+
+  test("mengabaikan shortcut 1-5 jika disertai modifier key seperti Cmd atau Ctrl", async () => {
+    mocks.getAssessmentSession.mockResolvedValue(assessmentSession);
+    render(<TestRunner token="assessment-token" />);
+
+    await screen.findByRole("heading", { name: "Pertanyaan assessment" });
+    fireEvent.keyDown(window, { key: "2", metaKey: true });
+    fireEvent.keyDown(window, { key: "3", ctrlKey: true });
+    fireEvent.keyDown(window, { key: "4", altKey: true });
+
+    expect(mocks.saveAnswer).not.toHaveBeenCalled();
+  });
 });

@@ -62,11 +62,7 @@ export default async function DashboardSessionsPage() {
             Mulai dari satu lensa — kamu bisa menjeda kapan saja.
           </p>
           <div className="mt-6 flex flex-col items-center justify-center gap-3 sm:flex-row">
-            <Link
-              className={getButtonClassName("primary", "md")}
-              href="/start/modules"
-              prefetch={false}
-            >
+            <Link className={getButtonClassName("primary", "md")} href="/start" prefetch={false}>
               Mulai asesmen
             </Link>
             <Link className={getButtonClassName("secondary", "md")} href="/method">
@@ -75,7 +71,7 @@ export default async function DashboardSessionsPage() {
           </div>
         </div>
       ) : (
-        <ul className="divide-y divide-white/12 border-y border-white/12">
+        <ul className="divide-line border-line divide-y border-y">
           {sessions.map((active) => (
             <li className="row-hover bg-surface/40 py-5" key={active.id}>
               <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">

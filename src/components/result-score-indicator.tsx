@@ -22,10 +22,10 @@ export function ResultScoreIndicator({
           <h3 className="font-normal">{label}</h3>
           <span className="text-ink-muted font-mono text-xs tabular-nums">{rounded} dari 100</span>
         </div>
-        <div className="relative mt-3 h-2 rounded-full bg-white/12">
-          <span className="absolute top-1/2 h-3 w-px -translate-y-1/2 bg-white/20" />
-          <span className="absolute top-1/2 left-1/2 h-3 w-px -translate-x-1/2 -translate-y-1/2 bg-white/25" />
-          <span className="absolute top-1/2 right-0 h-3 w-px -translate-y-1/2 bg-white/20" />
+        <div className="bg-line relative mt-3 h-2 rounded-full">
+          <span className="bg-line-strong absolute top-1/2 h-3 w-px -translate-y-1/2" />
+          <span className="bg-steel/50 absolute top-1/2 left-1/2 h-3 w-px -translate-x-1/2 -translate-y-1/2" />
+          <span className="bg-line-strong absolute top-1/2 right-0 h-3 w-px -translate-y-1/2" />
           <span
             className="bg-frost absolute top-1/2 h-3 w-3 -translate-x-1/2 -translate-y-1/2 rounded-full border-2 border-black"
             style={{ left: `${Math.min(100, Math.max(0, value))}%` }}
@@ -52,7 +52,7 @@ export function ResultScoreIndicator({
         aria-valuemax={100}
         aria-valuemin={0}
         aria-valuenow={rounded}
-        className="mt-3 h-2 overflow-hidden rounded-full bg-white/12"
+        className="bg-line mt-3 h-2 overflow-hidden rounded-full"
         role="progressbar"
       >
         <div

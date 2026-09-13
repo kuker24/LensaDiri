@@ -39,6 +39,15 @@ production-dump*
 # Claude Code local worktrees
 .claude/
 
+# local agent tooling caches and scratch output; none of this is product code
+.codebase-memory/
+.od-skills/
+.playwright-mcp/
+
+# local design exploration scratch, kept out of the product tree
+experiments/
+NewDesign_V1/
+
 # Vercel
 .vercel/
 

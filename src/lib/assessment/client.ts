@@ -1,13 +1,14 @@
 "use client";
 
 import { AuthApiError, postAuthenticatedMutation } from "@/lib/auth/client";
+import { identityJourneyModuleKeys } from "@/lib/assessment/identity-journey";
 import type {
-  AssessmentMode,
   AssessmentSessionView,
   ClarifierSessionView,
   PrivateResultView,
 } from "@/server/repositories/assessment";
 import type { SafeSharedResultView } from "@/server/repositories/result-views";
+import type { IdentityJourneyView } from "@/server/repositories/identity-journeys";
 import type {
   AssessmentModeProfile,
   AssessmentModuleDefinition,
@@ -58,21 +59,41 @@ type AssessmentCatalogResponse = AssessmentCatalog & {
   combos: ComboPresetDefinition[];
 };
 
-export async function startAssessment(mode: AssessmentMode): Promise<string> {
-  const data = await postAuthenticatedMutation<{ token: string }>("/api/assessment/start", {
+/**
+ * Starts the whole five-lens journey as one Complex sitting.
+ *
+ * The server re-checks every field here, so this payload is a convenience, not
+ * the contract. `experimentalAcknowledged` must be true because four of the five
+ * lenses are experimental, and `age` must clear 18 because `psychosophy` is an
+ * 18+ module.
+ */
+export async function startIdentityJourney(input: {
+  age: number;
+  characterGender: "perempuan" | "laki";
+}): Promise<{ journeyToken: string; token: string }> {
+  return postAuthenticatedMutation("/api/assessment/start", {
+    age: input.age,
     consent: true,
-    mode,
+    experimentalAcknowledged: true,
+    journey: { characterGender: input.characterGender, combined: true, kind: "create" },
+    locale: "id",
+    mode: "deep",
+    moduleKeys: [...identityJourneyModuleKeys],
+    presetKey: null,
+    selectionType: "custom_combo",
   });
-  return data.token;
 }
 
-export async function startModularAssessment(selection: AssessmentSelectionInput): Promise<string> {
-  const data = await postAuthenticatedMutation<{ token: string }>("/api/assessment/start", {
-    ...selection,
-    consent: true,
-    locale: "id",
-  });
-  return data.token;
+export function getIdentityJourney(token: string): Promise<IdentityJourneyView> {
+  return getEnvelope(`/api/journey/${encodeURIComponent(token)}`);
+}
+
+export function continueIdentityJourney(input: {
+  age: number;
+  experimentalAcknowledged: boolean;
+  journeyToken: string;
+}): Promise<{ moduleKey: string; token: string }> {
+  return postAuthenticatedMutation("/api/journey/continue", input);
 }
 
 export function getAssessmentCatalog(): Promise<AssessmentCatalogResponse> {

@@ -105,13 +105,24 @@ Those commands remain local-only because they reset data or exercise destructive
 
 ## Vercel release
 
+Production is CLI-deployed, not Git-deployed. `git push` on any branch produces a Preview deployment only; it never updates the production alias. Deploying to production is therefore an explicit, mandatory step:
+
+```bash
+vercel --prod --yes
+```
+
+Pushing without that command leaves `https://lensadiri.vercel.app` on the previous build, so shipped code silently does not reach users. Treat "pushed" and "deployed" as separate states and never report a change as live on push alone.
+
+Preview builds currently fail by design: Preview has no server environment values, so `rawServerEnvironmentSchema` fails closed while prerendering `/login`. A red Preview is expected and is not evidence that the commit is broken. Do not fix it by relaxing the environment guard or by copying Production values into Preview; per the environment contract above, Preview needs its own isolated database and its own secrets.
+
 1. Authenticate Vercel CLI locally.
 2. Link/create production project.
 3. Set all six Production environment variables without printing values.
 4. Configure Preview only after an isolated database and Preview-only secrets exist; otherwise keep Preview blocked and never reuse Production values.
 5. Run local quality gates before deployment.
-6. Deploy production and retain previous deployment URL for rollback.
+6. Deploy production with `vercel --prod --yes` and retain the previous deployment URL for rollback.
 7. Confirm stable production alias before setting `NEXT_PUBLIC_APP_URL`; redeploy after final origin is configured.
+8. Verify the deploy against the live alias before reporting it live. Health 200 alone is insufficient because a stale build also returns 200; assert something the new commit introduces, such as a new asset path returning 200 with a byte size matching the local file.
 
 ## Non-destructive production smoke checks
 

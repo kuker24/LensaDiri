@@ -66,8 +66,37 @@ describe("authentication request validation", () => {
 
   it("strictly validates assessment consent, opaque token, UUID, and Likert value", () => {
     const token = "a".repeat(43);
-    expect(startAssessmentSchema.safeParse({ consent: true, mode: "quick" }).success).toBe(true);
+    expect(startAssessmentSchema.safeParse({ consent: true, mode: "quick" }).success).toBe(false);
     expect(startAssessmentSchema.safeParse({ consent: false, mode: "quick" }).success).toBe(false);
+    const combinedStart = {
+      age: 18,
+      consent: true,
+      experimentalAcknowledged: true,
+      journey: { characterGender: "perempuan", combined: true, kind: "create" },
+      locale: "id",
+      mode: "deep",
+      moduleKeys: [
+        "type_16",
+        "enneagram",
+        "socionics_communication",
+        "trait_profile",
+        "psychosophy",
+      ],
+      presetKey: null,
+      selectionType: "custom_combo",
+    };
+    expect(startAssessmentSchema.safeParse(combinedStart).success).toBe(true);
+    // `psychosophy` is an 18+ lens, so the boundary refuses a minor outright.
+    expect(startAssessmentSchema.safeParse({ ...combinedStart, age: 17 }).success).toBe(false);
+    // Four of the five lenses are experimental; the acknowledgment is mandatory.
+    expect(
+      startAssessmentSchema.safeParse({ ...combinedStart, experimentalAcknowledged: false })
+        .success,
+    ).toBe(false);
+    // The plan is fixed: a partial or reordered selection is not this entry.
+    expect(
+      startAssessmentSchema.safeParse({ ...combinedStart, moduleKeys: ["type_16"] }).success,
+    ).toBe(false);
     expect(tokenRequestSchema.safeParse({ token }).success).toBe(true);
     expect(tokenRequestSchema.safeParse({ token: "short" }).success).toBe(false);
     expect(

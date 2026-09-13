@@ -51,7 +51,7 @@ export default async function DashboardResultsPage() {
           </Link>
         </div>
       ) : (
-        <ul className="divide-y divide-white/12 border-y border-white/12">
+        <ul className="divide-line border-line divide-y border-y">
           {results.map((res) => (
             <li className="row-hover bg-surface/40 py-5" key={res.id}>
               <div className="flex flex-col justify-between gap-5 sm:flex-row sm:items-center">

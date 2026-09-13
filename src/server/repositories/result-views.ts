@@ -8,6 +8,7 @@ import {
   resultConstructLabels,
   resultModuleLabels,
 } from "@/lib/report/result-presentation";
+import type { CollectibleIdentity } from "@/lib/assessment/identity-journey";
 
 export const publicShareScopes = ["summary"] as const;
 export type PublicShareScope = (typeof publicShareScopes)[number];
@@ -50,6 +51,13 @@ type SafeSharedModuleResult = {
 };
 
 type SafeSharedModularResultView = {
+  readonly collectible?: Readonly<{
+    readonly complete: boolean;
+    readonly group?: CollectibleIdentity["group"];
+    readonly lensCount: number;
+    readonly line: string;
+    readonly type16?: string;
+  }>;
   readonly correlations: readonly {
     readonly kind: string;
     readonly narrativeKey: string;
@@ -258,12 +266,29 @@ export function toSafeSharedResultView(
   privateResult: PrivateResultView,
   shareScope: string,
   metadata: SafeSharedMetadata,
+  collectible?: CollectibleIdentity,
 ): SafeSharedResultView {
   const scope = requirePublicShareScope(shareScope);
   if (metadata.scope !== scope) throw new RangeError("Public share metadata scope is invalid.");
-  return privateResult.kind === "legacy"
-    ? toSafeLegacyResult(privateResult, metadata)
-    : toSafeModularResult(privateResult, metadata);
+  if (privateResult.kind === "legacy") return toSafeLegacyResult(privateResult, metadata);
+  const modular = toSafeModularResult(privateResult, metadata);
+  if (!collectible) return modular;
+  return {
+    ...modular,
+    collectible: {
+      complete: collectible.complete,
+      ...(collectible.group ? { group: collectible.group } : {}),
+      lensCount: [
+        collectible.type16,
+        collectible.enneagram,
+        collectible.socionics,
+        collectible.sloan,
+        collectible.psyche,
+      ].filter(Boolean).length,
+      line: collectible.line,
+      ...(collectible.type16 ? { type16: collectible.type16 } : {}),
+    },
+  };
 }
 
 function toExportLegacyResult(result: LegacyResultView): ExportLegacyResult {

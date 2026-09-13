@@ -3,40 +3,78 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  /* Soft Product: Plus Jakarta Sans for UI/display; mono only for meta/data */
   --font-sans:
-    var(--font-plus-jakarta), ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-display: var(--font-plus-jakarta), ui-sans-serif, system-ui, sans-serif;
+    var(--font-plus-jakarta), "Plus Jakarta Sans", var(--font-inter), "Inter", ui-sans-serif,
+    system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: var(--font-instrument-serif), "Instrument Serif", Georgia, serif;
+  --font-display:
+    var(--font-inter), "Inter", var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
   --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
+  --font-anton: var(--font-anton), "Anton", Impact, sans-serif;
 
-  --color-canvas: #000000;
-  --color-surface: #111111;
-  --color-surface-raised: #1a1a1a;
-  --color-ink: #ffffff;
-  --color-ink-soft: #f5f5f5;
-  --color-ink-muted: #b8bab9;
-  --color-steel: #b8bab9;
-  --color-ash: #b8bab9;
-  --color-charcoal: #444345;
-  --color-frost: #e2e2e2;
-  --color-void: #000000;
-  --color-lens: #444345;
-  --color-lens-strong: #555456;
-  --color-lens-soft: #1c1c1e;
-  --color-aperture: #e2e2e2;
-  --color-aperture-soft: #1a1a1a;
-  --color-mist: #141414;
-  --color-line: #2a2a2a;
-  --color-success: #7dcea0;
-  --color-success-soft: #10271a;
-  --color-warning: #f2c879;
-  --color-warning-soft: #2c2414;
-  --color-danger: #ff8b95;
-  --color-danger-soft: #30171b;
-  --color-aperture-on-dark: #e2e2e2;
-  --color-nav: rgb(0 0 0 / 0.55);
+  /* Collectible neutrals, taken verbatim from the approved Stitch export
+     (`04_klaim_kartu_karakter/code.html` tailwind config). The corrected
+     claim/podium/picker renders are ~67% `#fbf9f5` warm paper, so the app
+     neutrals are that paper — not a dark stage. */
+  --color-void: #efeeea; /* surface-container */
+  --color-canvas: #fbf9f5; /* surface / background */
+  --color-surface: #ffffff; /* surface-container-lowest */
+  --color-surface-raised: #f5f3ef; /* surface-container-low */
+  --color-ink: #1b1c1a; /* on-surface */
+  --color-ink-soft: #30312e; /* inverse-surface */
+  --color-ink-muted: #56423c; /* on-surface-variant */
+  --color-steel: #89726b; /* outline */
+  --color-ash: #56423c;
+  --color-mist: #30312e;
+  --color-line: #e4e2de; /* surface-variant */
+  --color-line-strong: #dcc1b8; /* outline-variant */
+  --color-frost: #1b1c1a;
+  --color-nav: rgb(251 249 245 / 0.82);
 
-  /* Soft Product radii: control ~12px, panel ~16px, shell ~20px */
+  /* Collectible cluster stages. Each stage is a light FILL, paired with its own
+     dark `-ink` for labels. Stitch never puts white on a saturated stage:
+     white-on-coral is 2.5:1, while `on-primary-container` ink is 4.56:1. */
+  --color-coral: #f4845f; /* SP — primary-container */
+  --color-coral-panel: #f79b7f;
+  --color-coral-ink: #6c1e02; /* on-primary-container */
+  --color-sage: #6bbf7a; /* SJ */
+  --color-sage-panel: #85cc92;
+  --color-sage-ink: #002109; /* on-secondary-fixed */
+  --color-pink: #e882b4; /* NF — tertiary-container */
+  --color-pink-panel: #ed9dc4;
+  --color-pink-ink: #681847; /* on-tertiary-container */
+  --color-sky: #6eb5ff; /* NT */
+  --color-sky-panel: #8dc4ff;
+  --color-sky-ink: #0b2f52;
+  --ease-stage: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Chromatic roles, verbatim Stitch. `primary` is the burnt-sienna action
+     colour that reads on paper AND carries white; the raw stage hues are fills. */
+  --color-iris: #9d4223; /* primary */
+  --color-iris-deep: #7e2b0d; /* on-primary-fixed-variant */
+  --color-iris-wash: rgb(244 132 95 / 0.16);
+  --color-saffron: #9d4223;
+  --color-saffron-wash: rgb(244 132 95 / 0.12);
+  --color-verdant: #116d32; /* secondary */
+  --color-verdant-wash: rgb(159 246 171 / 0.3);
+
+  /* Compat aliases */
+  --color-charcoal: #f5f3ef;
+  --color-lens: #9d4223;
+  --color-lens-strong: #7e2b0d;
+  --color-lens-soft: rgb(244 132 95 / 0.14);
+  --color-aperture: #9d4223;
+  --color-aperture-soft: rgb(244 132 95 / 0.14);
+  --color-aperture-on-dark: #f4845f;
+
+  --color-success: #116d32; /* secondary */
+  --color-success-soft: rgb(159 246 171 / 0.32);
+  --color-warning: #7e2b0d;
+  --color-warning-soft: rgb(255 219 208 / 0.55);
+  --color-danger: #ba1a1a; /* error */
+  --color-danger-soft: #ffdad6; /* error-container */
+
+  /* Dala controls: pill primary, 12px secondary */
   --radius-sm: 0.5rem;
   --radius-md: 0.75rem;
   --radius-lg: 1rem;
@@ -50,8 +88,6 @@
   --duration-ui: 180ms;
   /* Marketing entry only — task UI stays on --duration-ui */
   --duration-reveal: 480ms;
-  --duration-spectrum: 450ms;
-  --duration-film: 700ms;
 }
 
 :root {
@@ -61,20 +97,19 @@
   --surface: var(--color-surface);
   --surface-strong: var(--color-surface-raised);
   --line: var(--color-line);
-  --brand: var(--color-lens);
-  --brand-strong: var(--color-lens-strong);
-  --brand-soft: var(--color-lens-soft);
-  --aqua: var(--color-aperture);
+  --brand: var(--color-iris);
+  --brand-strong: var(--color-iris-deep);
+  --brand-soft: var(--color-iris-wash);
+  --aqua: var(--color-saffron);
   --shadow: var(--shadow-surface);
-  --blur-glass: 0px;
   --page-max: 1200px;
-  --section-gap: 0px;
   --card-pad: 1.25rem;
-  --hairline: rgb(226 226 226 / 0.22);
+  --hairline: rgb(34 30 31 / 0.12);
   --z-sticky: 20;
   --z-modal-backdrop: 40;
   --z-modal: 50;
   --z-toast: 60;
+  color-scheme: light;
 }
 
 * {
@@ -82,8 +117,8 @@
 }
 
 html {
-  scroll-behavior: smooth;
   background: var(--background);
+  scrollbar-color: #c3bcb1 var(--color-void);
 }
 
 body {
@@ -98,11 +133,61 @@ body {
   line-height: 1.65;
   letter-spacing: -0.011em;
   text-rendering: optimizeLegibility;
+  caret-color: var(--color-iris);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-void);
+}
+::-webkit-scrollbar-thumb {
+  background: #c3bcb1;
+  border-radius: 8px;
+  border: 2px solid var(--color-void);
+}
+
+/* Collectible System Design Tokens & Glassmorphic Utilities */
+.grain-layer {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0.25;
+  mix-blend-mode: overlay;
+}
+
+.acrylic-card {
+  background: rgba(255, 255, 255, 0.12);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+}
+
+.acrylic-podium {
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.32) 0%, rgba(255, 255, 255, 0.1) 100%);
+  box-shadow:
+    inset 0 1px 1px 0 rgba(255, 255, 255, 0.6),
+    0 12px 24px -6px rgba(0, 0, 0, 0.25);
+  border: 1.5px solid rgba(255, 255, 255, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+}
+
+.contact-shadow {
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    rgba(0, 0, 0, 0.4) 0%,
+    rgba(0, 0, 0, 0.15) 45%,
+    transparent 75%
+  );
 }
 
 a {
   color: inherit;
   text-decoration: none;
+  text-underline-offset: 3px;
 }
 
 button,
@@ -125,8 +210,8 @@ p {
 }
 
 ::selection {
-  background: rgb(226 226 226 / 0.28);
-  color: var(--foreground);
+  background: rgb(110 181 255 / 0.34);
+  color: var(--color-ink);
 }
 
 .tabular-nums {
@@ -144,9 +229,10 @@ p {
 }
 
 .surface-panel {
-  border: 1px solid var(--hairline);
-  border-radius: var(--radius-lg); /* 16px Soft Product panel */
+  border: 1px solid var(--color-line);
+  border-radius: var(--radius-lg);
   background: var(--surface);
+  box-shadow: 0 1px 2px rgb(34 30 31 / 0.04);
 }
 
 .task-shell {
@@ -157,9 +243,10 @@ p {
 
 .auth-panel {
   overflow: hidden;
-  border: 1px solid rgb(226 226 226 / 0.18);
+  border: 1px solid var(--color-line);
   border-radius: 1.25rem;
   background: var(--surface);
+  box-shadow: 0 2px 10px rgb(34 30 31 / 0.06);
 }
 
 /* Shared task-surface transitions — one motion language */
@@ -181,7 +268,7 @@ p {
 }
 
 .quiet-link {
-  color: var(--color-aperture);
+  color: var(--color-saffron);
   transition: color var(--duration-ui) var(--ease-out);
 }
 
@@ -199,7 +286,7 @@ p {
 
 @media (hover: hover) and (pointer: fine) {
   .row-hover:hover {
-    background-color: rgb(255 255 255 / 0.03);
+    background-color: rgb(34 30 31 / 0.035);
   }
 }
 
@@ -242,16 +329,37 @@ p {
   transform: none;
 }
 
-.lens-glow {
-  background-color: rgb(17 17 17 / 0.7);
-  background-image: none;
+.stage-control {
+  transition:
+    background-color var(--duration-ui) var(--ease-out),
+    opacity var(--duration-ui) var(--ease-out),
+    transform var(--duration-press) var(--ease-out);
+}
+
+.stage-control:active:not(:disabled) {
+  transform: scale(0.96);
+}
+
+.collector-figure-hover {
+  transition: transform 220ms var(--ease-out);
+}
+
+@media (hover: hover) and (pointer: fine) {
+  .stage-control:hover {
+    background-color: rgb(255 255 255 / 0.3);
+    transform: scale(1.04);
+  }
+
+  .group:hover .collector-figure-hover {
+    transform: translateY(-4px) scale(1.02);
+  }
 }
 
 .nav-frost {
-  background: rgb(0 0 0 / 0.62);
-  border-bottom: 1px solid rgb(226 226 226 / 0.28);
-  backdrop-filter: blur(10px) saturate(1.05);
-  -webkit-backdrop-filter: blur(10px) saturate(1.05);
+  background: var(--color-nav);
+  border-bottom: 1px solid var(--color-line);
+  backdrop-filter: blur(12px) saturate(1.05);
+  -webkit-backdrop-filter: blur(12px) saturate(1.05);
 }
 
 .nav-menu-panel {
@@ -272,74 +380,12 @@ p {
   outline-offset: 3px;
 }
 
-.section-stamp {
-  color: var(--color-ink);
-  font-family: var(--font-display);
-  font-size: clamp(2.5rem, 8vw, 5rem);
-  font-weight: 500;
-  line-height: 0.95;
-  letter-spacing: -0.03em;
-  text-transform: none;
-}
-
-/* Meta / evidence / instrumentation only — not CTAs */
+/* Meta / evidence / instrumentation only — never a kicker above a heading */
 .mono-label {
   font-family: var(--font-mono);
   font-size: 0.75rem;
   letter-spacing: -0.02em;
   text-transform: uppercase;
-}
-
-.nav-link {
-  position: relative;
-  font-family: var(--font-sans);
-  font-size: 0.875rem;
-  font-weight: 500;
-  letter-spacing: -0.01em;
-  text-transform: none;
-}
-
-.nav-link::after {
-  content: "";
-  position: absolute;
-  right: 0.75rem;
-  bottom: 0.55rem;
-  left: 0.75rem;
-  height: 1px;
-  background: rgb(226 226 226 / 0.7);
-  transform: scaleX(0);
-  transform-origin: left center;
-  transition: transform var(--duration-ui) var(--ease-out-expo);
-}
-
-@media (hover: hover) and (pointer: fine) {
-  .nav-link:hover::after {
-    transform: scaleX(1);
-  }
-}
-
-.nav-link[aria-current="page"]::after {
-  transform: scaleX(1);
-}
-
-.display-stack {
-  font-family: var(--font-display);
-  font-style: normal;
-  font-weight: 500;
-  line-height: 0.95;
-  letter-spacing: -0.03em;
-}
-
-.display-underline {
-  box-decoration-break: clone;
-  border-bottom: 1px solid rgb(226 226 226 / 0.55);
-  padding-bottom: 0.08em;
-}
-
-.display-italic {
-  font-family: var(--font-display);
-  font-style: normal;
-  font-weight: 500;
 }
 
 .hairline {
@@ -348,44 +394,6 @@ p {
 
 .section-band {
   padding-block: clamp(4.5rem, 8vw, 6rem);
-}
-
-.film-strip {
-  position: relative;
-  isolation: isolate;
-  min-height: min(100svh, 56rem);
-  overflow: hidden;
-}
-
-.film-strip-media {
-  position: absolute;
-  inset: -2%;
-  z-index: -2;
-  background-color: #000;
-  background-position: center;
-  background-size: cover;
-  transform: scale(1.04);
-  transition: transform var(--duration-film) var(--ease-out-expo);
-}
-
-.film-strip:has(.reveal[data-in-view="true"]) .film-strip-media,
-.film-strip-media.is-settled {
-  transform: scale(1);
-}
-
-.film-strip-scrim {
-  position: absolute;
-  inset: 0;
-  z-index: -1;
-  background:
-    linear-gradient(90deg, rgb(0 0 0 / 0.82) 0%, rgb(0 0 0 / 0.4) 46%, rgb(0 0 0 / 0.22) 100%),
-    linear-gradient(
-      180deg,
-      rgb(0 0 0 / 0.28) 0%,
-      transparent 28%,
-      transparent 72%,
-      rgb(0 0 0 / 0.45) 100%
-    );
 }
 
 /* Progressive reveal: visible by default; only hides after JS marks motion-ready. */
@@ -411,107 +419,6 @@ p {
   opacity: 1;
   transform: none;
   filter: none;
-}
-
-.hero-entrance > * {
-  opacity: 1;
-  transform: none;
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .hero-entrance > * {
-    animation: hero-rise var(--duration-reveal) var(--ease-out-expo) both;
-  }
-
-  .hero-entrance > *:nth-child(1) {
-    animation-delay: 0ms;
-  }
-
-  .hero-entrance > *:nth-child(2) {
-    animation-delay: 50ms;
-  }
-
-  .hero-entrance > *:nth-child(3) {
-    animation-delay: 100ms;
-  }
-
-  .hero-entrance > *:nth-child(4) {
-    animation-delay: 150ms;
-  }
-
-  .hero-entrance > *:nth-child(5) {
-    animation-delay: 200ms;
-  }
-
-  .hero-entrance > *:nth-child(6) {
-    animation-delay: 250ms;
-  }
-
-  /* Landing only — never put ambient loops on task surfaces */
-  .hero-ambient-video {
-    animation: ambient-drift 28s var(--ease-in-out) infinite alternate;
-  }
-
-  .spectrum-mark {
-    transform-origin: left center;
-    animation: spectrum-draw var(--duration-spectrum) var(--ease-out-expo) both;
-  }
-
-  .spectrum-row:nth-child(1) .spectrum-mark {
-    animation-delay: 40ms;
-  }
-
-  .spectrum-row:nth-child(2) .spectrum-mark {
-    animation-delay: 90ms;
-  }
-
-  .spectrum-row:nth-child(3) .spectrum-mark {
-    animation-delay: 140ms;
-  }
-
-  .spectrum-row:nth-child(4) .spectrum-mark {
-    animation-delay: 190ms;
-  }
-
-  .spectrum-row:nth-child(5) .spectrum-mark {
-    animation-delay: 240ms;
-  }
-}
-
-@keyframes hero-rise {
-  from {
-    opacity: 0;
-    transform: translate3d(0, 12px, 0);
-    filter: blur(2px);
-  }
-
-  to {
-    opacity: 1;
-    transform: none;
-    filter: none;
-  }
-}
-
-@keyframes ambient-drift {
-  from {
-    transform: scale(1.02) translate3d(0, 0, 0);
-  }
-
-  to {
-    transform: scale(1.08) translate3d(-1.2%, -0.8%, 0);
-  }
-}
-
-@keyframes spectrum-draw {
-  from {
-    transform: scaleX(0.12);
-    opacity: 0.4;
-  }
-
-  to {
-    transform: scaleX(1);
-    opacity: 1;
-  }
 }
 
 /* Interruptible toast entry — transitions retarget; keyframes do not */
@@ -550,7 +457,7 @@ dialog[open] {
 }
 
 dialog::backdrop {
-  background: rgb(0 0 0 / 0.55);
+  background: rgb(0 0 0 / 0.6);
   opacity: 0;
   transition:
     opacity var(--duration-ui) var(--ease-out),
@@ -591,8 +498,6 @@ dialog[open]::backdrop {
   .pressable,
   .decision-tile,
   .reveal,
-  .film-strip-media,
-  .hero-entrance > *,
   dialog,
   dialog[open],
   dialog::backdrop {
@@ -602,7 +507,6 @@ dialog[open]::backdrop {
 
   .toast-motion,
   .reveal,
-  .hero-entrance > *,
   dialog[open],
   dialog[open]::backdrop {
     opacity: 1 !important;
@@ -623,8 +527,7 @@ dialog[open]::backdrop {
   .ui-transition,
   .ui-transition-transform,
   .quiet-link,
-  .row-hover,
-  .nav-link::after {
+  .row-hover {
     transition-property: color, background-color, border-color, opacity !important;
     transition-duration: 120ms !important;
     transition-timing-function: var(--ease-out) !important;
@@ -633,46 +536,5 @@ dialog[open]::backdrop {
   .pressable:active:not(:disabled),
   .decision-tile:active:not(:disabled) {
     transform: none !important;
-  }
-
-  .film-strip-media,
-  .spectrum-mark {
-    transition: none !important;
-    animation: none !important;
-  }
-
-  .hero-ambient-video {
-    display: none;
-  }
-
-  .hero-ambient-poster {
-    display: block;
-  }
-
-  .nav-link::after {
-    transition: none !important;
-  }
-}
-
-@theme inline {
-  /* Soft Product: monochrome spotlight only — no shiny/gradient text keyframes */
-  --animate-spotlight: spotlight 2s ease 0.65s 1 forwards;
-
-  @keyframes spotlight {
-    0% {
-      opacity: 0;
-      transform: translate(-72%, -62%) scale(0.5);
-    }
-    100% {
-      opacity: 1;
-      transform: translate(-50%, -40%) scale(1);
-    }
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .animate-spotlight {
-    animation: none !important;
-    display: none !important;
   }
 }

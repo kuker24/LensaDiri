@@ -16,6 +16,7 @@ export type RateLimitRoute =
   | "assessment_resume"
   | "assessment_complete"
   | "assessment_clarifier"
+  | "assessment_journey_read"
   | "result_share"
   | "result_export"
   | "result_delete"

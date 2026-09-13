@@ -1,39 +1,101 @@
+import type { Metadata } from "next";
 import Link from "next/link";
+
+export const metadata: Metadata = {
+  title: "Kontak & Bantuan",
+  description: "Pusat bantuan, dukungan produk, dan pelaporan teknis LensaDiri.",
+};
 
 export default function ContactPage() {
   return (
-    <section className="container-shell py-16 sm:py-24">
-      <article className="max-w-3xl">
-        <p className="mono-label text-ink">Kontak dan keamanan</p>
-        <h1 className="mt-5 text-4xl font-medium tracking-[-0.035em] sm:text-6xl">
-          Bantuan dan laporan keamanan
-        </h1>
-        <p className="text-ink-muted mt-6 leading-8">
-          Gunakan repositori resmi untuk pertanyaan produk atau laporan teknis. Jangan kirim kata
-          sandi, token, jawaban asesmen, hasil privat, atau data sensitif melalui laporan publik.
-        </p>
-        <div className="mt-12 grid gap-10 sm:grid-cols-2 sm:gap-14">
-          <section>
-            <h2 className="text-ink text-xl font-medium">Dukungan produk</h2>
-            <p className="text-ink-muted mt-3 leading-7">
-              Sertakan halaman, waktu kejadian, dan langkah reproduksi tanpa menyalin data privat.
-            </p>
-            <Link
-              className="focus-ring quiet-link mt-5 inline-flex min-h-11 items-center rounded-[12px] font-medium"
-              href="https://github.com/kuker24/LensaDiri/issues/new"
-            >
-              Buat laporan produk <span aria-hidden="true">↗</span>
-            </Link>
-          </section>
-          <section>
-            <h2 className="text-danger text-xl font-medium">Kerentanan keamanan</h2>
-            <p className="text-ink-muted mt-3 leading-7">
-              Jangan membuka detail eksploitasi atau data sensitif di laporan publik. Kanal
-              pelaporan privat belum tersedia.
-            </p>
-          </section>
+    <div className="min-h-screen bg-white p-3 text-gray-900 selection:bg-blue-100 selection:text-blue-900 sm:p-4 md:p-6">
+      <div className="mx-auto max-w-4xl py-6 sm:py-10">
+        {/* Navigation Breadcrumb */}
+        <div className="mb-8 flex items-center justify-between">
+          <Link
+            className="inline-flex min-h-[44px] items-center gap-2 rounded-full border border-gray-200 bg-gray-50 px-4 py-2 text-xs font-semibold text-gray-700 transition-[transform,background-color] duration-150 ease-out hover:bg-gray-100 hover:text-black active:scale-[0.97]"
+            href="/"
+          >
+            <span>← Kembali ke Beranda</span>
+          </Link>
+          <Link
+            className="inline-flex min-h-[44px] items-center px-2 text-xs font-semibold text-blue-600 hover:underline"
+            href="/about"
+          >
+            Tentang LensaDiri →
+          </Link>
         </div>
-      </article>
-    </section>
+
+        <article className="rounded-3xl border border-gray-200 bg-gradient-to-b from-gray-50/80 via-white to-white p-6 shadow-sm sm:p-10 md:p-12">
+          <div className="inline-flex items-center gap-2 rounded-full border border-blue-200 bg-blue-50 px-3.5 py-1 font-mono text-xs font-semibold tracking-wider text-blue-800 uppercase">
+            <span className="h-1.5 w-1.5 rounded-full bg-blue-600" />
+            <span>Pusat Bantuan & Komunitas</span>
+          </div>
+
+          <h1 className="mt-5 text-3xl font-semibold tracking-tight text-gray-900 sm:text-4xl lg:text-5xl">
+            Bantuan dan laporan{" "}
+            <span
+              style={{
+                fontFamily: "'Instrument Serif', serif",
+                fontStyle: "italic",
+                fontWeight: 400,
+              }}
+            >
+              keamanan
+            </span>
+            .
+          </h1>
+
+          <p className="mt-4 text-base leading-relaxed text-gray-600 sm:text-lg">
+            Kami menjaga LensaDiri sebagai ruang terbuka yang aman. Gunakan kanal resmi untuk
+            pertanyaan produk atau pelaporan teknis tanpa menyertakan kredensial atau data pribadi.
+          </p>
+
+          <div className="mt-10 grid gap-6 sm:grid-cols-2">
+            <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-2xs sm:p-8">
+              <span className="inline-flex rounded-full border border-sky-200 bg-sky-50 px-2.5 py-0.5 text-xs font-semibold text-sky-800">
+                Dukungan Produk
+              </span>
+              <h2 className="mt-4 text-xl font-semibold text-gray-900">Pertanyaan & Masukan</h2>
+              <p className="mt-2 text-sm leading-relaxed text-gray-600">
+                Temukan kendala saat mengisi asesmen atau memiliki saran pengembangan fitur?
+                Sampaikan langsung melalui repositori publik kami.
+              </p>
+              <div className="mt-6">
+                <Link
+                  className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl bg-blue-600 px-5 py-2.5 text-xs font-semibold shadow-xs transition-[transform,background-color] duration-150 ease-out hover:bg-blue-700 active:scale-[0.97]"
+                  href="https://github.com/kuker24/LensaDiri/issues/new"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  <span>Buat Laporan Produk</span>
+                  <span aria-hidden="true">↗</span>
+                </Link>
+              </div>
+            </section>
+
+            <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-2xs sm:p-8">
+              <span className="inline-flex rounded-full border border-amber-200 bg-amber-50 px-2.5 py-0.5 text-xs font-semibold text-amber-900">
+                Keamanan & Etika
+              </span>
+              <h2 className="mt-4 text-xl font-semibold text-gray-900">Laporan Kerentanan</h2>
+              <p className="mt-2 text-sm leading-relaxed text-gray-600">
+                Demi keamanan bersama, jangan mempublikasikan detail eksploitasi di repositori
+                publik. Harap hubungi tim teknis kami secara langsung.
+              </p>
+              <div className="mt-6">
+                <a
+                  className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-5 py-2.5 text-xs font-semibold text-gray-800 shadow-2xs transition-[transform,background-color] duration-150 ease-out hover:bg-gray-50 active:scale-[0.97]"
+                  href="mailto:security@lensadiri.com"
+                >
+                  <span>Email Tim Keamanan</span>
+                  <span aria-hidden="true">✉</span>
+                </a>
+              </div>
+            </section>
+          </div>
+        </article>
+      </div>
+    </div>
   );
 }

@@ -2,29 +2,18 @@ import { expect, test } from "@playwright/test";
 
 const publicRoutes = [
   "/",
-  "/modules",
-  "/combos",
   "/about",
   "/contact",
   "/terms",
-  "/blog",
-  "/blog/cara-membaca-confidence-tanpa-menganggapnya-kepastian",
-  "/blog/mengapa-setiap-lensa-harus-punya-scoring-independen",
-  "/blog/privasi-hasil-dan-share-yang-dapat-dicabut",
   "/method",
   "/privacy",
   "/disclaimer",
   "/start",
-  "/start/consent?mode=quick",
-  "/start/consent?mode=standard",
-  "/start/modules",
-  "/start/review",
   "/login",
   "/register",
   "/forgot-password",
   "/reset-password",
   "/verify-email",
-  "/modules/type_16",
 ] as const;
 
 for (const route of publicRoutes) {
@@ -80,25 +69,21 @@ for (const route of publicRoutes) {
 test("keyboard focus treatment remains visible across primary surfaces", async ({ page }) => {
   await page.goto("/");
 
-  // Hero + close CTA both link to Metode; focus the first main CTA.
-  const lightControl = page.locator("#konten-utama").getByRole("link", { name: "Metode" }).first();
+  const lightControl = page.getByRole("link", { name: /MULAI/u });
   await lightControl.focus();
-  await expect(lightControl).toHaveCSS("outline-color", "rgb(226, 226, 226)");
+  await expect(lightControl).toBeFocused();
+  await expect(lightControl).toHaveCSS("outline-style", "solid");
 
-  await page.goto("/start/modules");
-  const firstModuleCheckbox = page.getByRole("checkbox").first();
-  await firstModuleCheckbox.focus();
-  await expect(firstModuleCheckbox.locator("..")).toHaveCSS("--tw-ring-color", "#e2e2e2");
-  const darkControl = page.getByRole("button", { name: "Tinjau pilihan" });
-  await expect(darkControl).toBeEnabled();
-  await darkControl.focus();
-  await expect(darkControl).toHaveCSS("outline-color", "rgb(226, 226, 226)");
+  await page.goto("/start");
+  const startControl = page.getByRole("radio").first();
+  await startControl.focus();
+  await expect(startControl).toBeFocused();
 });
 
 test("authentication controls have labels and mobile-safe font size", async ({ page }) => {
   await page.goto("/login");
   const email = page.getByLabel(/email/i);
-  const password = page.getByLabel(/password|kata sandi/i);
+  const password = page.getByRole("textbox", { name: "Kata sandi" });
   await expect(email).toBeVisible();
   await expect(password).toBeVisible();
   await expect(page.getByRole("button", { name: "Masuk", exact: true })).toBeEnabled();
@@ -113,42 +98,10 @@ test("authentication controls have labels and mobile-safe font size", async ({ p
   }
 });
 
-test("module catalog exposes all ten release-ready lenses with detail navigation", async ({
+test("removed product routes and unknown paths return real not-found responses", async ({
   page,
 }) => {
-  await page.goto("/modules");
-  const cards = page.getByRole("listitem");
-  await expect(cards).toHaveCount(10);
-  await expect(page.getByText("Belum tersedia")).toHaveCount(0);
-  await expect(page.getByText("Detail belum tersedia")).toHaveCount(0);
-
-  const availableCard = page.locator("li", { hasText: "16-Type Jungian-inspired" });
-  await expect(availableCard.getByRole("link", { name: "Lihat detail" })).toBeVisible();
-
-  const riasecCard = page.locator("li", { hasText: "Minat Karier RIASEC" });
-  await expect(riasecCard.getByRole("link", { name: "Lihat detail" })).toBeVisible();
-});
-
-test("module detail preserves valid selection and invalid query falls back", async ({ page }) => {
-  await page.goto("/modules/type_16");
-  const chooseModule = page.getByRole("link", { name: "Pilih lensa ini" });
-  await expect(chooseModule).toHaveAttribute("href", "/start/modules?module=type_16");
-  await chooseModule.click();
-  await expect(page.getByRole("checkbox", { name: /16-Type Jungian-inspired/u })).toBeChecked();
-
-  await page.goto("/modules/socionics_communication");
-  await page.getByRole("link", { name: "Pilih lensa ini" }).click();
-  await expect(page.getByRole("checkbox", { name: /Komunikasi Socionics/u })).toBeChecked();
-  await expect(
-    page.getByText("Aku memahami lensa eksperimental yang dipilih belum memiliki validasi formal"),
-  ).toBeVisible();
-
-  await page.goto("/start/modules?module=not-in-catalog");
-  await expect(page.getByRole("checkbox", { name: /Profil Trait/u })).toBeChecked();
-});
-
-test("unknown module and blog slugs return real not-found responses", async ({ page }) => {
-  for (const route of ["/modules/not-in-catalog", "/blog/not-in-catalog"]) {
+  for (const route of ["/modules", "/combos", "/start/modules", "/tidak-ada-halaman-ini"]) {
     const response = await page.goto(route);
     expect(response?.status()).toBe(404);
     await expect(page.getByRole("heading", { name: "Halaman tidak ditemukan" })).toBeVisible();
@@ -156,23 +109,28 @@ test("unknown module and blog slugs return real not-found responses", async ({ p
   }
 });
 
-test("homepage and product surfaces preserve explicit backgrounds", async ({ page }) => {
-  async function backgroundPixel(selector: string) {
+test("product surfaces paint an opaque background instead of leaking content through", async ({
+  page,
+}) => {
+  async function backgroundAlpha(selector: string) {
     return page.locator(selector).evaluate((element) => {
       const canvas = document.createElement("canvas");
       const context = canvas.getContext("2d");
       if (!context) throw new Error("Canvas context unavailable");
       context.fillStyle = window.getComputedStyle(element).backgroundColor;
       context.fillRect(0, 0, 1, 1);
-      return [...context.getImageData(0, 0, 1, 1).data];
+      return [...context.getImageData(0, 0, 1, 1).data][3] ?? 0;
     });
   }
 
+  // The paper canvas must be a real colour, not the UA default.
   await page.goto("/");
-  expect(await backgroundPixel(".lens-glow")).toEqual([17, 17, 17, 179]);
+  expect(await backgroundAlpha("body")).toBe(255);
 
-  await page.goto("/start/modules");
-  expect(await backgroundPixel("aside.lens-glow")).toEqual([17, 17, 17, 179]);
+  // The start surface remains opaque on a mobile viewport.
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto("/start");
+  expect(await backgroundAlpha("body")).toBe(255);
 });
 
 test("result loading and failure states keep a single page heading", async ({ page }) => {

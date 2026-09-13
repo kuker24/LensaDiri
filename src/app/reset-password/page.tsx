@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 export default function ResetPasswordPage() {
   return (
     <section className="task-shell">
-      <Reveal className="auth-panel lens-glow mx-auto max-w-xl p-7 sm:p-10">
+      <Reveal className="auth-panel mx-auto max-w-xl p-7 sm:p-10">
         <p className="mono-label text-ink">Pemulihan</p>
         <h1 className="text-ink mt-4 text-3xl font-normal tracking-[-0.03em]">
           Atur kata sandi baru

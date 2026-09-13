@@ -12,14 +12,16 @@ export function ResultIdentitySummary({ items }: { items: readonly ResultIdentit
       <ul className="flex flex-wrap gap-2.5">
         {items.map((item) => (
           <li
-            className="border-line bg-surface-raised rounded-[12px] border px-3.5 py-2 text-sm leading-5"
+            className="border-line bg-surface rounded-full border px-4 py-1.5 text-sm leading-5 shadow-[0_1px_6px_rgb(27_28_26_/_0.06)]"
             key={item.name}
           >
-            <span className="text-ink-muted">{item.name}</span>
-            <span aria-hidden="true" className="mx-1.5 text-white/35">
+            <span className="text-steel font-mono text-xs font-medium tracking-wider uppercase">
+              {item.name}
+            </span>
+            <span aria-hidden="true" className="text-line-strong mx-2">
               ·
             </span>
-            <strong className="font-medium">{item.title}</strong>
+            <strong className="text-ink font-semibold">{item.title}</strong>
           </li>
         ))}
       </ul>

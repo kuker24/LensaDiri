@@ -1,12 +1,20 @@
 import { describe, expect, it } from "vitest";
 
-import { enneagramConstructKeys, scoreEnneagramModule } from "@/lib/scoring/modules/enneagram";
+import {
+  enneagramConstructKeys,
+  enneagramJourneyConstructKeys,
+  scoreEnneagramJourneyModule,
+  scoreEnneagramModule,
+} from "@/lib/scoring/modules/enneagram";
 import { scoreIndependentModule } from "@/lib/scoring/modules/registry";
 import {
   scoreTemperamentModule,
   temperamentConstructKeys,
 } from "@/lib/scoring/modules/temperament";
-import { scoreTraitProfileModule } from "@/lib/scoring/modules/trait-profile";
+import {
+  scoreTraitProfileJourneyModule,
+  scoreTraitProfileModule,
+} from "@/lib/scoring/modules/trait-profile";
 import { scoreType16Module, type16ConstructKeys } from "@/lib/scoring/modules/type16";
 import { traitKeys } from "@/lib/scoring/profile";
 import {
@@ -63,6 +71,8 @@ describe("independent module scoring", () => {
     expect(result.scoringVersion).toBe("trait-profile-modular-1");
     expect(result.summary).not.toHaveProperty("overlays");
     expect(result.scores).toHaveLength(5);
+    expect(result.summary).not.toHaveProperty("sloanCode");
+    expect(scoreTraitProfileJourneyModule(input, input.length).summary.sloanCode).toBeDefined();
   });
 
   it("scores 16-Type only from its four independent dimensions", () => {
@@ -94,6 +104,21 @@ describe("independent module scoring", () => {
       wing: "pattern_4",
     });
     expect(result.scores).toHaveLength(9);
+  });
+
+  it("scores combined Enneagram, tritype, and instinct without inventing absent data", () => {
+    const input = answers(enneagramJourneyConstructKeys, {
+      instinct_one_to_one: 5,
+      instinct_self_preservation: 2,
+      instinct_social: 1,
+      pattern_4: 4,
+      pattern_6: 3,
+      pattern_9: 5,
+    });
+    const result = scoreEnneagramJourneyModule(input, input.length);
+
+    expect(result.scoringVersion).toBe("enneagram-journey-score-1");
+    expect(result.summary).toMatchObject({ compactCode: "sx946", instinct: "sx", tritype: "946" });
   });
 
   it("scores temperament primary and secondary from independent items", () => {

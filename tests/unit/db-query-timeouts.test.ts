@@ -1,5 +1,6 @@
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { DatabaseTimeoutError, withDeadline } from "@/lib/async/with-deadline";
+import { combinedJourneyStartBody } from "./helpers/start-request";
 
 // Mock server-only to allow importing server files in unit tests
 vi.mock("server-only", () => ({}));
@@ -192,16 +193,7 @@ describe("Start Route - Database query timeout reliability", () => {
     mockIsFeatureEnabledBatch.mockImplementationOnce(() => new Promise(() => {}));
 
     const request = new Request("http://localhost:3000/api/assessment/start", {
-      body: JSON.stringify({
-        age: 18,
-        consent: true,
-        experimentalAcknowledged: false,
-        locale: "id",
-        mode: "quick",
-        moduleKeys: ["riasec"],
-        presetKey: null,
-        selectionType: "single",
-      }),
+      body: JSON.stringify(combinedJourneyStartBody()),
       headers: { "content-type": "application/json" },
       method: "POST",
     });
@@ -229,16 +221,7 @@ describe("Start Route - Database query timeout reliability", () => {
 
     const response = await startPost(
       new Request("http://localhost:3000/api/assessment/start", {
-        body: JSON.stringify({
-          age: 18,
-          consent: true,
-          experimentalAcknowledged: false,
-          locale: "id",
-          mode: "quick",
-          moduleKeys: ["riasec"],
-          presetKey: null,
-          selectionType: "single",
-        }),
+        body: JSON.stringify(combinedJourneyStartBody()),
         headers: { "content-type": "application/json" },
         method: "POST",
       }),

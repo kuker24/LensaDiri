@@ -57,10 +57,10 @@ export const resultConstructLabels: Readonly<Record<string, string>> = {
 };
 
 export const resultEvidenceLabels: Readonly<Record<string, string>> = {
-  A: "Bukti A",
-  B: "Reflektif B",
-  B_EXPERIMENTAL: "Reflektif B · eksperimental",
-  C: "Reflektif C",
+  A: "Riset Teruji",
+  B: "Reflektif",
+  B_EXPERIMENTAL: "Reflektif · konsep baru",
+  C: "Eksploratif",
   EXPERIMENTAL: "Eksperimental",
 };
 

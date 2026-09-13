@@ -14,6 +14,18 @@ const traitLabels: Readonly<Record<TraitKey, string>> = {
   openness: "eksploratif",
 };
 
+function resolveSloanCode(scores: readonly { constructKey: TraitKey; normalizedScore: number }[]) {
+  const letter = (key: TraitKey, high: string, low: string) =>
+    (scores.find((score) => score.constructKey === key)?.normalizedScore ?? 50) >= 50 ? high : low;
+  return [
+    letter("extraversion", "S", "R"),
+    letter("emotional_sensitivity", "L", "C"),
+    letter("conscientiousness", "O", "U"),
+    letter("agreeableness", "A", "E"),
+    letter("openness", "I", "N"),
+  ].join("");
+}
+
 export function scoreTraitProfileModule(
   answers: readonly ModuleScoringAnswer<TraitKey>[],
   expectedAnswers: number,
@@ -43,5 +55,18 @@ export function scoreTraitProfileModule(
         "Profil Trait adalah lensa refleksi berbasis jawaban, bukan diagnosis atau batas kepribadian.",
       strongestTraits: strongest.map((score) => score.constructKey),
     },
+  };
+}
+
+export function scoreTraitProfileJourneyModule(
+  answers: readonly ModuleScoringAnswer<TraitKey>[],
+  expectedAnswers: number,
+  context?: QualityModelContext,
+): IndependentModuleResult<"trait_profile", TraitKey> {
+  const base = scoreTraitProfileModule(answers, expectedAnswers, context);
+  return {
+    ...base,
+    scoringVersion: "trait-profile-journey-1",
+    summary: { ...base.summary, sloanCode: resolveSloanCode(base.scores) },
   };
 }

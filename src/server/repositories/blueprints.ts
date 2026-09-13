@@ -7,6 +7,11 @@ import {
   type ComposerItemCandidate,
   composeAssessment,
 } from "@/lib/assessment/composer";
+import {
+  activateJourneyStepInTransaction,
+  createCombinedIdentityJourneyInTransaction,
+  createIdentityJourneyInTransaction,
+} from "@/server/repositories/identity-journeys";
 import type { AssessmentEstimate } from "@/lib/assessment/estimate";
 import type { AssessmentMode, AssessmentSelectionInput } from "@/lib/assessment/catalog";
 import { getDatabase, withTransaction } from "@/lib/db/client";
@@ -35,6 +40,7 @@ function blueprintHash(blueprint: ComposedBlueprint): string {
 
 export async function loadComposerCandidates(
   moduleKeys: readonly string[],
+  scoringVersions: Readonly<Record<string, string>> = {},
 ): Promise<ComposerItemCandidate[]> {
   return runDatabaseOperation(async () => {
     const sql = getDatabase();
@@ -85,10 +91,22 @@ export async function loadComposerCandidates(
         from public.module_versions as candidate_versions
         where candidate_versions.module_id = modules.id
           and candidate_versions.status in ('pilot', 'published', 'experimental')
-          and candidate_versions.scoring_version = case
-            when modules.key = 'trait_profile' then 'trait-profile-modular-1'
-            else candidate_versions.scoring_version
-          end
+          and (
+            candidate_versions.scoring_version = ${sql.json(scoringVersions)}::jsonb ->> modules.key
+            or (
+              ${sql.json(scoringVersions)}::jsonb ->> modules.key is null
+              and (
+                (modules.key = 'trait_profile'
+                  and candidate_versions.scoring_version = 'trait-profile-modular-1')
+                or (modules.key <> 'trait_profile' and candidate_versions.scoring_version not in (
+                  'enneagram-journey-score-1',
+                  'socionics-type-score-1',
+                  'trait-profile-journey-1',
+                  'psychosophy-journey-score-1'
+                ))
+              )
+            )
+          )
         order by candidate_versions.published_at desc nulls last,
           candidate_versions.created_at desc,
           candidate_versions.version desc
@@ -182,7 +200,11 @@ export async function persistModularSession(input: {
   consentVersion: string;
   expiresAt: Date;
   sessionTokenHash: string;
+  journey?:
+    | { characterGender: "perempuan" | "laki"; combined?: boolean; journeyTokenHash: string }
+    | { accountId: string | null; existingJourneyTokenHash: string; moduleKey: string };
 }): Promise<{ blueprintId: string; sessionId: string }> {
+  const journey = input.journey;
   return runDatabaseOperation(() =>
     withTransaction(async (sql) => {
       // Apply strict local timeouts to prevent late commits in high-load scenarios.
@@ -253,6 +275,26 @@ export async function persistModularSession(input: {
         returning id
       `;
       if (!session) throw new Error("Modular session insert returned no row.");
+
+      if (journey && "characterGender" in journey) {
+        const createJourney = journey.combined
+          ? createCombinedIdentityJourneyInTransaction
+          : createIdentityJourneyInTransaction;
+        await createJourney(sql, {
+          accountId: input.accountId,
+          characterGender: journey.characterGender,
+          expiresAt: input.expiresAt,
+          journeyTokenHash: journey.journeyTokenHash,
+          sessionId: session.id,
+        });
+      } else if (journey) {
+        await activateJourneyStepInTransaction(sql, {
+          accountId: journey.accountId,
+          journeyTokenHash: journey.existingJourneyTokenHash,
+          moduleKey: journey.moduleKey,
+          sessionId: session.id,
+        });
+      }
 
       await sql`
         insert into public.consents (

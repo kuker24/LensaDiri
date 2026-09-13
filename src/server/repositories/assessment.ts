@@ -23,6 +23,8 @@ import {
   toSafeSharedResultView,
   type SafeSharedResultView,
 } from "@/server/repositories/result-views";
+import { attachJourneyResultInTransaction } from "@/server/repositories/identity-journeys";
+import { buildCollectibleIdentity } from "@/lib/assessment/identity-journey";
 
 export type AssessmentMode = "quick" | "standard" | "deep";
 
@@ -887,6 +889,7 @@ async function completeModularAssessmentInTransaction(
     set status = 'completed', completed_at = now()
     where id = ${session.id}
   `;
+  await attachJourneyResultInTransaction(sql, { resultId: resultRow.id, sessionId: session.id });
   return { resultId: resultRow.id };
 }
 
@@ -1265,11 +1268,12 @@ export async function getSharedResultByHash(
   return runDatabaseOperation(async () => {
     const sql = getDatabase();
     const [share] = await sql<
-      { expires_at: Date; public_scope: string; result_token_hash: string }[]
+      { expires_at: Date; public_scope: string; result_id: string; result_token_hash: string }[]
     >`
       select
         result_share_tokens.expires_at,
         result_share_tokens.public_scope,
+        personality_results.id as result_id,
         personality_results.result_token_hash
       from public.result_share_tokens
       inner join public.personality_results
@@ -1284,10 +1288,36 @@ export async function getSharedResultByHash(
 
     const privateResult = await getPrivateResult(share.result_token_hash);
     if (!privateResult) return null;
-    return toSafeSharedResultView(privateResult, share.public_scope, {
-      expiresAt: share.expires_at.toISOString(),
-      scope: share.public_scope,
-    });
+    const artifactRows = await sql<{ module_key: string; summary_json: Record<string, unknown> }[]>`
+      select artifact_steps.module_key, artifact_modules.summary_json
+      from public.identity_journey_steps as source_step
+      inner join public.identity_journey_steps as artifact_steps
+        on artifact_steps.journey_id = source_step.journey_id
+      inner join public.result_modules as artifact_modules
+        on artifact_modules.result_id = artifact_steps.result_id
+        and artifact_modules.module_key = artifact_steps.module_key
+      where source_step.result_id = ${share.result_id}
+        and artifact_steps.status = 'completed'
+      order by artifact_steps.position
+    `;
+    const collectible = buildCollectibleIdentity(
+      artifactRows.map(
+        (artifact) =>
+          ({
+            moduleKey: artifact.module_key,
+            summary: artifact.summary_json,
+          }) as IndependentModuleResult,
+      ),
+    );
+    return toSafeSharedResultView(
+      privateResult,
+      share.public_scope,
+      {
+        expiresAt: share.expires_at.toISOString(),
+        scope: share.public_scope,
+      },
+      collectible,
+    );
   });
 }
 
@@ -1519,15 +1549,43 @@ export async function createResultFeedback(input: {
 }
 
 export async function deleteResultByHash(resultTokenHash: string): Promise<boolean> {
-  return runDatabaseOperation(async () => {
-    const sql = getDatabase();
-    const rows = await sql`
-      delete from public.test_sessions
-      where id = (
-        select session_id from public.personality_results
-        where result_token_hash = ${resultTokenHash} and deleted_at is null
-      )
-    `;
-    return rows.count > 0;
-  });
+  return runDatabaseOperation(() =>
+    withTransaction(async (sql) => {
+      const [target] = await sql<
+        { journey_id: string | null; position: number | null; session_id: string }[]
+      >`
+        select personality_results.session_id,
+          identity_journey_steps.journey_id,
+          identity_journey_steps.position
+        from public.personality_results
+        left join public.identity_journey_steps
+          on identity_journey_steps.result_id = personality_results.id
+        where personality_results.result_token_hash = ${resultTokenHash}
+          and personality_results.deleted_at is null
+        limit 1
+        for update of personality_results
+      `;
+      if (!target) return false;
+
+      if (target.journey_id && target.position) {
+        await sql`
+          update public.identity_journey_steps
+          set status = case when position = ${target.position} then 'available' else 'locked' end,
+            session_id = null, result_id = null, started_at = null, completed_at = null
+          where journey_id = ${target.journey_id} and position >= ${target.position}
+        `;
+        await sql`
+          update public.identity_journeys
+          set status = 'active', current_position = ${target.position},
+            completed_at = null, last_activity_at = now()
+          where id = ${target.journey_id} and status in ('active', 'completed')
+        `;
+      }
+
+      const rows = await sql`
+        delete from public.test_sessions where id = ${target.session_id}
+      `;
+      return rows.count > 0;
+    }),
+  );
 }

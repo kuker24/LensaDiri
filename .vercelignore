@@ -1,0 +1,12 @@
+# Local scratch and agent tooling must never reach a build.
+# Screenshots, design exploration, and caches are not product code.
+.pi/
+.impeccable/
+.codebase-memory/
+.od-skills/
+.playwright-mcp/
+experiments/
+NewDesign_V1/
+tests/
+supabase/
+docs/

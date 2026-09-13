@@ -14,6 +14,13 @@ const securityHeaders = [
 
 const nextConfig: NextConfig = {
   allowedDevOrigins: ["127.0.0.1"],
+  // Next 16 only serves qualities declared here. The hero figurines ask for 100
+  // because the WebP encoder degrades their alpha channel below that: at 90 it
+  // rewrote 459 interior pixels of one figurine down to alpha 32, so the page
+  // background bled through an eye. At 100 that damage is gone and the encoded
+  // size is unchanged, since these renders are already gradient-heavy. Leaving
+  // 75 in place keeps every other image on the cheaper default.
+  images: { qualities: [75, 100] },
   poweredByHeader: false,
   reactStrictMode: true,
   serverExternalPackages: ["@react-pdf/renderer"],

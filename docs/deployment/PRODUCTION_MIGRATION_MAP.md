@@ -33,6 +33,17 @@ Verified through a linked production query on 2026-07-29. Production contains th
 
 Production checkpoint: Trait repair `202607290002` applied, `FEATURE_MODULAR_COMPOSER` enabled, all checked tables forced RLS, legacy Quick 40/Standard 60 intact. All 10 modules are selectable in production.
 
+## Pending identity-journey migrations
+
+The following migrations are implemented locally but **not applied to production**. Their runtime database, pgTAP, integration, seed replay, restore, and deployment checks remain mandatory before an approved production window.
+
+| Version        | Repository source                                               | Status               | Purpose                                                                                                                                                             |
+| -------------- | --------------------------------------------------------------- | -------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `202609120001` | `supabase/migrations/202609120001_identity_journeys.sql`        | Pending verification | Hash-only guest/account journey aggregate, fixed five steps, forced RLS, no browser privileges, and `rate_limits_route_key` extended with `assessment_journey_read` |
+| `202609120002` | `supabase/migrations/202609120002_identity_journey_scoring.sql` | Pending verification | Four experimental journey scoring versions and 180 versioned item copies/additions                                                                                  |
+
+The frontend cutover removes the public composer, module catalog, combo launcher, and legacy launcher routes. The private/shared result reader now returns results only when a modular result is attached to an identity journey. Historical database rows are not deleted or rewritten by this cutover.
+
 ## Applied guarded-lens migration
 
 | Version        | Repository source                                                 | SHA-256                                                            | Production status | Purpose                                                            |

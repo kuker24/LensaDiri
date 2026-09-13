@@ -19,6 +19,42 @@
 
 Dokumen ini menggantikan PRD versi 1.0 sebagai sumber kebenaran utama untuk produk, backend, frontend, scoring, database, keamanan, QA, deployment, dan roadmap LensaDiri.
 
+### Amendment 2026-09-12 — Identity Journey
+
+Amendment ini menggantikan model pemilihan tes pada primary user flow, route launcher frontend, dan acceptance criteria terkait composer. Kontrak keamanan, independent scoring, provenance immutable, privacy, scientific honesty, account control, share allowlist, export, deletion, dan server authority tetap berlaku.
+
+Primary user flow baru adalah satu rangkaian tetap, satu tes pada satu waktu:
+
+1. `type_16` wajib sebagai pintu masuk.
+2. `enneagram` mengukur pola sembilan tipe, tiga pusat, dan insting dalam satu pengalaman eksperimental.
+3. `socionics_communication` menghasilkan kode Socionics-inspired eksperimental dari item independen.
+4. `trait_profile` menghasilkan lima trait dan ringkasan SLOAN versioned di server.
+5. `psychosophy` menghasilkan empat posisi unik F/E/L/V sebagai hasil eksperimental.
+
+Tes 2–5 opsional dan boleh ditunda. Menunda tidak menandai tes selesai dan tidak membuka lompatan urutan; kelanjutan selalu dimulai dari langkah paling awal yang belum selesai. Workbench menampilkan hasil parsial. Podium penuh dan baris identitas lengkap hanya muncul setelah kelima langkah selesai.
+
+Format baris lengkap:
+
+```text
+{16-Type} {insting+tritype} {Socionics} {SLOAN} {AP positions} {16-Type group}
+```
+
+Contoh format, bukan hasil pengguna: `ISFJ sx964 SEI RCUAN L¹V²E³F⁴ SJ`.
+
+`SJ` adalah grouping visual yang diturunkan deterministik dari kode 16-Type, bukan hasil tes Temperamen terpisah. AP selalu memakai tepat satu posisi 1, 2, 3, dan 4. Field yang belum diperoleh tidak ditampilkan dan tidak boleh diganti contoh atau fallback palsu.
+
+Journey adalah aggregate server-side atas lima session/result independen. Ia tidak menggabungkan raw score, tidak mengubah result lama, dan tidak menghitung score di browser. Guest memakai opaque journey capability yang disimpan sebagai HMAC hash; account journey terikat ke account yang sama. Hanya satu step dapat aktif. Result completion memasang artefak ke journey secara transaksional.
+
+Breaking frontend cutover:
+
+- `/start` adalah satu-satunya launcher publik;
+- `/modules`, `/modules/[key]`, `/combos`, `/start/modules`, `/start/review`, dan `/start/consent` dihapus;
+- custom combo, preset, Full Spectrum, Quick/Normal/Complex selection, dan legacy launcher tidak lagi diekspos sebagai UI;
+- endpoint public assessment start hanya menerima pembuatan journey `type_16` Normal;
+- sesi dan result historis tidak dihapus atau ditulis ulang oleh cutover, tetapi tidak menjadi bagian primary journey baru.
+
+Versi journey Enneagram, Socionics-inspired, SLOAN summary, dan AP positions adalah eksperimental. Item tetap original LensaDiri dan berstatus draft/guarded beta sampai review bahasa, construct, bias, pilot, reliabilitas, factor, test-retest, dan DIF yang relevan tersedia. UI wajib meminta acknowledgment sebelum setiap tes 2–5 dan tidak boleh mengklaim validasi formal.
+
 PRD ini membedakan dengan tegas:
 
 1. **Target produk:** perilaku final yang wajib dicapai.
