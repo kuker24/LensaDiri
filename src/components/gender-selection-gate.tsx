@@ -59,16 +59,6 @@ export function GenderSelectionGate() {
         className="bg-iris-wash pointer-events-none absolute inset-x-0 top-0 -z-10 h-[420px] blur-3xl"
       />
 
-      {/* Giant Ghost Text 'POLA' */}
-      <div
-        aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-16 z-0 flex items-center justify-center opacity-70 select-none sm:top-10 sm:opacity-100"
-      >
-        <span className="text-line font-display text-[clamp(100px,22vw,320px)] leading-none font-black tracking-tight uppercase">
-          POLA
-        </span>
-      </div>
-
       {/* Header */}
       <header className="relative z-30 mx-auto flex w-full max-w-7xl items-center justify-between px-6 pt-6 sm:px-8 sm:pt-8">
         <div className="flex items-center gap-2.5">
@@ -92,147 +82,164 @@ export function GenderSelectionGate() {
         </div>
 
         {/* Two Main Figurine Selection Tiles */}
-        <div
-          role="radiogroup"
-          aria-label="Pilihan Wujud Figurine"
-          className="mb-7 grid w-full max-w-4xl grid-cols-2 gap-3 sm:mb-8 sm:gap-6"
-        >
-          {/* Option 1: Perempuan */}
+        <div className="relative w-full max-w-4xl">
+          {/*
+            Giant ghost "POLA", anchored to the tile row rather than to the top of
+            the viewport. At `top-16` its 317px line box ran straight through
+            "PILIH WUJUDMU" — the only instruction on the screen was competing
+            with decoration, and no `top` value clears a box that tall in the
+            165px above the heading. Behind the tiles it reads as depth, which is
+            how the hero and the runner both place their ghost layer.
+          */}
           <div
-            role="radio"
-            aria-checked={selectedGender === "perempuan"}
-            tabIndex={0}
-            onClick={() => setSelectedGender("perempuan")}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                setSelectedGender("perempuan");
-              }
-            }}
-            className={`decision-tile group relative flex min-h-[260px] cursor-pointer flex-col items-center justify-between overflow-hidden rounded-[24px] p-3 backdrop-blur-md sm:min-h-[380px] sm:rounded-3xl sm:p-6 ${
-              selectedGender === "perempuan"
-                ? "border-iris bg-iris-wash ring-iris/20 border-2 shadow-[0_10px_28px_rgb(27_28_26_/_0.10)] ring-4"
-                : "border-line bg-surface hover:border-iris/45 hover:bg-surface-raised border-2"
-            }`}
+            aria-hidden="true"
+            className="pointer-events-none absolute inset-0 z-0 hidden items-center justify-center select-none sm:flex"
           >
-            {/* Badge Indicator */}
-            <div className="z-10 flex w-full items-center justify-end">
-              <div
-                className={`ui-transition flex h-6 w-6 items-center justify-center rounded-full ${
-                  selectedGender === "perempuan"
-                    ? "bg-iris text-canvas shadow-sm"
-                    : "border-line border-2"
-                }`}
-              >
-                {selectedGender === "perempuan" && (
-                  <svg
-                    className="h-3.5 w-3.5 stroke-[3]"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
-              </div>
-            </div>
-
-            {/* Figurine Display Area with Cutout & Shadow */}
-            <div className="relative my-1 flex h-36 w-full items-center justify-center sm:my-2 sm:h-64">
-              <div className="bg-iris-wash absolute h-40 w-40 rounded-full blur-2xl" />
-              <div className="collector-figure-hover relative h-full w-28 sm:w-48">
-                <NextImage
-                  src="/figurines/base-female.png"
-                  alt="Wujud Perempuan"
-                  fill
-                  sizes="200px"
-                  draggable={false}
-                  className="object-contain object-bottom drop-shadow-[0_16px_28px_rgba(0,0,0,0.22)] filter select-none"
-                />
-              </div>
-              <div className="absolute bottom-0 h-3.5 w-28 rounded-full bg-[#1b1c1a]/18 blur-[3px]" />
-            </div>
-
-            {/* Label & Detail */}
-            <div className="border-line z-10 w-full border-t pt-3 text-center">
-              <div className="text-sm font-bold tracking-tight sm:text-lg">Perempuan</div>
-            </div>
+            <span className="text-line font-display text-[clamp(100px,22vw,320px)] leading-none font-black tracking-tight uppercase">
+              POLA
+            </span>
           </div>
 
-          {/* Option 2: Laki-laki */}
           <div
-            role="radio"
-            aria-checked={selectedGender === "laki"}
-            tabIndex={0}
-            onClick={() => setSelectedGender("laki")}
-            onKeyDown={(e) => {
-              if (e.key === "Enter" || e.key === " ") {
-                e.preventDefault();
-                setSelectedGender("laki");
-              }
-            }}
-            className={`decision-tile group relative flex min-h-[260px] cursor-pointer flex-col items-center justify-between overflow-hidden rounded-[24px] p-3 backdrop-blur-md sm:min-h-[380px] sm:rounded-3xl sm:p-6 ${
-              selectedGender === "laki"
-                ? "border-iris bg-iris-wash ring-iris/20 border-2 shadow-[0_10px_28px_rgb(27_28_26_/_0.10)] ring-4"
-                : "border-line bg-surface hover:border-iris/45 hover:bg-surface-raised border-2"
-            }`}
+            role="radiogroup"
+            aria-label="Pilihan Wujud Figurine"
+            className="relative z-10 mb-7 grid grid-cols-2 gap-3 sm:mb-8 sm:gap-6"
           >
-            {/* Badge Indicator */}
-            <div className="z-10 flex w-full items-center justify-end">
-              <div
-                className={`ui-transition flex h-6 w-6 items-center justify-center rounded-full ${
-                  selectedGender === "laki"
-                    ? "bg-iris text-canvas shadow-sm"
-                    : "border-line border-2"
-                }`}
-              >
-                {selectedGender === "laki" && (
-                  <svg
-                    className="h-3.5 w-3.5 stroke-[3]"
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
-                  </svg>
-                )}
+            {/* Option 1: Perempuan */}
+            <div
+              role="radio"
+              aria-checked={selectedGender === "perempuan"}
+              tabIndex={0}
+              onClick={() => setSelectedGender("perempuan")}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setSelectedGender("perempuan");
+                }
+              }}
+              className={`decision-tile group relative flex min-h-[260px] cursor-pointer flex-col items-center justify-between overflow-hidden rounded-[24px] p-3 backdrop-blur-md sm:min-h-[380px] sm:rounded-3xl sm:p-6 ${
+                selectedGender === "perempuan"
+                  ? "border-iris bg-iris-wash ring-iris/20 border-2 shadow-[0_10px_28px_rgb(27_28_26_/_0.10)] ring-4"
+                  : "border-line bg-surface hover:border-iris/45 hover:bg-surface-raised border-2"
+              }`}
+            >
+              {/* Badge Indicator */}
+              <div className="z-10 flex w-full items-center justify-end">
+                <div
+                  className={`ui-transition flex h-6 w-6 items-center justify-center rounded-full ${
+                    selectedGender === "perempuan"
+                      ? "bg-iris text-canvas shadow-sm"
+                      : "border-line border-2"
+                  }`}
+                >
+                  {selectedGender === "perempuan" && (
+                    <svg
+                      className="h-3.5 w-3.5 stroke-[3]"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
+              </div>
+
+              {/* Figurine Display Area with Cutout & Shadow */}
+              <div className="relative my-1 flex h-36 w-full items-center justify-center sm:my-2 sm:h-64">
+                <div className="bg-iris-wash absolute h-40 w-40 rounded-full blur-2xl" />
+                <div className="collector-figure-hover relative h-full w-28 sm:w-48">
+                  <NextImage
+                    src="/figurines/base-female.png"
+                    alt="Wujud Perempuan"
+                    fill
+                    sizes="200px"
+                    draggable={false}
+                    className="object-contain object-bottom drop-shadow-[0_16px_28px_rgba(0,0,0,0.22)] filter select-none"
+                  />
+                </div>
+                <div className="absolute bottom-0 h-3.5 w-28 rounded-full bg-[#1b1c1a]/18 blur-[3px]" />
+              </div>
+
+              {/* Label & Detail */}
+              <div className="border-line z-10 w-full border-t pt-3 text-center">
+                <div className="text-sm font-bold tracking-tight sm:text-lg">Perempuan</div>
               </div>
             </div>
 
-            {/* Figurine Display Area with Cutout & Shadow */}
-            <div className="relative my-1 flex h-36 w-full items-center justify-center sm:my-2 sm:h-64">
-              <div className="bg-iris-wash absolute h-40 w-40 rounded-full blur-2xl" />
-              <div className="collector-figure-hover relative h-full w-28 sm:w-48">
-                <NextImage
-                  src="/figurines/base-male.png"
-                  alt="Wujud Laki-laki"
-                  fill
-                  sizes="200px"
-                  draggable={false}
-                  className="object-contain object-bottom drop-shadow-[0_16px_28px_rgba(0,0,0,0.22)] filter select-none"
-                />
+            {/* Option 2: Laki-laki */}
+            <div
+              role="radio"
+              aria-checked={selectedGender === "laki"}
+              tabIndex={0}
+              onClick={() => setSelectedGender("laki")}
+              onKeyDown={(e) => {
+                if (e.key === "Enter" || e.key === " ") {
+                  e.preventDefault();
+                  setSelectedGender("laki");
+                }
+              }}
+              className={`decision-tile group relative flex min-h-[260px] cursor-pointer flex-col items-center justify-between overflow-hidden rounded-[24px] p-3 backdrop-blur-md sm:min-h-[380px] sm:rounded-3xl sm:p-6 ${
+                selectedGender === "laki"
+                  ? "border-iris bg-iris-wash ring-iris/20 border-2 shadow-[0_10px_28px_rgb(27_28_26_/_0.10)] ring-4"
+                  : "border-line bg-surface hover:border-iris/45 hover:bg-surface-raised border-2"
+              }`}
+            >
+              {/* Badge Indicator */}
+              <div className="z-10 flex w-full items-center justify-end">
+                <div
+                  className={`ui-transition flex h-6 w-6 items-center justify-center rounded-full ${
+                    selectedGender === "laki"
+                      ? "bg-iris text-canvas shadow-sm"
+                      : "border-line border-2"
+                  }`}
+                >
+                  {selectedGender === "laki" && (
+                    <svg
+                      className="h-3.5 w-3.5 stroke-[3]"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                      stroke="currentColor"
+                    >
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                    </svg>
+                  )}
+                </div>
               </div>
-              <div className="absolute bottom-0 h-3.5 w-28 rounded-full bg-[#1b1c1a]/18 blur-[3px]" />
-            </div>
 
-            {/* Label & Detail */}
-            <div className="border-line z-10 w-full border-t pt-3 text-center">
-              <div className="text-sm font-bold tracking-tight sm:text-lg">Laki-laki</div>
+              {/* Figurine Display Area with Cutout & Shadow */}
+              <div className="relative my-1 flex h-36 w-full items-center justify-center sm:my-2 sm:h-64">
+                <div className="bg-iris-wash absolute h-40 w-40 rounded-full blur-2xl" />
+                <div className="collector-figure-hover relative h-full w-28 sm:w-48">
+                  <NextImage
+                    src="/figurines/base-male.png"
+                    alt="Wujud Laki-laki"
+                    fill
+                    sizes="200px"
+                    draggable={false}
+                    className="object-contain object-bottom drop-shadow-[0_16px_28px_rgba(0,0,0,0.22)] filter select-none"
+                  />
+                </div>
+                <div className="absolute bottom-0 h-3.5 w-28 rounded-full bg-[#1b1c1a]/18 blur-[3px]" />
+              </div>
+
+              {/* Label & Detail */}
+              <div className="border-line z-10 w-full border-t pt-3 text-center">
+                <div className="text-sm font-bold tracking-tight sm:text-lg">Laki-laki</div>
+              </div>
             </div>
           </div>
         </div>
 
         {/*
-          The disclosure stays even though the checkbox is gone. Starting the run
-          still sends `consent` and `experimentalAcknowledged`, so the limits
-          behind that acknowledgment have to be on screen before the button, not
-          only in the privacy page.
+          The disclosure paragraph was removed by product decision.
+          `startIdentityJourney` still transmits `consent: true` and
+          `experimentalAcknowledged: true`, and `combinedJourneyMinimumAge`
+          remains the age asserted on the visitor's behalf, so nothing on this
+          screen now states the limits behind that acknowledgment. The remaining
+          statement of those limits lives on /privacy and /disclaimer, neither of
+          which is linked from the journey.
         */}
-        <p className="text-ink-muted mb-6 w-full max-w-md text-center text-xs leading-relaxed">
-          Untuk usia {combinedJourneyMinimumAge} tahun ke atas. Dengan memulai, jawabanmu diproses
-          untuk menghasilkan refleksi pribadi. Sebagian lensa masih eksperimental dan belum melewati
-          validasi formal. Hasil bukan diagnosis dan tetap privat.
-        </p>
 
         {/* Action Button */}
         <div className="flex w-full max-w-md flex-col items-center gap-3">

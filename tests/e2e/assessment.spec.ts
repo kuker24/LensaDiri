@@ -23,11 +23,11 @@ test("the only primary entry creates the required first journey lens", async ({ 
   await page.getByRole("radio", { name: /Laki-laki/u }).click();
 
   // Picking a figurine is the only step before the run: no age field, no consent
-  // box. The limits behind the acknowledgment the browser sends must still be on
-  // screen, so assert the disclosure rather than just the absence of inputs.
+  // box, and — by product decision — no on-screen disclosure either, even though
+  // the request still carries consent and the experimental acknowledgment.
   await expect(page.getByRole("spinbutton")).toHaveCount(0);
   await expect(page.getByRole("checkbox")).toHaveCount(0);
-  await expect(page.getByText(/Untuk usia 18 tahun ke atas/u)).toBeVisible();
+  await expect(page.getByText(/Untuk usia 18 tahun ke atas/u)).toHaveCount(0);
 
   const startButton = page.getByRole("button", { name: "Testlensa" });
   await expect(startButton).toBeEnabled();

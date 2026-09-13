@@ -144,7 +144,7 @@ function PrivacyVaultCard() {
 
       <Link
         href="/start"
-        className="bg-iris text-canvas hover:bg-iris-deep inline-flex min-h-[48px] w-full items-center justify-center rounded-full py-3 text-sm font-bold shadow-sm transition-all duration-150 ease-out active:scale-95"
+        className="bg-iris text-canvas hover:bg-iris-deep inline-flex min-h-[48px] w-full items-center justify-center rounded-full py-3 text-sm font-bold shadow-sm transition-[background-color,color,transform] duration-150 ease-out active:scale-95"
       >
         Mulai Mode Tamu Sekarang →
       </Link>
@@ -203,7 +203,7 @@ export default function PrivacyPage() {
             {dataPillars.map((pillar) => (
               <article
                 key={pillar.num}
-                className="group border-line bg-surface hover:border-line-strong hover:bg-surface-raised flex flex-col justify-between rounded-3xl border p-8 shadow-[0_6px_20px_rgb(27_28_26_/_0.06)] transition-all duration-200 ease-out hover:-translate-y-1 sm:p-9"
+                className="group border-line bg-surface hover:border-line-strong hover:bg-surface-raised flex flex-col justify-between rounded-3xl border p-8 shadow-[0_6px_20px_rgb(27_28_26_/_0.06)] transition-[background-color,border-color,transform] duration-200 ease-out hover:-translate-y-1 sm:p-9"
               >
                 <div>
                   <div className="flex items-center justify-between">
@@ -274,7 +274,7 @@ export default function PrivacyPage() {
             <div className="mt-8 flex flex-wrap justify-center gap-4">
               <Link
                 href="/start"
-                className="bg-iris text-canvas hover:bg-iris-deep hover:bg-surface inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full px-8 py-3.5 text-sm font-bold text-[#1b5e20] shadow-lg transition-all duration-150 ease-out active:scale-95"
+                className="bg-iris text-canvas hover:bg-iris-deep hover:bg-surface inline-flex min-h-[48px] items-center justify-center gap-2 rounded-full px-8 py-3.5 text-sm font-bold text-[#1b5e20] shadow-lg transition-[background-color,color,transform] duration-150 ease-out active:scale-95"
               >
                 <span>Mulai Mode Tamu</span>
                 <ArrowUpRightIcon className="h-4 w-4" />
