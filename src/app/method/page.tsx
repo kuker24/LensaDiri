@@ -104,7 +104,7 @@ function OpenScienceCard() {
         <span className="text-ink-muted font-mono text-xs">Tier A & B</span>
       </div>
 
-      <h2 className="font-['Anton',var(--font-anton),sans-serif] text-2xl tracking-wide uppercase sm:text-3xl">
+      <h2 className="font-display text-2xl tracking-wide uppercase sm:text-3xl">
         Batas Sains & Integritas 🔬
       </h2>
 
@@ -156,7 +156,7 @@ export default function MethodPage() {
           stageColor="#E882B4"
           stageInk="#681847"
           headline={
-            <h1 className="font-['Anton',var(--font-anton),sans-serif] text-[clamp(30px,5vw,52px)] leading-[1.04] tracking-tight uppercase">
+            <h1 className="font-display text-[clamp(30px,5vw,52px)] leading-[1.04] tracking-tight uppercase">
               Bukan menilai siapa kamu, tapi menyalakan lampu di ruang hening.
             </h1>
           }

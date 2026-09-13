@@ -554,7 +554,7 @@ export function TestRunner({ token }: { token: string }) {
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 top-10 z-0 hidden items-center justify-center select-none lg:flex"
       >
-        <span className="text-line font-['Anton',var(--font-anton),sans-serif] text-[clamp(100px,26vw,380px)] leading-none font-black tracking-tight uppercase">
+        <span className="text-line font-display text-[clamp(100px,26vw,380px)] leading-none font-black tracking-tight uppercase">
           POLA
         </span>
       </div>

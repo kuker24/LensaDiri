@@ -64,7 +64,7 @@ export function GenderSelectionGate() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 top-16 z-0 flex items-center justify-center opacity-70 select-none sm:top-10 sm:opacity-100"
       >
-        <span className="text-line font-['Anton',var(--font-anton),sans-serif] text-[clamp(100px,22vw,320px)] leading-none font-black tracking-tight uppercase">
+        <span className="text-line font-display text-[clamp(100px,22vw,320px)] leading-none font-black tracking-tight uppercase">
           POLA
         </span>
       </div>
@@ -74,7 +74,7 @@ export function GenderSelectionGate() {
         <div className="flex items-center gap-2.5">
           <Link
             href="/"
-            className="focus-ring inline-flex min-h-11 items-center font-['Anton',var(--font-anton),sans-serif] text-base tracking-[0.18em] uppercase transition-opacity hover:opacity-80 sm:text-lg"
+            className="focus-ring font-display inline-flex min-h-11 items-center text-base tracking-[0.18em] uppercase transition-opacity hover:opacity-80 sm:text-lg"
           >
             LENSADIRI
           </Link>
@@ -86,7 +86,7 @@ export function GenderSelectionGate() {
       <main className="relative z-20 mx-auto flex min-h-[calc(100vh-140px)] max-w-5xl flex-col items-center justify-center px-4 py-8 sm:px-6">
         {/* Header Title & Sub */}
         <div className="mb-6 max-w-xl text-center sm:mb-8">
-          <h1 className="font-['Anton',var(--font-anton),sans-serif] text-[clamp(30px,6vw,44px)] tracking-tight uppercase">
+          <h1 className="font-display text-[clamp(30px,6vw,44px)] tracking-tight uppercase">
             Pilih wujudmu
           </h1>
         </div>

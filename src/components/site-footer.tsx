@@ -2,6 +2,13 @@
 
 import Link from "next/link";
 
+import { BrandMark } from "@/components/brand-mark";
+
+/**
+ * The header no longer carries a nav rail, so this is the only path to the
+ * method, privacy, limitation, terms, and contact pages. They stay here on
+ * purpose: privacy and limitation disclosure has to remain reachable.
+ */
 const footerLinks = [
   { label: "METODE", href: "/method" },
   { label: "PRIVASI", href: "/privacy" },
@@ -39,11 +46,10 @@ export function SiteFooter() {
       <div className="mx-auto max-w-7xl px-4 py-10 sm:px-6 lg:px-8">
         <div className="flex flex-col gap-8 md:flex-row md:items-center md:justify-between">
           <div className="flex items-center gap-2.5">
-            <span className="text-ink font-['Anton',var(--font-anton),sans-serif] text-base tracking-[0.18em] uppercase">
+            <BrandMark className="h-7 w-7 shrink-0" idPrefix="brand-footer" />
+            <span className="text-ink font-display text-base tracking-[0.18em] uppercase">
               LensaDiri
             </span>
-            <span className="bg-iris h-2 w-2 rounded-full" />
-            <span className="text-steel">Collectible System</span>
           </div>
 
           <nav aria-label="Navigasi footer studio" className="flex flex-wrap gap-6">

@@ -37,13 +37,13 @@ export function CollectiblePageHero({
         style={{ backgroundColor: stageColor, opacity: 0.13 }}
       />
 
-      {/* Giant Ghost Anton Watermark */}
+      {/* Giant ghost display watermark */}
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-x-0 top-1/2 z-0 flex -translate-y-1/2 items-center justify-center select-none"
       >
         <span
-          className="font-['Anton',var(--font-anton),sans-serif] text-[clamp(100px,22vw,300px)] leading-none font-black tracking-tight uppercase opacity-25"
+          className="font-display text-[clamp(100px,22vw,300px)] leading-none font-black tracking-tight uppercase opacity-25"
           style={{ color: stageColor }}
         >
           {ghostText}

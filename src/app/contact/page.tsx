@@ -36,7 +36,7 @@ export default function ContactPage() {
             Bantuan dan laporan{" "}
             <span
               style={{
-                fontFamily: "'Instrument Serif', serif",
+                fontFamily: "var(--font-poly), Georgia, serif",
                 fontStyle: "italic",
                 fontWeight: 400,
               }}
@@ -89,6 +89,33 @@ export default function ContactPage() {
                   href="mailto:security@lensadiri.com"
                 >
                   <span>Email Tim Keamanan</span>
+                  <span aria-hidden="true">✉</span>
+                </a>
+              </div>
+            </section>
+
+            {/*
+              Spans both columns so the third card does not leave a dangling
+              half-row on the small-screen two-up grid.
+            */}
+            <section className="rounded-2xl border border-gray-200 bg-white p-6 shadow-2xs sm:col-span-2 sm:p-8">
+              <span className="inline-flex rounded-full border border-rose-200 bg-rose-50 px-2.5 py-0.5 text-xs font-semibold text-rose-800">
+                Data Pribadi
+              </span>
+              <h2 className="mt-4 text-xl font-semibold text-gray-900">Permintaan Hapus Data</h2>
+              <p className="mt-2 text-sm leading-relaxed text-gray-600">
+                Hasil asesmen dapat kamu hapus sendiri lewat tombol hapus di halaman hasil, tanpa
+                perlu menghubungi siapa pun. Kanal ini khusus untuk data akun lama: LensaDiri sudah
+                menutup pendaftaran, jadi jika kamu pernah membuat akun di versi sebelumnya dan
+                ingin data itu dimusnahkan, kirim permintaan ke alamat di bawah. Jangan sertakan
+                kata sandi.
+              </p>
+              <div className="mt-6">
+                <a
+                  className="inline-flex min-h-[44px] items-center justify-center gap-2 rounded-xl border border-gray-300 bg-white px-5 py-2.5 text-xs font-semibold text-gray-800 shadow-2xs transition-[transform,background-color] duration-150 ease-out hover:bg-gray-50 active:scale-[0.97]"
+                  href="mailto:security@lensadiri.com?subject=Permintaan%20hapus%20data%20akun"
+                >
+                  <span>Kirim Permintaan Hapus</span>
                   <span aria-hidden="true">✉</span>
                 </a>
               </div>

@@ -17,6 +17,7 @@
 - `operations/RESEND_FREE_TIER_ACTIVATION.md`, `operations/GUARDED_MODULE_REVIEW_PACKET.md`: operator/human residual packets.
 - `product/FULL_SPECTRUM_CAPACITY_DECISION.md`, `product/AI_NARRATIVE_FREE_TIER_STANCE.md`: product residual decisions.
 - `science/PSYCHOMETRIC_VALIDATION_PREP.md`: non-validating study prep only.
+- `science/SCORING_CONFIDENCE_AUDIT.md`: audit of the per-module confidence model; findings only, no code changed.
 - `qa/MANUAL_A11Y_CHECKLIST.md`: manual a11y sheet; not WCAG cert.
 - `ai/MCP_SETUP.md`: optional least-privilege MCP setup. MCP is not application runtime dependency.
 

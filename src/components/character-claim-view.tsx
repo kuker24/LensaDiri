@@ -74,7 +74,7 @@ export function CharacterClaimView({
 
       <header className="relative z-20 flex w-full items-center justify-between px-5 pt-6 sm:px-10">
         <div className="flex items-center gap-2.5">
-          <span className="font-['Anton',var(--font-anton),sans-serif] text-base tracking-[0.18em] uppercase sm:text-lg">
+          <span className="font-display text-base tracking-[0.18em] uppercase sm:text-lg">
             LENSADIRI
           </span>
           <span className="h-2 w-2 rounded-full bg-[var(--stage)]" />
@@ -91,7 +91,7 @@ export function CharacterClaimView({
             <span className="h-1.5 w-1.5 rounded-full bg-current" />
             Baru diklaim · masih polos
           </span>
-          <h1 className="font-['Anton',var(--font-anton),sans-serif] text-[clamp(30px,7vw,52px)] leading-[1.04] tracking-tight uppercase">
+          <h1 className="font-display text-[clamp(30px,7vw,52px)] leading-[1.04] tracking-tight uppercase">
             Ini tubuh karaktermu
           </h1>
           <p className="text-ink-muted max-w-md leading-relaxed">

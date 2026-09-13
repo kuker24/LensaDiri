@@ -11,19 +11,29 @@ import { buildResultPdfModel } from "@/server/export/result-pdf-model";
 
 let fontsRegistered = false;
 
+/**
+ * Registers the single Poly face used across the whole document.
+ *
+ * Poly has no Medium or Bold cut, so only weight 400 is registered. Requesting
+ * 500 here would make `@react-pdf` fall back to a built-in Helvetica for those
+ * runs and break the document's typographic consistency; the stylesheet
+ * therefore carries no `fontWeight` above 400 either. See `fonts/README.md`.
+ */
 function registerPdfFonts(): void {
   if (fontsRegistered) return;
   const fontsDir = path.join(process.cwd(), "src/server/export/fonts");
   Font.register({
-    family: "PlusJakartaSans",
+    family: "Poly",
     fonts: [
       {
         fontWeight: 400,
-        src: path.join(fontsDir, "PlusJakartaSans-Regular.ttf"),
+        fontStyle: "normal",
+        src: path.join(fontsDir, "Poly-Regular.ttf"),
       },
       {
-        fontWeight: 500,
-        src: path.join(fontsDir, "PlusJakartaSans-Medium.ttf"),
+        fontWeight: 400,
+        fontStyle: "italic",
+        src: path.join(fontsDir, "Poly-Italic.ttf"),
       },
     ],
   });

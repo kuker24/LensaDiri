@@ -6,8 +6,10 @@ describe("getRouteFamily", () => {
   test.each([
     ["/", "public"],
     ["/modules/trait_profile", "public"],
-    ["/login", "auth"],
-    ["/forgot-password", "auth"],
+    // The sign-in pages were removed, so these no longer resolve to their own
+    // chrome family. They fall through to `public` and render as 404.
+    ["/login", "public"],
+    ["/forgot-password", "public"],
     ["/start/modules", "assessment"],
     ["/test/token", "assessment"],
     ["/result/token/share", "assessment"],

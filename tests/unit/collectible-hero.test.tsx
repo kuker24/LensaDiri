@@ -1,7 +1,19 @@
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
-import { CollectibleHero } from "@/components/collectible-hero";
+import { CollectibleHero, HERO_FIGURES } from "@/components/collectible-hero";
+
+/**
+ * The visible "Koleksi NN / NN" counter was removed from the stage, so the
+ * active card is identified structurally instead: only the centred card is
+ * painted at `zIndex: 20`.
+ */
+function activeCardLabel() {
+  const active = document.querySelector('[style*="z-index: 20"]');
+  if (!active) throw new Error("no active hero card found");
+  const image = active.querySelector("img");
+  return image?.getAttribute("alt") ?? "";
+}
 
 describe("CollectibleHero Component", () => {
   beforeEach(() => {
@@ -40,52 +52,62 @@ describe("CollectibleHero Component", () => {
     // CTA
     const cta = screen.getByRole("link", { name: /MULAI/i });
     expect(cta.getAttribute("href")).toBe("/start");
-    expect(screen.getByText("Bukan diagnosis klinis")).toBeDefined();
   });
 
-  test("keeps types hidden and cycles through anonymous figurines with a 650ms lock", () => {
+  test("carries both renders of every type without naming them", () => {
+    expect(HERO_FIGURES).toHaveLength(32);
+    expect(new Set(HERO_FIGURES.map((figure) => figure.code)).size).toBe(16);
+    expect(HERO_FIGURES.filter((figure) => figure.variant === "laki")).toHaveLength(16);
+    expect(HERO_FIGURES.filter((figure) => figure.variant === "perempuan")).toHaveLength(16);
+
     render(<CollectibleHero />);
 
-    expect(screen.getByText("Koleksi 01 / 16")).toBeDefined();
+    // No stage copy may leak the type code or its nickname.
     expect(screen.queryByText(/INTJ/u)).toBeNull();
     expect(screen.queryByText(/Arsitek/u)).toBeNull();
+    expect(screen.queryByText(/perempuan/u)).toBeNull();
+  });
+
+  test("cycles through anonymous figurines with a 650ms lock", () => {
+    render(<CollectibleHero />);
+
+    expect(activeCardLabel()).toBe("Figurine koleksi 01");
 
     const nextBtn = screen.getByRole("button", { name: "Figurine berikutnya" });
     const prevBtn = screen.getByRole("button", { name: "Figurine sebelumnya" });
 
-    // Roster is grouped by cluster, so INTJ is followed by its NT neighbours.
+    // Variants are interleaved per type, so the second card is the other
+    // render of the same type rather than the next type.
     act(() => {
       fireEvent.click(nextBtn);
     });
-    expect(screen.getByText("Koleksi 02 / 16")).toBeDefined();
+    expect(activeCardLabel()).toBe("Figurine koleksi 02");
 
     // Rapid double click during 650ms lock must be ignored
     act(() => {
       fireEvent.click(nextBtn);
     });
-    expect(screen.getByText("Koleksi 02 / 16")).toBeDefined();
+    expect(activeCardLabel()).toBe("Figurine koleksi 02");
 
     // Advance timer past 650ms lock
     act(() => {
       vi.advanceTimersByTime(700);
     });
 
-    // Next click -> moves to ENTJ
     act(() => {
       fireEvent.click(nextBtn);
     });
-    expect(screen.getByText("Koleksi 03 / 16")).toBeDefined();
+    expect(activeCardLabel()).toBe("Figurine koleksi 03");
 
     // Advance timer
     act(() => {
       vi.advanceTimersByTime(700);
     });
 
-    // Prev click -> back to INTP
     act(() => {
       fireEvent.click(prevBtn);
     });
-    expect(screen.getByText("Koleksi 02 / 16")).toBeDefined();
+    expect(activeCardLabel()).toBe("Figurine koleksi 02");
   });
 
   test("wraps backward from the first card to the last cluster", () => {
@@ -95,6 +117,6 @@ describe("CollectibleHero Component", () => {
     act(() => {
       fireEvent.click(screen.getByRole("button", { name: "Figurine sebelumnya" }));
     });
-    expect(screen.getByText("Koleksi 16 / 16")).toBeDefined();
+    expect(activeCardLabel()).toBe("Figurine koleksi 32");
   });
 });

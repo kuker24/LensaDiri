@@ -19,7 +19,7 @@ export default async function ResultModuleDetailPage({
   params: Promise<{ token: string; moduleKey: string }>;
 }) {
   const session = await getCurrentSession();
-  if (!session) redirect("/login");
+  if (!session) redirect("/");
   const { token, moduleKey } = await params;
   const moduleName = resultModuleLabels[moduleKey] ?? "Lensa reflektif";
 

@@ -9,11 +9,6 @@ const publicRoutes = [
   "/privacy",
   "/disclaimer",
   "/start",
-  "/login",
-  "/register",
-  "/forgot-password",
-  "/reset-password",
-  "/verify-email",
 ] as const;
 
 for (const route of publicRoutes) {
@@ -80,16 +75,35 @@ test("keyboard focus treatment remains visible across primary surfaces", async (
   await expect(startControl).toBeFocused();
 });
 
-test("authentication controls have labels and mobile-safe font size", async ({ page }) => {
-  await page.goto("/login");
-  const email = page.getByLabel(/email/i);
-  const password = page.getByRole("textbox", { name: "Kata sandi" });
-  await expect(email).toBeVisible();
-  await expect(password).toBeVisible();
-  await expect(page.getByRole("button", { name: "Masuk", exact: true })).toBeEnabled();
+test("assessment form controls have labels and mobile-safe font size", async ({ page }) => {
+  await page.goto("/start");
 
-  if (page.viewportSize()?.width === 393) {
-    for (const control of [email, password]) {
+  const controls = page.locator("main input, main select, main textarea");
+  const count = await controls.count();
+
+  for (let index = 0; index < count; index += 1) {
+    const control = controls.nth(index);
+    // Every control must carry an accessible name from a label, aria-label, or
+    // aria-labelledby rather than relying on adjacent text.
+    const accessibleName = await control.evaluate((element) => {
+      const labelled = element.getAttribute("aria-label");
+      if (labelled) return labelled;
+      const labelledBy = element.getAttribute("aria-labelledby");
+      if (labelledBy) {
+        return labelledBy
+          .split(/\s+/u)
+          .map((id) => document.getElementById(id)?.textContent ?? "")
+          .join(" ")
+          .trim();
+      }
+      const id = element.getAttribute("id");
+      if (!id) return "";
+      return document.querySelector(`label[for="${id}"]`)?.textContent?.trim() ?? "";
+    });
+    expect(accessibleName).not.toBe("");
+
+    // iOS zooms the viewport when a focused field is below 16px.
+    if (page.viewportSize()?.width === 393) {
       const fontSize = await control.evaluate((element) =>
         Number.parseFloat(window.getComputedStyle(element).fontSize),
       );
@@ -101,7 +115,18 @@ test("authentication controls have labels and mobile-safe font size", async ({ p
 test("removed product routes and unknown paths return real not-found responses", async ({
   page,
 }) => {
-  for (const route of ["/modules", "/combos", "/start/modules", "/tidak-ada-halaman-ini"]) {
+  for (const route of [
+    "/modules",
+    "/combos",
+    "/start/modules",
+    // The account system was retired; these pages no longer exist.
+    "/login",
+    "/register",
+    "/forgot-password",
+    "/reset-password",
+    "/verify-email",
+    "/tidak-ada-halaman-ini",
+  ]) {
     const response = await page.goto(route);
     expect(response?.status()).toBe(404);
     await expect(page.getByRole("heading", { name: "Halaman tidak ditemukan" })).toBeVisible();

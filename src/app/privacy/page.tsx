@@ -30,12 +30,12 @@ function ArrowUpRightIcon({ className = "w-4 h-4" }: { className?: string }) {
 const dataPillars = [
   {
     num: "01",
-    tag: "Akses Fleksibel",
-    title: "Mode Tamu Bebas Identitas",
+    tag: "Tanpa Identitas",
+    title: "Tidak Ada Akun Sama Sekali",
     summary:
-      "Jelajahi dan selesaikan seluruh asesmen tanpa perlu membuat akun, tanpa email, dan tanpa nomor ponsel.",
+      "Seluruh asesmen berjalan tanpa akun, tanpa email, dan tanpa nomor ponsel. Pendaftaran sudah tidak ada lagi.",
     details:
-      "Sesi tamu disimpan sementara dan kedaluwarsa secara otomatis. Tidak ada paksaan untuk menyerahkan kontak pribadi jika kamu hanya ingin bercermin.",
+      "Sesi disimpan sementara dan kedaluwarsa otomatis. Akses ke hasilmu melekat pada tautan hasil yang kamu simpan sendiri, bukan pada kredensial apa pun.",
     accent: "border-emerald-200 bg-emerald-50 text-emerald-800",
     dot: "bg-emerald-500",
   },
@@ -75,11 +75,11 @@ const dataPillars = [
   {
     num: "05",
     tag: "Hak Hapus Permanen",
-    title: "Kedaulatan Hapus Bersih Seketika",
+    title: "Kendali Hapus dari Halaman Hasil",
     summary:
-      "Kapan pun kamu ingin menyudahi, seluruh riwayat atau akun dapat dimusnahkan secara permanen.",
+      "Selama kamu memegang tautan hasilmu, hasil beserta seluruh jawaban di baliknya dapat dimusnahkan permanen dari halaman itu.",
     details:
-      "Penghapusan data dilakukan tuntas dari basis data tanpa menyimpan arsip bayangan. Kamu juga bebas mengekspor salinan hasil ke format PDF atau JSON sebelum menghapusnya.",
+      "Tombol hapus ada di halaman hasil dan tidak memerlukan akun. Penghapusan dilakukan tuntas dari basis data tanpa arsip bayangan. Kamu juga bebas mengekspor salinan ke PDF atau JSON sebelum menghapusnya.",
     accent: "border-rose-200 bg-rose-50 text-rose-800",
     dot: "bg-rose-500",
   },
@@ -88,15 +88,15 @@ const dataPillars = [
 const ledgerItems = [
   {
     category: "Identitas Akun",
-    whatStored: "Email dan hash kata sandi (jika kamu memilih mendaftar).",
+    whatStored: "Tidak ada. Pendaftaran sudah ditutup dan LensaDiri tidak lagi meminta email.",
     howProtected:
-      "Kata sandi di-hash menggunakan algoritma Argon2id berbobot tinggi. Kami tidak pernah mengetahui atau menyimpan kata sandi aslimu.",
+      "Tidak ada email atau kata sandi baru yang masuk. Jika kamu pernah mendaftar di versi sebelumnya dan ingin data akun itu dihapus, hubungi kami lewat halaman Kontak.",
   },
   {
     category: "Jawaban & Skor",
     whatStored: "Pilihan respons Likert dan skor numerik per dimensi.",
     howProtected:
-      "Tersimpan dalam basis data terisolasi dengan akses ketat. Terhapus permanen saat kamu memilih menghapus sesi atau akun.",
+      "Tersimpan dalam basis data terisolasi dengan akses ketat. Terhapus permanen saat kamu menekan hapus di halaman hasil.",
   },
   {
     category: "Data Jaringan",
@@ -122,7 +122,7 @@ function PrivacyVaultCard() {
         <span className="text-ink-muted font-mono text-xs">100% Privat</span>
       </div>
 
-      <h2 className="font-['Anton',var(--font-anton),sans-serif] text-2xl tracking-wide uppercase sm:text-3xl">
+      <h2 className="font-display text-2xl tracking-wide uppercase sm:text-3xl">
         Kedaulatan Data 🛡️
       </h2>
 
@@ -174,7 +174,7 @@ export default function PrivacyPage() {
           stageColor="#6BBF7A"
           stageInk="#002109"
           headline={
-            <h1 className="font-['Anton',var(--font-anton),sans-serif] text-[clamp(30px,5vw,52px)] leading-[1.04] tracking-tight uppercase">
+            <h1 className="font-display text-[clamp(30px,5vw,52px)] leading-[1.04] tracking-tight uppercase">
               Ruang refleksi pribadimu, tanpa kompromi data.
             </h1>
           }

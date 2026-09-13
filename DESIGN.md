@@ -26,9 +26,10 @@ Stage colors are light fills. Text on them must use the matching dark stage ink:
 
 ## Typography
 
-- Display and packaging headings: Anton, uppercase, compact line-height, moderate tracking.
-- Body and controls: Plus Jakarta Sans, 500-800 weights.
-- Monospace is limited to measurements, progress, codes, and compact metadata.
+- One family across the whole surface: **Poly**, a serif with a single 400 weight in normal and italic. Web uses `next/font/google`; the PDF export bundles the same family with `GSUB`/`GPOS`/`GDEF` stripped.
+- There is no bold or medium cut. Every `font-bold` / `font-semibold` utility renders as synthetic bold, so hierarchy must come from **size, colour, and letter spacing** rather than weight.
+- Display and packaging headings stay uppercase with compact line-height and moderate tracking, now set in Poly rather than a separate display face.
+- `font-mono` is retained only for its tracking and uppercase treatment on labels, codes, and compact metadata. It no longer yields a monospace advance, so `tabular-nums` has no effect and numeric columns are not width-locked.
 - Headings carry the hierarchy; decorative labels do not repeat them.
 - Public copy is short, direct Indonesian. Do not use collectible jargon as a factual claim.
 
@@ -64,7 +65,7 @@ The question card is dominant. Progress and save state remain visible. The blank
 
 ### Claim, Workbench, And Podium
 
-Claim is the first place an actual type may appear. The workbench exposes exactly one available next test in this order: Enneagram, Socionics-inspired, Big Five/SLOAN, Attitudinal Psyche. Future steps remain locked. It never depicts an unearned result. Partial collections use `POLAMU SAAT INI`; `PODIUM PENUH` is reserved for 5/5. Shared cards retain the server allowlist and omit private diagnostics.
+Claim is the first place an actual type may appear. The workbench exposes exactly one available next test in this order: Enneagram, Socionics-inspired, Big Five/SLOAN, Attitudinal Psyche. Future steps remain locked. It never depicts an unearned result. Both partial and complete collections use the single heading `HASIL LENSA`; completeness is carried by the `Koleksi lengkap` / `Koleksi parsial` badge instead of forking the title. Shared cards retain the server allowlist and omit private diagnostics.
 
 ## Motion
 

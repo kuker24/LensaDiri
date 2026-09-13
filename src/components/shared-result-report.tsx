@@ -1,4 +1,5 @@
 import NextImage from "next/image";
+import { cn } from "@/lib/cn";
 import type { SafeSharedResultView } from "@/server/repositories/result-views";
 import { ResultIdentitySummary } from "@/components/result-identity-summary";
 import { ResultScoreIndicator } from "@/components/result-score-indicator";
@@ -41,7 +42,7 @@ function SharedStageCard({
         className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center select-none"
       >
         <span
-          className="font-['Anton',var(--font-anton),sans-serif] text-[clamp(100px,20vw,240px)] leading-none font-black tracking-tight uppercase opacity-25"
+          className="font-display text-[clamp(100px,20vw,240px)] leading-none font-black tracking-tight uppercase opacity-25"
           style={{ color: stage.fill }}
         >
           POLA
@@ -260,10 +261,25 @@ export function SharedResultReport({ result }: { result: SafeSharedResultView })
           <h2 className="text-2xl font-normal tracking-[-0.025em]" id="shared-correlation-heading">
             Hubungan antar-lensa
           </h2>
-          <div className="border-line bg-line mt-5 grid gap-px overflow-hidden rounded-[16px] border md:grid-cols-2">
-            {result.correlations.map((correlation) => (
+          {/*
+            Same conditional-count grid as the private report: an odd number of
+            correlation cards used to leave the unfilled column painted flat
+            grey, because the hairline was a `bg-line` wrapper showing through
+            `gap-px`. Cards carry their own dividers instead.
+          */}
+          <div className="border-line bg-surface mt-5 grid overflow-hidden rounded-[16px] border md:grid-cols-2">
+            {result.correlations.map((correlation, index) => (
               <article
-                className="bg-surface p-5"
+                className={cn(
+                  "bg-surface p-5",
+                  index >= 1 && "border-line border-t md:border-t-0",
+                  index >= 2 && "md:border-line md:border-t",
+                  index % 2 === 1 && "md:border-line md:border-l",
+                  index === result.correlations.length - 1 &&
+                    result.correlations.length % 2 === 1 &&
+                    index > 0 &&
+                    "md:col-span-2",
+                )}
                 key={`${correlation.kind}-${correlation.narrativeKey}`}
               >
                 <h3 className="font-normal">

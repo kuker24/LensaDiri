@@ -13,7 +13,12 @@ test("landing page exposes the core trust proposition", async ({ page }) => {
       .getByRole("link", { name: /Mulai eksplorasi/u })
       .first(),
   ).toBeVisible();
-  await expect(page.getByText("Bukan diagnosis klinis", { exact: true })).toHaveCount(1);
+  // The hero no longer carries marketing microcopy, but the privacy and
+  // limitation disclosures must stay reachable from the landing page. The site
+  // footer does not render here, so this row is the only path to them.
+  const legal = page.getByRole("navigation", { name: "Informasi dan kebijakan" });
+  await expect(legal.getByRole("link", { name: "Privasi" })).toBeVisible();
+  await expect(legal.getByRole("link", { name: "Batasan" })).toBeVisible();
 });
 
 test("public information pages are reachable", async ({ page }) => {

@@ -1,4 +1,5 @@
 import { useEffect, useState, type ReactNode } from "react";
+import { cn } from "@/lib/cn";
 import { getPublicModeName } from "@/lib/assessment/catalog";
 import { getIdentityJourney } from "@/lib/assessment/client";
 import { getIdentityJourneyAccess } from "@/lib/assessment/journey-storage";
@@ -120,11 +121,7 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
   return (
     <div>
       <div className="bg-surface border-line rounded-[28px] border p-8 shadow-[0_12px_36px_rgb(27_28_26_/_0.08)] sm:p-12">
-        <span className="bg-iris-wash text-iris inline-flex items-center gap-2 rounded-full px-3.5 py-1 font-mono text-xs font-bold tracking-wider uppercase">
-          <span className="bg-iris h-1.5 w-1.5 rounded-full" />
-          Hasil Pribadi · {result.modules.length} Lensa
-        </span>
-        <h1 className="mt-5 max-w-3xl font-sans text-3xl font-semibold tracking-[-0.035em] sm:text-5xl">
+        <h1 className="max-w-3xl font-sans text-3xl font-semibold tracking-[-0.035em] sm:text-5xl">
           Hasilmu dalam {result.modules.length} lensa
         </h1>
         <ResultIdentitySummary items={identities} />
@@ -375,9 +372,32 @@ function ModularResultReport({ result }: { result: Extract<ResultView, { kind: "
           <h2 className="text-2xl font-normal tracking-[-0.025em]" id="correlation-heading">
             Hubungan dan tegangan antar-lensa
           </h2>
-          <div className="border-line bg-line mt-5 grid gap-px overflow-hidden rounded-[16px] border md:grid-cols-2">
-            {result.correlations.map((correlation) => (
-              <article className="bg-surface p-5" key={correlation.ruleKey}>
+          {/*
+            Correlation cards are conditional, so this grid can hold 1 to 4 of
+            them. The hairline used to come from a `bg-line` wrapper showing
+            through `gap-px`, which meant an odd card count left the unfilled
+            column painted flat grey. The wrapper is now the card colour and each
+            article draws its own dividers, so a short final row simply ends.
+          */}
+          <div className="border-line bg-surface mt-5 grid overflow-hidden rounded-[16px] border md:grid-cols-2">
+            {result.correlations.map((correlation, index) => (
+              <article
+                className={cn(
+                  "bg-surface p-5",
+                  // Row divider for every card that has one above it.
+                  index >= 1 && "border-line border-t md:border-t-0",
+                  index >= 2 && "md:border-line md:border-t",
+                  // Column divider on the right-hand card only.
+                  index % 2 === 1 && "md:border-line md:border-l",
+                  // A lone card on the final row spans the full width instead of
+                  // leaving an empty second column.
+                  index === result.correlations.length - 1 &&
+                    result.correlations.length % 2 === 1 &&
+                    index > 0 &&
+                    "md:col-span-2",
+                )}
+                key={correlation.ruleKey}
+              >
                 <h3 className="font-normal capitalize">{formatKey(correlation.kind)}</h3>
                 <p className="text-ink-muted mt-2 text-sm leading-6">
                   {narrativeLabels[correlation.narrativeKey] ??
@@ -538,7 +558,7 @@ export function ResultReport({
       <div id="uraian-section" hidden={!isUraianOpen} className="mx-auto max-w-5xl px-4 py-8">
         <div className="bg-surface border-line rounded-[24px] border p-6 shadow-[0_10px_30px_rgb(27_28_26_/_0.07)] sm:p-10">
           <div className="border-line mb-6 flex items-center justify-between gap-4 border-b pb-4">
-            <h2 className="font-['Anton',var(--font-anton),sans-serif] text-2xl tracking-tight uppercase sm:text-3xl">
+            <h2 className="font-display text-2xl tracking-tight uppercase sm:text-3xl">
               Uraian Laporan Mendalam
             </h2>
             <button

@@ -8,7 +8,7 @@ import { getButtonClassName } from "@/components/ui/button";
 
 export default async function ResultSharePage({ params }: { params: Promise<{ token: string }> }) {
   const session = await getCurrentSession();
-  if (!session) redirect("/login");
+  if (!session) redirect("/");
   const { token } = await params;
 
   const result = await getPrivateResultByToken(token);

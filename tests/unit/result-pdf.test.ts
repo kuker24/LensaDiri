@@ -163,9 +163,12 @@ describe("result PDF export", () => {
     expect(modularModel.kind).toBe("modular");
     expect(modularModel.modular?.modules).toHaveLength(2);
     expect(modularModel.modular?.correlations[0]?.narrative).toMatch(/konteks/i);
+    // The PDF carries plain-language overrides for a few module names, so
+    // `type_16` reads as "Tipe 16 Karakter" here while the web report keeps
+    // its shorter "16-Type" label.
     expect(modularModel.identities).toEqual([
       { name: "Profil Trait", title: "Eksploratif dan ekspresif" },
-      { name: "16-Type", title: "INFP-like" },
+      { name: "Tipe 16 Karakter", title: "INFP-like" },
     ]);
     expect(modularModel.modular?.overallConfidenceLabel).toBe("Cukup terbaca · 68 dari 100");
     expect(modularModel.title).toBe("Hasilmu dalam 2 lensa");

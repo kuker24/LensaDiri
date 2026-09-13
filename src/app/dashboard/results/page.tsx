@@ -21,7 +21,7 @@ const moduleLabels: Record<string, string> = {
 
 export default async function DashboardResultsPage() {
   const session = await getCurrentSession();
-  if (!session) redirect("/login?redirectTo=%2Fdashboard%2Fresults");
+  if (!session) redirect("/");
 
   const results = await listAccountDashboardResults(session.accountId);
 
