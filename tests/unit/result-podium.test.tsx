@@ -1,3 +1,5 @@
+import { existsSync } from "node:fs";
+import { join } from "node:path";
 import { act, cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
@@ -134,7 +136,6 @@ describe("ResultPodium Component", () => {
           socionics: "SEI",
           type16: "ISFJ",
         }}
-        completedLensCount={5}
         onOpenUraian={vi.fn()}
         isUraianOpen={false}
       />,
@@ -142,7 +143,44 @@ describe("ResultPodium Component", () => {
 
     expect(screen.getByRole("heading", { name: "PODIUM PENUH" })).toBeInTheDocument();
     expect(screen.getByText("ISFJ sx964 SEI RCUAN L¹V²E³F⁴ SJ")).toBeInTheDocument();
-    expect(screen.getByText("5 / 5 lensa selesai")).toBeInTheDocument();
+    // The lens counter badge is gone: the identity line already states which
+    // lenses finished, and a "5 / 5" chip beside it said the same thing twice.
+    expect(screen.queryByText("5 / 5 lensa selesai")).not.toBeInTheDocument();
+    // Each code is also listed against a plain-language label.
+    expect(screen.getByText("Gaya kognitif")).toBeInTheDocument();
+    expect(screen.getByText("Motivasi inti")).toBeInTheDocument();
+    expect(screen.getByText("Gaya komunikasi")).toBeInTheDocument();
+    expect(screen.getByText("Pola sifat")).toBeInTheDocument();
+    expect(screen.getByText("Prioritas jiwa")).toBeInTheDocument();
+  });
+
+  test("podium shows the typed figurine for the picked body and no face overlays", () => {
+    render(
+      <ResultPodium
+        result={mockModularResult}
+        characterGender="laki"
+        identity={{
+          complete: true,
+          enneagram: "sx964",
+          group: "SJ",
+          line: "ISFJ sx964 SEI RCUAN L¹V²E³F⁴ SJ",
+          psyche: "L¹V²E³F⁴",
+          sloan: "RCUAN",
+          socionics: "SEI",
+          type16: "ISFJ",
+        }}
+        onOpenUraian={vi.fn()}
+        isUraianOpen={false}
+      />,
+    );
+
+    // The result must show the MBTI character, not a plain body.
+    const figure = screen.getByAltText("Figurine Hasil Karakter LensaDiri");
+    expect(figure.getAttribute("src")).toContain("ISFJ-laki.png");
+    expect(figure.getAttribute("src")).not.toContain("base-");
+    expect(figure.getAttribute("src")).not.toContain("-plain");
+    // The acrylic disk label repeated the cluster code and is gone.
+    expect(screen.queryByText(/Figurine · POLA/u)).not.toBeInTheDocument();
   });
 
   test("correctly parses Keirsey temperaments across all 16 types and resolves figurine paths", () => {
@@ -168,34 +206,74 @@ describe("ResultPodium Component", () => {
 
     expect(resolveFigurineSrc("NT")).toBe("/figurines/base-female.png");
     expect(resolveFigurineSrc("NF", "laki")).toBe("/figurines/base-male.png");
-    expect(resolveFigurineSrc("SP", "laki", "ESTP")).toBe("/figurines/ESTP-plain.png");
+    expect(resolveFigurineSrc("SP", "laki", "ESTP")).toBe("/figurines/ESTP-laki.png");
   });
 
-  test("resolveFigurineSrc uses only reviewed plain renders", () => {
-    expect(resolveFigurineSrc("NF", "perempuan", "ENFP")).toBe("/figurines/ENFP-plain.png");
-    expect(resolveFigurineSrc("NT", "laki", "INTJ")).toBe("/figurines/INTJ-plain.png");
-    expect(resolveFigurineSrc("SJ", "laki", " isfj ")).toBe("/figurines/ISFJ-plain.png");
+  test("resolveFigurineSrc serves the typed render for every type and body", () => {
+    const codes = [
+      "ENFJ",
+      "ENFP",
+      "ENTJ",
+      "ENTP",
+      "ESFJ",
+      "ESFP",
+      "ESTJ",
+      "ESTP",
+      "INFJ",
+      "INFP",
+      "INTJ",
+      "INTP",
+      "ISFJ",
+      "ISFP",
+      "ISTJ",
+      "ISTP",
+    ] as const;
+    // All 32 combinations ship artwork, so none may degrade to a plain body.
+    for (const code of codes) {
+      for (const gender of ["laki", "perempuan"] as const) {
+        expect(resolveFigurineSrc("NEUTRAL", gender, code)).toBe(
+          `/figurines/${code}-${gender}.png`,
+        );
+      }
+    }
+    expect(resolveFigurineSrc("SJ", "laki", " isfj ")).toBe("/figurines/ISFJ-laki.png");
   });
 
-  test("resolveFigurineSrc falls back to the selected plain body", () => {
-    expect(resolveFigurineSrc("NT", "laki", "INTP")).toBe("/figurines/base-male.png");
+  test("resolveFigurineSrc falls back to the selected plain body without a type", () => {
     expect(resolveFigurineSrc("NF", "perempuan", "NOTATYPE")).toBe("/figurines/base-female.png");
+    expect(resolveFigurineSrc("NT", "laki", undefined)).toBe("/figurines/base-male.png");
   });
 
   test("resolveFigurineSrc never contradicts the selected gender", () => {
-    // ISFJ/INTJ/ESTP renders depict a masculine figurine, so a `perempuan`
-    // journey must fall back to the plain body instead of showing them.
-    expect(resolveFigurineSrc("SJ", "perempuan", "ISFJ")).toBe("/figurines/base-female.png");
-    expect(resolveFigurineSrc("NT", "perempuan", "INTJ")).toBe("/figurines/base-female.png");
-    expect(resolveFigurineSrc("SP", "perempuan", "ESTP")).toBe("/figurines/base-female.png");
-    // ENFP depicts a feminine figurine.
-    expect(resolveFigurineSrc("NF", "laki", "ENFP")).toBe("/figurines/base-male.png");
+    // The render always carries the picked body, so the figurine cannot show a
+    // gender the user did not choose.
+    expect(resolveFigurineSrc("SJ", "perempuan", "ISFJ")).toBe("/figurines/ISFJ-perempuan.png");
+    expect(resolveFigurineSrc("NF", "laki", "ENFP")).toBe("/figurines/ENFP-laki.png");
   });
 
   test("resolveFigurineSrc stays gender-neutral when gender is withheld", () => {
-    // Public share omits gender on purpose; a typed render would leak it.
+    // Public share omits gender on purpose; a typed render would leak it, and a
+    // gendered filename would leak it in the URL even before the image loads.
     expect(resolveFigurineSrc("SJ", undefined, "ISFJ")).toBe("/figurines/base-female.png");
     expect(resolveFigurineSrc("NF", undefined, "ENFP")).toBe("/figurines/base-female.png");
+    expect(resolveFigurineSrc("NT", undefined, "INTJ")).toBe("/figurines/base-female.png");
+  });
+
+  test("every figurine the resolver can return exists on disk", () => {
+    const codes = ["ENFJ", "ESTP", "INFP", "ISTP", "INTJ", "ISFJ"] as const;
+    const paths = new Set<string>([
+      resolveFigurineSrc("NEUTRAL", undefined, "ISFJ"),
+      resolveFigurineSrc("NEUTRAL", "laki"),
+      resolveFigurineSrc("NEUTRAL", "perempuan"),
+    ]);
+    for (const code of codes) {
+      for (const gender of ["laki", "perempuan"] as const) {
+        paths.add(resolveFigurineSrc("NEUTRAL", gender, code));
+      }
+    }
+    for (const path of paths) {
+      expect(existsSync(join(process.cwd(), "public", path))).toBe(true);
+    }
   });
 
   test("clicking Bagikan triggers public share mutation and copies public share URL without leaking private token", async () => {

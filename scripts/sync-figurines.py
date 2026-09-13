@@ -47,8 +47,21 @@ TYPES = (
     "ISTP",
 )
 
+# The podium render for every {type, gender} pair, cut from the Ch2 batch by
+# `scripts/cutout-ch2-figurines.py`. All 32 combinations exist, so the podium can
+# honour the reflected type and the picked body at the same time; it no longer has
+# to fall back to a plain body for combinations that shipped no artwork.
+GENDERED = tuple(
+    f"{code}-{gender}" for code in TYPES for gender in ("laki", "perempuan")
+)
+
 # Gender-neutral base bodies plus the four podium variants. Same contract as the
 # MBTI set: validated, then published byte-for-byte.
+#
+# The `*-plain` four are retained only so existing references keep resolving.
+# They are no longer chosen by the podium: they are a different, taller sculpt
+# than the 16 landing renders, and `ISFJ-plain` depicts a male officer while the
+# ISFJ landing render is female, so it contradicted the picked body.
 EXTRA = (
     "base-female",
     "base-male",
@@ -57,13 +70,34 @@ EXTRA = (
     "INTJ-plain",
     "ISFJ-plain",
 )
-ASSETS = TYPES + EXTRA
+ASSETS = TYPES + GENDERED + EXTRA
 
 # Defect budgets measured against the audited rebuild. A pale studio floor that
 # survives colour-keying shows up as bright semi-transparent pixels near the
 # feet, and an over-aggressive key punches transparent holes through clothing
 # and soles. Both were previously invisible to this pipeline.
+#
+# This budget is absolute, and it was calibrated on the original renders, whose
+# canvases are around 504x958 (483k px). The Ch2 batch is 896x1200 (1.08M px), so
+# the same physical gap measures more than twice as many pixels there and three
+# assets tripped the guard on gaps that are genuinely see-through: the loop of
+# ENFP's raised hand, ESTP's wide stance, and the space between INFJ's boots.
+#
+# The budget is not loosened globally, because its whole job is to catch a key
+# eating through clothing and soles. Instead each asset whose gap was reviewed
+# pixel by pixel carries its own pinned ceiling. Anything not listed here still
+# has to fit MAX_INTERIOR_HOLE, and a listed asset whose hole grows past its
+# reviewed value still fails.
 MAX_INTERIOR_HOLE = 2000
+
+REVIEWED_INTERIOR_HOLE = {
+    # Gap between the raised hand and the hood, plus between the legs.
+    "ENFP-laki": 2400,
+    # Wide stance: one large opening between the legs, above both shoes.
+    "ESTP-perempuan": 14000,
+    # Space between the two boots under the skirt.
+    "INFJ-perempuan": 3400,
+}
 
 # There is deliberately no luminance-based backdrop check here. Measured against
 # both damaged archives, no alpha window or luminance floor separated a pale
@@ -323,10 +357,10 @@ def validate(path: Path, label: str) -> int:
                 )
 
             hole = inspect_defects(rgba)
-            if hole > MAX_INTERIOR_HOLE:
+            ceiling = REVIEWED_INTERIOR_HOLE.get(label, MAX_INTERIOR_HOLE)
+            if hole > ceiling:
                 raise ValueError(
-                    f"transparent hole inside the figure {hole}px "
-                    f"exceeds {MAX_INTERIOR_HOLE}px"
+                    f"transparent hole inside the figure {hole}px exceeds {ceiling}px"
                 )
             return hole
     except (OSError, UnidentifiedImageError) as error:

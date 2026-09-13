@@ -9,12 +9,9 @@ import {
   buildCollectibleIdentity,
   type CollectibleIdentity,
 } from "@/lib/assessment/identity-journey";
-import type { IdentityJourneyView } from "@/server/repositories/identity-journeys";
 
 export type ResultPodiumProps = {
-  artifacts?: IdentityJourneyView["artifacts"];
   characterGender?: CharacterGender;
-  completedLensCount?: number;
   identity?: CollectibleIdentity;
   result: ResultView;
   token?: string | undefined;
@@ -48,38 +45,52 @@ export function parseTemperament(code: string): "NT" | "NF" | "SJ" | "SP" | null
 }
 
 /**
- * Reviewed plain type renders in `public/figurines`, grouped by the gender each
- * render depicts.
- *
- * A render may only be listed under the gender it actually portrays. Listing one
- * under both is what previously showed a masculine figurine to a user who had
- * picked `perempuan`. Most of the 16 types have no reviewed render yet, so both
- * sets stay intentionally sparse; add an entry only once its asset ships.
+ * The 16 reflective type codes. Every one ships a render for both bodies as
+ * `{CODE}-laki.png` and `{CODE}-perempuan.png`, so the podium can honour the
+ * reflected type and the picked body together instead of dropping to a plain
+ * body whenever a combination had no artwork.
  */
-const PLAIN_TYPE_RENDERS: Readonly<Record<CharacterGender, ReadonlySet<string>>> = {
-  perempuan: new Set(["ENFP"]),
-  laki: new Set(["ESTP", "INTJ", "ISFJ"]),
-};
+const TYPE_CODES: ReadonlySet<string> = new Set([
+  "ENFJ",
+  "ENFP",
+  "ENTJ",
+  "ENTP",
+  "ESFJ",
+  "ESFP",
+  "ESTJ",
+  "ESTP",
+  "INFJ",
+  "INFP",
+  "INTJ",
+  "INTP",
+  "ISFJ",
+  "ISFP",
+  "ISTJ",
+  "ISTP",
+]);
 
 /**
  * Pick the figurine image for a result.
  *
- * A typed render is used only when it exists for the selected gender, so the
- * figurine never contradicts the user's own pick. Anything else falls back to
- * the plain body: a missing render must never be replaced by another type from
- * the same broad group, nor by the same type drawn as another gender.
+ * The typed render always matches the picked body, so the figurine can never
+ * contradict the user's own pick. A type is never substituted by another type
+ * from the same broad group.
  *
  * `gender` is omitted on public share, where owner gender must not be inferable
- * from the image. That path therefore always renders a plain body.
+ * from the image. That path renders one fixed plain body regardless of type, so
+ * the picture reveals nothing about who owns the result.
  */
 export function resolveFigurineSrc(
   stageCode: StageCode,
   gender?: CharacterGender,
   typeCode?: string,
 ): string {
+  if (!gender) {
+    return "/figurines/base-female.png";
+  }
   const exact = typeCode?.toUpperCase().trim();
-  if (exact && gender && PLAIN_TYPE_RENDERS[gender].has(exact)) {
-    return `/figurines/${exact}-plain.png`;
+  if (exact && TYPE_CODES.has(exact)) {
+    return `/figurines/${exact}-${gender}.png`;
   }
   return gender === "laki" ? "/figurines/base-male.png" : "/figurines/base-female.png";
 }
@@ -207,9 +218,7 @@ export function buildCompactIdentityString(result: ResultView): string {
 }
 
 export function ResultPodium({
-  artifacts,
   characterGender,
-  completedLensCount,
   identity,
   result,
   token,
@@ -232,22 +241,23 @@ export function ResultPodium({
     characterGender ?? gender,
     identity?.type16 ?? resolveTypeCode(result) ?? undefined,
   );
-  const visualResult =
-    artifacts && artifacts.length > 0
-      ? ({
-          kind: "modular",
-          modules: artifacts.map((artifact) => ({
-            moduleKey: artifact.moduleKey,
-            summary: artifact.summary,
-          })),
-        } as unknown as ResultView)
-      : result;
-  const { hasSocionics, enneaNumber, psycheOrbs } = resolveVisualOverlays(visualResult);
-  const hasTraitFinish =
-    artifacts?.some((artifact) => artifact.moduleKey === "trait_profile") ?? false;
-
-  const moduleCount = completedLensCount ?? (result.kind === "modular" ? result.modules.length : 1);
   const isFullPodium = identity?.complete === true;
+
+  /**
+   * The identity line is one dense token run, which is exact but hard to read at
+   * a glance. `identity` already carries each lens code separately, so the same
+   * information is also listed per lens with a plain-language label. Only lenses
+   * that actually finished appear; nothing is filled with a placeholder.
+   */
+  const lensRows: { code: string; label: string }[] = (
+    [
+      { code: identity?.type16, label: "Gaya kognitif" },
+      { code: identity?.enneagram, label: "Motivasi inti" },
+      { code: identity?.socionics, label: "Gaya komunikasi" },
+      { code: identity?.sloan, label: "Pola sifat" },
+      { code: identity?.psyche, label: "Prioritas jiwa" },
+    ] satisfies { code: string | undefined; label: string }[]
+  ).filter((row): row is { code: string; label: string } => Boolean(row.code));
 
   async function handleShareClick() {
     if (onShare) {
@@ -299,25 +309,12 @@ export function ResultPodium({
         <div className="absolute top-1/4 -right-28 h-80 w-80 rounded-full bg-[var(--stage-panel)] opacity-25 blur-2xl transition-colors duration-500" />
       </div>
 
-      {/* Header Atas */}
-      <header className="relative z-30 mx-auto flex w-full max-w-7xl items-center justify-between px-5 pt-6 sm:px-10">
-        <div className="flex items-center gap-2.5">
-          <span className="font-['Anton',var(--font-anton),sans-serif] text-base tracking-[0.18em] uppercase sm:text-lg">
-            LENSADIRI
-          </span>
-          <span className="h-2 w-2 rounded-full bg-[var(--stage)]" />
-          <span className="text-steel mono-label border-line ml-1 border-l pl-3">
-            {isFullPodium ? "Podium penuh" : "Koleksi aktif"}
-          </span>
-        </div>
-        <span
-          className="inline-flex items-center gap-2 rounded-full bg-[var(--stage-panel)] px-3.5 py-1.5 font-mono text-xs font-bold"
-          style={{ color: stage.ink }}
-        >
-          <span className="h-1.5 w-1.5 rounded-full bg-current" />
-          {moduleCount} / 5 lensa selesai
-        </span>
-      </header>
+      {/*
+       * No podium header here on purpose. The site chrome already renders the
+       * LENSADIRI wordmark on this route, so a second one stacked the same mark
+       * twice, and the lens counter repeated what the identity line below states
+       * precisely.
+       */}
 
       {/* Main Hero Podium: 2 Columns Layout */}
       <main className="relative z-20 mx-auto grid w-full max-w-7xl flex-1 grid-cols-1 items-center gap-8 px-6 py-6 sm:px-12 lg:grid-cols-12">
@@ -346,66 +343,23 @@ export function ResultPodium({
                 sizes="(max-width: 640px) 70vw, 360px"
                 priority
                 draggable={false}
-                className={`object-contain object-bottom drop-shadow-[0_16px_28px_rgba(0,0,0,0.22)] filter select-none ${hasTraitFinish ? "contrast-[1.06] saturate-[0.9]" : ""}`}
+                className="object-contain object-bottom drop-shadow-[0_16px_28px_rgba(0,0,0,0.22)] select-none"
               />
 
-              {/* ATRIBUT VISUAL TERPASANG (SLOT OVERLAYS) */}
-              {/* 1. Collar Gem (Socionics) */}
-              {hasSocionics && (
-                <div
-                  className="pointer-events-none absolute top-[30%] left-1/2 z-20 -translate-x-1/2"
-                  aria-hidden="true"
-                >
-                  <div className="h-3 w-3 rotate-45 border border-white bg-[#2ecc71] shadow-[0_0_8px_rgba(46,204,113,0.8)]" />
-                </div>
-              )}
-
-              {/* 2. Medallion (Enneagram) */}
-              {enneaNumber && (
-                <div
-                  className="pointer-events-none absolute top-[33%] left-1/2 z-20 flex -translate-x-1/2 flex-col items-center"
-                  aria-hidden="true"
-                >
-                  <div className="h-2 w-8 rounded-full border-b border-amber-300 drop-shadow" />
-                  <div className="-mt-0.5 flex h-4 w-4 items-center justify-center rounded-full border border-white bg-gradient-to-tr from-amber-500 to-yellow-200 shadow-sm">
-                    <span className="font-['Anton',var(--font-anton),sans-serif] text-[8px] leading-none text-amber-950">
-                      {enneaNumber}
-                    </span>
-                  </div>
-                </div>
-              )}
-
-              {/* 3. Psyche Orbs (Psychosophy) */}
-              {psycheOrbs && psycheOrbs.length > 0 && (
-                <div
-                  className="pointer-events-none absolute top-[39%] left-1/2 z-20 flex -translate-x-1/2 items-center gap-1"
-                  aria-hidden="true"
-                >
-                  {psycheOrbs.map((orb, i) => (
-                    <div
-                      key={i}
-                      className={`flex h-2.5 w-2.5 items-center justify-center rounded-full border border-white bg-gradient-to-tr ${orb.color} shadow-sm`}
-                    >
-                      <span className={`text-[5px] leading-none font-bold ${orb.textColor}`}>
-                        {orb.letter}
-                      </span>
-                    </div>
-                  ))}
-                </div>
-              )}
+              {/*
+               * No attribute pucks are drawn over the figure. They were absolutely
+               * positioned at 30-39% of the frame height, which is the face on
+               * these renders, so the gem, medallion, and orbs stacked across the
+               * eyes and mouth and read as damage rather than as equipment. The
+               * same lenses are already stated exactly in the identity line.
+               */}
             </div>
 
-            {/* Grounding contact shadow & Tatakan Acrylic Disk */}
-            <div className="pointer-events-none relative -mt-6 flex h-14 w-72 items-center justify-center sm:w-80">
-              <div className="absolute top-0 h-5 w-56 rounded-[100%] bg-[#1b1c1a]/18 blur-[4px]" />
-              <div className="bg-surface border-line flex h-10 w-64 items-center justify-center rounded-[100%] border shadow-[0_4px_14px_rgb(27_28_26_/_0.10)] sm:w-72">
-                <span
-                  className="font-mono text-[10px] font-bold tracking-[0.22em] uppercase"
-                  style={{ color: stage.ink }}
-                >
-                  Figurine · POLA {stage.code}
-                </span>
-              </div>
+            {/* Grounding contact shadow only: the figure needs to sit on
+                something, but the acrylic disk carried a label that repeated the
+                cluster code already shown beside the identity line. */}
+            <div className="pointer-events-none relative -mt-6 flex h-8 w-72 items-start justify-center sm:w-80">
+              <div className="h-4 w-48 rounded-[100%] bg-[#1b1c1a]/16 blur-[5px] sm:w-56" />
             </div>
           </div>
         </section>
@@ -429,11 +383,38 @@ export function ResultPodium({
           </h1>
 
           {/* Card Identitas Pola Karakter */}
-          <div className="bg-surface border-line rounded-[20px] border p-5 shadow-[0_10px_28px_rgb(27_28_26_/_0.08)]">
+          <div className="bg-surface border-line rounded-[20px] border p-4 shadow-[0_10px_28px_rgb(27_28_26_/_0.08)] sm:p-5">
             <div className="text-steel mono-label mb-2.5">Identitas pola karakter</div>
-            <div className="bg-surface-raised border-line overflow-x-auto rounded-[14px] border px-4 py-3 text-center font-mono text-lg font-bold tracking-wider whitespace-nowrap sm:text-2xl">
+            {/*
+             * The line wraps instead of scrolling sideways. As a nowrap scroll
+             * container it was clipped mid-token at the right edge, so the last
+             * lens read as truncated data rather than as something to scroll.
+             */}
+            <div className="bg-surface-raised border-line rounded-[14px] border px-3 py-3 text-center font-mono text-sm leading-relaxed font-bold tracking-wider break-words sm:px-4 sm:text-xl">
               {identityString}
             </div>
+
+            {/*
+             * The same codes, one per row with a plain-language label. The single
+             * line above stays authoritative and copyable; this list is what makes
+             * it legible without a legend, and it wraps instead of overflowing on a
+             * phone.
+             */}
+            {lensRows.length > 0 && (
+              <dl className="border-line mt-4 grid gap-x-4 gap-y-0 border-t pt-1 sm:grid-cols-2">
+                {lensRows.map((row) => (
+                  <div
+                    key={row.label}
+                    className="border-line/70 flex items-baseline justify-between gap-3 border-b py-2.5 last:border-b-0 sm:border-b"
+                  >
+                    <dt className="text-ink-muted text-xs leading-snug">{row.label}</dt>
+                    <dd className="text-ink font-mono text-sm font-bold tracking-wide">
+                      {row.code}
+                    </dd>
+                  </div>
+                ))}
+              </dl>
+            )}
           </div>
 
           {/* Kutipan Penegasan */}

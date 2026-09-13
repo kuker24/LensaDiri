@@ -514,10 +514,7 @@ export function ResultReport({
       <ResultPodium
         {...(journey
           ? {
-              artifacts: journey.artifacts,
               characterGender: journey.characterGender,
-              completedLensCount: journey.steps.filter((step) => step.status === "completed")
-                .length,
               identity: journey.identity,
             }
           : {})}
