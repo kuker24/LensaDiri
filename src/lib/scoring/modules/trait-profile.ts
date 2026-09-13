@@ -14,16 +14,32 @@ const traitLabels: Readonly<Record<TraitKey, string>> = {
   openness: "eksploratif",
 };
 
+/**
+ * The Sloan code is positional: one letter per trait, always in this order, with
+ * the pair given as `[below 50, at or above 50]`.
+ *
+ * Exported because the result report explains where each letter came from. The
+ * legend walks this list rather than restating the order and the pairs, so the
+ * explanation cannot drift from the code it explains.
+ */
+export const sloanLetterOrder = [
+  { constructKey: "extraversion", letters: ["R", "S"] },
+  { constructKey: "emotional_sensitivity", letters: ["C", "L"] },
+  { constructKey: "conscientiousness", letters: ["U", "O"] },
+  { constructKey: "agreeableness", letters: ["E", "A"] },
+  { constructKey: "openness", letters: ["N", "I"] },
+] as const satisfies readonly {
+  constructKey: TraitKey;
+  letters: readonly [string, string];
+}[];
+
 function resolveSloanCode(scores: readonly { constructKey: TraitKey; normalizedScore: number }[]) {
-  const letter = (key: TraitKey, high: string, low: string) =>
-    (scores.find((score) => score.constructKey === key)?.normalizedScore ?? 50) >= 50 ? high : low;
-  return [
-    letter("extraversion", "S", "R"),
-    letter("emotional_sensitivity", "L", "C"),
-    letter("conscientiousness", "O", "U"),
-    letter("agreeableness", "A", "E"),
-    letter("openness", "I", "N"),
-  ].join("");
+  return sloanLetterOrder
+    .map((entry) => {
+      const score = scores.find((candidate) => candidate.constructKey === entry.constructKey);
+      return (score?.normalizedScore ?? 50) >= 50 ? entry.letters[1] : entry.letters[0];
+    })
+    .join("");
 }
 
 export function scoreTraitProfileModule(

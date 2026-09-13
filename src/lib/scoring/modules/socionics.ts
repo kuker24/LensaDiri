@@ -22,12 +22,39 @@ const styleLabels: Readonly<Record<SocionicsConstructKey, readonly [string, stri
   interaction_style: ["responsif", "menginisiasi"],
 };
 
+/**
+ * Letter pairs for the three constructs that print a letter, each given as
+ * `[below 50, at or above 50]`.
+ *
+ * `rationality` is deliberately absent: it prints no letter of its own. It only
+ * decides whether the judgment letter or the perception letter comes first, which
+ * is why the same three letters can appear in two different orders. The result
+ * report explains this, and reads this map rather than restating it.
+ */
+export const socionicsLetters = {
+  extraversion: ["I", "E"],
+  intuition: ["S", "I"],
+  logic: ["E", "L"],
+} as const satisfies Readonly<Record<string, readonly [string, string]>>;
+
+/**
+ * Construct keys in printed order for a given `rationality` reading.
+ *
+ * Rational codes lead with judgment, irrational codes lead with perception; the
+ * orientation letter is always last.
+ */
+export function socionicsSlotOrder(
+  isRational: boolean,
+): readonly ["intuition" | "logic", "intuition" | "logic", "extraversion"] {
+  return isRational
+    ? ["logic", "intuition", "extraversion"]
+    : ["intuition", "logic", "extraversion"];
+}
+
 function resolveSocionicsType(values: Readonly<Record<SocionicsTypeConstructKey, number>>): string {
-  const orientation = values.extraversion >= 50 ? "E" : "I";
-  const perception = values.intuition >= 50 ? "I" : "S";
-  const judgment = values.logic >= 50 ? "L" : "E";
-  const rational = values.rationality >= 50;
-  return `${rational ? judgment : perception}${rational ? perception : judgment}${orientation}`;
+  return socionicsSlotOrder(values.rationality >= 50)
+    .map((key) => (values[key] >= 50 ? socionicsLetters[key][1] : socionicsLetters[key][0]))
+    .join("");
 }
 
 export function scoreSocionicsTypeModule(

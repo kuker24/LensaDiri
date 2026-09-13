@@ -108,8 +108,10 @@ describe("ResultPodium Component", () => {
     // Quote
     expect(screen.getByText(/“Baca sebagai pola, bukan kotak tetap.”/i)).toBeDefined();
 
-    // Compact identity
-    expect(screen.getByText(/ISFJ/i)).toBeDefined();
+    // Compact identity. Matched exactly, not by substring: the code legend also
+    // names the type when it explains the trailing group pair, so a loose /ISFJ/
+    // now matches two nodes.
+    expect(screen.getByText("ISFJ · SJ")).toBeDefined();
 
     const uraianBtn = screen.getByRole("button", { name: "Uraian" });
     expect(uraianBtn).toBeDefined();
@@ -156,6 +158,69 @@ describe("ResultPodium Component", () => {
     expect(screen.getByText("Gaya komunikasi")).toBeInTheDocument();
     expect(screen.getByText("Pola sifat")).toBeInTheDocument();
     expect(screen.getByText("Prioritas jiwa")).toBeInTheDocument();
+    // The trailing pair is printed in the line too, and used to be the one
+    // segment with no label anywhere on the page. Matched as a definition term
+    // specifically: the code legend uses the same word as a segment heading.
+    expect(screen.getAllByText("Kelompok").some((node) => node.tagName === "DT")).toBe(true);
+  });
+
+  /**
+   * The codes are the reveal; their derivation is the follow-up question. It must
+   * be present and reachable, but not open by default, or the card grows taller
+   * than the viewport and pushes the actions below the fold.
+   */
+  test("offers the code derivation as a closed disclosure, not an open block", () => {
+    render(
+      <ResultPodium
+        result={mockModularResult}
+        identity={{
+          complete: false,
+          group: "SJ",
+          line: "ISFJ · SJ",
+          type16: "ISFJ",
+        }}
+        onOpenUraian={vi.fn()}
+        isUraianOpen={false}
+      />,
+    );
+
+    const disclosure = screen.getByText("Dari mana huruf-huruf ini?");
+    expect(disclosure).toBeInTheDocument();
+    // Native details/summary: keyboard operable and searchable while closed,
+    // with no motion for reduced-motion users to suppress.
+    expect(disclosure.tagName).toBe("SUMMARY");
+    const details = disclosure.closest("details");
+    expect(details).not.toBeNull();
+    expect(details?.hasAttribute("open")).toBe(false);
+  });
+
+  /**
+   * A wrong explanation of a code is worse than none, so the legend drops any
+   * segment whose characters cannot reproduce the stored code. This mock carries
+   * no per-construct scores, so the 16-Type derivation is unprovable and must not
+   * be invented; only the group pair, which is copied from the type itself,
+   * survives.
+   */
+  test("omits derivations it cannot reproduce from the scores", () => {
+    render(
+      <ResultPodium
+        result={mockModularResult}
+        identity={{
+          complete: false,
+          group: "SJ",
+          line: "ISFJ · SJ",
+          type16: "ISFJ",
+        }}
+        onOpenUraian={vi.fn()}
+        isUraianOpen={false}
+      />,
+    );
+
+    // Present as the legend's segment heading, not just as a definition term.
+    expect(screen.getAllByText("Kelompok").length).toBeGreaterThan(0);
+    // No threshold reasoning survives, because no per-construct score backs it.
+    expect(screen.queryByText(/titik seimbang 50/u)).not.toBeInTheDocument();
+    expect(screen.getByText(/Dua huruf tengah dari ISFJ/u)).toBeInTheDocument();
   });
 
   test("podium shows the typed figurine for the picked body and no face overlays", () => {

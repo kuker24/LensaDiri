@@ -6,6 +6,22 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 
 import { resultConstructLabels } from "@/lib/report/result-presentation";
+import {
+  enneagramJourneyConstructKeys,
+  scoreEnneagramJourneyModule,
+} from "@/lib/scoring/modules/enneagram";
+import {
+  psychosophyConstructKeys,
+  scorePsychosophyJourneyModule,
+} from "@/lib/scoring/modules/psychosophy";
+import {
+  scoreSocionicsTypeModule,
+  socionicsTypeConstructKeys,
+} from "@/lib/scoring/modules/socionics";
+import { scoreTraitProfileJourneyModule } from "@/lib/scoring/modules/trait-profile";
+import { scoreType16Module, type16ConstructKeys } from "@/lib/scoring/modules/type16";
+import { traitKeys } from "@/lib/scoring/profile";
+import type { ModuleScoringAnswer } from "@/lib/scoring/quality";
 import { buildResultPdfBuffer, pdfFilenameForResult } from "@/server/export/build-result-pdf";
 import { formatPdfLabel } from "@/server/export/pdf-labels";
 import { buildResultPdfModel } from "@/server/export/result-pdf-model";
@@ -152,6 +168,87 @@ const privateModularCombo: PrivateResultView = {
   },
 };
 
+/**
+ * Five-lens journey result, scored by the real engines.
+ *
+ * The combo fixture above cannot exercise the code section at all: its
+ * `primaryType` is `"INFP-like"`, which is not a valid four-letter code, so the
+ * legend correctly refuses to explain it and produces nothing. Only a genuine
+ * journey result carries the `sp125`/`SLOAI`/`V¹L²F³E⁴` codes the section exists
+ * for, and running the engines means the fixture cannot drift away from what the
+ * scoring actually emits.
+ */
+function journeyAnswers<ConstructKey extends string>(
+  keys: readonly ConstructKey[],
+  values: Readonly<Partial<Record<ConstructKey, 1 | 2 | 3 | 4 | 5>>> = {} as Partial<
+    Record<ConstructKey, 1 | 2 | 3 | 4 | 5>
+  >,
+): ModuleScoringAnswer<ConstructKey>[] {
+  const fallback = [1, 2, 3, 4, 5] as const;
+  return keys.flatMap((constructKey, keyIndex) =>
+    Array.from({ length: 6 }, (_, index) => ({
+      constructKey,
+      itemCode: `${constructKey}-${index}`,
+      polarity: 1 as const,
+      responseTimeMs: 1800,
+      value: values[constructKey] ?? fallback[keyIndex % fallback.length]!,
+      weight: 1,
+    })),
+  );
+}
+
+function buildJourneyResult(): PrivateResultView {
+  const type16Input = journeyAnswers(type16ConstructKeys, {
+    extraversion: 5,
+    feeling: 5,
+    intuition: 5,
+    judging: 5,
+  });
+  const enneagramInput = journeyAnswers(enneagramJourneyConstructKeys, {
+    instinct_self_preservation: 5,
+    pattern_1: 5,
+    pattern_2: 4,
+    pattern_5: 4,
+  });
+  const socionicsInput = journeyAnswers(socionicsTypeConstructKeys, {
+    extraversion: 1,
+    intuition: 1,
+    logic: 1,
+    rationality: 5,
+  });
+  const traitInput = journeyAnswers(traitKeys, { openness: 5 });
+  const psycheInput = journeyAnswers(psychosophyConstructKeys, {
+    emotion: 1,
+    logic: 4,
+    physics: 3,
+    will: 5,
+  });
+  return {
+    correlations: [],
+    createdAt: "2026-07-16T10:00:00.000Z",
+    kind: "modular",
+    mode: "deep",
+    modules: [
+      scoreType16Module(type16Input, type16Input.length),
+      scoreEnneagramJourneyModule(enneagramInput, enneagramInput.length),
+      scoreSocionicsTypeModule(socionicsInput, socionicsInput.length),
+      scoreTraitProfileJourneyModule(traitInput, traitInput.length),
+      scorePsychosophyJourneyModule(psycheInput, psycheInput.length),
+    ],
+    quality: { confidence: 0.7, flags: [] },
+    summary: {
+      disclaimer: "Hasil ini bersifat reflektif.",
+      moduleKeys: [
+        "type_16",
+        "enneagram",
+        "socionics_communication",
+        "trait_profile",
+        "psychosophy",
+      ],
+    },
+  } as unknown as PrivateResultView;
+}
+
 describe("result PDF export", () => {
   it("builds printable models for legacy and modular combo without internal secrets", () => {
     const legacyModel = buildResultPdfModel(privateLegacyResult);
@@ -259,4 +356,62 @@ describe("result PDF export", () => {
     expect(experimental.modular?.modules[0]?.confidence).toBeNull();
     expect(experimental.modular?.modules[0]?.confidenceLabel).toBeNull();
   });
+
+  /**
+   * The export printed neither the code nor its derivation. Its identity chips
+   * carried other titles, so a reader who saw the code on the result page found
+   * none of it in the PDF.
+   */
+  it("prints the identity line and derives every character of it", () => {
+    const model = buildResultPdfModel(buildJourneyResult());
+    const identityCode = model.identityCode;
+
+    expect(identityCode).not.toBeNull();
+    // Six segments, one per space-separated part of the printed line.
+    expect(identityCode?.line.split(" ")).toHaveLength(6);
+    expect(identityCode?.segments.map((segment) => segment.code)).toEqual(
+      identityCode?.line.split(" "),
+    );
+    // Same invariant the legend enforces: what is explained must spell what is
+    // printed, or the report explains a code it never showed.
+    for (const segment of identityCode?.segments ?? []) {
+      expect(segment.characters.map((character) => character.glyph).join("")).toBe(segment.code);
+    }
+  });
+
+  it("leaves legacy results without a code section instead of inventing one", () => {
+    // Legacy overlays are derived from trait scores, not from per-lens codes, so
+    // there is no notation to explain.
+    expect(buildResultPdfModel(privateLegacyResult).identityCode).toBeNull();
+    // The combo fixture's `INFP-like` is not a valid four-letter code, so the
+    // legend must refuse it rather than guess a derivation.
+    expect(buildResultPdfModel(privateModularCombo).identityCode).toBeNull();
+  });
+
+  it("renders the code section into the PDF, in Indonesian, with no leaked keys", async () => {
+    const journey = buildJourneyResult();
+    const model = buildResultPdfModel(journey);
+    const pdf = await buildResultPdfBuffer(journey);
+    expect(pdf.subarray(0, 4).toString("utf8")).toBe("%PDF");
+
+    // Every construct label reaching the page must be translated: a raw key here
+    // would put an internal English identifier back into an Indonesian report.
+    for (const segment of model.identityCode?.segments ?? []) {
+      for (const character of segment.characters) {
+        if (character.constructKey === null) continue;
+        expect(character.constructLabel).toBeTruthy();
+        expect(character.constructLabel).not.toMatch(/_/u);
+        expect(character.constructLabel).not.toBe(character.constructKey.replaceAll("_", " "));
+      }
+    }
+
+    const text = pdf.toString("latin1");
+    for (const prohibited of ["resultTokenHash", "accountId", "raw_value", "session_id"]) {
+      expect(text).not.toContain(prohibited);
+    }
+
+    const outDir = path.join(process.cwd(), ".pi", "pdf-samples");
+    mkdirSync(outDir, { recursive: true });
+    writeFileSync(path.join(outDir, "sample-journey-codes.pdf"), pdf);
+  }, 30_000);
 });

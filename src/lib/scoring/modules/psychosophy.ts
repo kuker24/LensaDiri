@@ -8,14 +8,25 @@ import {
 export const psychosophyConstructKeys = ["emotion", "will", "logic", "physics"] as const;
 export type PsychosophyConstructKey = (typeof psychosophyConstructKeys)[number];
 
-const positionLetters: Readonly<Record<PsychosophyConstructKey, string>> = {
+/**
+ * One letter per aspect. Unlike the other lenses this code carries no threshold:
+ * the four aspects are ranked against each other and the superscript is the rank.
+ *
+ * Both maps are exported because the result report explains how the code was
+ * built, and reading them beats restating them in the explanation.
+ */
+export const psychosophyPositionLetters: Readonly<Record<PsychosophyConstructKey, string>> = {
   emotion: "E",
   will: "V",
   logic: "L",
   physics: "F",
 };
 
-const superscripts = ["¹", "²", "³", "⁴"] as const;
+export const psychosophySuperscripts = ["¹", "²", "³", "⁴"] as const;
+
+const positionLetters = psychosophyPositionLetters;
+
+const superscripts = psychosophySuperscripts;
 
 export function scorePsychosophyModule(
   answers: readonly ModuleScoringAnswer<PsychosophyConstructKey>[],

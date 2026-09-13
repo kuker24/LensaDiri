@@ -9,12 +9,21 @@ import {
 export const type16ConstructKeys = ["extraversion", "intuition", "feeling", "judging"] as const;
 export type Type16ConstructKey = (typeof type16ConstructKeys)[number];
 
-const letters: Readonly<Record<Type16ConstructKey, readonly [string, string]>> = {
+/**
+ * Letter pair per construct, ordered `[below 50, at or above 50]`.
+ *
+ * Exported because the result report explains where each letter of the code came
+ * from. The legend reads this map instead of restating the pairs, so a threshold
+ * or letter change here cannot leave the explanation quietly wrong.
+ */
+export const type16Letters: Readonly<Record<Type16ConstructKey, readonly [string, string]>> = {
   extraversion: ["I", "E"],
   feeling: ["T", "F"],
   intuition: ["S", "N"],
   judging: ["P", "J"],
 };
+
+const letters = type16Letters;
 
 function typeFromScores(
   scores: readonly Readonly<{ constructKey: Type16ConstructKey; normalizedScore: number }>[],

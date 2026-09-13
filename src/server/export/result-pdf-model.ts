@@ -2,6 +2,11 @@ import fs from "node:fs";
 import path from "node:path";
 
 import { getPublicModeName } from "@/lib/assessment/catalog";
+import { buildCollectibleIdentity } from "@/lib/assessment/identity-journey";
+import {
+  buildIdentityCodeLegend,
+  type IdentityCodeSegment,
+} from "@/lib/report/identity-code-legend";
 import { buildIntegratedReflection, buildModuleReflection } from "@/lib/report/modular-report";
 import { resolveStageTheme, resolveTypeCode, STAGE_THEMES } from "@/lib/report/type-theme";
 import {
@@ -105,6 +110,22 @@ export type PdfCoverArt = {
   readonly typeCode: string | null;
 };
 
+/**
+ * The identity line plus the derivation of every character in it.
+ *
+ * The export used to print neither. Its identity chips carried other titles
+ * (`archetype`, "Logika > Emosi"), so a reader who saw `ENFJ sp125 EII SLOAI
+ * V¹L²F³E⁴ NF` on the result page found none of it in the PDF, and the glossary
+ * explained six general terms without touching a single letter.
+ *
+ * Null when no code exists, which is every legacy result and any modular result
+ * whose lenses produce no code.
+ */
+export type PdfIdentityCode = {
+  readonly line: string;
+  readonly segments: readonly IdentityCodeSegment[];
+};
+
 export type ResultPdfModel = {
   readonly cover: PdfCoverArt;
   readonly createdAtLabel: string;
@@ -114,6 +135,7 @@ export type ResultPdfModel = {
     readonly name: string;
     readonly title: string;
   }[];
+  readonly identityCode: PdfIdentityCode | null;
   readonly kind: "legacy" | "modular";
   readonly legacy: PdfLegacyBlock | null;
   readonly modular: PdfModularBlock | null;
@@ -307,6 +329,10 @@ export function buildResultPdfModel(
           title: result.summary.overlays.temperament.label,
         },
       ],
+      // Legacy results predate the collectible line: their overlays are derived
+      // from trait scores rather than from per-lens codes, so there is no code to
+      // print and nothing to derive.
+      identityCode: null,
       kind: "legacy",
       legacy: toLegacy(result),
       modular: null,
@@ -323,6 +349,19 @@ export function buildResultPdfModel(
       ? `1 lensa · mode ${modular.modeLabel}`
       : `${lensCount} lensa · mode ${modular.modeLabel}`;
 
+  /**
+   * Built here rather than passed in, so the export never depends on a journey
+   * row existing. `buildCollectibleIdentity` derives the line from the module
+   * summaries themselves, which the export already holds.
+   *
+   * Kept null when the line is empty or nothing could be derived, so the document
+   * can omit the whole section instead of printing an empty heading.
+   */
+  const identity = buildCollectibleIdentity(result.modules);
+  const segments = buildIdentityCodeLegend(result.modules, identity);
+  const identityCode =
+    identity.line.length > 0 && segments.length > 0 ? { line: identity.line, segments } : null;
+
   return {
     cover: buildCoverArt(result),
     createdAtLabel,
@@ -332,6 +371,7 @@ export function buildResultPdfModel(
       name: formatPdfLabel(module.moduleKey, moduleLabels),
       title: moduleTitle(module),
     })),
+    identityCode,
     kind: "modular",
     legacy: null,
     modular,

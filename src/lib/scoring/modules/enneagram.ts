@@ -27,7 +27,15 @@ export const enneagramJourneyConstructKeys = [
 ] as const;
 export type EnneagramJourneyConstructKey = (typeof enneagramJourneyConstructKeys)[number];
 
-const centers: Readonly<Record<EnneagramConstructKey, "gut" | "heart" | "head">> = {
+/**
+ * Which of the three centres each pattern belongs to.
+ *
+ * Exported with `enneagramInstinctCodes` below because the result report explains
+ * how the compact code was assembled: the instinct prefix, then the top pattern,
+ * then the top pattern of each remaining centre. The legend reads these maps
+ * instead of restating them.
+ */
+export const enneagramCenters: Readonly<Record<EnneagramConstructKey, "gut" | "heart" | "head">> = {
   pattern_1: "gut",
   pattern_2: "heart",
   pattern_3: "heart",
@@ -39,15 +47,20 @@ const centers: Readonly<Record<EnneagramConstructKey, "gut" | "heart" | "head">>
   pattern_9: "gut",
 };
 
+const centers = enneagramCenters;
+
 function patternNumber(key: EnneagramConstructKey): number {
   return Number(key.slice("pattern_".length));
 }
 
-const instinctCodes = {
+/** Instinct prefix of the compact code, one per instinct construct. */
+export const enneagramInstinctCodes = {
   instinct_one_to_one: "sx",
   instinct_self_preservation: "sp",
   instinct_social: "so",
 } as const;
+
+const instinctCodes = enneagramInstinctCodes;
 
 export function scoreEnneagramJourneyModule(
   answers: readonly ModuleScoringAnswer<EnneagramJourneyConstructKey>[],

@@ -550,9 +550,15 @@ export function TestRunner({ token }: { token: string }) {
        * directly behind the question and the answer options, which is decoration
        * competing with the only text the reader has to act on.
        */}
+      {/*
+       * Pushed down from `top-10`. The progress bar is `sticky top-16` over a 94%
+       * alpha background, so at the old offset this 380px letterform showed
+       * through it and read as a stain across the counter. It now starts below
+       * the bar, behind the question and the figure where it belongs.
+       */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-x-0 top-10 z-0 hidden items-center justify-center select-none lg:flex"
+        className="pointer-events-none absolute inset-x-0 top-32 z-0 hidden items-center justify-center select-none lg:flex"
       >
         <span className="text-line font-display text-[clamp(100px,26vw,380px)] leading-none font-black tracking-tight uppercase">
           POLA
@@ -564,45 +570,62 @@ export function TestRunner({ token }: { token: string }) {
          * Sticky progress header. Counter, save state, and Jeda share one row so
          * the bar stays a single line on a phone instead of growing a second
          * stacked row that pushed the question below the fold.
+         *
+         * It sits in its own 12-column grid and takes the same 7 columns as the
+         * question card below. Previously it spanned the full `max-w-7xl`
+         * container while the card it describes only reached `col-span-7`, so the
+         * bar ran far past its own content and across the figurine — which is what
+         * made it read as too long. Reusing the grid rather than approximating a
+         * percentage keeps the two edges aligned at every width.
          */}
-        <div className="border-line sticky top-16 z-10 rounded-[18px] border bg-[rgb(251_249_245_/_0.94)] px-4 py-3 shadow-[0_4px_18px_rgb(27_28_26_/_0.08)] backdrop-blur-2xl sm:px-6 sm:py-3.5">
-          <div className="text-ink-muted flex items-center justify-between gap-3 font-mono text-[11px] tracking-wider uppercase sm:text-xs">
-            <span className="text-ink flex items-center gap-2 font-semibold tabular-nums">
-              <span className="bg-iris h-2 w-2 shrink-0 rounded-full" />
-              {/* Keep the noun: a bare "1 / 120" does not say what is counted. */}
-              <span className="sm:hidden">Soal </span>
-              <span className="hidden sm:inline">Pertanyaan </span>
-              {index + 1} / {session.totalCount}
-            </span>
-            <span className="flex items-center gap-3">
-              {/*
-               * The save state is status, not a headline. It sat at the same
-               * weight as the question counter, so the row read as two competing
-               * primary numbers at opposite edges.
-               */}
-              <span aria-live="polite" className="text-ink-muted tabular-nums">
-                {saveStatus === "saving" ? "Menyimpan…" : `${answeredCount} tersimpan`}
+        <div className="grid grid-cols-1 lg:grid-cols-12 lg:gap-8">
+          {/*
+           * Thin bar, not a card. It carried a border, an 18px radius, a drop
+           * shadow and `backdrop-blur-2xl` — the same chrome as the question card —
+           * for content that is only a counter and a save state. A hairline rule
+           * and a paper-tinted background are enough to keep the question legible
+           * as it scrolls underneath.
+           */}
+          <div className="border-line sticky top-16 z-10 border-b bg-[rgb(251_249_245_/_0.92)] px-1 pt-2 pb-2.5 backdrop-blur-sm lg:col-span-7">
+            <div className="text-ink-muted flex items-center justify-between gap-3 font-mono text-[11px] tracking-wider uppercase sm:text-xs">
+              <span className="text-ink flex items-center gap-2 font-semibold tabular-nums">
+                <span className="bg-iris h-2 w-2 shrink-0 rounded-full" />
+                {/* Keep the noun: a bare "1 / 120" does not say what is counted. */}
+                <span className="sm:hidden">Soal </span>
+                <span className="hidden sm:inline">Pertanyaan </span>
+                {index + 1} / {session.totalCount}
               </span>
-              {modular && question.segmentIndex && session.status !== "paused" ? (
-                <Button
-                  className="border-line bg-surface text-ink hover:bg-surface-raised h-9 shrink-0 rounded-full border px-4"
-                  disabled={pending}
-                  onClick={togglePause}
-                  size="sm"
-                  type="button"
-                  variant="secondary"
-                >
-                  Jeda
-                </Button>
-              ) : null}
-            </span>
+              <span className="flex items-center gap-3">
+                {/*
+                 * The save state is status, not a headline. It sat at the same
+                 * weight as the question counter, so the row read as two competing
+                 * primary numbers at opposite edges.
+                 */}
+                <span aria-live="polite" className="text-ink-muted tabular-nums">
+                  {saveStatus === "saving" ? "Menyimpan…" : `${answeredCount} tersimpan`}
+                </span>
+                {modular && question.segmentIndex && session.status !== "paused" ? (
+                  <Button
+                    className="border-line bg-surface text-ink hover:bg-surface-raised h-9 shrink-0 rounded-full border px-4"
+                    disabled={pending}
+                    onClick={togglePause}
+                    size="sm"
+                    type="button"
+                    variant="secondary"
+                  >
+                    Jeda
+                  </Button>
+                ) : null}
+              </span>
+            </div>
+            {/* Hairline track, to match the bar's reduced weight. */}
+            <Progress
+              aria-label="Progres asesmen"
+              className="bg-line mt-2 h-1 rounded-full"
+              max={session.totalCount}
+              value={answeredCount}
+            />
           </div>
-          <Progress
-            aria-label="Progres asesmen"
-            className="bg-line mt-2.5 h-1.5 rounded-full"
-            max={session.totalCount}
-            value={answeredCount}
-          />
         </div>
 
         {/*

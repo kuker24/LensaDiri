@@ -1,5 +1,6 @@
 import { Document, Image, Page, StyleSheet, Text, View } from "@react-pdf/renderer";
 
+import { splitSuperscriptRuns } from "@/server/export/pdf-superscript";
 import {
   ConfidenceColumns,
   DivergingBars,
@@ -286,6 +287,84 @@ const styles = StyleSheet.create({
     lineHeight: 1.45,
     marginTop: 2,
   },
+
+  /* --- Identity code derivation -----------------------------------------
+     The line as printed, then one block per segment. `wrap={false}` on each
+     block keeps a code and its reasoning on the same page: split across a
+     page break, a bare list of letters says nothing. */
+  codeLine: {
+    backgroundColor: colors.softRaised,
+    borderColor: colors.hairline,
+    borderRadius: 7,
+    borderWidth: 1,
+    color: colors.ink,
+    fontSize: 13,
+    letterSpacing: 1,
+    marginBottom: 10,
+    marginTop: 2,
+    paddingHorizontal: 10,
+    paddingVertical: 9,
+    textAlign: "center",
+  },
+  codeSegment: {
+    borderTopColor: colors.hairline,
+    borderTopWidth: 1,
+    marginBottom: 2,
+    paddingBottom: 6,
+    paddingTop: 7,
+  },
+  codeSegmentHead: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 3,
+  },
+  codeSegmentCode: {
+    color: colors.ink,
+    fontSize: 11,
+    letterSpacing: 0.8,
+  },
+  codeSegmentSource: {
+    color: colors.muted,
+    fontSize: 8,
+    letterSpacing: 0.4,
+    textTransform: "uppercase",
+  },
+  codeRule: {
+    color: colors.muted,
+    fontSize: 8.5,
+    lineHeight: 1.45,
+    marginBottom: 5,
+  },
+  codeCharRow: {
+    flexDirection: "row",
+    marginBottom: 3,
+  },
+  codeGlyph: {
+    color: colors.ink,
+    fontSize: 9.5,
+    letterSpacing: 0.4,
+    width: 30,
+  },
+  codeReason: {
+    color: colors.muted,
+    flex: 1,
+    fontSize: 8.5,
+    lineHeight: 1.45,
+  },
+  codeConstruct: {
+    color: colors.ink,
+  },
+  /* Rank digits are drawn as raised, shrunk ASCII rather than as superscript
+     characters, because the bundled face has no glyph for U+2074. See
+     `pdf-superscript.ts`. */
+  codeSuperscript: {
+    fontSize: 7,
+    verticalAlign: "super",
+  },
+  codeSuperscriptLarge: {
+    fontSize: 9,
+    verticalAlign: "super",
+  },
 });
 
 /**
@@ -481,6 +560,80 @@ function Glossary() {
   );
 }
 
+/**
+ * A code with its rank digits redrawn.
+ *
+ * The bundled Poly face has no glyph for `⁴` (U+2074), so printing the stored
+ * `V¹L²F³E⁴` verbatim produced `V¹L²F³Et`. Ranks are therefore emitted as plain
+ * digits that are raised and shrunk here, which also makes all four ranks match
+ * instead of three coming from the font and one from a substitute.
+ */
+function CodeText({ large = false, value }: { large?: boolean; value: string }) {
+  const superscriptStyle = large ? styles.codeSuperscriptLarge : styles.codeSuperscript;
+  return (
+    <>
+      {splitSuperscriptRuns(value).map((run, index) => (
+        // An empty style array, not `undefined`: `exactOptionalPropertyTypes`
+        // rejects an explicitly undefined `style`.
+        <Text key={`${run.text}-${index}`} style={run.superscript ? superscriptStyle : []}>
+          {run.text}
+        </Text>
+      ))}
+    </>
+  );
+}
+
+/**
+ * The identity line, then where every character in it came from.
+ *
+ * Printed on its own page because it is reference material: a reader consults it
+ * once, when the notation stops being self-evident. Nothing here is a new
+ * measurement — every score quoted already appears in its own lens section, so
+ * this section only shows which side of the threshold each letter landed on.
+ */
+function IdentityCodeSection({ model }: { model: ResultPdfModel }) {
+  const identityCode = model.identityCode;
+  if (!identityCode) return null;
+  return (
+    <View break>
+      <Text style={styles.h2}>Asal usul kode</Text>
+      <View style={styles.sectionRule} />
+      <Text style={[styles.muted, { marginBottom: 6 }]}>
+        Baris di bawah adalah kode ringkas hasilmu. Tiap bagiannya dihitung dari jawabanmu sendiri,
+        dan penjabaran setelahnya menunjukkan dari mana setiap huruf berasal.
+      </Text>
+      <Text style={styles.codeLine}>
+        <CodeText large value={identityCode.line} />
+      </Text>
+      {identityCode.segments.map((segment) => (
+        <View key={segment.code} style={styles.codeSegment} wrap={false}>
+          <View style={styles.codeSegmentHead}>
+            <Text style={styles.codeSegmentCode}>
+              <CodeText value={segment.code} />
+            </Text>
+            <Text style={styles.codeSegmentSource}>{segment.sourceLabel}</Text>
+          </View>
+          <Text style={styles.codeRule}>{segment.rule}</Text>
+          {segment.characters.map((character, index) => (
+            // Glyphs repeat within a segment, so position is the stable key.
+            <View key={`${character.glyph}-${index}`} style={styles.codeCharRow}>
+              <Text style={styles.codeGlyph}>
+                <CodeText value={character.glyph} />
+              </Text>
+              <Text style={styles.codeReason}>
+                {character.constructLabel ? (
+                  <Text style={styles.codeConstruct}>{character.constructLabel}. </Text>
+                ) : null}
+                {character.reason}
+              </Text>
+            </View>
+          ))}
+        </View>
+      ))}
+    </View>
+  );
+}
+
 function LegacyBody({ model }: { model: ResultPdfModel }) {
   const legacy = model.legacy;
   if (!legacy) return null;
@@ -647,6 +800,10 @@ export function ResultPdfDocument({ model }: { model: ResultPdfModel }) {
         <BodyMasthead model={model} />
         <HowToRead />
         {model.kind === "legacy" ? <LegacyBody model={model} /> : <ModularBody model={model} />}
+        {/* Reference material, so it sits after the lenses and before the
+            glossary: both answer "what does this mean", the code section for the
+            notation and the glossary for the vocabulary. */}
+        <IdentityCodeSection model={model} />
         <Glossary />
         <ClosingNote />
         <PageFooter model={model} />

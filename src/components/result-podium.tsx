@@ -9,6 +9,7 @@ import {
   buildCollectibleIdentity,
   type CollectibleIdentity,
 } from "@/lib/assessment/identity-journey";
+import { buildIdentityCodeLegend } from "@/lib/report/identity-code-legend";
 import {
   resolveStageTheme,
   resolveTypeCode,
@@ -160,8 +161,27 @@ export function ResultPodium({
       { code: identity?.socionics, label: "Gaya komunikasi" },
       { code: identity?.sloan, label: "Pola sifat" },
       { code: identity?.psyche, label: "Prioritas jiwa" },
+      // The trailing pair is printed in the line too, and had no row at all, so
+      // it was the one segment with no label anywhere on the page.
+      { code: identity?.group, label: "Kelompok" },
     ] satisfies { code: string | undefined; label: string }[]
   ).filter((row): row is { code: string; label: string } => Boolean(row.code));
+
+  /**
+   * Where each character of the line came from.
+   *
+   * The line and the rows above say which lens produced which code, but never how
+   * the letters were chosen, so the notation arrives unexplained. The legend
+   * derives that from the same scores the engines used, and drops any segment it
+   * cannot reproduce exactly rather than guessing.
+   */
+  const codeLegend =
+    result.kind === "modular"
+      ? buildIdentityCodeLegend(
+          result.modules,
+          identity ?? buildCollectibleIdentity(result.modules),
+        )
+      : [];
 
   async function handleShareClick() {
     if (onShare) {
@@ -336,6 +356,66 @@ export function ResultPodium({
                   </div>
                 ))}
               </dl>
+            )}
+
+            {/*
+             * Where the notation comes from, closed by default.
+             *
+             * Native `<details>` rather than React state: it is keyboard operable,
+             * findable by in-page search even while closed, and needs no motion, so
+             * there is nothing for `prefers-reduced-motion` to suppress.
+             *
+             * Closed by default because the codes are the reveal here; the derivation
+             * is for the reader who then asks "why these letters?". Open, it is
+             * taller than the whole card and would push the actions below the fold.
+             */}
+            {codeLegend.length > 0 && (
+              <details className="border-line mt-4 border-t pt-3">
+                <summary className="focus-ring text-ink-muted hover:text-ink marker:text-steel cursor-pointer rounded-[10px] text-xs leading-snug">
+                  Dari mana huruf-huruf ini?
+                </summary>
+                <p className="text-ink-muted mt-3 text-xs leading-relaxed">
+                  Tiap bagian kode dihitung dari jawabanmu sendiri. Angka di bawah adalah skor 0-100
+                  pada sisi yang diukur, bukan nilai benar atau salah.
+                </p>
+                <ol className="mt-3 space-y-3.5">
+                  {codeLegend.map((segment) => (
+                    <li className="bg-surface-raised rounded-[12px] p-3" key={segment.code}>
+                      <div className="flex flex-wrap items-baseline justify-between gap-2">
+                        <code className="text-ink font-mono text-sm font-bold tracking-wide">
+                          {segment.code}
+                        </code>
+                        <span className="text-steel text-[11px] leading-snug">
+                          {segment.sourceLabel}
+                        </span>
+                      </div>
+                      <p className="text-ink-muted mt-1.5 text-xs leading-relaxed">
+                        {segment.rule}
+                      </p>
+                      <ul className="mt-2.5 space-y-1.5">
+                        {segment.characters.map((character, index) => (
+                          <li
+                            className="flex gap-2.5 text-xs leading-relaxed"
+                            // Glyphs repeat inside a segment (SLUAI has two of
+                            // some letters), so position is the stable key.
+                            key={`${character.glyph}-${index}`}
+                          >
+                            <code className="text-ink w-8 shrink-0 font-mono font-bold">
+                              {character.glyph}
+                            </code>
+                            <span className="text-ink-muted">
+                              {character.constructLabel ? (
+                                <span className="text-ink">{character.constructLabel}. </span>
+                              ) : null}
+                              {character.reason}
+                            </span>
+                          </li>
+                        ))}
+                      </ul>
+                    </li>
+                  ))}
+                </ol>
+              </details>
             )}
           </div>
 
