@@ -8,7 +8,7 @@ import { findAccountByIdForAuthentication } from "@/server/repositories/accounts
 
 export default async function DashboardSettingsPage() {
   const session = await getCurrentSession();
-  if (!session) redirect("/login?redirectTo=%2Fdashboard%2Fsettings");
+  if (!session) redirect("/");
   const environment = getServerEnvironment();
   const linked = await listAccountOidcProviders(session.accountId);
   const account = await findAccountByIdForAuthentication(session.accountId);

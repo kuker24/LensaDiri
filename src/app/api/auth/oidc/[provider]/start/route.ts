@@ -26,7 +26,7 @@ export async function GET(
   const environment = getServerEnvironment();
   if ((provider === "google" ? environment.googleOidc : environment.appleOidc) === null) {
     return NextResponse.redirect(
-      new URL("/login?authError=provider_unavailable", environment.appOrigin),
+      new URL("/?authError=provider_unavailable", environment.appOrigin),
     );
   }
   try {
@@ -36,11 +36,11 @@ export async function GET(
       environment.rateLimitSecret,
     );
     if (!rateLimit.allowed) {
-      return NextResponse.redirect(new URL("/login?authError=rate_limited", environment.appOrigin));
+      return NextResponse.redirect(new URL("/?authError=rate_limited", environment.appOrigin));
     }
   } catch {
     return NextResponse.redirect(
-      new URL("/login?authError=provider_unavailable", environment.appOrigin),
+      new URL("/?authError=provider_unavailable", environment.appOrigin),
     );
   }
   const requestUrl = new URL(request.url);
@@ -48,9 +48,7 @@ export async function GET(
     requestUrl.searchParams.get("operation") === "link" ? "link" : "login";
   const currentSession = operation !== "login" ? await getCurrentSession() : null;
   if (operation !== "login" && !currentSession) {
-    return NextResponse.redirect(
-      new URL("/login?redirectTo=%2Fdashboard%2Fsettings", environment.appOrigin),
-    );
+    return NextResponse.redirect(new URL("/", environment.appOrigin));
   }
   const transaction = {
     ...(currentSession
@@ -76,7 +74,7 @@ export async function GET(
     return response;
   } catch {
     return NextResponse.redirect(
-      new URL("/login?authError=provider_unavailable", environment.appOrigin),
+      new URL("/?authError=provider_unavailable", environment.appOrigin),
     );
   }
 }

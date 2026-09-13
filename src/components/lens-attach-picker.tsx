@@ -121,10 +121,7 @@ export function LensAttachPicker({
           >
             Perjalanan 5 lensa
           </p>
-          <h1
-            id="journey-heading"
-            className="font-['Anton',var(--font-anton),sans-serif] text-4xl uppercase sm:text-5xl"
-          >
+          <h1 id="journey-heading" className="font-display text-4xl uppercase sm:text-5xl">
             Workbench Polamu
           </h1>
           <p className="text-ink-muted mt-3 max-w-xl leading-7">

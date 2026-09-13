@@ -12,6 +12,8 @@ export type HeroFigure = {
   ink: string;
   code: string;
   group: "NT" | "NF" | "SJ" | "SP";
+  /** Render variant. The gallery shows both so neither reads as the default. */
+  variant: "laki" | "perempuan";
 };
 
 const STAGE = {
@@ -25,8 +27,8 @@ const STAGE = {
  * Landing carousel roster, grouped by cluster so the stage colour changes in
  * coherent runs instead of flickering between four hues.
  *
- * Every entry now resolves to a `{CODE}.png` render from the same batch, so the
- * carousel no longer mixes visual styles.
+ * Every entry resolves to a `{CODE}-{variant}.png` render from the same batch,
+ * so the carousel never mixes visual styles.
  */
 type HeroSeed = readonly [code: string, group: "NT" | "NF" | "SJ" | "SP"];
 
@@ -49,14 +51,24 @@ const HERO_SEEDS: readonly HeroSeed[] = [
   ["ESFP", "SP"],
 ];
 
-export const HERO_FIGURES: HeroFigure[] = HERO_SEEDS.map(([code, group]) => ({
-  code,
-  group,
-  bg: STAGE[group].bg,
-  panel: STAGE[group].panel,
-  ink: STAGE[group].ink,
-  src: `/figurines/${code}.png`,
-}));
+const HERO_VARIANTS = ["laki", "perempuan"] as const;
+
+/**
+ * Both renders of every type, 32 cards total. The variants are interleaved per
+ * type rather than appended as a second lap, so a visitor who only swipes a few
+ * cards still sees both and neither variant reads as the canonical one.
+ */
+export const HERO_FIGURES: HeroFigure[] = HERO_SEEDS.flatMap(([code, group]) =>
+  HERO_VARIANTS.map((variant) => ({
+    code,
+    group,
+    variant,
+    bg: STAGE[group].bg,
+    panel: STAGE[group].panel,
+    ink: STAGE[group].ink,
+    src: `/figurines/${code}-${variant}.png`,
+  })),
+);
 
 function ArrowLeftIcon({ className = "w-6 h-6" }: { className?: string }) {
   return (
@@ -132,8 +144,8 @@ export function CollectibleHero() {
     getReducedMotionServerSnapshot,
   );
 
-  // Warm only the cards that can appear next. Preloading all 16 renders would
-  // pull several megabytes on first paint for images the visitor may never see.
+  // Warm only the cards that can appear next. Preloading all 32 renders would
+  // pull ~22 MB on first paint for images the visitor may never see.
   useEffect(() => {
     if (typeof window === "undefined") return;
     const len = HERO_FIGURES.length;
@@ -168,7 +180,7 @@ export function CollectibleHero() {
   /**
    * Signed ring distance from the active card, in the range
    * `[-len/2, +len/2]`. Negative is to the left, positive to the right, so a
-   * 16-card roster keeps a symmetric neighbourhood instead of treating every
+   * 32-card roster keeps a symmetric neighbourhood instead of treating every
    * far index as "one step left".
    */
   const signedOffset = (index: number) => {
@@ -246,7 +258,7 @@ export function CollectibleHero() {
     }
 
     // Everything beyond the second ring parks off-stage and stops painting,
-    // otherwise 16 cards pile up behind the active one.
+    // otherwise 32 cards pile up behind the active one.
     return {
       ...base,
       transform: "translateX(-50%) scale(0.75)",
@@ -284,10 +296,10 @@ export function CollectibleHero() {
         }}
       />
 
-      {/* Ghost text z-2, top 18%, Anton, clamp(90px, 28vw, 380px), white, uppercase, tracking -0.02em, content POLA */}
+      {/* Ghost text z-2, top 18%, display face, clamp(90px, 28vw, 380px), uppercase, tracking -0.02em, content POLA */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute top-[18%] left-1/2 z-[2] -translate-x-1/2 text-center font-['Anton',var(--font-anton),sans-serif] leading-none tracking-[-0.02em] uppercase select-none"
+        className="font-display pointer-events-none absolute top-[18%] left-1/2 z-[2] -translate-x-1/2 text-center leading-none tracking-[-0.02em] uppercase select-none"
         style={{
           fontSize: "clamp(90px, 28vw, 380px)",
           color: activeFigure.ink,
@@ -304,7 +316,9 @@ export function CollectibleHero() {
           const style = getRoleStyle(idx);
           return (
             <div
-              key={figure.code}
+              // Both variants of a type share a `code`, so the key has to carry
+              // the variant too or React sees 16 duplicate keys across 32 cards.
+              key={`${figure.code}-${figure.variant}`}
               className="pointer-events-auto absolute cursor-pointer"
               style={{
                 left: style.left,
@@ -362,67 +376,91 @@ export function CollectibleHero() {
         })}
       </div>
 
-      {/* Bottom controls container */}
-      <div className="pointer-events-none absolute inset-x-6 bottom-6 z-40 flex items-end justify-between sm:inset-x-10 sm:bottom-10">
-        {/* The gallery stays anonymous until the first result is claimed. */}
-        <div className="pointer-events-auto flex max-w-sm flex-col gap-3">
-          <div style={{ color: activeFigure.ink }}>
-            <p className="text-xs font-extrabold tracking-[0.14em] uppercase sm:text-sm">
-              GALERI POLA
-            </p>
-            <p className="mt-1 text-base font-bold tracking-wide sm:text-lg">
-              Koleksi {String(activeIndex + 1).padStart(2, "0")} / {HERO_FIGURES.length}
-            </p>
-            <p className="mt-1 text-[11px] font-medium sm:text-xs">
-              Kenali pola dirimu lewat refleksi yang privat. Wujud di galeri bukan pilihan hasil.
-            </p>
-          </div>
+      {/*
+        Carousel controls flank the active figurine instead of stacking in the
+        bottom-left corner. They sit at the stage's vertical midpoint, which is
+        where the character's torso lands at both the mobile (52%) and desktop
+        (74%) card heights, so the arrows read as attached to the figure.
+      */}
+      <div className="pointer-events-none absolute inset-x-3 top-1/2 z-40 flex -translate-y-1/2 items-center justify-between sm:inset-x-8">
+        <button
+          type="button"
+          aria-label="Figurine sebelumnya"
+          onClick={() => navigate(-1)}
+          disabled={isAnimating}
+          style={{ borderColor: activeFigure.ink, color: activeFigure.ink }}
+          className="stage-control focus-ring pointer-events-auto flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-2 bg-transparent disabled:opacity-50 sm:h-16 sm:w-16"
+        >
+          <ArrowLeftIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+        </button>
+        <button
+          type="button"
+          aria-label="Figurine berikutnya"
+          onClick={() => navigate(1)}
+          disabled={isAnimating}
+          style={{ borderColor: activeFigure.ink, color: activeFigure.ink }}
+          className="stage-control focus-ring pointer-events-auto flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-2 bg-transparent disabled:opacity-50 sm:h-16 sm:w-16"
+        >
+          <ArrowRightIcon className="h-5 w-5 sm:h-6 sm:w-6" />
+        </button>
+      </div>
 
-          <div className="mt-1 flex items-center gap-3">
-            <button
-              type="button"
-              aria-label="Figurine sebelumnya"
-              onClick={() => navigate(-1)}
-              disabled={isAnimating}
-              style={{ borderColor: activeFigure.ink, color: activeFigure.ink }}
-              className="stage-control focus-ring flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-2 bg-transparent disabled:opacity-50 sm:h-16 sm:w-16"
-            >
-              <ArrowLeftIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-            </button>
-            <button
-              type="button"
-              aria-label="Figurine berikutnya"
-              onClick={() => navigate(1)}
-              disabled={isAnimating}
-              style={{ borderColor: activeFigure.ink, color: activeFigure.ink }}
-              className="stage-control focus-ring flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-2 bg-transparent disabled:opacity-50 sm:h-16 sm:w-16"
-            >
-              <ArrowRightIcon className="h-5 w-5 sm:h-6 sm:w-6" />
-            </button>
-          </div>
-        </div>
-
-        {/* Bottom-right: Anton link MULAI + ArrowRight */}
-        <div className="pointer-events-auto flex flex-col items-end gap-1 text-right">
+      {/* Bottom row: legal paths on the left, primary CTA on the right */}
+      <div className="pointer-events-none absolute inset-x-6 bottom-6 z-40 flex items-end justify-between gap-4 sm:inset-x-10 sm:bottom-10">
+        {/*
+          The site footer never renders on the landing page and the header no
+          longer carries a nav rail, so this is the only entry point to the
+          privacy and limitation pages. It stays deliberately quiet, but it
+          cannot be removed without orphaning those disclosures.
+        */}
+        <nav
+          aria-label="Informasi dan kebijakan"
+          className="pointer-events-auto flex flex-wrap items-center text-[10px] tracking-wide sm:text-xs"
+          style={{ color: activeFigure.ink }}
+        >
+          {/*
+            Each link is its own 44px target rather than bare inline text. At
+            this type size the text box is only ~16px tall, which fails the
+            minimum tap target the accessibility suite enforces.
+          */}
           <Link
-            href="/start"
-            aria-label="MULAI — Mulai eksplorasi LensaDiri"
-            className="focus-ring group flex min-h-11 items-center gap-2 font-['Anton',var(--font-anton),sans-serif] leading-none tracking-[-0.02em] uppercase transition-transform duration-200 hover:translate-x-1 sm:gap-3"
-            style={{
-              fontSize: "clamp(20px, 4vw, 56px)",
-              color: activeFigure.ink,
-            }}
+            href="/privacy"
+            className="focus-ring inline-flex min-h-11 min-w-11 items-center justify-center rounded-sm px-2 underline-offset-4 hover:underline"
           >
-            <span>MULAI</span>
-            <ArrowRightIcon className="h-6 w-6 transition-transform duration-200 group-hover:translate-x-1.5 sm:h-10 sm:w-10" />
+            Privasi
           </Link>
-          <p
-            className="text-[10px] font-medium tracking-wide sm:text-xs"
-            style={{ color: activeFigure.ink }}
+          <span aria-hidden="true" className="opacity-50">
+            ·
+          </span>
+          <Link
+            href="/disclaimer"
+            className="focus-ring inline-flex min-h-11 min-w-11 items-center justify-center rounded-sm px-2 underline-offset-4 hover:underline"
           >
-            <span>Bukan diagnosis klinis</span> · <span>Privat tanpa pelacak iklan</span>
-          </p>
-        </div>
+            Batasan
+          </Link>
+          <span aria-hidden="true" className="opacity-50">
+            ·
+          </span>
+          <Link
+            href="/method"
+            className="focus-ring inline-flex min-h-11 min-w-11 items-center justify-center rounded-sm px-2 underline-offset-4 hover:underline"
+          >
+            Metode
+          </Link>
+        </nav>
+
+        <Link
+          href="/start"
+          aria-label="MULAI — Mulai eksplorasi LensaDiri"
+          className="focus-ring group font-display pointer-events-auto flex min-h-11 items-center gap-2 leading-none tracking-[-0.02em] uppercase transition-transform duration-200 hover:translate-x-1 sm:gap-3"
+          style={{
+            fontSize: "clamp(20px, 4vw, 56px)",
+            color: activeFigure.ink,
+          }}
+        >
+          <span>MULAI</span>
+          <ArrowRightIcon className="h-6 w-6 transition-transform duration-200 group-hover:translate-x-1.5 sm:h-10 sm:w-10" />
+        </Link>
       </div>
     </section>
   );

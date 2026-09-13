@@ -1,54 +1,25 @@
 import type { Metadata, Viewport } from "next";
-import {
-  Anton,
-  Archivo,
-  Instrument_Serif,
-  Inter,
-  JetBrains_Mono,
-  Plus_Jakarta_Sans,
-} from "next/font/google";
+import { Poly } from "next/font/google";
 import type { ReactNode } from "react";
 import { AppShell } from "@/components/app-shell";
 import { ToastProvider } from "@/components/ui/toast";
 import { siteConfig } from "@/lib/site";
 import "./globals.css";
 
-const archivo = Archivo({
-  subsets: ["latin"],
-  variable: "--font-archivo",
-  display: "swap",
-});
-
-const jetBrainsMono = JetBrains_Mono({
-  subsets: ["latin"],
-  variable: "--font-jetbrains-mono",
-  display: "swap",
-});
-
-const instrumentSerif = Instrument_Serif({
-  subsets: ["latin"],
+/**
+ * One family for the whole surface.
+ *
+ * Poly ships a single 400 weight in normal and italic — no bold, no numeric
+ * axis. Every `font-bold`/`font-semibold` utility in the app therefore renders
+ * as synthetic bold, and emphasis has to come from size, colour, and letter
+ * spacing instead of weight. `tabular-nums` also has no effect here, so numeric
+ * columns are no longer width-locked.
+ */
+const poly = Poly({
+  subsets: ["latin", "latin-ext"],
   weight: "400",
   style: ["normal", "italic"],
-  variable: "--font-instrument-serif",
-  display: "swap",
-});
-
-const inter = Inter({
-  subsets: ["latin"],
-  variable: "--font-inter",
-  display: "swap",
-});
-
-const anton = Anton({
-  subsets: ["latin"],
-  weight: "400",
-  variable: "--font-anton",
-  display: "swap",
-});
-
-const plusJakartaSans = Plus_Jakarta_Sans({
-  subsets: ["latin"],
-  variable: "--font-plus-jakarta",
+  variable: "--font-poly",
   display: "swap",
 });
 
@@ -107,13 +78,9 @@ export const viewport: Viewport = {
 
 export default function RootLayout({ children }: Readonly<{ children: ReactNode }>) {
   return (
-    <html
-      data-scroll-behavior="smooth"
-      lang="id"
-      className={`${archivo.variable} ${jetBrainsMono.variable} ${instrumentSerif.variable} ${inter.variable} ${anton.variable} ${plusJakartaSans.variable}`}
-    >
+    <html data-scroll-behavior="smooth" lang="id" className={poly.variable}>
       <body>
-        {/* THESIS: self-reflection unfolds like a collectible vinyl figure without turning identity into a game or revealing a type early. OWN-WORLD: warm paper gallery, tactile white vitrines, Anton packaging type, Jakarta body copy, and four contrast-safe stage colors. STORY: browse anonymous figures, choose a visual form, answer the first lens, claim the server result, then add only completed lenses. FIRST VIEWPORT: anonymous cutout carousel around a giant POLA mark, concise privacy copy below, and Mulai anchored opposite the controls. FORM: approved Stitch Vinyl Gallery collectible prototype. FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md */}
+        {/* THESIS: self-reflection unfolds like a collectible vinyl figure without turning identity into a game or revealing a type early. OWN-WORLD: warm paper gallery, tactile white vitrines, Poly packaging and body type, and four contrast-safe stage colors. STORY: browse anonymous figures, choose a visual form, answer the first lens, claim the server result, then add only completed lenses. FIRST VIEWPORT: anonymous cutout carousel around a giant POLA mark, concise privacy copy below, and Mulai anchored opposite the controls. FORM: approved Stitch Vinyl Gallery collectible prototype. FINISH: unreviewed and undocumented is unfinished; this build ends with the finish review, the verdict, and DESIGN.md */}
         <a
           className="focus-ring bg-surface-raised text-ink border-line sr-only z-50 rounded-[12px] border px-4 py-3 focus:not-sr-only focus:fixed focus:top-4 focus:left-4"
           href="#konten-utama"

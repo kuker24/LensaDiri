@@ -9,6 +9,26 @@ import {
   buildCollectibleIdentity,
   type CollectibleIdentity,
 } from "@/lib/assessment/identity-journey";
+import {
+  resolveStageTheme,
+  resolveTypeCode,
+  STAGE_THEMES,
+  TYPE_CODES,
+  type StageCode,
+} from "@/lib/report/type-theme";
+
+/**
+ * Re-exported so existing importers (and the shared report) keep a single entry
+ * point. The implementations moved to `@/lib/report/type-theme` because the PDF
+ * export runs on the server and cannot import a Client Component.
+ */
+export {
+  parseTemperament,
+  resolveStageTheme,
+  resolveTypeCode,
+  STAGE_THEMES,
+  type StageCode,
+} from "@/lib/report/type-theme";
 
 export type ResultPodiumProps = {
   characterGender?: CharacterGender;
@@ -19,55 +39,6 @@ export type ResultPodiumProps = {
   isUraianOpen: boolean;
   onShare?: (() => void) | undefined;
 };
-
-/**
- * Cluster stages. `bg`/`panel` are light fills; `ink` is the only text colour
- * that stays legible on them. White on these fills measures 2.2-2.5:1, so it is
- * never used for labels — `tests/unit/contrast.test.ts` guards this.
- */
-const STAGE_THEMES = {
-  NT: { bg: "#6EB5FF", panel: "#8DC4FF", ink: "#0b2f52", name: "Rasional" },
-  NF: { bg: "#E882B4", panel: "#ED9DC4", ink: "#681847", name: "Idealis" },
-  SJ: { bg: "#6BBF7A", panel: "#85CC92", ink: "#002109", name: "Penjaga" },
-  SP: { bg: "#F4845F", panel: "#F79B7F", ink: "#6c1e02", name: "Penjelajah" },
-  NEUTRAL: { bg: "#E4E2DE", panel: "#EFEEEA", ink: "#30312E", name: "Belum ditentukan" },
-} as const;
-
-export type StageCode = keyof typeof STAGE_THEMES;
-
-export function parseTemperament(code: string): "NT" | "NF" | "SJ" | "SP" | null {
-  const c = code.toUpperCase().trim();
-  if (c.includes("NT") || /^[EI]NT[JP]$/u.test(c)) return "NT";
-  if (c.includes("NF") || /^[EI]NF[JP]$/u.test(c)) return "NF";
-  if (c.includes("SJ") || /^[EI]S[TF]J$/u.test(c)) return "SJ";
-  if (c.includes("SP") || /^[EI]S[TF]P$/u.test(c)) return "SP";
-  return null;
-}
-
-/**
- * The 16 reflective type codes. Every one ships a render for both bodies as
- * `{CODE}-laki.png` and `{CODE}-perempuan.png`, so the podium can honour the
- * reflected type and the picked body together instead of dropping to a plain
- * body whenever a combination had no artwork.
- */
-const TYPE_CODES: ReadonlySet<string> = new Set([
-  "ENFJ",
-  "ENFP",
-  "ENTJ",
-  "ENTP",
-  "ESFJ",
-  "ESFP",
-  "ESTJ",
-  "ESTP",
-  "INFJ",
-  "INFP",
-  "INTJ",
-  "INTP",
-  "ISFJ",
-  "ISFP",
-  "ISTJ",
-  "ISTP",
-]);
 
 /**
  * Pick the figurine image for a result.
@@ -93,73 +64,6 @@ export function resolveFigurineSrc(
     return `/figurines/${exact}-${gender}.png`;
   }
   return gender === "laki" ? "/figurines/base-male.png" : "/figurines/base-female.png";
-}
-
-/**
- * Extract the reflective 16-type code from a result, when one is present.
- *
- * Legacy results expose it as a trait-derived overlay label; modular results
- * expose it as the `type_16` module summary. Returns null when neither exists,
- * so callers fall back to a cluster stand-in instead of inventing a type.
- */
-export function resolveTypeCode(result: ResultView): string | null {
-  const raw =
-    result.kind === "legacy"
-      ? result.summary.overlays?.type16?.label
-      : (() => {
-          const mod = result.modules.find((m) => m.moduleKey === "type_16");
-          if (mod && typeof mod.summary === "object" && mod.summary !== null) {
-            return (mod.summary as { primaryType?: string }).primaryType;
-          }
-          return undefined;
-        })();
-  const match = raw?.toUpperCase().match(/\b[EI][NS][TF][JP]\b/u);
-  return match ? match[0] : null;
-}
-
-export function resolveStageTheme(result: ResultView): {
-  bg: string;
-  panel: string;
-  ink: string;
-  code: StageCode;
-} {
-  if (result.kind === "legacy") {
-    const t16 = result.summary.overlays?.type16?.label;
-    if (t16) {
-      const code = parseTemperament(t16);
-      if (code) return { ...STAGE_THEMES[code], code };
-    }
-    const temp = result.summary.overlays?.temperament?.label?.toLowerCase() || "";
-    if (temp.includes("koleris") || temp.includes("nt")) return { ...STAGE_THEMES.NT, code: "NT" };
-    if (temp.includes("plegmatis") || temp.includes("nf"))
-      return { ...STAGE_THEMES.NF, code: "NF" };
-    if (temp.includes("melankolis") || temp.includes("sj"))
-      return { ...STAGE_THEMES.SJ, code: "SJ" };
-    if (temp.includes("sanguinis") || temp.includes("sp"))
-      return { ...STAGE_THEMES.SP, code: "SP" };
-    return { ...STAGE_THEMES.NEUTRAL, code: "NEUTRAL" };
-  }
-
-  // Modular
-  const type16Mod = result.modules.find((m) => m.moduleKey === "type_16");
-  if (type16Mod && typeof type16Mod.summary === "object" && type16Mod.summary !== null) {
-    const pType = (type16Mod.summary as { primaryType?: string }).primaryType;
-    if (pType) {
-      const code = parseTemperament(pType);
-      if (code) return { ...STAGE_THEMES[code], code };
-    }
-  }
-
-  const tempMod = result.modules.find((m) => m.moduleKey === "temperament");
-  if (tempMod && typeof tempMod.summary === "object" && tempMod.summary !== null) {
-    const p = (tempMod.summary as { primary?: string }).primary?.toLowerCase() || "";
-    if (p.includes("koleris") || p === "nt") return { ...STAGE_THEMES.NT, code: "NT" };
-    if (p.includes("plegmatis") || p === "nf") return { ...STAGE_THEMES.NF, code: "NF" };
-    if (p.includes("melankolis") || p === "sj") return { ...STAGE_THEMES.SJ, code: "SJ" };
-    if (p.includes("sanguinis") || p === "sp") return { ...STAGE_THEMES.SP, code: "SP" };
-  }
-
-  return { ...STAGE_THEMES.NEUTRAL, code: "NEUTRAL" };
 }
 
 export function resolveVisualOverlays(result: ResultView) {
@@ -325,7 +229,7 @@ export function ResultPodium({
             aria-hidden="true"
             className="pointer-events-none absolute inset-0 z-0 flex items-center justify-center select-none"
           >
-            <span className="font-['Anton',var(--font-anton),sans-serif] text-[clamp(140px,26vw,360px)] leading-none font-black tracking-tight text-[var(--stage)] uppercase opacity-[0.22]">
+            <span className="font-display text-[clamp(140px,26vw,360px)] leading-none font-black tracking-tight text-[var(--stage)] uppercase opacity-[0.22]">
               POLA
             </span>
           </div>
@@ -373,13 +277,12 @@ export function ResultPodium({
             >
               {isFullPodium ? "Koleksi lengkap" : "Koleksi parsial"}
             </span>
-            <span className="text-ink-muted text-xs font-medium tracking-wide">
-              Hasil refleksi LensaDiri
-            </span>
           </div>
 
-          <h1 className="font-['Anton',var(--font-anton),sans-serif] text-[clamp(34px,7vw,60px)] leading-[1.02] tracking-tight uppercase">
-            {isFullPodium ? "PODIUM PENUH" : "POLAMU SAAT INI"}
+          {/* One heading for both states. The completeness signal lives in the
+              badge above, so the title no longer forks on `isFullPodium`. */}
+          <h1 className="font-display text-[clamp(34px,7vw,60px)] leading-[1.02] tracking-tight uppercase">
+            HASIL LENSA
           </h1>
 
           {/* Card Identitas Pola Karakter */}
@@ -538,12 +441,6 @@ export function ResultPodium({
           )}
         </section>
       </main>
-
-      {/* Footer Minimalis */}
-      <footer className="text-steel relative z-20 mx-auto flex w-full max-w-7xl items-center justify-between px-5 pb-5 font-mono text-[11px] sm:px-10">
-        <span>Tersimpan otomatis · tanpa akun &amp; pelacak iklan</span>
-        <span className="hidden sm:inline">Hasil privat sampai dibagikan</span>
-      </footer>
     </div>
   );
 }

@@ -101,8 +101,9 @@ describe("ResultPodium Component", () => {
       />,
     );
 
-    // Heading
-    expect(screen.getByRole("heading", { name: "POLAMU SAAT INI" })).toBeDefined();
+    // Heading is now state-independent; completeness lives in the badge.
+    expect(screen.getByRole("heading", { name: "HASIL LENSA" })).toBeDefined();
+    expect(screen.getByText("Koleksi parsial")).toBeDefined();
 
     // Quote
     expect(screen.getByText(/“Baca sebagai pola, bukan kotak tetap.”/i)).toBeDefined();
@@ -122,7 +123,7 @@ describe("ResultPodium Component", () => {
     expect(onOpenUraian).toHaveBeenCalledTimes(1);
   });
 
-  test("reserves the full podium for a complete five-lens journey", () => {
+  test("marks a complete five-lens journey with the full-collection badge", () => {
     render(
       <ResultPodium
         result={mockModularResult}
@@ -141,7 +142,10 @@ describe("ResultPodium Component", () => {
       />,
     );
 
-    expect(screen.getByRole("heading", { name: "PODIUM PENUH" })).toBeInTheDocument();
+    // Same heading as the partial state; only the badge changes.
+    expect(screen.getByRole("heading", { name: "HASIL LENSA" })).toBeInTheDocument();
+    expect(screen.getByText("Koleksi lengkap")).toBeInTheDocument();
+    expect(screen.queryByText("Koleksi parsial")).not.toBeInTheDocument();
     expect(screen.getByText("ISFJ sx964 SEI RCUAN L¹V²E³F⁴ SJ")).toBeInTheDocument();
     // The lens counter badge is gone: the identity line already states which
     // lenses finished, and a "5 / 5" chip beside it said the same thing twice.

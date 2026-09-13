@@ -1,15 +1,12 @@
-export type RouteFamily = "public" | "auth" | "assessment" | "account" | "operator";
+export type RouteFamily = "public" | "assessment" | "account" | "operator";
 
-const authRoutes = new Set([
-  "/forgot-password",
-  "/login",
-  "/register",
-  "/reset-password",
-  "/verify-email",
-]);
-
+/**
+ * The `auth` family was removed along with the sign-in pages. Nothing can serve
+ * `/login`, `/register`, `/forgot-password`, `/reset-password`, or
+ * `/verify-email` any more, so those paths fall through to `public` and are
+ * answered by the 404 page like any other unknown route.
+ */
 export function getRouteFamily(pathname: string): RouteFamily {
-  if (authRoutes.has(pathname)) return "auth";
   if (pathname === "/start" || /^\/(?:start|test|result|shared)(?:\/|$)/u.test(pathname)) {
     return "assessment";
   }

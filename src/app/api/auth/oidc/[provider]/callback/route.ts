@@ -41,7 +41,7 @@ async function callback(
   const cookieName = getOidcCookieName(provider, environment.isProduction);
   const sealed = getCookieValue(request.headers.get("cookie"), cookieName);
   const transaction = sealed ? openOidcTransaction(sealed, environment.authSessionSecret) : null;
-  const errorDestination = new URL("/login?authError=provider_failed", environment.appOrigin);
+  const errorDestination = new URL("/?authError=provider_failed", environment.appOrigin);
   let destination = errorDestination;
   let session: { expiresAt: Date; token: string } | null = null;
   try {
@@ -110,7 +110,7 @@ async function callback(
           subject: identity.subject,
         });
         if (resolved.outcome === "collision") {
-          destination = new URL("/login?authError=email_collision", environment.appOrigin);
+          destination = new URL("/?authError=email_collision", environment.appOrigin);
           throw new Error("OIDC email collision.");
         }
         accountId = resolved.accountId;

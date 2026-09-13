@@ -54,7 +54,7 @@ describe("ResultReport", () => {
   test("opens straight on the podium with its trailing controls", () => {
     renderReport("fresh-token");
 
-    expect(screen.getByRole("heading", { name: "POLAMU SAAT INI" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "HASIL LENSA" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: CONTROLS })).toBeInTheDocument();
   });
 
@@ -75,11 +75,11 @@ describe("ResultReport", () => {
   test("shows the podium again on a second visit to the same result", () => {
     const token = "revisited-token";
     const first = renderReport(token);
-    expect(screen.getByRole("heading", { name: "POLAMU SAAT INI" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "HASIL LENSA" })).toBeInTheDocument();
     first.unmount();
 
     renderReport(token);
-    expect(screen.getByRole("heading", { name: "POLAMU SAAT INI" })).toBeInTheDocument();
+    expect(screen.getByRole("heading", { name: "HASIL LENSA" })).toBeInTheDocument();
     expect(screen.getByRole("button", { name: CONTROLS })).toBeInTheDocument();
   });
 

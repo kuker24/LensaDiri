@@ -1,5 +1,9 @@
+import fs from "node:fs";
+import path from "node:path";
+
 import { getPublicModeName } from "@/lib/assessment/catalog";
 import { buildIntegratedReflection, buildModuleReflection } from "@/lib/report/modular-report";
+import { resolveStageTheme, resolveTypeCode, STAGE_THEMES } from "@/lib/report/type-theme";
 import {
   confidenceReading,
   formatModuleResultTitle,
@@ -67,7 +71,25 @@ export type PdfModularBlock = {
   readonly overallConfidenceLabel: string | null;
 };
 
+/**
+ * Cover art and accent colour derived from the reflected type.
+ *
+ * `figurinePath` is an absolute filesystem path, not a URL: the PDF renderer
+ * runs server-side and cannot fetch from `/public`. It is null when the file is
+ * missing, so a failed lookup degrades to a colour-only cover instead of
+ * throwing during export.
+ */
+export type PdfCoverArt = {
+  readonly accent: string;
+  readonly accentSoft: string;
+  readonly figurinePath: string | null;
+  readonly ink: string;
+  readonly stageName: string;
+  readonly typeCode: string | null;
+};
+
 export type ResultPdfModel = {
+  readonly cover: PdfCoverArt;
   readonly createdAtLabel: string;
   readonly disclaimer: string;
   readonly exportedAtLabel: string;
@@ -123,6 +145,33 @@ function isExperimentalTier(tier: string): boolean {
 
 function confidenceLabel(confidence: number): string {
   return `${confidenceReading(confidence)} · ${Math.round(confidence * 100)} dari 100`;
+}
+
+/**
+ * Resolve the cover figurine on disk.
+ *
+ * The gender-neutral `{CODE}.png` render is used on purpose: the picked body is
+ * stored client-side only (`gender-storage`), so the server genuinely does not
+ * know it and must not guess. Returns null when the render is absent, which
+ * keeps export working on a colour-only cover rather than failing.
+ */
+function resolveCoverFigurine(typeCode: string | null): string | null {
+  if (!typeCode) return null;
+  const candidate = path.join(process.cwd(), "public", "figurines", `${typeCode}.png`);
+  return fs.existsSync(candidate) ? candidate : null;
+}
+
+function buildCoverArt(result: PrivateResultView): PdfCoverArt {
+  const theme = resolveStageTheme(result);
+  const typeCode = resolveTypeCode(result);
+  return {
+    accent: theme.bg,
+    accentSoft: theme.panel,
+    figurinePath: resolveCoverFigurine(typeCode),
+    ink: theme.ink,
+    stageName: STAGE_THEMES[theme.code].name,
+    typeCode,
+  };
 }
 
 function toLegacy(result: Extract<PrivateResultView, { kind: "legacy" }>): PdfLegacyBlock {
@@ -224,6 +273,7 @@ export function buildResultPdfModel(
 
   if (result.kind === "legacy") {
     return {
+      cover: buildCoverArt(result),
       createdAtLabel,
       disclaimer: result.summary.disclaimer,
       exportedAtLabel,
@@ -245,7 +295,7 @@ export function buildResultPdfModel(
       kind: "legacy",
       legacy: toLegacy(result),
       modular: null,
-      selectionLabel: "Profil legacy · lima spektrum",
+      selectionLabel: "Profil versi awal · lima sisi",
       subtitle: "Laporan refleksi pribadi",
       title: result.summary.archetype,
     };
@@ -255,10 +305,11 @@ export function buildResultPdfModel(
   const lensCount = result.modules.length;
   const selectionLabel =
     lensCount === 1
-      ? `Modular · 1 lensa · mode ${modular.modeLabel}`
-      : `Modular · ${lensCount} lensa · mode ${modular.modeLabel}`;
+      ? `1 lensa · mode ${modular.modeLabel}`
+      : `${lensCount} lensa · mode ${modular.modeLabel}`;
 
   return {
+    cover: buildCoverArt(result),
     createdAtLabel,
     disclaimer: result.summary.disclaimer,
     exportedAtLabel,

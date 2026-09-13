@@ -23,7 +23,7 @@ export default async function DashboardPrivacyPage({
   searchParams: Promise<{ authError?: string }>;
 }) {
   const session = await getCurrentSession();
-  if (!session) redirect("/login?redirectTo=%2Fdashboard%2Fprivacy");
+  if (!session) redirect("/");
 
   const policies = await listAccountConsentPolicies(session.accountId);
   const account = await findAccountByIdForAuthentication(session.accountId);

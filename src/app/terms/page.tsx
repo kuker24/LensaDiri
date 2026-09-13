@@ -36,7 +36,7 @@ export default function TermsPage() {
             Gunakan hasil sebagai{" "}
             <span
               style={{
-                fontFamily: "'Instrument Serif', serif",
+                fontFamily: "var(--font-poly), Georgia, serif",
                 fontStyle: "italic",
                 fontWeight: 400,
               }}

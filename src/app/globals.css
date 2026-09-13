@@ -3,14 +3,14 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme {
-  --font-sans:
-    var(--font-plus-jakarta), "Plus Jakarta Sans", var(--font-inter), "Inter", ui-sans-serif,
-    system-ui, -apple-system, "Segoe UI", sans-serif;
-  --font-serif: var(--font-instrument-serif), "Instrument Serif", Georgia, serif;
-  --font-display:
-    var(--font-inter), "Inter", var(--font-archivo), ui-sans-serif, system-ui, sans-serif;
-  --font-mono: var(--font-jetbrains-mono), ui-monospace, SFMono-Regular, Menlo, monospace;
-  --font-anton: var(--font-anton), "Anton", Impact, sans-serif;
+  /* Single family across every role. Poly is a serif, so `font-mono` no longer
+     buys a monospace advance — labels keep the utility for its tracking and
+     uppercase treatment, but numeric columns are no longer width-locked. */
+  --font-sans: var(--font-poly), "Poly", Georgia, "Times New Roman", serif;
+  --font-serif: var(--font-poly), "Poly", Georgia, "Times New Roman", serif;
+  --font-display: var(--font-poly), "Poly", Georgia, "Times New Roman", serif;
+  --font-mono: var(--font-poly), "Poly", Georgia, "Times New Roman", serif;
+  --font-anton: var(--font-poly), "Poly", Georgia, "Times New Roman", serif;
 
   /* Collectible neutrals, taken verbatim from the approved Stitch export
      (`04_klaim_kartu_karakter/code.html` tailwind config). The corrected
