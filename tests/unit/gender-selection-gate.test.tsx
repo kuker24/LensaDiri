@@ -73,18 +73,38 @@ describe("GenderSelectionGate Component", () => {
   });
 
   /**
-   * Starting the run still transmits `consent` and `experimentalAcknowledged`,
-   * so the limits behind that acknowledgment must be visible before the button.
-   * Without this the browser would assert an agreement the user never saw.
+   * The on-screen disclosure was removed by product decision.
+   *
+   * This test is not an endorsement: it pins the consequence so the gap stays
+   * visible. The browser still transmits `consent: true` and
+   * `experimentalAcknowledged: true` on every start — asserted directly below —
+   * while nothing on this screen states the age floor, the experimental status
+   * of four lenses, or the non-diagnosis limit. Restoring copy here should flip
+   * this expectation back to asserting the text.
    */
-  test("still discloses the age range, experimental status, and non-diagnosis limit", () => {
+  test("no longer shows any on-screen disclosure before the start button", () => {
     render(<GenderSelectionGate />);
 
-    const disclosure = screen.getByText(/Untuk usia/iu);
-    expect(disclosure.textContent).toContain(String(combinedJourneyMinimumAge));
-    expect(disclosure.textContent).toMatch(/eksperimental/iu);
-    expect(disclosure.textContent).toMatch(/bukan diagnosis/iu);
-    expect(disclosure.textContent).toMatch(/privat/iu);
+    expect(screen.queryByText(/Untuk usia/iu)).toBeNull();
+    expect(screen.queryByText(/eksperimental/iu)).toBeNull();
+    expect(screen.queryByText(/bukan diagnosis/iu)).toBeNull();
+  });
+
+  test("still asserts consent and the experimental acknowledgment on the visitor's behalf", async () => {
+    render(<GenderSelectionGate />);
+
+    await act(async () => {
+      fireEvent.click(screen.getByRole("button", { name: /Testlensa/i }));
+    });
+
+    // `startIdentityJourney` hard-codes `consent: true` and
+    // `experimentalAcknowledged: true`; the gate only supplies age and gender.
+    const sent = mocks.startIdentityJourney.mock.calls[0]?.[0] as {
+      age: number;
+      characterGender: string;
+    };
+    expect(sent.age).toBe(combinedJourneyMinimumAge);
+    expect(sent.characterGender).toBe("perempuan");
   });
 
   test("the age sent is the module floor, so the server gate can never be undercut", async () => {

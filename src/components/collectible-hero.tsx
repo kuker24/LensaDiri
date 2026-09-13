@@ -2,7 +2,7 @@
 
 import NextImage from "next/image";
 import Link from "next/link";
-import { useCallback, useEffect, useState, useSyncExternalStore } from "react";
+import { useCallback, useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 export type HeroFigure = {
   src: string;
@@ -129,9 +129,27 @@ function getReducedMotionServerSnapshot() {
   return false;
 }
 
+/**
+ * Painted-ink correction.
+ *
+ * Every roster render carries roughly a quarter of its frame as transparent
+ * padding: the alpha bounding box of `INTJ-laki.png` is 376x895 inside a
+ * 896x1200 frame, so only 74.6% of the card's height is figure. A card sized to
+ * 74% of the stage therefore painted a figure at 55% of the stage, which is why
+ * the hero read as too small even though the number looked generous.
+ *
+ * These heights are chosen against that fill, not against the visual result.
+ */
+const CARD_HEIGHT_DESKTOP = "92%";
+const CARD_HEIGHT_MOBILE = "68%";
+
+/** Velocity, in px/ms, above which a flick advances regardless of distance. */
+const SWIPE_VELOCITY = 0.11;
+/** Distance, in px, that advances the stage even from a slow drag. */
+const SWIPE_DISTANCE = 56;
+
 export function CollectibleHero() {
   const [activeIndex, setActiveIndex] = useState(0);
-  const [isAnimating, setIsAnimating] = useState(false);
 
   const isMobile = useSyncExternalStore(
     subscribeToResize,
@@ -157,23 +175,88 @@ export function CollectibleHero() {
     }
   }, [activeIndex]);
 
-  const navigate = useCallback(
-    (dir: 1 | -1) => {
-      if (isAnimating) return;
+  /**
+   * No animation lock.
+   *
+   * An earlier revision blocked input for the full 650ms transition because the
+   * stage animated `left`, `height`, and `bottom`; interrupting a layout
+   * animation mid-flight is what looks broken. The stage now animates only
+   * `transform`, and CSS transitions retarget from their current value with
+   * velocity preserved, so a rapid second click is smooth rather than a jump.
+   *
+   * Dropping the lock also removes a real cost: reaching card 20 of 32 took
+   * twenty 650ms waits, roughly 13 seconds of ignored clicks.
+   */
+  const navigate = useCallback((dir: 1 | -1) => {
+    setActiveIndex((prev) => (prev + dir + HERO_FIGURES.length) % HERO_FIGURES.length);
+  }, []);
 
-      if (prefersReducedMotion) {
-        setActiveIndex((prev) => (prev + dir + HERO_FIGURES.length) % HERO_FIGURES.length);
+  // Arrow keys drive the stage. The test runner already binds these, so the
+  // landing carousel was the only interactive surface ignoring them.
+  useEffect(() => {
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.defaultPrevented) return;
+      if (event.ctrlKey || event.metaKey || event.altKey) return;
+      const target = event.target as HTMLElement | null;
+      const tagName = target?.tagName?.toLowerCase();
+      if (tagName === "input" || tagName === "textarea" || target?.isContentEditable) return;
+
+      if (event.key === "ArrowLeft") {
+        event.preventDefault();
+        navigate(-1);
         return;
       }
+      if (event.key === "ArrowRight") {
+        event.preventDefault();
+        navigate(1);
+      }
+    }
 
-      setIsAnimating(true);
-      setActiveIndex((prev) => (prev + dir + HERO_FIGURES.length) % HERO_FIGURES.length);
-      setTimeout(() => {
-        setIsAnimating(false);
-      }, 650);
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [navigate]);
+
+  /**
+   * Pointer drag. A 32-card gallery on a phone invites a swipe, and until now
+   * nothing happened. Velocity is checked alongside distance so a quick flick
+   * counts even when the finger barely travels.
+   */
+  const dragRef = useRef<{ id: number; startX: number; startedAt: number } | null>(null);
+
+  const handlePointerDown = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    // Ignore a second finger once a drag owns the stage, otherwise switching
+    // fingers mid-drag re-anchors the gesture and the stage jumps.
+    if (dragRef.current) return;
+    if (event.pointerType === "mouse" && event.button !== 0) return;
+    dragRef.current = { id: event.pointerId, startX: event.clientX, startedAt: Date.now() };
+    // Capture so the gesture survives the pointer leaving the element.
+    event.currentTarget.setPointerCapture(event.pointerId);
+  }, []);
+
+  const handlePointerUp = useCallback(
+    (event: React.PointerEvent<HTMLDivElement>) => {
+      const drag = dragRef.current;
+      if (!drag || drag.id !== event.pointerId) return;
+      dragRef.current = null;
+      if (event.currentTarget.hasPointerCapture(event.pointerId)) {
+        event.currentTarget.releasePointerCapture(event.pointerId);
+      }
+
+      const travel = event.clientX - drag.startX;
+      const elapsed = Math.max(1, Date.now() - drag.startedAt);
+      const velocity = Math.abs(travel) / elapsed;
+      if (Math.abs(travel) < SWIPE_DISTANCE && velocity < SWIPE_VELOCITY) return;
+
+      // Dragging left pulls the next card in from the right.
+      navigate(travel < 0 ? 1 : -1);
     },
-    [isAnimating, prefersReducedMotion],
+    [navigate],
   );
+
+  const handlePointerCancel = useCallback((event: React.PointerEvent<HTMLDivElement>) => {
+    if (dragRef.current?.id !== event.pointerId) return;
+    dragRef.current = null;
+  }, []);
 
   const activeFigure = HERO_FIGURES[activeIndex] ?? HERO_FIGURES[0]!;
 
@@ -189,37 +272,51 @@ export function CollectibleHero() {
     return raw > len / 2 ? raw - len : raw;
   };
 
-  // Role resolution for index i
+  /**
+   * Tier resolution for index i.
+   *
+   * Every card shares one box — same `left`, `bottom`, and `height` — and the
+   * tier is expressed purely as `transform` plus `opacity`. The previous
+   * revision animated `left`, `height`, and `bottom`, which are layout
+   * properties: each frame forced a reflow, across 32 positioned cards, on the
+   * main thread. Transform and opacity are the only two properties the
+   * compositor can animate without layout or paint.
+   *
+   * `transform-origin: bottom center` is what makes the shared box work. Scaling
+   * about the bottom edge keeps every tier standing on the same floor line, so
+   * the neighbours read as figures further back on one shelf rather than as
+   * cards floating at their own heights.
+   */
   const getRoleStyle = (index: number) => {
     const offset = signedOffset(index);
     const distance = Math.abs(offset);
+    const direction = offset > 0 ? 1 : -1;
 
     const transitionStyle = prefersReducedMotion
       ? "none"
-      : "transform 650ms cubic-bezier(0.4, 0, 0.2, 1), filter 650ms cubic-bezier(0.4, 0, 0.2, 1), opacity 650ms cubic-bezier(0.4, 0, 0.2, 1), left 650ms cubic-bezier(0.4, 0, 0.2, 1), height 650ms cubic-bezier(0.4, 0, 0.2, 1), bottom 650ms cubic-bezier(0.4, 0, 0.2, 1)";
+      : "transform var(--duration-stage) var(--ease-stage-out), opacity var(--duration-stage) var(--ease-stage-out)";
 
+    // Blur is set per tier but never transitioned: animating a filter is
+    // expensive, especially in Safari, and the depth cue is what has to read,
+    // not the ramp between two blur radii.
     const base = {
       transition: transitionStyle,
-      willChange: "transform, filter, opacity, left",
+      willChange: "transform, opacity",
+      transformOrigin: "bottom center",
+      left: "50%",
+      bottom: isMobile ? "13%" : "5%",
+      height: isMobile ? CARD_HEIGHT_MOBILE : CARD_HEIGHT_DESKTOP,
     };
 
-    // Center (active).
-    //
-    // Height is the only size lever here. An earlier revision enlarged the card
-    // with `scale(1.68)` on top of `height: 92%`, but `transform-origin` is the
-    // box centre, so the scaled box spanned roughly -31%..123% of the stage and
-    // clipped the figurine's feet off-screen. Explicit height plus a bottom
-    // offset keeps the whole render inside the stage and above the controls.
+    const shift = (vw: number) => `translate3d(calc(-50% + ${direction * vw}vw), 0, 0)`;
+
     if (distance === 0) {
       return {
         ...base,
-        transform: "translateX(-50%)",
+        transform: "translate3d(-50%, 0, 0) scale(1)",
         filter: "blur(0px)",
         opacity: 1,
         zIndex: 20,
-        left: "50%",
-        height: isMobile ? "52%" : "74%",
-        bottom: isMobile ? "26%" : "17%",
         // Clicking the active card is a no-op, but its transparent box is wide
         // enough to sit over both neighbours and swallow their clicks. Opting
         // out of hit-testing here is what makes the neighbour click target real.
@@ -227,33 +324,23 @@ export function CollectibleHero() {
       };
     }
 
-    // Immediate neighbours flank the active card.
     if (distance === 1) {
-      const toRight = offset > 0;
       return {
         ...base,
-        transform: "translateX(-50%) scale(1)",
+        transform: `${shift(isMobile ? 30 : 21)} scale(${isMobile ? 0.3 : 0.34})`,
         filter: "blur(2px)",
         opacity: 0.85,
         zIndex: 10,
-        left: toRight ? (isMobile ? "80%" : "70%") : isMobile ? "20%" : "30%",
-        height: isMobile ? "16%" : "28%",
-        bottom: isMobile ? "32%" : "12%",
       };
     }
 
-    // Second ring sits further out and dimmer, still readable as depth.
     if (distance === 2) {
-      const toRight = offset > 0;
       return {
         ...base,
-        transform: "translateX(-50%) scale(1)",
+        transform: `${shift(isMobile ? 44 : 34)} scale(${isMobile ? 0.24 : 0.26})`,
         filter: "blur(4px)",
         opacity: 0.5,
         zIndex: 5,
-        left: toRight ? (isMobile ? "94%" : "84%") : isMobile ? "6%" : "16%",
-        height: isMobile ? "13%" : "22%",
-        bottom: isMobile ? "32%" : "12%",
       };
     }
 
@@ -261,13 +348,10 @@ export function CollectibleHero() {
     // otherwise 32 cards pile up behind the active one.
     return {
       ...base,
-      transform: "translateX(-50%) scale(0.75)",
+      transform: `${shift(isMobile ? 58 : 46)} scale(0.2)`,
       filter: "blur(6px)",
       opacity: 0,
       zIndex: 0,
-      left: offset > 0 ? "108%" : "-8%",
-      height: isMobile ? "12%" : "20%",
-      bottom: isMobile ? "32%" : "12%",
       pointerEvents: "none" as const,
     };
   };
@@ -310,8 +394,17 @@ export function CollectibleHero() {
         POLA
       </div>
 
-      {/* Carousel z-3; each item aspect-ratio: 0.85 / 1 */}
-      <div className="pointer-events-none absolute inset-0 z-[3] overflow-hidden">
+      {/*
+        Carousel z-3. The drag gesture is bound on this wrapper rather than per
+        card, so a swipe that starts on the active figure — the widest target and
+        the one a thumb naturally lands on — still moves the stage.
+      */}
+      <div
+        className="absolute inset-0 z-[3] touch-pan-y overflow-hidden"
+        onPointerDown={handlePointerDown}
+        onPointerUp={handlePointerUp}
+        onPointerCancel={handlePointerCancel}
+      >
         {HERO_FIGURES.map((figure, idx) => {
           const style = getRoleStyle(idx);
           return (
@@ -325,23 +418,23 @@ export function CollectibleHero() {
                 bottom: style.bottom,
                 height: style.height,
                 transform: style.transform,
+                transformOrigin: style.transformOrigin,
                 filter: style.filter,
                 opacity: style.opacity,
                 zIndex: style.zIndex,
                 transition: style.transition,
                 willChange: style.willChange,
-                // Wider than the widest source render (ESFP is the broadest at
-                // ~0.68) so `object-contain` is always height-constrained. At
-                // the previous 0.6 the wide assets were width-constrained,
-                // which is why height alone could not size the card and a large
-                // scale factor was needed to compensate.
-                aspectRatio: "0.85 / 1",
+                // Just above the source ratio (these renders are 896x1200, so
+                // 0.747) which keeps `object-contain` height-constrained. Below
+                // it the wide assets become width-constrained and the height
+                // value stops having any effect on the painted figure.
+                aspectRatio: "0.75 / 1",
                 // Off-stage cards are invisible and the active card is a no-op;
                 // both opt out so only the navigable neighbours take clicks.
                 pointerEvents: "pointerEvents" in style ? style.pointerEvents : undefined,
               }}
               onClick={() => {
-                if (idx !== activeIndex && !isAnimating) {
+                if (idx !== activeIndex) {
                   navigate(signedOffset(idx) > 0 ? 1 : -1);
                 }
               }}
@@ -379,17 +472,19 @@ export function CollectibleHero() {
       {/*
         Carousel controls flank the active figurine instead of stacking in the
         bottom-left corner. They sit at the stage's vertical midpoint, which is
-        where the character's torso lands at both the mobile (52%) and desktop
-        (74%) card heights, so the arrows read as attached to the figure.
+        where the character's torso lands at both the mobile (68%) and desktop
+        (92%) card heights, so the arrows read as attached to the figure.
+
+        Neither control disables any more: the 650ms input lock is gone, so
+        there is no window during which pressing them would do nothing.
       */}
       <div className="pointer-events-none absolute inset-x-3 top-1/2 z-40 flex -translate-y-1/2 items-center justify-between sm:inset-x-8">
         <button
           type="button"
           aria-label="Figurine sebelumnya"
           onClick={() => navigate(-1)}
-          disabled={isAnimating}
           style={{ borderColor: activeFigure.ink, color: activeFigure.ink }}
-          className="stage-control focus-ring pointer-events-auto flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-2 bg-transparent disabled:opacity-50 sm:h-16 sm:w-16"
+          className="stage-control focus-ring pointer-events-auto flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-2 bg-transparent sm:h-16 sm:w-16"
         >
           <ArrowLeftIcon className="h-5 w-5 sm:h-6 sm:w-6" />
         </button>
@@ -397,58 +492,23 @@ export function CollectibleHero() {
           type="button"
           aria-label="Figurine berikutnya"
           onClick={() => navigate(1)}
-          disabled={isAnimating}
           style={{ borderColor: activeFigure.ink, color: activeFigure.ink }}
-          className="stage-control focus-ring pointer-events-auto flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-2 bg-transparent disabled:opacity-50 sm:h-16 sm:w-16"
+          className="stage-control focus-ring pointer-events-auto flex h-12 w-12 cursor-pointer items-center justify-center rounded-full border-2 bg-transparent sm:h-16 sm:w-16"
         >
           <ArrowRightIcon className="h-5 w-5 sm:h-6 sm:w-6" />
         </button>
       </div>
 
-      {/* Bottom row: legal paths on the left, primary CTA on the right */}
-      <div className="pointer-events-none absolute inset-x-6 bottom-6 z-40 flex items-end justify-between gap-4 sm:inset-x-10 sm:bottom-10">
-        {/*
-          The site footer never renders on the landing page and the header no
-          longer carries a nav rail, so this is the only entry point to the
-          privacy and limitation pages. It stays deliberately quiet, but it
-          cannot be removed without orphaning those disclosures.
-        */}
-        <nav
-          aria-label="Informasi dan kebijakan"
-          className="pointer-events-auto flex flex-wrap items-center text-[10px] tracking-wide sm:text-xs"
-          style={{ color: activeFigure.ink }}
-        >
-          {/*
-            Each link is its own 44px target rather than bare inline text. At
-            this type size the text box is only ~16px tall, which fails the
-            minimum tap target the accessibility suite enforces.
-          */}
-          <Link
-            href="/privacy"
-            className="focus-ring inline-flex min-h-11 min-w-11 items-center justify-center rounded-sm px-2 underline-offset-4 hover:underline"
-          >
-            Privasi
-          </Link>
-          <span aria-hidden="true" className="opacity-50">
-            ·
-          </span>
-          <Link
-            href="/disclaimer"
-            className="focus-ring inline-flex min-h-11 min-w-11 items-center justify-center rounded-sm px-2 underline-offset-4 hover:underline"
-          >
-            Batasan
-          </Link>
-          <span aria-hidden="true" className="opacity-50">
-            ·
-          </span>
-          <Link
-            href="/method"
-            className="focus-ring inline-flex min-h-11 min-w-11 items-center justify-center rounded-sm px-2 underline-offset-4 hover:underline"
-          >
-            Metode
-          </Link>
-        </nav>
+      {/*
+        Bottom row: the primary CTA alone.
 
+        The quiet "Privasi · Batasan · Metode" row that used to sit on the left
+        was removed by product decision. Those pages are still served and still
+        linked from the site footer, but the footer does not render on `/`,
+        `/start`, `/test`, or `/result`, so nothing on the journey itself points
+        at them any more.
+      */}
+      <div className="pointer-events-none absolute inset-x-6 bottom-6 z-40 flex items-end justify-end gap-4 sm:inset-x-10 sm:bottom-10">
         <Link
           href="/start"
           aria-label="MULAI — Mulai eksplorasi LensaDiri"

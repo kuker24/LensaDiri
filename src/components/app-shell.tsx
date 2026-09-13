@@ -16,9 +16,9 @@ export function AppShell({ children }: { children: ReactNode }) {
   return (
     <>
       {isCollectibleEntry ? null : <SiteHeader family={family} />}
-      <main id="konten-utama" className={isLanding ? "journey-home" : undefined}>
-        {children}
-      </main>
+      {/* No landing-only class here: `journey-home` was applied but never
+          defined in globals.css, so it styled nothing. */}
+      <main id="konten-utama">{children}</main>
       {family === "public" && !isLanding && !isCollectibleEntry ? <SiteFooter /> : null}
     </>
   );

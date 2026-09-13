@@ -34,7 +34,9 @@ export function SiteHeader({ family }: { family: RouteFamily }) {
   return (
     <header
       className={cn(
-        "z-40 w-full transition-all duration-200",
+        // Name the properties. `transition-all` also animates layout
+        // properties, which is a reflow per frame for no visual gain.
+        "z-40 w-full transition-[background-color,border-color] duration-200 ease-out",
         "text-ink",
         isLanding ? "fixed inset-x-0 top-0 border-b-0 bg-transparent" : "nav-frost sticky top-0",
       )}
@@ -55,13 +57,15 @@ export function SiteHeader({ family }: { family: RouteFamily }) {
           no account entry point.
         */}
         <div className="flex items-center gap-3">
-          {family === "public" && (
+          {/*
+            The landing page is exempt: the hero already paints a full-size
+            MULAI control on the stage, so a second one in the chrome was the
+            same action twice in one viewport.
+          */}
+          {family === "public" && !isLanding && (
             <Link
               href="/start"
-              className={cn(
-                "pressable focus-ring bg-iris text-canvas hover:bg-iris-deep items-center gap-2 rounded-full px-5 py-2 font-mono text-xs font-bold tracking-wider uppercase shadow-[0_4px_14px_rgb(157_66_35_/_0.28)]",
-                isLanding ? "hidden sm:inline-flex" : "inline-flex",
-              )}
+              className="pressable focus-ring bg-iris text-canvas hover:bg-iris-deep inline-flex items-center gap-2 rounded-full px-5 py-2 font-mono text-xs font-bold tracking-wider uppercase shadow-[0_4px_14px_rgb(157_66_35_/_0.28)]"
             >
               <span>Mulai</span>
               <ArrowUpRightIcon />

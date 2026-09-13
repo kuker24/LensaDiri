@@ -235,16 +235,33 @@ export function ResultPodium({
           </div>
 
           {/* Ambient Glow */}
-          <div className="pointer-events-none absolute h-72 w-72 -translate-y-4 rounded-full bg-[var(--stage-panel)] opacity-30 blur-3xl sm:h-96 sm:w-96" />
+          <div className="pointer-events-none absolute h-80 w-80 -translate-y-4 rounded-full bg-[var(--stage-panel)] opacity-30 blur-3xl sm:h-[26rem] sm:w-[26rem]" />
 
           {/* Figurine Display Container */}
           <div className="relative z-10 flex flex-col items-center justify-center">
-            <div className="relative h-[380px] w-64 sm:h-[480px] sm:w-80">
+            {/*
+             * Box ratio has to track the source ratio, or the height is dead.
+             *
+             * These renders are 896x1200, ratio 0.747, and roughly a quarter of
+             * each frame is transparent padding (alpha box 376x895), so only
+             * ~74.6% of the painted height is figure.
+             *
+             * The previous desktop box was 320x480, ratio 0.667 — narrower than
+             * the image, so `object-contain` went width-constrained and painted
+             * 429px tall, never the 480px the class asked for. Visible figure:
+             * 320px. At 420x560 (0.750) the height constrains again: 560px
+             * painted, 418px of figure, +31%.
+             *
+             * Mobile stays a hair width-constrained at 0.744, which is fine here
+             * because the 430px box height almost exactly matches the 429px the
+             * 320px width produces. No dead space, no unused height.
+             */}
+            <div className="relative h-[430px] w-[320px] sm:h-[560px] sm:w-[420px]">
               <NextImage
                 src={figureSrc}
                 alt="Figurine Hasil Karakter LensaDiri"
                 fill
-                sizes="(max-width: 640px) 70vw, 360px"
+                sizes="(max-width: 640px) 320px, 420px"
                 priority
                 draggable={false}
                 className="object-contain object-bottom drop-shadow-[0_16px_28px_rgba(0,0,0,0.22)] select-none"
@@ -262,8 +279,10 @@ export function ResultPodium({
             {/* Grounding contact shadow only: the figure needs to sit on
                 something, but the acrylic disk carried a label that repeated the
                 cluster code already shown beside the identity line. */}
-            <div className="pointer-events-none relative -mt-6 flex h-8 w-72 items-start justify-center sm:w-80">
-              <div className="h-4 w-48 rounded-[100%] bg-[#1b1c1a]/16 blur-[5px] sm:w-56" />
+            {/* Widened with the figure: at the old w-48/w-56 the shadow was
+                narrower than the feet standing on it. */}
+            <div className="pointer-events-none relative -mt-6 flex h-8 w-[320px] items-start justify-center sm:w-[420px]">
+              <div className="h-4 w-56 rounded-[100%] bg-[#1b1c1a]/16 blur-[5px] sm:w-72" />
             </div>
           </div>
         </section>

@@ -208,7 +208,7 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
 
   if (!question) return null;
   return (
-    <section className="bg-canvas relative min-h-[calc(100svh-3.5rem)] px-4 py-6 sm:px-6 sm:py-14">
+    <section className="bg-canvas relative min-h-[calc(100svh-4rem)] px-4 py-6 sm:px-6 sm:py-14">
       <div
         aria-hidden="true"
         className="bg-iris-wash pointer-events-none absolute inset-x-0 top-0 -z-10 h-80 blur-3xl"
@@ -227,7 +227,7 @@ function ClarifierRunner({ clarifier, token }: { clarifier: ClarifierSessionView
             membantu mempertajam gambaran dirimu. Kamu juga bebas melewatinya kapan saja.
           </p>
         </div>
-        <div className="border-line sticky top-14 z-10 mt-5 rounded-[18px] border bg-[rgb(251_249_245_/_0.94)] px-4 py-3 shadow-[0_4px_18px_rgb(27_28_26_/_0.08)] backdrop-blur-2xl sm:mt-6 sm:rounded-full sm:px-6 sm:py-3.5">
+        <div className="border-line sticky top-16 z-10 mt-5 rounded-[18px] border bg-[rgb(251_249_245_/_0.94)] px-4 py-3 shadow-[0_4px_18px_rgb(27_28_26_/_0.08)] backdrop-blur-2xl sm:mt-6 sm:rounded-full sm:px-6 sm:py-3.5">
           <div className="text-ink-muted flex items-center justify-between gap-3 font-mono text-[11px] sm:gap-4 sm:text-xs">
             <span className="flex items-center gap-2 tabular-nums">
               <span className="bg-iris h-1.5 w-1.5 shrink-0 rounded-full" />
@@ -538,7 +538,7 @@ export function TestRunner({ token }: { token: string }) {
 
   const modular = session.isModular;
   return (
-    <section className="bg-canvas text-ink relative min-h-[calc(100svh-3.5rem)] overflow-x-hidden px-4 py-6 font-sans sm:px-6 sm:py-10">
+    <section className="bg-canvas text-ink relative min-h-[calc(100svh-4rem)] overflow-x-hidden px-4 py-6 font-sans sm:px-6 sm:py-10">
       {/* Ambient wash: colour lives in the light, never behind body text. */}
       <div
         aria-hidden="true"
@@ -565,9 +565,9 @@ export function TestRunner({ token }: { token: string }) {
          * the bar stays a single line on a phone instead of growing a second
          * stacked row that pushed the question below the fold.
          */}
-        <div className="border-line sticky top-14 z-10 rounded-[18px] border bg-[rgb(251_249_245_/_0.94)] px-4 py-3 shadow-[0_4px_18px_rgb(27_28_26_/_0.08)] backdrop-blur-2xl sm:px-6 sm:py-3.5">
+        <div className="border-line sticky top-16 z-10 rounded-[18px] border bg-[rgb(251_249_245_/_0.94)] px-4 py-3 shadow-[0_4px_18px_rgb(27_28_26_/_0.08)] backdrop-blur-2xl sm:px-6 sm:py-3.5">
           <div className="text-ink-muted flex items-center justify-between gap-3 font-mono text-[11px] tracking-wider uppercase sm:text-xs">
-            <span className="flex items-center gap-2 tabular-nums">
+            <span className="text-ink flex items-center gap-2 font-semibold tabular-nums">
               <span className="bg-iris h-2 w-2 shrink-0 rounded-full" />
               {/* Keep the noun: a bare "1 / 120" does not say what is counted. */}
               <span className="sm:hidden">Soal </span>
@@ -575,7 +575,12 @@ export function TestRunner({ token }: { token: string }) {
               {index + 1} / {session.totalCount}
             </span>
             <span className="flex items-center gap-3">
-              <span aria-live="polite" className="text-ink font-semibold tabular-nums">
+              {/*
+               * The save state is status, not a headline. It sat at the same
+               * weight as the question counter, so the row read as two competing
+               * primary numbers at opposite edges.
+               */}
+              <span aria-live="polite" className="text-ink-muted tabular-nums">
                 {saveStatus === "saving" ? "Menyimpan…" : `${answeredCount} tersimpan`}
               </span>
               {modular && question.segmentIndex && session.status !== "paused" ? (
@@ -600,8 +605,16 @@ export function TestRunner({ token }: { token: string }) {
           />
         </div>
 
-        {/* Main Grid: Left Question, Right Figurine */}
-        <div className="mt-5 grid grid-cols-1 items-center gap-6 sm:mt-8 lg:grid-cols-12 lg:gap-8">
+        {/*
+         * Main grid: question left, figurine right.
+         *
+         * `items-end`, not `items-center`. The question card is shorter than the
+         * 400px figure, so centring floated the card against the figure's
+         * midpoint and opened a gap above and below it — which is where the ghost
+         * POLA showed through. Sharing a bottom edge puts both columns on one
+         * baseline and closes that dead space.
+         */}
+        <div className="mt-5 grid grid-cols-1 items-end gap-6 sm:mt-8 lg:grid-cols-12 lg:gap-8">
           {session.status === "paused" ? (
             <div className="bg-surface border-line rounded-[28px] border p-8 text-center shadow-[0_10px_30px_rgb(27_28_26_/_0.07)] sm:p-12 lg:col-span-12">
               <span className="bg-iris-wash text-iris inline-flex items-center gap-2 rounded-full px-3.5 py-1 font-mono text-[11px] font-bold tracking-wider uppercase">

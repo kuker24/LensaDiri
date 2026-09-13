@@ -68,7 +68,13 @@ describe("CollectibleHero Component", () => {
     expect(screen.queryByText(/perempuan/u)).toBeNull();
   });
 
-  test("cycles through anonymous figurines with a 650ms lock", () => {
+  /**
+   * The 650ms input lock is gone. It existed to protect an animated layout
+   * (`left`/`height`/`bottom`); the stage now animates `transform` only, and CSS
+   * transitions retarget mid-flight. Consecutive clicks must all register — on a
+   * 32-card roster the lock cost ~13s of ignored input to reach card 20.
+   */
+  test("advances on every click with no input lock between them", () => {
     render(<CollectibleHero />);
 
     expect(activeCardLabel()).toBe("Figurine koleksi 01");
@@ -83,31 +89,37 @@ describe("CollectibleHero Component", () => {
     });
     expect(activeCardLabel()).toBe("Figurine koleksi 02");
 
-    // Rapid double click during 650ms lock must be ignored
-    act(() => {
-      fireEvent.click(nextBtn);
-    });
-    expect(activeCardLabel()).toBe("Figurine koleksi 02");
-
-    // Advance timer past 650ms lock
-    act(() => {
-      vi.advanceTimersByTime(700);
-    });
-
+    // Immediately again, with no timer advance: this was previously swallowed.
     act(() => {
       fireEvent.click(nextBtn);
     });
     expect(activeCardLabel()).toBe("Figurine koleksi 03");
 
-    // Advance timer
     act(() => {
-      vi.advanceTimersByTime(700);
+      fireEvent.click(nextBtn);
     });
+    expect(activeCardLabel()).toBe("Figurine koleksi 04");
 
     act(() => {
       fireEvent.click(prevBtn);
     });
+    expect(activeCardLabel()).toBe("Figurine koleksi 03");
+  });
+
+  test("arrow keys drive the stage", () => {
+    render(<CollectibleHero />);
+
+    expect(activeCardLabel()).toBe("Figurine koleksi 01");
+
+    act(() => {
+      fireEvent.keyDown(window, { key: "ArrowRight" });
+    });
     expect(activeCardLabel()).toBe("Figurine koleksi 02");
+
+    act(() => {
+      fireEvent.keyDown(window, { key: "ArrowLeft" });
+    });
+    expect(activeCardLabel()).toBe("Figurine koleksi 01");
   });
 
   test("wraps backward from the first card to the last cluster", () => {
