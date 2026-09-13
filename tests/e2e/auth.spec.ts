@@ -157,9 +157,6 @@ test("account starts and pauses an identity journey", async ({ page }, testInfo)
 
   await page.goto("/start");
   await page.getByRole("radio", { name: /Laki-laki/u }).click();
-  await page.getByRole("checkbox").check();
-  // The combined run covers an 18+ lens, so a qualifying age is required to start.
-  await page.getByLabel("Usia").fill("24");
   await page.getByRole("button", { name: "Testlensa" }).click();
   await expect(page).toHaveURL(/\/test\//u);
   await page.getByRole("button", { name: "Jeda", exact: true }).click();

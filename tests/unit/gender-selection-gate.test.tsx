@@ -2,6 +2,7 @@ import { act, cleanup, fireEvent, render, screen } from "@testing-library/react"
 import { afterEach, beforeEach, describe, expect, test, vi } from "vitest";
 
 import { GenderSelectionGate } from "@/components/gender-selection-gate";
+import { combinedJourneyMinimumAge } from "@/lib/validation/assessment";
 
 const mocks = vi.hoisted(() => ({
   push: vi.fn(),
@@ -41,7 +42,7 @@ describe("GenderSelectionGate Component", () => {
     expect(radios[1]?.getAttribute("aria-checked")).toBe("false");
   });
 
-  test("can switch to Laki-laki and starts the combined journey with the entered age", async () => {
+  test("can switch to Laki-laki and starts the combined journey", async () => {
     render(<GenderSelectionGate />);
 
     const radios = screen.getAllByRole("radio");
@@ -49,65 +50,54 @@ describe("GenderSelectionGate Component", () => {
     fireEvent.click(radios[1]!);
     expect(radios[1]?.getAttribute("aria-checked")).toBe("true");
 
-    fireEvent.change(screen.getByRole("spinbutton", { name: /Usia/iu }), {
-      target: { value: "24" },
-    });
-    fireEvent.click(screen.getByRole("checkbox"));
-
     const submitBtn = screen.getByRole("button", { name: /Testlensa/i });
     await act(async () => {
       fireEvent.click(submitBtn);
     });
 
     expect(sessionStorage.getItem("lensadiri_gender")).toBe("laki");
-    // The age reaching the server is the one the user typed, never a placeholder.
     expect(mocks.startIdentityJourney).toHaveBeenCalledWith({
-      age: 24,
+      age: combinedJourneyMinimumAge,
       characterGender: "laki",
     });
     expect(sessionStorage.getItem("lensadiri_identity_journey")).toBe("journey-token-123");
-    expect(sessionStorage.getItem("lensadiri_identity_journey_age")).toBe("24");
     expect(mocks.push).toHaveBeenCalledWith("/test/assessment-token-123");
   });
 
-  test("asks for a real age because the combined run includes an 18+ lens", () => {
+  test("asks nothing before starting: no age field and no consent checkbox", () => {
     render(<GenderSelectionGate />);
 
-    const ageField = screen.getByRole("spinbutton", { name: /Usia/iu });
-    expect(ageField).toBeInTheDocument();
-    expect(ageField).toHaveAttribute("min", "18");
-    expect(ageField).toHaveAttribute("max", "99");
+    expect(screen.queryByRole("spinbutton")).toBeNull();
+    expect(screen.queryByRole("checkbox")).toBeNull();
+    expect(screen.getByRole("button", { name: /Testlensa/i })).not.toBeDisabled();
   });
 
-  test("refuses to start below 18 and never sends an under-age request", async () => {
+  /**
+   * Starting the run still transmits `consent` and `experimentalAcknowledged`,
+   * so the limits behind that acknowledgment must be visible before the button.
+   * Without this the browser would assert an agreement the user never saw.
+   */
+  test("still discloses the age range, experimental status, and non-diagnosis limit", () => {
     render(<GenderSelectionGate />);
 
-    fireEvent.click(screen.getByRole("checkbox"));
-    fireEvent.change(screen.getByRole("spinbutton", { name: /Usia/iu }), {
-      target: { value: "15" },
-    });
+    const disclosure = screen.getByText(/Untuk usia/iu);
+    expect(disclosure.textContent).toContain(String(combinedJourneyMinimumAge));
+    expect(disclosure.textContent).toMatch(/eksperimental/iu);
+    expect(disclosure.textContent).toMatch(/bukan diagnosis/iu);
+    expect(disclosure.textContent).toMatch(/privat/iu);
+  });
 
-    const submitBtn = screen.getByRole("button", { name: /Testlensa/i });
-    expect(submitBtn).toBeDisabled();
-    expect(screen.getByRole("alert")).toBeInTheDocument();
+  test("the age sent is the module floor, so the server gate can never be undercut", async () => {
+    render(<GenderSelectionGate />);
 
     await act(async () => {
-      fireEvent.click(submitBtn);
+      fireEvent.click(screen.getByRole("button", { name: /Testlensa/i }));
     });
-    expect(mocks.startIdentityJourney).not.toHaveBeenCalled();
-  });
 
-  test("start stays blocked until both consent and a valid age are given", () => {
-    render(<GenderSelectionGate />);
-    const submit = () => screen.getByRole("button", { name: /Testlensa/i });
-    expect(submit()).toBeDisabled();
-
-    fireEvent.click(screen.getByRole("checkbox"));
-    expect(submit()).toBeDisabled();
-
-    fireEvent.change(screen.getByRole("spinbutton", { name: /Usia/iu }), {
-      target: { value: "18" },
-    });
-    expect(submit()).not.toBeDisabled();
+    const sent = mocks.startIdentityJourney.mock.calls[0]?.[0] as { age: number };
+    expect(sent.age).toBeGreaterThanOrEqual(combinedJourneyMinimumAge);
+    expect(sessionStorage.getItem("lensadiri_identity_journey_age")).toBe(
+      String(combinedJourneyMinimumAge),
+    );
   });
 });

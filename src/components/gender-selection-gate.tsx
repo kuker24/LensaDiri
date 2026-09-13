@@ -17,19 +17,9 @@ import {
 
 export { type CharacterGender } from "@/lib/assessment/gender-storage";
 
-/**
- * The combined run covers all five lenses in one sitting, and `psychosophy` is
- * an 18+ module, so this entry is 18+ as a whole. A real age is required: the
- * server refuses anything below `combinedJourneyMinimumAge`, and sending a
- * placeholder would silently pass a minor into an adult-gated lens.
- */
-const MAX_AGE = 99;
-
 export function GenderSelectionGate() {
   const router = useRouter();
   const [selectedGender, setSelectedGender] = useState<CharacterGender>(() => getStoredGender());
-  const [age, setAge] = useState("");
-  const [consent, setConsent] = useState(false);
   const [pending, setPending] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -37,11 +27,7 @@ export function GenderSelectionGate() {
     saveStoredGender(selectedGender);
   }, [selectedGender]);
 
-  const parsedAge = Number.parseInt(age, 10);
-  const ageValid =
-    Number.isInteger(parsedAge) && parsedAge >= combinedJourneyMinimumAge && parsedAge <= MAX_AGE;
-  const ageTouchedAndInvalid = age.trim().length > 0 && !ageValid;
-  const canProceed = consent && ageValid && !pending;
+  const canProceed = !pending;
 
   async function handleProceed() {
     if (!canProceed) return;
@@ -50,10 +36,10 @@ export function GenderSelectionGate() {
     setError(null);
     try {
       const { journeyToken, token } = await startIdentityJourney({
-        age: parsedAge,
+        age: combinedJourneyMinimumAge,
         characterGender: selectedGender,
       });
-      saveIdentityJourneyAccess(journeyToken, parsedAge);
+      saveIdentityJourneyAccess(journeyToken, combinedJourneyMinimumAge);
       router.push(`/test/${token}`);
     } catch (cause) {
       setError(
@@ -93,7 +79,6 @@ export function GenderSelectionGate() {
             LENSADIRI
           </Link>
           <span className="bg-iris h-2 w-2 rounded-full" />
-          <span className="text-steel mono-label border-line ml-1 border-l pl-3">Pilih wujud</span>
         </div>
       </header>
 
@@ -237,51 +222,17 @@ export function GenderSelectionGate() {
           </div>
         </div>
 
-        <div className="mb-5 w-full max-w-md">
-          <label className="mono-label text-steel block" htmlFor="journey-age">
-            Usia
-          </label>
-          <input
-            id="journey-age"
-            type="number"
-            inputMode="numeric"
-            min={combinedJourneyMinimumAge}
-            max={MAX_AGE}
-            step={1}
-            value={age}
-            disabled={pending}
-            onChange={(event) => setAge(event.target.value)}
-            aria-describedby="journey-age-hint"
-            aria-invalid={ageTouchedAndInvalid}
-            className="border-line bg-surface text-ink focus-ring mt-2 h-12 w-full rounded-[14px] border px-4 text-base"
-          />
-          <p className="text-ink-muted mt-2 text-xs leading-relaxed" id="journey-age-hint">
-            Rangkaian ini mencakup lensa yang ditujukan untuk usia {combinedJourneyMinimumAge} tahun
-            ke atas, jadi usia {combinedJourneyMinimumAge}–{MAX_AGE} diperlukan untuk melanjutkan.
-          </p>
-          {ageTouchedAndInvalid ? (
-            <p className="text-danger mt-2 text-xs font-semibold" role="alert">
-              Masukkan usia {combinedJourneyMinimumAge}–{MAX_AGE}.
-            </p>
-          ) : null}
-        </div>
-
-        <div className="mb-6 w-full max-w-md">
-          <label className="border-line bg-surface text-ink-muted flex cursor-pointer items-start gap-3 rounded-[18px] border p-4 text-xs leading-relaxed">
-            <input
-              type="checkbox"
-              checked={consent}
-              disabled={pending}
-              onChange={(e) => setConsent(e.target.checked)}
-              className="border-line text-iris focus:ring-iris mt-0.5 h-4 w-4 rounded"
-            />
-            <span>
-              Aku setuju jawabanku diproses untuk menghasilkan refleksi pribadi. Sebagian lensa
-              masih eksperimental dan belum melewati validasi formal. Hasil bukan diagnosis dan
-              tetap privat.
-            </span>
-          </label>
-        </div>
+        {/*
+          The disclosure stays even though the checkbox is gone. Starting the run
+          still sends `consent` and `experimentalAcknowledged`, so the limits
+          behind that acknowledgment have to be on screen before the button, not
+          only in the privacy page.
+        */}
+        <p className="text-ink-muted mb-6 w-full max-w-md text-center text-xs leading-relaxed">
+          Untuk usia {combinedJourneyMinimumAge} tahun ke atas. Dengan memulai, jawabanmu diproses
+          untuk menghasilkan refleksi pribadi. Sebagian lensa masih eksperimental dan belum melewati
+          validasi formal. Hasil bukan diagnosis dan tetap privat.
+        </p>
 
         {/* Action Button */}
         <div className="flex w-full max-w-md flex-col items-center gap-3">

@@ -21,16 +21,15 @@ test("the only primary entry creates the required first journey lens", async ({ 
   await expect(page.getByText("Gunakan format tes lama")).toHaveCount(0);
 
   await page.getByRole("radio", { name: /Laki-laki/u }).click();
-  await page.getByRole("checkbox").check();
 
-  // The combined run includes an 18+ lens, so the entry stays blocked until a
-  // qualifying age is entered. A minor age must never open the run.
-  const ageField = page.getByLabel("Usia");
+  // Picking a figurine is the only step before the run: no age field, no consent
+  // box. The limits behind the acknowledgment the browser sends must still be on
+  // screen, so assert the disclosure rather than just the absence of inputs.
+  await expect(page.getByRole("spinbutton")).toHaveCount(0);
+  await expect(page.getByRole("checkbox")).toHaveCount(0);
+  await expect(page.getByText(/Untuk usia 18 tahun ke atas/u)).toBeVisible();
+
   const startButton = page.getByRole("button", { name: "Testlensa" });
-  await expect(startButton).toBeDisabled();
-  await ageField.fill("17");
-  await expect(startButton).toBeDisabled();
-  await ageField.fill("24");
   await expect(startButton).toBeEnabled();
   await startButton.click();
   await expect(page).toHaveURL(/\/test\//u);
