@@ -34,8 +34,9 @@ export function SiteHeader({ family }: { family: RouteFamily }) {
   return (
     <header
       className={cn(
-        // Name the properties. `transition-all` also animates layout
-        // properties, which is a reflow per frame for no visual gain.
+        // Name the transitioned properties. The catch-all utility also animates
+        // layout properties, which is a reflow per frame for no visual gain.
+        // (Spelling it out here would make Tailwind emit that dead class.)
         "z-40 w-full transition-[background-color,border-color] duration-200 ease-out",
         "text-ink",
         isLanding ? "fixed inset-x-0 top-0 border-b-0 bg-transparent" : "nav-frost sticky top-0",
