@@ -54,6 +54,18 @@ const HERO_SEEDS: readonly HeroSeed[] = [
 const HERO_VARIANTS = ["laki", "perempuan"] as const;
 
 /**
+ * The hue of the card the stage opens on.
+ *
+ * The effect below cannot cover the first paint: effects run after it, so until
+ * hydration lands `body` falls back to the paper canvas while the stage box is
+ * already coloured. Measured on a Pixel 5 viewport, the body sampled
+ * rgb(251,249,245) at first paint and only reached the stage hue after hydration.
+ * The gallery always opens on the same card, so this value is deterministic and
+ * safe to render server-side; the effect then takes over for every later card.
+ */
+const INITIAL_STAGE_BG = STAGE.NT.bg;
+
+/**
  * Both renders of every type, 32 cards total. The variants are interleaved per
  * type rather than appended as a second lap, so a visitor who only swipes a few
  * cards still sees both and neither variant reads as the canonical one.
@@ -391,6 +403,25 @@ export function CollectibleHero() {
         transition: "background-color 650ms cubic-bezier(0.4, 0, 0.2, 1)",
       }}
     >
+      {/*
+       * Carries the opening hue into the very first paint, which the effect above
+       * cannot reach.
+       *
+       * `href` plus `precedence` is React's hoisting contract: the tag is lifted
+       * into `<head>` and deduplicated. That placement is the point. Left in the
+       * body it parses only when the stream reaches it, which is a race against
+       * the first frame — measured failing, since at that frame the stage box
+       * still has zero height and the whole viewport shows the canvas.
+       *
+       * The effect above writes an inline style on `documentElement`, which
+       * outranks a stylesheet rule, so later cards still win. Cleanup there
+       * removes the inline value and this rule takes over again, which is
+       * harmless: leaving the landing unmounts the hoisted style with it.
+       */}
+      <style href="collectible-hero-stage-canvas" precedence="high">
+        {`html{--stage-canvas:${INITIAL_STAGE_BG}}`}
+      </style>
+
       {/* Accessible semantic heading required for a11y & smoke test */}
       <h1 className="sr-only">Kenali pola dirimu lewat banyak lensa.</h1>
       <span className="sr-only">LENSADIRI</span>

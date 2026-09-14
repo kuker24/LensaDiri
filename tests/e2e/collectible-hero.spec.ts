@@ -110,6 +110,35 @@ test.describe("Collectible Hero", () => {
     expect(crossed.body).toBe(crossed.section);
   });
 
+  test("tints the canvas on the first paint, before hydration lands", async ({ page }) => {
+    // The effect that publishes `--stage-canvas` runs after the first paint, so on
+    // its own it leaves a window where the stage box is already coloured but the
+    // canvas behind it is still paper. Measured before the fix: the body sampled
+    // rgb(251,249,245) at the first animation frame and only reached the stage hue
+    // once hydration ran. The hero server-renders the opening hue to close it.
+    await page.setViewportSize({ width: 390, height: 844 });
+
+    // Capture the body colour at the first frame, before React can hydrate.
+    await page.addInitScript(() => {
+      (window as unknown as { __firstPaintBody?: string }).__firstPaintBody = "unset";
+      requestAnimationFrame(() => {
+        const store = window as unknown as { __firstPaintBody?: string };
+        if (store.__firstPaintBody === "unset") {
+          store.__firstPaintBody = window.getComputedStyle(document.body).backgroundColor;
+        }
+      });
+    });
+
+    await page.goto("/", { waitUntil: "commit" });
+    await page.waitForLoadState("load");
+
+    const firstPaintBody = await page.evaluate(
+      () => (window as unknown as { __firstPaintBody?: string }).__firstPaintBody,
+    );
+    expect(firstPaintBody).toBe("rgb(110, 181, 255)");
+    expect(firstPaintBody).not.toBe("rgb(251, 249, 245)");
+  });
+
   test("restores the paper canvas after leaving the stage", async ({ page }) => {
     // The stage hue is set on `documentElement`, so the effect cleanup has to run
     // on unmount. Without it every later page stays tinted with the last card.
