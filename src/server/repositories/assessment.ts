@@ -1262,6 +1262,47 @@ export async function getResultByHash(resultTokenHash: string): Promise<PrivateR
   return getPrivateResult(resultTokenHash);
 }
 
+/**
+ * Read the body picked for the journey that produced this result.
+ *
+ * PDF export needs it: the cover figurine is chosen server-side, and resolving
+ * it by type code alone shipped a female render to visitors who picked the male
+ * body. The value is authoritative here — `identity_journeys.character_gender` is
+ * written at journey creation and constrained to the two allowed labels — so the
+ * cover no longer depends on browser storage the export request never carries.
+ *
+ * Deliberately separate from `PrivateResultView`. That view is returned to the
+ * browser through `getPrivateResult`, and the podium already resolves the body
+ * from local storage, so widening it would push a new field through twenty call
+ * sites and past the share-leak guard for one server-side consumer.
+ *
+ * Returns null rather than guessing, for two real cases: legacy results predate
+ * journeys entirely, and `identity_journey_steps.result_id` is
+ * `on delete set null`, so retention cleanup can detach a claimed step from its
+ * journey. Callers fall back to the gender-neutral render.
+ */
+export async function getResultCharacterGender(
+  resultTokenHash: string,
+): Promise<"laki" | "perempuan" | null> {
+  return runDatabaseOperation(async () => {
+    const sql = getDatabase();
+    const [row] = await sql<{ character_gender: string }[]>`
+      select identity_journeys.character_gender
+      from public.personality_results
+      inner join public.identity_journey_steps
+        on identity_journey_steps.result_id = personality_results.id
+      inner join public.identity_journeys
+        on identity_journeys.id = identity_journey_steps.journey_id
+      where personality_results.result_token_hash = ${resultTokenHash}
+        and personality_results.deleted_at is null
+      limit 1
+    `;
+    if (row?.character_gender === "laki") return "laki";
+    if (row?.character_gender === "perempuan") return "perempuan";
+    return null;
+  });
+}
+
 export async function getSharedResultByHash(
   shareTokenHash: string,
 ): Promise<SafeSharedResultView | null> {

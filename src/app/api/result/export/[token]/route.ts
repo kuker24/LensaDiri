@@ -4,7 +4,7 @@ import { hashOpaqueToken } from "@/lib/security/tokens";
 import { opaqueTokenSchema } from "@/lib/validation/assessment";
 import { apiFailure, getDatabaseFailureStatus, noStoreHeaders } from "@/server/http";
 import { buildResultPdfBuffer, pdfFilenameForResult } from "@/server/export/build-result-pdf";
-import { getResultByHash } from "@/server/repositories/assessment";
+import { getResultByHash, getResultCharacterGender } from "@/server/repositories/assessment";
 import { toExportResultView } from "@/server/repositories/result-views";
 import { assessmentRateLimitPolicies, consumeRateLimit } from "@/server/services/rate-limiter";
 
@@ -59,7 +59,11 @@ export async function GET(
       );
     }
 
-    const pdf = await buildResultPdfBuffer(result);
+    // The cover figurine has to honour the body picked for this journey. Reading
+    // it here rather than widening the result view keeps the field out of the
+    // browser-facing DTO, and null degrades to the gender-neutral render.
+    const characterGender = await getResultCharacterGender(resultHash);
+    const pdf = await buildResultPdfBuffer(result, new Date(), characterGender);
     const filename = pdfFilenameForResult(result);
     return new NextResponse(new Uint8Array(pdf), {
       headers: {

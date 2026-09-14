@@ -187,26 +187,49 @@ function confidenceLabel(confidence: number): string {
 }
 
 /**
- * Resolve the cover figurine on disk.
+ * Resolve the cover figurine on disk, honouring the body picked for the journey.
  *
- * The gender-neutral `{CODE}.png` render is used on purpose: the picked body is
- * stored client-side only (`gender-storage`), so the server genuinely does not
- * know it and must not guess. Returns null when the render is absent, which
- * keeps export working on a colour-only cover rather than failing.
+ * An earlier revision resolved `{CODE}.png` alone, on the premise that the picked
+ * body was client-side only and the server must not guess. The premise was wrong:
+ * `identity_journeys.character_gender` is written at journey creation, so the
+ * value is authoritative and readable (see `getResultCharacterGender`). Resolving
+ * by type code alone meant a visitor who picked the male body could download a
+ * cover showing the female render, which is what the neutral file happens to hold
+ * for several types.
+ *
+ * Fallback is ordered and never guesses:
+ *   1. `{CODE}-{gender}.png` when the body is known
+ *   2. `{CODE}.png` when it is not — legacy results, or a journey step detached
+ *      by retention cleanup
+ *   3. null when neither exists, so export degrades to a colour-only cover
+ *      rather than failing
  */
-function resolveCoverFigurine(typeCode: string | null): string | null {
+function resolveCoverFigurine(
+  typeCode: string | null,
+  characterGender?: "laki" | "perempuan" | null,
+): string | null {
   if (!typeCode) return null;
-  const candidate = path.join(process.cwd(), "public", "figurines", `${typeCode}.png`);
-  return fs.existsSync(candidate) ? candidate : null;
+  const directory = path.join(process.cwd(), "public", "figurines");
+  const candidates = characterGender
+    ? [`${typeCode}-${characterGender}.png`, `${typeCode}.png`]
+    : [`${typeCode}.png`];
+  for (const candidate of candidates) {
+    const absolute = path.join(directory, candidate);
+    if (fs.existsSync(absolute)) return absolute;
+  }
+  return null;
 }
 
-function buildCoverArt(result: PrivateResultView): PdfCoverArt {
+function buildCoverArt(
+  result: PrivateResultView,
+  characterGender?: "laki" | "perempuan" | null,
+): PdfCoverArt {
   const theme = resolveStageTheme(result);
   const typeCode = resolveTypeCode(result);
   return {
     accent: theme.bg,
     accentSoft: theme.panel,
-    figurinePath: resolveCoverFigurine(typeCode),
+    figurinePath: resolveCoverFigurine(typeCode, characterGender),
     ink: theme.ink,
     stageName: STAGE_THEMES[theme.code].name,
     typeCode,
@@ -301,16 +324,22 @@ function toModular(result: Extract<PrivateResultView, { kind: "modular" }>): Pdf
   };
 }
 
+/**
+ * `characterGender` is optional on purpose. Omitting it reproduces the previous
+ * gender-neutral cover, so callers that genuinely cannot know the body — and the
+ * existing tests that build models from fixtures alone — stay correct.
+ */
 export function buildResultPdfModel(
   result: PrivateResultView,
   exportedAt = new Date(),
+  characterGender?: "laki" | "perempuan" | null,
 ): ResultPdfModel {
   const exportedAtLabel = formatDateId(exportedAt.toISOString());
   const createdAtLabel = formatDateId(result.createdAt);
 
   if (result.kind === "legacy") {
     return {
-      cover: buildCoverArt(result),
+      cover: buildCoverArt(result, characterGender),
       createdAtLabel,
       disclaimer: result.summary.disclaimer,
       exportedAtLabel,
@@ -363,7 +392,7 @@ export function buildResultPdfModel(
     identity.line.length > 0 && segments.length > 0 ? { line: identity.line, segments } : null;
 
   return {
-    cover: buildCoverArt(result),
+    cover: buildCoverArt(result, characterGender),
     createdAtLabel,
     disclaimer: result.summary.disclaimer,
     exportedAtLabel,

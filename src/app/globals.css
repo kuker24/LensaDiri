@@ -121,14 +121,40 @@
 }
 
 html {
-  background: var(--background);
+  /*
+   * `--stage-canvas` is set by full-bleed stage surfaces (see the collectible
+   * hero) so the area outside their box — overscroll rubber-band, and the gap
+   * browser UI opens between `dvh` and `vh` — matches the stage instead of
+   * flashing the paper canvas. Unset everywhere else, so the fallback is the
+   * normal paper background.
+   */
+  background: var(--stage-canvas, var(--background));
   scrollbar-color: #c3bcb1 var(--color-void);
+  /*
+   * Same curve and duration as the stage box itself (see the collectible hero).
+   * Without it the canvas snapped to the next hue while the stage was still
+   * easing, so for ~650ms the two disagreed and the difference read as a colour
+   * flash in the very strip this is meant to hide.
+   */
+  transition: background-color 650ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 body {
-  min-height: 100vh;
+  /*
+   * `dvh`, not `vh`. On Chrome Android `100vh` resolves to the large viewport,
+   * which stays tall while browser UI is showing, so a `100dvh` full-bleed stage
+   * ends above the bottom of the body box and the paper canvas was left painting
+   * a white strip under it. Measured on a Pixel 5 viewport: the exposed row
+   * sampled rgb(251,249,245), exactly `--color-canvas`.
+   *
+   * The floor is `min-height`, so shrinking it never clips content: pages taller
+   * than the viewport still grow past it.
+   */
+  min-height: 100dvh;
   margin: 0;
-  background: var(--background);
+  background: var(--stage-canvas, var(--background));
+  /* Matches `html` and the stage box, so all three cross-fade as one surface. */
+  transition: background-color 650ms cubic-bezier(0.4, 0, 0.2, 1);
   color: var(--foreground);
   font-family: var(--font-sans);
   font-feature-settings:

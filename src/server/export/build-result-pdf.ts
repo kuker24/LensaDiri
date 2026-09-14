@@ -48,12 +48,17 @@ export function pdfFilenameForResult(result: PrivateResultView, now = new Date()
   return `lensadiri-laporan-${kind}-${stamp}.pdf`;
 }
 
+/**
+ * `characterGender` selects the cover figurine. Optional, so omitting it keeps the
+ * gender-neutral cover for callers that cannot know the body.
+ */
 export async function buildResultPdfBuffer(
   result: PrivateResultView,
   exportedAt = new Date(),
+  characterGender?: "laki" | "perempuan" | null,
 ): Promise<Buffer> {
   registerPdfFonts();
-  const model = buildResultPdfModel(result, exportedAt);
+  const model = buildResultPdfModel(result, exportedAt, characterGender);
   const document = createElement(ResultPdfDocument, {
     model,
   }) as ReactElement<DocumentProps>;

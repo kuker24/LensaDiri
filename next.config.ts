@@ -28,10 +28,14 @@ const nextConfig: NextConfig = {
     // The PDF cover reads the figurine PNG straight off disk, so the renders
     // have to travel with the serverless function. Without this the export
     // works locally (full repo present) and silently loses its cover art in
-    // production. Only the gender-neutral renders are traced: the server never
-    // learns the picked body, so the `-laki`/`-perempuan` variants are unused
-    // here and would trace ~22 MB for nothing.
-    "/api/result/export/[token]": ["./src/server/export/fonts/**/*", "./public/figurines/????.png"],
+    // production.
+    //
+    // All 54 renders are traced, not just the 16 gender-neutral ones. The cover
+    // now honours the body picked for the journey, read from
+    // `identity_journeys.character_gender`, so the `-laki`/`-perempuan` variants
+    // are the primary files and the neutral render is only the fallback for
+    // legacy results. Measured cost: 7.5 MB to 33 MB.
+    "/api/result/export/[token]": ["./src/server/export/fonts/**/*", "./public/figurines/*.png"],
   },
   async headers() {
     return [

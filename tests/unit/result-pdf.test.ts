@@ -1,4 +1,4 @@
-import { mkdirSync, writeFileSync } from "node:fs";
+import { existsSync, mkdirSync, writeFileSync } from "node:fs";
 import path from "node:path";
 
 import { describe, expect, it, vi } from "vitest";
@@ -6,6 +6,7 @@ import { describe, expect, it, vi } from "vitest";
 vi.mock("server-only", () => ({}));
 
 import { resultConstructLabels } from "@/lib/report/result-presentation";
+import { TYPE_CODES } from "@/lib/report/type-theme";
 import {
   enneagramJourneyConstructKeys,
   scoreEnneagramJourneyModule,
@@ -386,6 +387,46 @@ describe("result PDF export", () => {
     // The combo fixture's `INFP-like` is not a valid four-letter code, so the
     // legend must refuse it rather than guess a derivation.
     expect(buildResultPdfModel(privateModularCombo).identityCode).toBeNull();
+  });
+
+  it("puts the picked body on the cover instead of resolving by type alone", () => {
+    // The regression: the cover resolved `{CODE}.png` regardless of the body, and
+    // several of those neutral renders depict the female figure, so a visitor who
+    // picked the male body downloaded a female cover.
+    const male = buildResultPdfModel(privateLegacyResult, new Date(), "laki");
+    const female = buildResultPdfModel(privateLegacyResult, new Date(), "perempuan");
+
+    expect(male.cover.figurinePath).toMatch(/INFP-laki\.png$/u);
+    expect(female.cover.figurinePath).toMatch(/INFP-perempuan\.png$/u);
+    expect(male.cover.figurinePath).not.toBe(female.cover.figurinePath);
+
+    // Modular results resolve the same way: `INFP-like` still yields INFP.
+    expect(buildResultPdfModel(privateModularCombo, new Date(), "laki").cover.figurinePath).toMatch(
+      /INFP-laki\.png$/u,
+    );
+  });
+
+  it("falls back to the neutral render when the body is unknown, and never guesses", () => {
+    // Legacy results predate journeys, and `identity_journey_steps.result_id` is
+    // `on delete set null`, so retention cleanup can detach a step from its
+    // journey. Both cases arrive here as null and must not pick a body.
+    for (const unknown of [undefined, null] as const) {
+      const model = buildResultPdfModel(privateLegacyResult, new Date(), unknown);
+      expect(model.cover.figurinePath).toMatch(/INFP\.png$/u);
+      expect(model.cover.figurinePath).not.toMatch(/-(laki|perempuan)\.png$/u);
+    }
+  });
+
+  it("ships a render on disk for every cover the resolver can return", () => {
+    // The cover reads straight off disk, so a missing file silently degrades the
+    // export to a colour-only page. `next.config.ts` traces `public/figurines/*.png`
+    // into the export function to keep these present in production.
+    const directory = path.join(process.cwd(), "public", "figurines");
+    for (const code of TYPE_CODES) {
+      for (const name of [`${code}.png`, `${code}-laki.png`, `${code}-perempuan.png`]) {
+        expect(existsSync(path.join(directory, name)), `missing ${name}`).toBe(true);
+      }
+    }
   });
 
   it("renders the code section into the PDF, in Indonesian, with no leaked keys", async () => {

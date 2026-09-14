@@ -261,6 +261,32 @@ export function CollectibleHero() {
   const activeFigure = HERO_FIGURES[activeIndex] ?? HERO_FIGURES[0]!;
 
   /**
+   * Publish the active stage hue to the document canvas.
+   *
+   * The stage box is `100dvh`, but `body` used to resolve its floor against
+   * `100vh`. On Chrome Android `100vh` is the large viewport, which stays tall
+   * while browser UI is showing, so the body box outlived the stage and the
+   * paper canvas painted a white strip beneath it. Measured on a Pixel 5
+   * viewport: the exposed row sampled rgb(251,249,245), exactly
+   * `--color-canvas`.
+   *
+   * Setting the variable on `documentElement` lets `html` and `body` inherit the
+   * stage colour, which also stops the overscroll rubber-band flashing white.
+   * `themeColor` in the root layout stays paper: it is a static export and
+   * cannot follow a hue that changes per card.
+   *
+   * The cleanup matters. This is a landing-only surface, so unmounting must
+   * restore the paper canvas rather than leave every later page tinted.
+   */
+  useEffect(() => {
+    const root = document.documentElement;
+    root.style.setProperty("--stage-canvas", activeFigure.bg);
+    return () => {
+      root.style.removeProperty("--stage-canvas");
+    };
+  }, [activeFigure.bg]);
+
+  /**
    * Signed ring distance from the active card, in the range
    * `[-len/2, +len/2]`. Negative is to the left, positive to the right, so a
    * 32-card roster keeps a symmetric neighbourhood instead of treating every
