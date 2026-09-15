@@ -320,12 +320,14 @@ describe("ResultPodium Component", () => {
     expect(resolveFigurineSrc("NF", "laki", "ENFP")).toBe("/figurines/ENFP-laki.png");
   });
 
-  test("resolveFigurineSrc stays gender-neutral when gender is withheld", () => {
-    // Public share omits gender on purpose; a typed render would leak it, and a
-    // gendered filename would leak it in the URL even before the image loads.
-    expect(resolveFigurineSrc("SJ", undefined, "ISFJ")).toBe("/figurines/base-female.png");
-    expect(resolveFigurineSrc("NF", undefined, "ENFP")).toBe("/figurines/base-female.png");
-    expect(resolveFigurineSrc("NT", undefined, "INTJ")).toBe("/figurines/base-female.png");
+  test("resolveFigurineSrc uses the ungendered type render when gender is withheld", () => {
+    // Public share omits owner gender. The matching character still shows; the
+    // filename has no laki/perempuan suffix, so the URL cannot leak the pick.
+    expect(resolveFigurineSrc("SJ", undefined, "ISFJ")).toBe("/figurines/ISFJ.png");
+    expect(resolveFigurineSrc("NF", undefined, "ENFP")).toBe("/figurines/ENFP.png");
+    expect(resolveFigurineSrc("NT", undefined, "INTJ")).toBe("/figurines/INTJ.png");
+    expect(resolveFigurineSrc("NF", undefined, "INFJ")).toBe("/figurines/INFJ.png");
+    expect(resolveFigurineSrc("NF", undefined, "INFJ")).not.toMatch(/laki|perempuan/u);
   });
 
   test("every figurine the resolver can return exists on disk", () => {

@@ -49,18 +49,18 @@ export type ResultPodiumProps = {
  * from the same broad group.
  *
  * `gender` is omitted on public share, where owner gender must not be inferable
- * from the image. That path renders one fixed plain body regardless of type, so
- * the picture reveals nothing about who owns the result.
+ * from the image. That path still shows the matching type character, but only
+ * the ungendered filename (`INFJ.png`), never `laki` / `perempuan`.
  */
 export function resolveFigurineSrc(
   stageCode: StageCode,
   gender?: CharacterGender,
   typeCode?: string,
 ): string {
-  if (!gender) {
-    return "/figurines/base-female.png";
-  }
   const exact = typeCode?.toUpperCase().trim();
+  if (!gender) {
+    return exact && TYPE_CODES.has(exact) ? `/figurines/${exact}.png` : "/figurines/base-female.png";
+  }
   if (exact && TYPE_CODES.has(exact)) {
     return `/figurines/${exact}-${gender}.png`;
   }

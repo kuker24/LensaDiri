@@ -234,6 +234,10 @@ describe("safe shared result projection", () => {
     render(createElement(SharedResultReport, { result: shared }));
     expect(screen.getByRole("heading", { name: "Podium penuh 5 lensa" })).toBeVisible();
     expect(screen.getByText("ISFJ sx964 SEI RCUAN L¹V²E³F⁴ SJ")).toBeVisible();
+    const figure = screen.getByAltText("Figurine karakter hasil");
+    expect(figure.getAttribute("src")).toContain("ISFJ.png");
+    expect(figure.getAttribute("src")).not.toContain("base-");
+    expect(figure.getAttribute("src")).not.toMatch(/laki|perempuan/u);
   });
 
   it("keeps legacy share useful while excluding score confidence and quality diagnostics", () => {
