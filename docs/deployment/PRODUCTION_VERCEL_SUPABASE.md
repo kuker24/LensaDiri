@@ -75,7 +75,7 @@ Rules for recovery email:
 
 Rules:
 
-- `NEXT_PUBLIC_APP_URL` is the stable origin for its scope, such as the production alias or stable branch Preview alias; no path, query, or trailing configuration data.
+- `NEXT_PUBLIC_APP_URL` is the stable canonical origin for its scope, such as the production alias or stable branch Preview alias; no path, query, or trailing configuration data. Cookie-authenticated mutations also accept the request host when `Origin` matches it, so an attached custom domain can start a test without rewriting this value. Canonical links, email, and OIDC callbacks still use `NEXT_PUBLIC_APP_URL`.
 - `DATABASE_URL` is a transaction pooler URL. Preview must use an isolated non-production database and must never point to production.
 - Generate four distinct secrets with at least 32 characters each. Preview and Production secrets must differ. Do not reuse database password or Vercel/Supabase access tokens.
 - Do not define `TEST_DATABASE_URL` in Vercel.

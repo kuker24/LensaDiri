@@ -57,6 +57,41 @@ describe("CSRF protection", () => {
     ).toBe(false);
   });
 
+  it("accepts a custom-domain Origin that matches the request host", () => {
+    const nonce = createCsrfNonce();
+    const token = createCsrfToken(nonce, secret, now);
+    const customOrigin = "https://fahmi.eu.cc";
+    const request = new Request(`${customOrigin}/api/assessment/start`, {
+      headers: {
+        cookie: `${getCsrfCookieName(true)}=${nonce}`,
+        origin: customOrigin,
+        [CSRF_HEADER_NAME]: token,
+      },
+      method: "POST",
+    });
+
+    expect(isValidCsrfMutation(request, "https://lensadiri.vercel.app", secret, true, now)).toBe(
+      true,
+    );
+  });
+
+  it("rejects a custom-domain Origin posted at a different host", () => {
+    const nonce = createCsrfNonce();
+    const token = createCsrfToken(nonce, secret, now);
+    const request = new Request("https://lensadiri.vercel.app/api/assessment/start", {
+      headers: {
+        cookie: `${getCsrfCookieName(true)}=${nonce}`,
+        origin: "https://fahmi.eu.cc",
+        [CSRF_HEADER_NAME]: token,
+      },
+      method: "POST",
+    });
+
+    expect(isValidCsrfMutation(request, "https://lensadiri.vercel.app", secret, true, now)).toBe(
+      false,
+    );
+  });
+
   it("marks nonce cookie httpOnly and scope-correct", () => {
     const cookie = createCsrfCookie(createCsrfNonce(), true, now);
 
