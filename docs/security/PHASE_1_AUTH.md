@@ -60,7 +60,7 @@ Session cookie has `HttpOnly`, `SameSite=Lax`, path `/`, expiry/max-age, and `Se
 
 Cookie-authenticated mutations require both:
 
-1. `Origin` exactly matching configured `NEXT_PUBLIC_APP_URL` origin.
+1. `Origin` matching the request host (same-origin), or the configured `NEXT_PUBLIC_APP_URL` origin. A custom domain that serves this deployment is accepted; a foreign origin is not.
 2. `x-csrf-token` containing valid timestamped HMAC token bound to HttpOnly CSRF nonce cookie.
 
 CSRF nonce is 32 random bytes. CSRF signed token lifetime is two hours and signature/nonce checks use constant-time comparison. Production CSRF cookie uses `__Host-lensadiri_csrf`, plus `HttpOnly`, `SameSite=Lax`, path `/`, and `Secure` in production.

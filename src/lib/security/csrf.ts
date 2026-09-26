@@ -98,8 +98,24 @@ export function isValidCsrfToken(
   );
 }
 
+/**
+ * Same-origin for CSRF is the browser Origin matching the host being posted to.
+ *
+ * `expectedOrigin` is the configured canonical origin (`NEXT_PUBLIC_APP_URL`).
+ * A production alias or custom domain that serves this same deployment also
+ * passes when Origin equals that request's own origin. A foreign site still
+ * fails: its Origin cannot equal either the canonical origin or the Host of
+ * this request.
+ */
 export function isSameOriginMutation(request: Request, expectedOrigin: string): boolean {
-  return request.headers.get("origin") === expectedOrigin;
+  const origin = request.headers.get("origin");
+  if (!origin) return false;
+  if (origin === expectedOrigin) return true;
+  try {
+    return origin === new URL(request.url).origin;
+  } catch {
+    return false;
+  }
 }
 
 export function isValidCsrfMutation(
