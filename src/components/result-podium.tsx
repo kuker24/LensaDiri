@@ -59,7 +59,9 @@ export function resolveFigurineSrc(
 ): string {
   const exact = typeCode?.toUpperCase().trim();
   if (!gender) {
-    return exact && TYPE_CODES.has(exact) ? `/figurines/${exact}.png` : "/figurines/base-female.png";
+    return exact && TYPE_CODES.has(exact)
+      ? `/figurines/${exact}.png`
+      : "/figurines/base-female.png";
   }
   if (exact && TYPE_CODES.has(exact)) {
     return `/figurines/${exact}-${gender}.png`;
