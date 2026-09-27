@@ -1,4 +1,4 @@
-const DEFAULT_URL = "https://lensadiri.vercel.app";
+const DEFAULT_URL = process.env.MONITOR_URL || "https://fahmi.eu.cc";
 // Align with retention monitor: Hobby cold starts can exceed 10s.
 const DEFAULT_TIMEOUT_MS = 25_000;
 

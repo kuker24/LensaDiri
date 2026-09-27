@@ -5,30 +5,43 @@ import { describe, expect, it } from "vitest";
 
 const script = path.join(process.cwd(), "scripts/monitor-health.mjs");
 
-function run(...args: string[]) {
-  return spawnSync(process.execPath, [script, ...args], { encoding: "utf8" });
+function run(args: string[], env: Record<string, string> = {}) {
+  return spawnSync(process.execPath, [script, ...args], {
+    encoding: "utf8",
+    env: { ...process.env, ...env },
+  });
 }
 
 describe("health monitor CLI", () => {
   it("prints concise help", () => {
-    const result = run("--help");
+    const result = run(["--help"]);
 
     expect(result.status).toBe(0);
     expect(result.stdout).toContain("usage: node scripts/monitor-health.mjs");
   });
 
   it("rejects unknown arguments", () => {
-    const result = run("--unknown");
+    const result = run(["--unknown"]);
 
     expect(result.status).toBe(2);
     expect(result.stdout).toContain('error: unknown argument "--unknown"');
   });
 
   it("fails intentionally without a network request during an alert drill", () => {
-    const result = run("--drill", "--url", "http://127.0.0.1:9");
+    const result = run(["--drill", "--url", "http://127.0.0.1:9"]);
 
     expect(result.status).toBe(1);
     expect(result.stdout).toContain("result: fail");
     expect(result.stdout).toContain("error_code: alert_drill");
+  });
+
+  it("targets the canonical production origin by default and honors MONITOR_URL override", () => {
+    const defaultResult = run(["--drill"], { MONITOR_URL: "" });
+    expect(defaultResult.status).toBe(1);
+    expect(defaultResult.stdout).toContain("target: https://fahmi.eu.cc/api/health");
+
+    const envResult = run(["--drill"], { MONITOR_URL: "https://custom.example.com" });
+    expect(envResult.status).toBe(1);
+    expect(envResult.stdout).toContain("target: https://custom.example.com/api/health");
   });
 });

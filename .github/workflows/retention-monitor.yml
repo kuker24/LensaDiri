@@ -34,6 +34,7 @@ jobs:
         continue-on-error: true
         env:
           CRON_SECRET: ${{ secrets.CRON_SECRET }}
+          MONITOR_URL: ${{ vars.MONITOR_URL || 'https://fahmi.eu.cc' }}
         run: node scripts/monitor-retention.mjs ${{ inputs.drill && '--drill' || '' }}
 
       - name: Open or resolve alert

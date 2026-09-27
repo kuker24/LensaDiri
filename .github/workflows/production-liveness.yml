@@ -32,6 +32,8 @@ jobs:
       - name: Check liveness
         id: monitor
         continue-on-error: true
+        env:
+          MONITOR_URL: ${{ vars.MONITOR_URL || 'https://fahmi.eu.cc' }}
         run: node scripts/monitor-health.mjs ${{ inputs.drill && '--drill' || '' }}
 
       - name: Open or resolve alert

@@ -37,4 +37,21 @@ describe("retention monitor CLI", () => {
     expect(result.stdout).toContain("result: fail");
     expect(result.stdout).toContain("error_code: alert_drill");
   });
+
+  it("targets the canonical production origin by default and honors MONITOR_URL override", () => {
+    const defaultResult = run(["--drill"], { CRON_SECRET: "x".repeat(16), MONITOR_URL: "" });
+    expect(defaultResult.status).toBe(1);
+    expect(defaultResult.stdout).toContain(
+      "target: https://fahmi.eu.cc/api/cron/retention-cleanup",
+    );
+
+    const envResult = run(["--drill"], {
+      CRON_SECRET: "x".repeat(16),
+      MONITOR_URL: "https://custom.example.com",
+    });
+    expect(envResult.status).toBe(1);
+    expect(envResult.stdout).toContain(
+      "target: https://custom.example.com/api/cron/retention-cleanup",
+    );
+  });
 });
