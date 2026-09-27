@@ -1,4 +1,4 @@
-const PRODUCTION_URL = "https://lensadiri.vercel.app";
+const PRODUCTION_URL = process.env.PRODUCTION_URL || "https://fahmi.eu.cc";
 const REQUEST_TIMEOUT_MS = 30_000;
 
 const publicRoutes = ["/", "/modules", "/combos", "/start", "/privacy", "/terms", "/disclaimer"];
