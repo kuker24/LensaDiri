@@ -4,6 +4,8 @@ LensaDiri adalah platform eksplorasi kepribadian modular, privacy-first, dan mob
 
 > Kenali pola dirimu lewat banyak lensa.
 
+**Production:** [https://fahmi.eu.cc](https://fahmi.eu.cc)
+
 ## Status
 
 Phase 1 application foundation tersedia di repository:

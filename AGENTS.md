@@ -13,7 +13,7 @@ LensaDiri adalah platform eksplorasi kepribadian modular, privacy-first, dan mob
 - **Hard ban:** product/backend features beyond the approved redesign, paid residual services, AI narrative ON, WCAG/psychometric cert claims, publish modules without reviewers, Full Spectrum over-cap publish.
 - Residual **#40 #41 #43 #44** external/optional **not blockers**. **#42** DECIDED closed | **#45** DEFERRED_OFF closed. Index: `docs/deployment/RESIDUAL_HOBBY_CLOSE.md`.
 - Checkpoint: `.pi/HANDOFF.md`, `.pi/EVIDENCE.md`, `CHANGELOG.md`, `docs/deployment/RELEASE_CLOSURE_GATES.md`, `docs/deployment/RELEASE_ROLLBACK.md`.
-- Production: `https://lensadiri.vercel.app`. Composer + Complex + provisional precision **ON**; AI **OFF**. 10 modules; deep pilot; full_spectrum **draft**. Recovery code live; Resend delivery dormant. Admin read-only; retention 365d.
+- Production: `https://fahmi.eu.cc` (alias `https://lensadiri.vercel.app` redirects here). Composer + Complex + provisional precision **ON**; AI **OFF**. 10 modules; deep pilot; full_spectrum **draft**. Recovery code live; Resend delivery dormant. Admin read-only; retention 365d.
 
 ## Technology
 
